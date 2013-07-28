@@ -1,0 +1,1444 @@
+
+/*
+MX Webservices Style Sheet
+Stu Fisher <stuart.fisher@diamond.ac.uk>
+---------------------------------------------------------*/
+
+* {
+	padding: 0;
+	margin: 0;
+    
+}
+
+
+body {
+    background: #000000;
+	font-family: "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+	font-size: 12px;
+	-webkit-text-size-adjust: none;
+}
+
+a {
+    color: #666666;
+}
+
+a:hover {
+    color: #222222;
+}
+
+#wrapper {
+	background: #f4f4f4;
+}
+
+/* Main Contaner
+---------------------------------------------------------*/
+
+#container {
+    width: 80%;
+    margin: 2% auto;
+}
+
+
+/* Header
+---------------------------------------------------------*/
+
+#header {
+    background: #2c2c2c;
+}
+
+#header h1 {
+    padding: 10px;
+    font-size: 12px;
+    font-weight: normal;
+    text-shadow: 1px 1px #666666;
+    color: #efefef;
+}
+
+#header h1 a {
+    color: #efefef;
+    text-decoration: none;
+}
+
+#header h2 {
+    font-size: 10px;
+    color: #efefef;
+    padding: 0 10px;
+    font-weight: normal;
+}
+
+/* Header
+---------------------------------------------------------*/
+
+ul#menu {
+    font-size: 12px;
+    float: right;
+    list-style-type:none;
+    padding: 10px;
+    color: #efefef;
+}
+
+ul#menu li {
+    display: inline;
+    padding: 0 5px;
+}
+
+ul#menu li a {
+    color: #efefef;
+    text-decoration: none;
+}
+
+ul#menu li a:hover {
+    color: #ffffff;
+}
+
+
+
+#footer {
+    background: #000000;
+    padding: 5px;
+}
+
+#footer p {
+    text-align: center;
+    color: #efefef;
+    font-size: 10px;
+}
+
+/* Navigation
+---------------------------------------------------------*/
+
+ul#navigation {
+    background: #474747;
+    color: #dbdbdb;
+    font-size: 10px;
+    list-style-type:none;
+    padding: 5px 5px;
+    box-shadow: 0 6px 0 rgba(0,0,0,0.05);
+}
+
+ul#navigation li a {
+    color: #dbdbdb;
+    text-decoration: none;
+}
+
+ul#navigation li a:hover {
+    color: #ffffff;
+}
+
+ul#navigation li {
+    display: inline;
+    padding: 2px;
+}
+
+ul#navigation li:before {
+    content: '\00BB  ';
+}
+
+
+
+/* Main Content
+---------------------------------------------------------*/
+
+.debug + pre {
+    display: none;
+    color: #fff
+}
+
+.debug {
+    color: #fff;
+}
+
+.content {
+    margin-top: 20px;
+}
+
+
+.content div.paragraph {
+    background: #efefef;
+    margin-bottom: 15px;
+    padding: 5px;
+}
+
+.content > h1 {
+    font-size: 14px;
+    padding: 10px;
+    box-shadow: 2px 2px 15px #bfbfbf;
+    border-radius: 6px; 
+    margin-bottom: 15px;
+    background: #eaeaea; 
+    word-wrap: break-word;  
+}
+
+.content div.paragraph p {
+    padding: 10px;
+}
+
+
+.content table.robot_actions {
+    font-size: 12px;
+}
+
+.border {
+    box-shadow: 2px 2px 15px #bfbfbf;
+    border-radius: 6px;
+}
+
+.border p {
+    padding: 10px;
+}
+
+
+ul.beamline_list {
+    /*font-size: 16px;*/
+    list-style: none;
+    padding: 10px;
+}
+
+
+ul.beamline_list li {
+    display: inline;
+    font-size: 12px;
+    padding: 0 5px 0 0;
+}
+
+
+
+/* Data Tables
+---------------------------------------------------------*/
+
+div.table {
+    margin: 10px 0;
+}
+
+table.robot_actions {
+    width: 100%;
+    clear: both;
+    box-shadow: 2px 2px 15px #bfbfbf;
+    border-radius: 6px;    
+}
+ 
+table.robot_actions td,
+table.robot_actions th {
+    padding: 5px;
+    /*border: 1px solid #fff;*/
+}
+
+table.robot_actions thead th {
+    text-align: center;
+    background: #474747;
+    color: #f1f1f1;
+}
+
+table.robot_actions tbody th {
+    text-align: left;
+    background: #91c5d4;
+}
+     
+table.robot_actions tbody td {
+    text-align: center;
+    background: #f1f1f1;
+}
+         
+table.robot_actions tbody tr.odd td {
+    background: #ebebeb;
+}
+
+table.robot_actions tfoot th {
+    background: #b0cc7f;
+    text-align: left;
+}
+     
+table.robot_actions tfoot td {
+    background: #dfdfdf;
+    text-align: center;
+    font-weight: bold;
+}
+
+div.dataTables_wrapper {
+    background-color: #f4f4f4;
+}
+
+table.robot_actions thead th.sorting_asc {
+    background: #474747 url('images/sort_asc.png') no-repeat right center;
+}
+ 
+table.robot_actions thead th.sorting_desc {
+    background: #474747 url('images/sort_desc.png') no-repeat right center;
+}
+ 
+table.robot_actions thead th.sorting {
+    background: #474747 url('images/sort_both.png') no-repeat right center;
+}
+
+table.robot_actions tbody td span.sort {
+    display: none;
+}
+
+
+
+a.paginate_button,
+a.paginate_active {
+    display: inline-block;
+    background-color: #474747;
+    color: #efefef;
+    padding: 2px 6px;
+    margin-left: 2px;
+    cursor: pointer;
+    *cursor: hand;
+}
+ 
+a.paginate_active {
+    background-color: transparent;
+    border: 1px solid black;
+    color: #474747;
+}
+ 
+a.paginate_button_disabled {
+    color: #ababab;
+}
+.paging_full_numbers a:active {
+    outline: none
+}
+.paging_full_numbers a:hover {
+    text-decoration: none;
+}
+ 
+div.dataTables_paginate span>a {
+    width: 15px;
+    text-align: center;
+}
+ 
+div.dataTables_info {
+    padding: 9px 6px 6px 6px;
+}
+
+
+div.dataTables_length {
+    float: left;
+}
+ 
+div.dataTables_filter {
+    float: right;
+}
+ 
+div.dataTables_info {
+    float: left;
+}
+ 
+div.dataTables_paginate {
+    float: right;
+}
+ 
+div.dataTables_length,
+div.dataTables_filter,
+div.dataTables_paginate,
+div.dataTables_info {
+    padding: 6px;
+}
+
+table.robot_actions {
+    clear: both;
+}
+ 
+/* Self clearing - */
+div.dataTables_wrapper:after {
+    content: ".";
+    display: block;
+    clear: both;
+    visibility: hidden;
+    line-height: 0;
+    height: 0;
+}
+html[xmlns] .dataTables_wrapper { display: block; }
+* html .dataTables_wrapper { height: 1%; }
+
+
+/* Plots
+---------------------------------------------------------*/
+
+.plot_container {
+    background: #efefef;
+    box-shadow: 2px 2px 15px #bfbfbf;
+    padding: 1%;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.legend table tr {
+    cursor: pointer;
+}
+
+.legend table tr:hover {
+    background: #dddddd;
+}
+
+#avg_time {
+    height: 250px;
+}
+
+#visit_breakdown {
+    height: 500px;
+}
+
+#overview {
+    height: 35px;
+}
+
+.right {
+    float: right;
+    width: 47%;
+}
+
+.left {
+    width: 47%;
+    float: left;
+}
+
+#dc_hist, #dc_hist2 {
+    height: 167px;
+}
+
+#visit_pie {
+    height: 400px;
+}
+
+.legend {
+    float: right;
+    margin: 3px 0 20px 0;
+}
+
+#pie1, #pie2, #pie3 {
+    height: 250px;
+}
+
+.pie_holder {
+    padding: 0 2%;
+    float: left;
+    width: 29.3333%;
+}
+
+.legendColorBox {
+    padding: 2px;
+}
+
+.legendColorBox > div {
+    border: none !important;
+}
+
+.legendColorBox > div > div {
+    border-radius: 3px;
+}
+
+.legendLabel {
+    padding: 2px;
+}
+
+/* Forms
+---------------------------------------------------------*/
+
+.ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
+.ui-timepicker-div dl { text-align: left; }
+.ui-timepicker-div dl dt { height: 25px; margin-bottom: -25px; }
+.ui-timepicker-div dl dd { margin: 0 10px 10px 65px; }
+.ui-timepicker-div td { font-size: 90%; }
+.ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
+
+.ui-timepicker-rtl{ direction: rtl; }
+.ui-timepicker-rtl dl { text-align: right; }
+.ui-timepicker-rtl dl dd { margin: 0 65px 10px 10px; }
+
+div.form {
+    padding: 10px;
+}
+
+div.form li {
+    clear: both
+}
+
+div.form label {
+    float: left;
+    display: block;
+    font-size: 12px;
+    /*width: 70%;*/
+}
+
+div.form label {
+    width: 28%;
+}
+
+div.form label span.small {
+    display: block;
+    font-size: 10px;
+}
+
+div.form input, div.form textarea, div.form select {
+    margin: 0 0 20px 5px;
+}
+
+div.form textarea {
+    height: 200px;
+}
+
+div.form textarea,
+div.form input[name=title] {
+    width: 600px;
+}
+
+div.form .clear {
+    clear: both;
+}
+
+div.form button {
+    width: 150px;
+    height: 30px;
+}
+
+div.form .half {
+    /*width: 34%;*/
+}
+
+
+/* Data Collections
+ ---------------------------------------------------------*/
+
+
+.robot {
+    text-align: right;
+    padding: 5px;
+}
+.log {
+    box-shadow: 2px 2px 15px #bfbfbf;
+    border-radius: 6px;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+.log h1 {
+    font-size: 14px;
+    padding: 5px;
+}
+
+.log ul {
+    height: 70px;
+    overflow: auto;
+    overflow-x: hidden;
+    padding: 5px;
+    background: #ededed;
+    border-radius: 6px;
+}
+
+.log ul li {
+    display: block;
+    padding: 2px;
+}
+
+.log ul li span.title {
+    color: #838383;
+}
+
+.clear {
+    clear: both;
+}
+
+.search {
+    float:right;
+    padding: 3px;
+    margin-left: 5px;
+    background: #cdcdcd;
+}
+
+
+.page_wrap {
+    overflow: auto;
+    margin: 5px;
+    padding: 0 0 10px 0;
+}
+
+.pages {
+    /*width: 400%;*/
+    white-space: nowrap;
+}
+
+.pages ul {
+    list-style: none;
+}
+
+.pages ul li {
+    display: inline-block;
+}
+
+.pages ul li a {
+    text-decoration: none;
+    display: block;
+    width: 25px;
+    padding: 3px 0;
+    text-align: center;
+    background: #ededed;
+    /*float: left;*/
+    margin: 2px;
+}
+
+.pages ul li.selected a {
+    background: #cdcdcd;
+}
+
+.data_collections {
+    clear: both;
+}
+
+.data_collection {
+    padding: 10px;
+    box-shadow: 2px 2px 15px #bfbfbf;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    background: #efefef;
+}
+
+.data_collection > h1 {
+    font-size: 14px;
+    padding: 5px 5px 0px 3px;
+}
+
+.data_collection > h2 {
+    font-size: 12px;
+    padding: 3px 3px 3px 3px;
+    text-decoration: underline;
+    margin-bottom: 5px;
+    word-wrap: break-word;
+    width: 49%;
+}
+
+.data_collection .holder {
+    clear:both;
+}
+
+.data_collection .holder span {
+    float: right;
+    padding: 7px;
+    
+}
+    
+.data_collection .holder span img {
+    vertical-align: middle;
+}
+
+.data_collection .holder > h1 {
+    cursor: pointer;
+    *cursor: hand;
+    background: #afafaf;    
+    padding: 8px;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+.data_collection .holder > h1:hover {
+    background: #cdcdcd;
+}
+
+.data_collection .holder > div {
+    background: #ffffff;
+    display: none;
+    overflow: auto;
+}
+
+
+.ui-tabs .ui-tabs-panel {
+    padding: 8px !important;
+}
+
+.ui-tabs {
+    padding: 2px !important;
+}
+
+.data_collection p {
+    padding: 5px;
+}
+
+.data_collection .diffraction,
+.data_collection .snapshots {
+    float: right;
+    background: #dadada;
+    padding: 0;
+    margin: 0.25%;
+}
+
+.data_collection .snapshots {
+    width: 20%;
+}
+
+.data_collection .diffraction {
+    width: 15%;
+}
+
+.data_collection .diffraction img,
+.data_collection .snapshots img {
+    width: 100%;
+    height: auto;
+    display: none;
+    opacity: 1;
+}
+
+.data_collection .distl {
+    width: 20%;
+    float: right;
+    margin: 0.25%;
+    padding: 1%;
+    border-radius: 5px;
+}
+
+.data_collection .holder #dimple a img {
+    opacity: 1
+}
+
+.data_collection .holder #dimple a:hover img,
+.data_collection .diffraction a:hover img,
+.data_collection .snapshots a:hover img {
+    opacity: 0.5;
+}
+
+.data_collection .holder > div > table,
+.data_collection .holder > div > div > table {
+    font-size: 10px;
+    width: 100%;
+}
+
+[draggable=true] {
+    -khtml-user-drag: element;
+    -webkit-user-drag: element;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+}
+
+.dragged td {
+    background: #ededed;
+}
+
+.data_collection .holder table tr {
+    cursor: pointer;
+}
+
+.data_collection .holder table tr:hover {
+    background: #fbfbfb;
+}
+
+.data_collection .holder > div > div > table.atoms {
+    width: 50%;
+}
+
+.data_collection .holder > div > div > table.rstats {
+    width: 48%;
+    margin-top: 5px;
+}
+
+.data_collection table.rstats tr:first-child td {
+    font-weight: bold;
+    background: #efefef;
+}
+
+.data_collection .holder .plot_fastep {
+    margin: 0 1%;
+    width: 48%;
+    height: 150px;
+    float: right;
+}
+
+.data_collection .holder .plot_dimple {
+    width: 50%;
+    float: right;
+}
+
+.data_collection .holder .blobs {
+    float: right;
+    padding-left: 10px;
+    width: 50%;    
+}
+
+.data_collection .holder .blobs img {
+    width: 100%;
+    height: auto;
+}
+
+.data_collection .holder table tr td {
+    padding: 5px;
+}
+
+.data_collection .holder table tr th {
+    font-weight: bold;
+    background: #efefef;
+    padding: 5px;
+    text-align: center;
+}
+
+/*
+.data_collection .distl .yAxis .tickLabel:first-child,
+.data_collection .distl .yAxis .tickLabel:last-child { display: none;
+}
+
+
+.data_collection .distl .plot {
+    height: 135px;
+    width: 250px;
+    
+}
+
+.data_collection .distl ul.legend li {
+    float: left;
+    font-size: 10px;
+    width: 25%;
+}
+
+.data_collection .distl ul.legend li:before {
+        position: absolute;
+        display: block;
+        content: '';
+        width: 8px;
+        height: 8px;
+        border-radius: 5px;
+}*/
+
+
+.data_collection .edge,
+.data_collection .mca {
+    height: 120px;
+    width: 50%;
+    float: right;
+}
+
+.data_collection .elements {
+    float: right;
+    margin: 0.5% 1%;
+}
+    
+.data_collection .elements table tr td {
+    font-size: 10px;
+    padding: 4px;
+    white-space: nowrap;
+}
+
+.data_collection > ul {
+    /*width: 425px;*/
+    width: 49%;
+}
+
+.data_collection > ul.full {
+    width: 100%;
+}
+
+.data_collection > ul.full li {
+    width: 23%;
+}
+
+.data_collection > ul li {
+    float: left;
+    width: 42%;
+    padding: 1%;
+}
+
+.data_collection > ul li.comment {
+    width: 76%;
+}
+
+
+
+.filter ul {
+    list-style: none;
+}
+
+.filter ul li {
+    float: left;
+    display:block;
+    background: #dfdfdf;
+    padding: 0.5%;
+    margin: 0.2%;
+    border-radius: 5px;
+}
+
+.filter ul li:hover {
+    cursor: pointer;
+}
+
+.filter ul li.current {
+    background: #efefef;
+}
+
+
+
+/* Data Collections - Calendar
+ ---------------------------------------------------------*/
+
+.calendar {
+    padding: 1.5%;
+    box-shadow: 2px 2px 15px #bfbfbf;
+    border-radius: 1%;
+}
+
+.calendar > ul {
+    list-style: none;
+}
+
+.calendar > ul > li {
+    float: left;
+    display: block;
+    width: 11.8857143%;
+    padding: 1%;
+    margin: 0.2%;
+    background: #eeeeee;
+    height: 100px;
+    overflow: auto;
+}
+
+
+.calendar > ul > li.head {
+    background: #cecece;
+    height: 15px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.calendar ul li.wend {
+    background: #dfdfdf;
+}
+
+.calendar ul li.noday {
+    background: #f3f3f3;
+}
+
+.calendar ul li.today {
+    background: #cecece;
+}
+
+.calendar > ul > li > ul {
+    padding: 5px;
+    
+}
+
+.calendar > ul > li > ul > li {
+
+}
+
+.calendar > ul > li > ul > li > ul {
+    padding: 0 5px;
+    list-style: none;
+}
+
+.calendar > ul.links li {
+    display: block;
+    width: 22.8%;
+    height: 15px;
+    margin: 0.1%;
+    padding: 1%;
+    text-align: center;
+}
+
+/* Data Collections - DI Viewer
+ ---------------------------------------------------------*/
+
+.image_controls,
+.image_stats,
+.image_container {
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.image_container .image {
+    width: 100%;
+    height: 65%;
+    background: #cdcdcd;
+    overflow: auto;
+    background: url('/templates/images/load.gif') center no-repeat;
+}
+
+.image_container .image img {
+    display: none;
+    cursor: pointer;
+}
+
+.image_controls {
+    height: 30px
+}
+
+.image_controls .im_num input[name="num"] {
+    width: 40px;
+}
+
+.image_controls .im_size,
+.image_controls .im_col {
+    width: 20%;
+    float: right;
+    padding: 0 1%;
+}
+
+
+.image_controls #zoom,
+.image_controls #brightness,
+.image_controls #contrast {
+    width: 100%;
+}
+
+.im_zoom {
+    position: absolute;
+    margin: 10px;
+    border: 1px solid #adadad;
+    background: #cdcdcd;
+    box-shadow: 1px 1px 2px #888;
+    border-radius: 2px;
+}
+
+.full_width {
+    width: 98% !important;
+}
+
+.full_width li {
+    width: 18% !important;
+}
+
+.im_profile {
+    float: right;
+}
+
+.image_container .yprofile {
+    width: 50px;
+    height: 100px;
+    position: absolute;
+    margin: 10px 0 0 215px;
+}
+
+.image_container .xprofile {
+    width: 200px;
+    height: 50px;
+    position: absolute;
+    margin: 110px 0 0 10px;
+}
+
+
+.im_cur {
+    position: absolute;
+    margin: 170px 0 0 10px;
+}
+
+.im_cur p {
+    margin: 0;
+    padding: 0;
+}
+
+.im_highlight {
+    width: 40px;
+    height: 20px;
+    position: absolute;
+    border: 1px solid grey;
+}
+
+.im_progress {
+    display: none;
+    position: absolute;
+    width: 250px;
+    height: 20px;
+}
+
+.image_controls abbr {
+    text-decoration: underline;
+    cursor: help;
+}
+
+
+
+/* Data Collections - Sample Creation & Allocation
+ ---------------------------------------------------------*/
+.bl_puck {
+    width: 18.6%;
+    height: 55px;
+    background: #cdcdcd;
+    float: left;
+    margin: 0.2%;
+    padding: 0.5%;
+}
+
+.assigned {
+    width: 95.6% !important;
+    padding: 2% !important;
+}
+
+.active {
+    background: #d0d0d0 !important;
+}
+
+.shipment {
+    padding: 0.5%;
+    margin: 0.4% 0;
+    background: #bcbcbc;
+}
+
+.shipment h1 {
+    padding: 0.5%;
+}
+
+.shipment .dewar {
+    display: none;
+}
+
+.container {
+    width: 23.6%;
+    height: 30px;
+    overflow: auto;
+    background: #ebebeb;
+    margin: 0.2%;
+    padding: 0.5%;
+    float: left;
+    border-radius: 5px;
+}
+
+.container span button {
+    width: 28px;
+    height: 26px;
+    border-radius: 3px;
+}
+
+.shipment:hover,
+.container:hover {
+    cursor: pointer;
+}
+
+.container a {
+    text-decoration: none;
+}
+
+.dewar {
+    background: #dedede;
+    padding: 0.2%;
+}
+
+.samples table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.1em;
+}
+
+.samples table td {
+    padding: 1% 1%;
+    font-size: 10px;
+}
+
+.samples table td button.clone {
+    width: 17px;
+    height: 16px;
+}
+
+.samples table td button.clone span {
+    margin-left: -4px;
+}
+
+.samples table thead th {
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.samples table tr.disabled {
+    background: #cccccc;
+}
+
+.invalid {
+    background: red;
+}
+
+.valid {
+    background: green;
+}
+
+.bl_puck_drag {
+    background: #bcbcbc;
+}
+
+.unassigned_drag .shipment {
+    background: #dcdcdc;
+}
+
+.r {
+    float: right;
+}
+
+.add div.padding {
+    padding: 3px;
+    margin-bottom: 5px;
+}
+
+.add > div.padding > input,
+.add > input {
+    width: 100%;
+}
+
+.add > .cpadding {
+    display: inline;
+    margin-bottom: 5px;
+    padding: 2px 0 5px 2px;
+}
+
+.add > .cpadding .ui-combobox {
+    width: 25.8%;
+}
+
+.add > .cpadding .ui-combobox input {
+    width: 100%;
+}
+
+.contents button,
+.add > button {
+    width: 99.8%;
+    padding: 0.1%;
+    margin-top: 5px;
+}
+
+.padding {
+    padding: 2px;
+}
+
+.comment_edit input,
+.name_edit input {
+    width: 100% !important;
+    height: 15px !important;
+}
+
+.protein_edit button {
+    width: 25px;
+}
+
+input.sname,
+input.comment {
+    width: 100%;
+}
+
+
+/* Latest Visits List */
+ul.latest {
+    list-style: none;
+    width: 100%;
+}
+
+ul.latest li {
+    float: left;
+    width: 18%;
+}
+
+ul.latest li h1 {
+    font-size: 14px;
+}
+
+ul.latest li ul {
+    list-style: none;
+}
+
+ul.latest li ul li {
+    float: none;
+    width: 100%;
+}
+
+
+
+/* Responsive Styling
+ ---------------------------------------------------------*/
+
+@media (max-width: 1024px) {
+    #container {
+        width: 96%;
+    }
+    
+}
+
+@media (max-width: 600px) {
+    
+    .calendar > ul > li.head {
+        display: none;
+    }
+    
+    .calendar > ul > li {
+        width: 22.0%;
+        margin: 0.5%
+    }
+    
+    .data_collection h1 {
+    }
+    
+    .data_collection > h2 {
+        width: 100%;
+    }
+    
+    
+    .data_collection .distl {
+        width: 30%;
+    }
+    
+    .data_collection .diffraction {
+        width: 29.5%
+    }
+    .data_collection .snapshots {
+        width: 38.0%
+    }
+    
+    .data_collection .holder .blobs {
+        padding-left: 0;
+    }
+    
+    .data_collection .holder > div > div > table.rstats tr td {
+        padding: 1.7%;
+    }
+    
+    .data_collection > ul {
+        width: 100%;
+    }
+    
+    .data_collection > ul li {
+        float: left;
+        width: 48%;
+        padding: 1%;
+    }
+    
+    .data_collection > ul li.comment {
+        width: 96%;
+    }
+    
+    ul.full_width li {
+        width: 48% !important;
+    }
+    
+    .data_collection .edge,
+    .data_collection .mca {
+        width: 100%;
+    }
+    
+    .im_highlight {
+        width: 20px;
+        height: 20px;
+    }
+    
+    #im_zoom {
+        width: 50px;
+        height: 50px;
+    }
+    
+    #container div.xprofile {
+        width: 50px;
+        height: 25px !important;
+        margin-top: 60px !important;
+    }
+    
+    #container div.yprofile {
+        width: 25px;
+        height: 50px;
+        margin-left: 60px !important;
+    }
+    
+    .image_controls #brightness, .image_controls #contrast {
+        width: 100%;
+    }
+    
+    .image_controls .im_col {
+        padding: 0 2%;
+        width: 30%;
+    }
+}
+
+@media (max-width: 400px) {
+    .data_collection .holder > div > div > table.atoms {
+        width: 100% !important;
+    }
+    
+    .data_collection .holder .plot_dimple,
+    .data_collection .holder .plot_fastep {
+        height: 100px;
+        float: none;
+    }
+    
+    .data_collection .holder .blobs {
+        float: none;
+        width: 100%;
+        margin-left: 0;
+        padding-left: 0;
+    }
+    
+    .data_collection .holder > div > div > table.rstats {
+        width: 100%;
+    }
+    
+    .pie_holder {
+        width: 96%;
+    }
+    
+    input {
+        font-size: 16px !important;
+    }
+
+    h1 {
+        font-size: 12px;
+    }
+    
+    .shipment {
+        margin: 2% 0;
+    }
+    
+    .bl_puck {
+        margin: 1%;
+        padding: 1%;
+        width: 46%;
+    }
+    
+    #container {
+        width: 98%;
+    }
+    
+    .distl {
+        float: none;
+    }
+    
+    
+    .search {
+        width: 98%;
+        text-align: right;
+        float: none;
+    }
+    
+    
+    .container {
+        width: 47%;
+        margin: 1%;
+    }
+
+
+    .add > .cpadding .ui-combobox {
+        width: 25%;
+    }
+    
+    
+    ul.latest li {
+        width: 48%;
+    }   
+    
+    
+    .right,
+    .left {
+        width: 98% !important;
+    }
+    
+    #visit_pie {
+        height: 320px !important;
+    }
+
+    
+    .filter ul li {
+        width: 48.0%;
+        margin: 0.5%
+    }
+    
+    .calendar > ul > li {
+        width: 47.0%;
+        margin: 0.5%
+    }
+}
+
+
+/* Comobobox */
+.ui-combobox { display: inline-block; margin: 0; margin-right: 1.8em; position: relative; }
+.ui-combobox-input { padding: 0.2em; margin: 0; }
+.ui-combobox-button { position: absolute; width: 1.8em !important; margin: 0; margin-left: -1px; top: 0; bottom: 0; }
+.ui-combobox-button .ui-button-text { padding: 0em; }
+.ui-combobox .ui-autocomplete { max-height: 10em; overflow-y: auto; overflow-x: hidden; }
+.ui-widget.ui-widget-content.ui-corner-left.ui-combobox-input.ui-autocomplete-input { width: 100%; }
+.ui-dialog .ui-dialog-content { padding: 0.5em; }
