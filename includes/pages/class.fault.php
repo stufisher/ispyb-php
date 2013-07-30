@@ -12,6 +12,8 @@
         
         # List of faults by beamline / time
         function _index() {
+            
+            /*
             print '<ul>';
             
             $pvs = array(
@@ -35,7 +37,7 @@
             foreach ($pvs as $p) {
                 print '<li>'.$p.': '.$this->pv($p).'</li>';
             }
-            print '</ul>';
+            print '</ul>';*/
             
             $this->template('Fault List');
             $this->render('fault');
