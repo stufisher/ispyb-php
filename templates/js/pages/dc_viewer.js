@@ -119,7 +119,6 @@ $(function() {
   
     c.brightness(brightness).contrast(contrast).render(function() {
         $('.im_progress').fadeOut(100)
-        console.log('fnished')
     })
   }
   
@@ -205,10 +204,11 @@ $(function() {
     lastx = xp
     lasty = yp
   
-    $('.im_highlight').offset({ left: $('#img').offset().left+xp-20, top: $('#img').offset().top+yp-10 })
-  
-    var w = 40
+    var w = $(window).width() <= 600 ? 20 : 40
     var h = 20
+  
+    $('.im_highlight').offset({ left: $('#img').offset().left+xp-(w/2), top: $('#img').offset().top+yp-(h/2) })  
+  
     var xdat = ctx.getImageData(xp-w/2, yp, w, 1).data
     var ydat = ctx.getImageData(xp, yp-h/2, 1, h).data
   

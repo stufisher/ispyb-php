@@ -23,14 +23,14 @@
             <abbr title="Hotkey: C increases, c decreases">C</abbr>ontrast: <span id="cval">0</span> <div id="contrast"></div>
         </div>
 
+        <div class="im_size im_col">
+            <abbr title="Hotkey: Z zooms in, z zooms out">Z</abbr>oom: <span id="zval">0</span>% <div id="zoom"></div>
+        </div>
+
         <div class="im_col toggles">
             <label><abbr title="Hotkey: R toggles resolution rings">R</abbr>esolution Rings: <input type="checkbox" name="res" value="1" /></label>
             <label>Ice Rings: <input type="checkbox" name="ice" value="1" /></label>
             <label><abbr title="Hotkey: I toggles image inversion">I</abbr>nvert: <input type="checkbox" name="invert" value="1" /></label>
-        </div>
-
-        <div class="im_size im_col">
-            <abbr title="Hotkey: Z zooms in, z zooms out">Z</abbr>oom: <span id="zval">0</span>% <div id="zoom"></div>
         </div>
 
         <div class="im_num">
@@ -38,6 +38,8 @@
             <input type="text" name="num" value="1" />/<?php echo $d['NUM'] ?>
             <button name="next">&gt;</button>
         </div>
+
+        <div class="clear"></div>
 
     </div>
 
