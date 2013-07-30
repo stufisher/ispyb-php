@@ -26,13 +26,6 @@
             </li>
 
             <li>
-                <label>Severity
-                    <span class="small">How sever the fault was</span>
-                </label>
-                <select name="severity"></select>
-            </li>
-
-            <li>
                 <label>Beamtime Lost
                 <span class="small">Was beamtime lost as a result?</span>
                 </label>

@@ -29,6 +29,11 @@ $(function() {
         Robot: {
             hardware: ['eStop', 'Mitsubishi Hardware Error'],
             software: ['Unknown Position', 'Other'],
+        },
+        Computing: {
+            Network: [''],
+            DataDispenser: [''],
+            WorkStation: [''],
         }
     },
   }
