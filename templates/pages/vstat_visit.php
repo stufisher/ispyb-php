@@ -1,6 +1,7 @@
         <h1>Breakdown for <?php echo $bag ?>-<?php echo $visit ?></h1>
 
         <div class="plot_container border">
+            <button name="reset"></button>
             <div id="overview"></div>
         </div>
 

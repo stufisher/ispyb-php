@@ -364,6 +364,12 @@ html[xmlns] .dataTables_wrapper { display: block; }
     margin-bottom: 10px;
 }
 
+.plot_container button[name=reset] {
+    float: right;
+    width: 26px;
+    height: 26px;
+}
+
 .legend table tr {
     cursor: pointer;
 }
@@ -382,6 +388,7 @@ html[xmlns] .dataTables_wrapper { display: block; }
 
 #overview {
     height: 35px;
+    width: 97%;
 }
 
 .right {
@@ -954,20 +961,22 @@ div.form .half {
 }
 
 .image_controls {
-    height: 30px
+
 }
 
 .image_controls .im_num input[name="num"] {
     width: 40px;
 }
 
-.image_controls .im_size,
 .image_controls .im_col {
-    width: 20%;
+    width: 17%;
     float: right;
     padding: 0 1%;
 }
 
+.image_controls .im_col.toggles {
+    width: 28%;
+}
 
 .image_controls #zoom,
 .image_controls #brightness,
@@ -1314,6 +1323,10 @@ ul.latest li ul li {
         height: 50px;
     }
     
+    .im_cur {
+        margin: 90px 0 0 10px;
+    }
+    
     #container div.xprofile {
         width: 50px;
         height: 25px !important;
@@ -1332,11 +1345,28 @@ ul.latest li ul li {
     
     .image_controls .im_col {
         padding: 0 2%;
-        width: 30%;
+        width: 23%;
     }
+    
+    .image_controls .im_col.toggles {
+        width: 98%;
+        padding: 2% 0 0 0;
+    }    
 }
 
 @media (max-width: 400px) {
+    .image_container .image {
+        height: 75%;
+    }
+
+    .image_controls .im_col {
+        width: 30%%;
+    }
+
+    .image_controls .im_col.im_size {
+        width: 96%%;
+    }
+
     .data_collection .holder > div > div > table.atoms {
         width: 100% !important;
     }
@@ -1430,6 +1460,10 @@ ul.latest li ul li {
     .calendar > ul > li {
         width: 47.0%;
         margin: 0.5%
+    }
+    
+    #overview {
+        width: 95%;
     }
 }
 
