@@ -10,34 +10,22 @@
             
             $this->template_url = '/templates/';
             $this->template_path = 'templates/';
+
+            $stf = array();
+            foreach (glob($this->template_path.'*.css') as $s) {
+                array_push($stf, '/'.$s);
+            }
             
-            $this->stylesheet = $this->template_url . 'styles.css';
+            $this->st = $stf;
             
-            $this->jquery = $this->template_url . 'js/jquery-1.9.1.min.js';
-            $this->jqui = $this->template_url . 'js/jquery-ui.min.js';
-            $this->jqui_tp = $this->template_url . 'js/jquery-ui-timepicker-addon.js';
-            $this->jqui_styles = $this->template_url . 'jquery-ui.css';
-            $this->jqui_cb = $this->template_url . 'js/jquery.ui.combobox.js';
-            $this->jqui_top = $this->template_url . 'js/jquery.ui.touch-punch.min.js';
+            $jsf = array();
+            foreach (glob($this->template_path.'js/*.js') as $js) {
+                array_push($jsf, '/'.$js);
+            }
             
-            $this->jq_edit = $this->template_url . 'js/jquery.jeditable.min.js';
-            
-            $this->flot = $this->template_url . 'js/jquery.flot.min.js';
-            $this->flot_pie = $this->template_url . 'js/jquery.flot.pie.js';
-            $this->flot_tt = $this->template_url . 'js/jquery.flot.tooltip.min.js';
-            $this->flot_rl = $this->template_url . 'js/jquery.flot.tickrotor.js';
-            $this->flot_st = $this->template_url . 'js/jquery.flot.stack.js';
-            $this->flot_sel = $this->template_url . 'js/jquery.flot.selection.js';
-            
-            $this->dt = $this->template_url . 'js/jquery.dataTables.min.js';
-            
-            $this->lb = $this->template_url . 'js/lightbox.js';
-            $this->lb_styles = $this->template_url . 'lightbox.css';
-            
-            $this->caman = $this->template_url . 'js/caman.min.js';
+            $this->js = $jsf;
             
             $this->header = '';
-            
             $this->nav = $nav;
             $this->title = $title;
         }

@@ -7,28 +7,13 @@
 
     <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.3.0/build/cssreset/reset-min.css">
 
-    <link rel="stylesheet" href="<?php echo $jqui_styles ?>">
-    <link rel="stylesheet" href="<?php echo $lb_styles ?>">
-    <link href="<?php echo $stylesheet ?>" rel="stylesheet" type="text/css" />
+    <?php foreach($st as $s): ?>
+    <link href="<?php echo $s ?>" type="text/css" rel="stylesheet" >
+    <?php endforeach; ?>
 
-    <script type="text/javascript" src="<?php echo $jquery ?>"></script>
-    <script type="text/javascript" src="<?php echo $jqui ?>"></script>
-    <script type="text/javascript" src="<?php echo $jqui_tp ?>"></script>
-    <script type="text/javascript" src="<?php echo $jqui_cb ?>"></script>
-    <script type="text/javascript" src="<?php echo $jqui_top ?>"></script>
-    <script type="text/javascript" src="<?php echo $jq_edit ?>"></script>
-
-    <script type="text/javascript" src="<?php echo $flot ?>"></script>
-    <script type="text/javascript" src="<?php echo $flot_pie ?>"></script>
-    <script type="text/javascript" src="<?php echo $flot_tt ?>"></script>
-    <script type="text/javascript" src="<?php echo $flot_rl ?>"></script>
-    <script type="text/javascript" src="<?php echo $flot_st ?>"></script>
-    <script type="text/javascript" src="<?php echo $flot_sel ?>"></script>
-
-    <script type="text/javascript" src="<?php echo $dt ?>"></script>
-    <script type="text/javascript" src="<?php echo $lb ?>"></script>
-
-    <script type="text/javascript" src="<?php echo $caman ?>"></script>
+    <?php foreach($js as $j): ?>
+    <script type="text/javascript" src="<?php echo $j ?>"></script>
+    <?php endforeach; ?>
 
     <script type="text/javascript">
         $(function() {
