@@ -10,10 +10,7 @@
                 <label>Beamline
                     <span class="small">Beamline where fault occured</span>
                 </label>
-                <select name="beamline">
-                    <option value="i03">i03</option>
-                    <option value="i04">i04</option>
-                </select>
+                <select name="beamline"></select>
             </li>
 
             <li>

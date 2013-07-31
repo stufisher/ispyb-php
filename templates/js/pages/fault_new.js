@@ -7,6 +7,25 @@ $(function() {
   
   $('.beamtime_lost').hide()
   $('.resolution').hide()
+  
+  _get_beamlines()
+  
+  function _get_beamlines() {
+      $.ajax({
+        url: '/fault/ajax/bl',
+        type: 'GET',
+        dataType: 'json',
+        timeout: 5000,
+        success: function(bls){
+            $('select[name=beamline]').empty()
+            $.each(bls, function(i,b) {
+                $('select[name=beamline]').append('<option value='+b['BEAMLINEID']+'>'+b['NAME']+'</option>')
+            })
+             
+            refresh_systems()
+        }
+      })   
+  }
 
   $('select[name=beamtime_lost]').change(function() {
     $(this).val() == 1 ? $('.beamtime_lost').slideDown() : $('.beamtime_lost').slideUp()
@@ -17,6 +36,8 @@ $(function() {
   })
   
   $('input[name=start],select[name=beamline]').change(function() {
+      if (!$('input[name=start]').val()) return
+                                                      
       var t = new Date($('input[name=start]').val()).getTime()/1000
       $.ajax({
         url: '/fault/ajax/visits/time/'+t+'/bl/'+$('select[name=beamline]').val(),
@@ -35,28 +56,7 @@ $(function() {
                                 
                                 
   })
-  
-  var data = {
-    i03: { 
-        EPICS: {
-            s4slit: ['x', 'y', 'width', 'height'],
-            scintilator: ['x', 'y', 'z'],
-        },
-        GDA: {
-            Server: [],
-            Client: [],
-        },
-        Robot: {
-            Hardware: ['eStop', 'Mitsubishi Hardware Error'],
-            Software: ['Unknown Position', 'Other'],
-        },
-        Computing: {
-            Network: [],
-            DataDispenser: [],
-            WorkStation: [],
-        }
-    },
-  }
+
   
   $('select[name=beamline]').change(function() {
         refresh_systems()
@@ -69,48 +69,68 @@ $(function() {
   $('select[name=component]').change(function() {
         refresh_sub_components()
   })                                   
-                                   
+  
+  
+  // Refresh system list based on beamline
   function refresh_systems() {
-    var bl = $('select[name=beamline]').val()
-
-    if (bl in data) {
-        $('select[name=system]').empty()
-        for (var s in data[bl]) {
-            $('select[name=system]').append('<option value="'+s+'">'+s+'</option>')
+      var bl = $('select[name=beamline]').val()
+      $.ajax({
+        url: '/fault/ajax/sys/bl/'+bl,
+        type: 'GET',
+        dataType: 'json',
+        timeout: 5000,
+        success: function(systems){
+            $('select[name=system]').empty()
+            $.each(systems, function(i,s) {
+                $('select[name=system]').append('<option value='+s['SYSTEMID']+'>'+s['NAME']+'</option>')
+            })
+             
+            if (systems.length) refresh_components()
         }
-        refresh_components()
-    }
+      })
   }
-
+  
+  // Refresh component list based on beamline and system
   function refresh_components() {
-    var bl = $('select[name=beamline]').val()
-    var sys = $('select[name=system]').val()
+      var bl = $('select[name=beamline]').val()
+      var sys = $('select[name=system]').val()
 
-    if (sys in data[bl]) {
-        $('select[name=component]').empty()
-        for (var c in data[bl][sys]) {
-            $('select[name=component]').append('<option value="'+c+'">'+c+'</option>')
+      $.ajax({
+        url: '/fault/ajax/com/bl/'+bl+'/sid/'+sys,
+        type: 'GET',
+        dataType: 'json',
+        timeout: 5000,
+        success: function(components){
+            $('select[name=component]').empty()
+            $.each(components, function(i,c) {
+                $('select[name=component]').append('<option value='+c['COMPONENTID']+'>'+c['NAME']+'</option>')
+            })
+             
+            if (components.length) refresh_sub_components()
         }
-        refresh_sub_components()
-    }
+      })
   }  
   
+  // Refresh subcomponent list based on beamline and component
   function refresh_sub_components() {
-    var bl = $('select[name=beamline]').val()
-    var sys = $('select[name=system]').val()
-    var component = $('select[name=component]').val()
+      var bl = $('select[name=beamline]').val()
+      var com = $('select[name=component]').val()
   
-    if (component in data[bl][sys]) {
-        $('select[name=sub_component]').empty()
-        $.each(data[bl][sys][component], function(i,sc) {
-            $('select[name=sub_component]').append('<option value="'+sc+'">'+sc+'</option>')
-        })
-    }
-  
-    $('select[name=sub_component]').html() ? $('select[name=sub_component]').show() : $('select[name=sub_component]').hide()
+      $.ajax({
+        url: '/fault/ajax/scom/bl/'+bl+'/cid/'+com,
+        type: 'GET',
+        dataType: 'json',
+        timeout: 5000,
+        success: function(subcomponents){
+            $('select[name=sub_component]').empty()
+            $.each(subcomponents, function(i,s) {
+                $('select[name=sub_component]').append('<option value='+s['SUBCOMPONENTID']+'>'+s['NAME']+'</option>')
+            })
+             
+            $('select[name=sub_component]').html() ? $('select[name=sub_component]').show() : $('select[name=sub_component]').hide()             
+        }
+      })
   }
-  
-  refresh_systems()
   
   
 });
