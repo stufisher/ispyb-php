@@ -58,18 +58,11 @@
                 if ($this->staff) {
                     $auth = True;
                 } else {
-                    $q = 'SELECT inv.visit_id as vis FROM investigation inv INNER JOIN investigator ir ON (ir.investigation_id=inv.id) INNER JOIN facility_user fu ON (fu.facility_user_id = ir.facility_user_id)  WHERE fu.federal_id LIKE \''.$u.'\'';
-                    
-                    $db = new Oracle($icat['user'], $icat['pass'], $icat['db']);
-                    $rows = $db->q($q);
-
-                    #$rows = $this->db->q('SELECT lower(i.visit_id) from investigation@dicat i inner join investigationuser@dicat iu on i.id = iu.investigation_id inner join user_@dicat u on u.id = iu.user_id where u.name='.$u);
+                    $rows = $this->db->q("SELECT lower(i.visit_id) as vis from investigation@DICAT_RO i inner join investigationuser@DICAT_RO iu on i.id = iu.investigation_id inner join user_@DICAT_RO u on u.id = iu.user_id where u.name='".$u."'");
                     
                     foreach ($rows as $row) {
                         array_push($this->visits, strtolower($row['VIS']));
                     }
-                    
-                    #print_r($this->visits);
                     
                     if ($this->has_arg('id') || $this->has_arg('visit')) {
                     
