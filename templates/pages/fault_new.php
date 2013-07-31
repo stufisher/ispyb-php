@@ -17,10 +17,31 @@
             </li>
 
             <li>
+                <label>Start Date/Time
+                    <span class="small">Time the fault started</span>
+                </label>
+                <input class="half" type="text" name="start" />
+            </li>
+
+
+            <li>
+                <label>Visit ID
+                    <span class="small">The visit during which the fault occured</span>
+                </label>
+                <select name="visit"><select>
+            </li>
+
+            <li>
+                <label>System
+                    <span class="small">The overreaching system responsible for the fault</span>
+                </label>
+                <select name="system"></select>
+            </li>
+
+            <li>
                 <label>Component
                     <span class="small">The component and sub-component at fault</span>
                 </label>
-                <select name="system"></select>
                 <select name="component"></select>
                 <select name="sub_component"></select>
             </li>
@@ -41,14 +62,6 @@
                 </label>
                 <input class="half" type="text" name="blstart" />
                 <input class="half" type="text" name="blend" />
-            </li>
-
-
-            <li>
-                <label>Start Date/Time
-                    <span class="small">Time the fault started</span>
-                </label>
-                <input class="half" type="text" name="start" />
             </li>
 
             <li>

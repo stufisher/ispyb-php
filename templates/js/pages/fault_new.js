@@ -16,6 +16,26 @@ $(function() {
     $(this).val() == 1 ? $('.resolution').slideDown() : $('.resolution').slideUp()
   })
   
+  $('input[name=start],select[name=beamline]').change(function() {
+      var t = new Date($('input[name=start]').val()).getTime()/1000
+      $.ajax({
+        url: '/ajax/visits/time/'+t+'/bl/'+$('select[name=beamline]').val(),
+        type: 'GET',
+        dataType: 'json',
+        timeout: 5000,
+        success: function(visits){
+            $('select[name=visit]').empty()
+            $.each(visits, function(i,v) {
+                $('select[name=visit]').append('<option value='+v['SESSIONID']+'>'+v['VISIT']+'</option>')
+                    
+            })
+        }
+  
+      })    
+                                
+                                
+  })
+  
   var data = {
     i03: { 
         EPICS: {
@@ -23,17 +43,17 @@ $(function() {
             scintilator: ['x', 'y', 'z'],
         },
         GDA: {
-            server: [],
-            client: [],
+            Server: [],
+            Client: [],
         },
         Robot: {
-            hardware: ['eStop', 'Mitsubishi Hardware Error'],
-            software: ['Unknown Position', 'Other'],
+            Hardware: ['eStop', 'Mitsubishi Hardware Error'],
+            Software: ['Unknown Position', 'Other'],
         },
         Computing: {
-            Network: [''],
-            DataDispenser: [''],
-            WorkStation: [''],
+            Network: [],
+            DataDispenser: [],
+            WorkStation: [],
         }
     },
   }
@@ -86,6 +106,8 @@ $(function() {
             $('select[name=sub_component]').append('<option value="'+sc+'">'+sc+'</option>')
         })
     }
+  
+    $('select[name=sub_component]').html() ? $('select[name=sub_component]').show() : $('select[name=sub_component]').hide()
   }
   
   refresh_systems()
