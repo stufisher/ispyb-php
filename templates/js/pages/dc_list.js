@@ -68,7 +68,7 @@ $(function() {
       //console.log('fn '+new Date())
   
       $.ajax({
-             url: '/ajax/dc/visit/' + visit + (page ? ('/page/' + page) : '') + (search ? ('/s/'+search) : '') + (type ? ('/t/'+type) : '') + ($(window).width() <= 600 ? '/pp/5' : ''),
+             url: '/dc/ajax/visit/' + visit + (page ? ('/page/' + page) : '') + (search ? ('/s/'+search) : '') + (type ? ('/t/'+type) : '') + ($(window).width() <= 600 ? '/pp/5' : ''),
              type: 'GET',
              dataType: 'json',
              timeout: 5000,
@@ -250,7 +250,7 @@ $(function() {
   // Update AP status
   function update_aps() {  
     $.ajax({
-        url: '/ajax/aps/visit/' + visit,
+        url: '/dc/ajax/aps/visit/' + visit,
         type: 'POST',
         data: { ids: $('.data_collection[type=data]').map(function(i,e) { return $(e).attr('dcid') }).get() },
         dataType: 'json',
@@ -374,7 +374,7 @@ $(function() {
   // Plot edge scan
   function plot_edge(div, id) {
       $.ajax({
-             url: '/ajax/ed/id/' + id,
+             url: '/dc/ajax/ed/id/' + id,
              type: 'GET',
              dataType: 'json',
              timeout: 5000,
@@ -395,7 +395,7 @@ $(function() {
   // Plot MCA scan
   function plot_mca(div, id) {
       $.ajax({
-             url: '/ajax/mca/id/' + id,
+             url: '/dc/ajax/mca/id/' + id,
              type: 'GET',
              dataType: 'json',
              timeout: 5000,
@@ -414,7 +414,7 @@ $(function() {
       var id = $(div).parent('div').attr('dcid')
   
       $.ajax({
-             url: '/ajax/imq/id/' + id,
+             url: '/dc/ajax/imq/id/' + id,
              type: 'GET',
              dataType: 'json',
              timeout: 5000,
@@ -605,7 +605,7 @@ $(function() {
     var ty = {'Fast DP':'fast_dp', 'XIA2 3da':'3d', 'XIA2 2da':'2d', 'XIA2 3daii':'3dii'}
   
     $.ajax({
-        url: '/ajax/ap/id/' + id,
+        url: '/dc/ajax/ap/id/' + id,
         type: 'GET',
         dataType: 'json',
         timeout: 5000,
@@ -676,7 +676,7 @@ $(function() {
   // Async load of EDNA/Mosflm strategies
   function load_strategy(d, id) {
     $.ajax({
-        url: '/ajax/strat/id/' + id,
+        url: '/dc/ajax/strat/id/' + id,
         type: 'GET',
         dataType: 'json',
         timeout: 5000,
@@ -753,7 +753,7 @@ $(function() {
     var ty = {'Fast EP':'fast_ep', 'Dimple': 'dimple'}  
   
     $.ajax({
-        url: '/ajax/dp/id/' + id,
+        url: '/dc/ajax/dp/id/' + id,
         type: 'GET',
         dataType: 'json',
         timeout: 5000,

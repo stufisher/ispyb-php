@@ -19,7 +19,7 @@ $(function() {
   $('input[name=start],select[name=beamline]').change(function() {
       var t = new Date($('input[name=start]').val()).getTime()/1000
       $.ajax({
-        url: '/ajax/visits/time/'+t+'/bl/'+$('select[name=beamline]').val(),
+        url: '/fault/ajax/visits/time/'+t+'/bl/'+$('select[name=beamline]').val(),
         type: 'GET',
         dataType: 'json',
         timeout: 5000,

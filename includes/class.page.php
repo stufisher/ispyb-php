@@ -9,6 +9,12 @@
         var $debug = False;
         var $profile = False;
         var $profiles = [];
+        var $base;
+        
+        function _base() {
+            $rc = new ReflectionClass(get_class($this));
+            return 'includes/pages/'.basename($rc->getFileName(), '.php');
+        }
 
         
         function __construct($db, $args) {
@@ -18,7 +24,21 @@
             
             $page = $this->def;
             if (sizeof($args) > 0) {
-                if (array_key_exists($args[0], $this->dispatch)) {
+                # Redirect Ajax Requests to relevent file
+                if ($args[0] == 'ajax') {
+                    $aj = $this->_base().'.ajax.php';
+                    if (file_exists($aj)) {
+                        array_shift($args);
+                        
+                        include_once('class.ajax.php');
+                        include_once($aj);
+                        
+                        $ajax = new Ajax($db, $args);
+                        exit(1);
+                    }
+                    
+                # Normal page load
+                } else if (array_key_exists($args[0], $this->dispatch)) {
                     $page = $args[0];
                     array_shift($args);
                 }

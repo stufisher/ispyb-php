@@ -70,7 +70,7 @@ $(function() {
   
   function _assign_container(cid, pos) {
     $.ajax({
-      url: '/ajax/assign/visit/' + visit + '/cid/' + cid + '/pos/' + pos,
+      url: '/samples/ajax/assign/visit/' + visit + '/cid/' + cid + '/pos/' + pos,
       type: 'GET',
       dataType: 'json',
       timeout: 5000,
@@ -83,7 +83,7 @@ $(function() {
   
   function _unassign_container(cid) {
     $.ajax({
-      url: '/ajax/unassign/visit/' + visit + '/cid/' + cid,
+      url: '/samples/ajax/unassign/visit/' + visit + '/cid/' + cid,
       type: 'GET',
       dataType: 'json',
       timeout: 5000,
@@ -97,7 +97,7 @@ $(function() {
   // Retrieve shipments for visit
   function _get_shipments(fn) {
     $.ajax({
-      url: '/ajax/ship/visit/' + visit,
+      url: '/samples/ajax/ship/visit/' + visit,
       type: 'GET',
       dataType: 'json',
       timeout: 5000,
@@ -125,7 +125,7 @@ $(function() {
   // Retrieve shipments for visit
   function _get_dewars(fn) {
     $.ajax({
-      url: '/ajax/dwr/visit/' + visit,
+      url: '/samples/ajax/dwr/visit/' + visit,
       type: 'GET',
       dataType: 'json',
       timeout: 5000,
@@ -150,7 +150,7 @@ $(function() {
   // Retrieve containers for visit
   function _get_containers() {
     $.ajax({
-      url: '/ajax/cnt/visit/' + visit,
+      url: '/samples/ajax/cnt/visit/' + visit,
       type: 'GET',
       dataType: 'json',
       timeout: 5000,
@@ -196,7 +196,7 @@ $(function() {
   // Retrieve samples for container
   function _get_samples(cid) {
     $.ajax({
-      url: '/ajax/smp/visit/'+visit+'/cid/'+cid,
+      url: '/samples/ajax/smp/visit/'+visit+'/cid/'+cid,
       type: 'GET',
       dataType: 'json',
       timeout: 5000,
@@ -225,7 +225,7 @@ $(function() {
         $('.protein_edit').editable(function(v,s) {
             console.log(v,s,this)
             return v
-        }, { type: 'select', 'submit': 'Ok',  loadurl: '/ajax/pro/array/1/visit/'+visit+'/' });
+        }, { type: 'select', 'submit': 'Ok',  loadurl: '/samples/ajax/pro/array/1/visit/'+visit+'/' });
            
            
         $('.contents').dialog('open')
@@ -300,7 +300,7 @@ $(function() {
     var safe = val.replace(/\W+/, '')
     _confirm('Add new protein', 'Do you want to add a new protein called: ' + safe, function() {
       $.ajax({
-        url: '/ajax/addp/visit/'+visit+'/name/'+safe,
+        url: '/samples/ajax/addp/visit/'+visit+'/name/'+safe,
         type: 'GET',
         dataType: 'json',
         timeout: 5000,
@@ -320,7 +320,7 @@ $(function() {
   function _load_dewars(fn) {
     var ship = $('select[name=shipment]').combobox('value')
     $.ajax({
-      url: '/ajax/dwr/visit/' + visit + '/sid/' + ship,
+      url: '/samples/ajax/dwr/visit/' + visit + '/sid/' + ship,
       type: 'GET',
       dataType: 'json',
       timeout: 5000,
@@ -344,7 +344,7 @@ $(function() {
     var safe = val.replace(/\W+/, '')
     _confirm('Add new shipment', 'Do you want to add a new shipment called: "' + safe + '"', function() {
       $.ajax({
-        url: '/ajax/adds/visit/'+visit+'/name/'+safe,
+        url: '/samples/ajax/adds/visit/'+visit+'/name/'+safe,
         type: 'GET',
         dataType: 'json',
         timeout: 5000,
@@ -363,7 +363,7 @@ $(function() {
     var safe = val.replace(/\W+/, '')
     _confirm('Add new dewar', 'Do you want to add a new dewar called: "' + safe + '" to the shipment: "' + $('select[name=shipment]').children(':selected').html() + '"', function() {
       $.ajax({
-        url: '/ajax/addd/visit/'+visit+'/sid/'+$('select[name=shipment]').combobox('value')+'/name/'+safe,
+        url: '/samples/ajax/addd/visit/'+visit+'/sid/'+$('select[name=shipment]').combobox('value')+'/name/'+safe,
         type: 'GET',
         dataType: 'json',
         timeout: 5000,
@@ -385,7 +385,7 @@ $(function() {
     var old = $('select.protein').map(function(i,e) { return $(e).combobox('value') }).get()
 
     $.ajax({
-      url: '/ajax/pro/visit/'+visit,
+      url: '/samples/ajax/pro/visit/'+visit,
       type: 'GET',
       dataType: 'json',
       timeout: 5000,
@@ -492,7 +492,7 @@ $(function() {
       }
   
       $.ajax({
-        url: '/ajax/rc/visit/'+visit,
+        url: '/samples/ajax/rc/visit/'+visit,
         type: 'POST',
         dataType: 'json',
         data: data,

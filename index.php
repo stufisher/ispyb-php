@@ -19,10 +19,11 @@
     $db = new Oracle($isb['user'], $isb['pass'], $isb['db']);
     
     $pages = array(
-                   'ajax' => array('Ajax', ''),
+                   #'ajax' => array('Ajax', ''),
                    'image' => array('Image', ''),
                    'robot' => array('Robot', 'Robot Statistics'),
                    'dc' => array('DC', 'Data Collections'),
+                   'samples' => array('Samples', 'Sample Creation'),
                    'fault' => array('Fault', 'Fault Logging'),
                    'vstat' => array('Visit', 'Visit Statistics'),
                    'log' => array('Log', 'Visit Summary'),
