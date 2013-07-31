@@ -388,7 +388,7 @@ html[xmlns] .dataTables_wrapper { display: block; }
 
 #overview {
     height: 35px;
-    width: 97%;
+    width: 94%;
 }
 
 .right {
@@ -488,7 +488,7 @@ div.form textarea {
 
 div.form textarea,
 div.form input[name=title] {
-    width: 600px;
+    width: 70%;
 }
 
 div.form .clear {
