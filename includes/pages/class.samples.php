@@ -26,7 +26,7 @@
             $info = $info[0];
             
             $p = array($info['BL'], $this->arg('visit'), 'Sample Creation');
-            $l = array('', '/d/visit/'.$this->arg('visit'), '');
+            $l = array('', '/dc/visit/'.$this->arg('visit'), '');
             $this->template('Sample Creation: ' . $this->arg('visit'), $p, $l);
             $this->t->bl = $info['BL'];
             $this->t->js_var('bl', $info['BL']);
