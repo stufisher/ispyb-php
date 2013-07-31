@@ -3,50 +3,24 @@
     class DC extends Page {
         
         var $arg_list = array('visit' => '\w\w\d\d\d\d-\d+', 'page' => '\d+', 'mon' => '\w+', 'year' => '\d\d\d\d', 'id' => '\d+', 't' => '\w+');
-        var $dispatch = array('dc' => '_dispatch', 'view' => '_viewer', 'samp' => '_samples');
+        var $dispatch = array('dc' => '_dispatch', 'view' => '_viewer');
         var $def = 'dc';
         
         var $root = 'Data Collections';
         var $root_link = '/dc';
         
+        
+        # Dispatch to either calendar or list view as needed
         function _dispatch() {
             if ($this->has_arg('visit')) $this->_data_collection();
             else $this->_index();
         }
         
         
-        # Sample Creation & Allocation
-        function _samples() {
-            if (!$this->arg('visit')) {
-                $this->_index();
-                return;
-            }
-            
-            $info = $this->db->q("SELECT s.sessionid, s.beamlinename as bl, vr.run, vr.runid, TO_CHAR(s.startdate, 'YYYY') as yr FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE '".$this->arg('visit')."'");
-            
-            if (sizeof($info) == 0) {
-                $this->_index();
-                return;
-            }
-            
-            $info = $info[0];
-            
-            $p = array($info['BL'], $this->arg('visit'), 'Sample Creation');
-            $l = array('', '/visit/'.$this->arg('visit'), '');
-            $this->template('Sample Creation: ' . $this->arg('visit'), $p, $l);
-            $this->t->bl = $info['BL'];
-            $this->t->js_var('bl', $info['BL']);
-            $this->t->js_var('visit', $this->arg('visit'));
-            
-            $this->render('samp');
-        }
-        
-        
         # Diffraction image viewer
         function _viewer() {
-            if (!$this->arg('id')) {
-                $this->_index();
-                return;
+            if (!$this->has_arg('id')) {
+                $this->error('No data collection id specified', 'You need to specify a data collection id in order to view diffraction images');
             }
             
             $dc = $this->db->q('SELECT dc.transmission, dc.axisrange, dc.exposuretime, dc.resolution as res, dc.ybeam as y, dc.xbeam as x,dc.wavelength as lam, dc.detectordistance as det, dc.numberofimages as num, dc.filetemplate as ft, dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE dc.datacollectionid='.$this->arg('id'));

@@ -12,9 +12,8 @@
         
         # Sample Creation & Allocation
         function _samples() {
-            if (!$this->arg('visit')) {
-                $this->_index();
-                return;
+            if (!$this->has_arg('visit')) {
+                $this->error('No Visit Specified', 'You must specify a visit number to view this page');
             }
             
             $info = $this->db->q("SELECT s.sessionid, s.beamlinename as bl, vr.run, vr.runid, TO_CHAR(s.startdate, 'YYYY') as yr FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE '".$this->arg('visit')."'");
@@ -27,7 +26,7 @@
             $info = $info[0];
             
             $p = array($info['BL'], $this->arg('visit'), 'Sample Creation');
-            $l = array('', '/visit/'.$this->arg('visit'), '');
+            $l = array('', '/d/visit/'.$this->arg('visit'), '');
             $this->template('Sample Creation: ' . $this->arg('visit'), $p, $l);
             $this->t->bl = $info['BL'];
             $this->t->js_var('bl', $info['BL']);

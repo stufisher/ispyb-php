@@ -106,7 +106,9 @@
             # End execution, show not authed page template
             if (!$auth) {
                 $this->template('Access Denied');
-                $this->render('no_access');
+                $this->t->title = 'Access Denied';
+                $this->t->msg = 'You dont have access to that page';
+                $this->render('generic_msg');
                 exit();
             }
             
@@ -182,7 +184,7 @@
             }
         }
         
-        // Unix time to javascript timestamp
+        # Unix time to javascript timestamp
         function jst($str, $plus=True) {
             return strtotime($str)*1000 + ($plus ? (3600*1000) : 0);
         }
@@ -191,19 +193,28 @@
             return $this->profiles;
         }
         
-        // Get a PV
+        # Get a PV
         function pv($pvid) {
             $ret = exec('caget ' . $pvid);
             return preg_split('/\s+/', $ret)[1];
         }
         
         
-        // Check for trailing slash on path
+        # Check for trailing slash on path
         function ads($var) {
             if (!(substr($var, -1, 1) == '/')) $var .= '/';
             return $var;
         }
         
+        
+        # Error page
+        function error($title, $msg) {
+            $this->template('Error');
+            $this->t->title = 'Error: '.$title;
+            $this->t->msg = $msg;
+            $this->render('generic_msg');
+            exit();
+        }
         
     }
 

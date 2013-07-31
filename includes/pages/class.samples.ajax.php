@@ -21,7 +21,6 @@
         #var $debug = True;
         
         
-        
         # ------------------------------------------------------------------------
         # Return Shipments for visit
         function _shipments() {
