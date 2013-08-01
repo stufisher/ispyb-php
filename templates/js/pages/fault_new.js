@@ -35,6 +35,8 @@ $(function() {
     $(this).val() == 1 ? $('.resolution').slideDown() : $('.resolution').slideUp()
   })
   
+  
+  // Get visits for time on beamline
   $('input[name=start],select[name=beamline]').change(function() {
       if (!$('input[name=start]').val()) return
                                                       
