@@ -469,6 +469,13 @@ div.form label {
     /*width: 70%;*/
 }
 
+span.label {
+    display: inline-block;
+    padding: 1% 0;
+    font-weight: bold;
+}
+
+span.label,
 div.form label {
     width: 28%;
 }
@@ -1051,7 +1058,7 @@ div.form .half {
 
 
 
-/* Data Collections - Sample Creation & Allocation
+/* Sample Creation & Allocation
  ---------------------------------------------------------*/
 .bl_puck {
     width: 18.6%;
@@ -1237,6 +1244,66 @@ ul.latest li ul {
 
 ul.latest li ul li {
     float: none;
+    width: 100%;
+}
+
+
+/* Fault Reporting
+ ---------------------------------------------------------*/
+div.text {
+    width: 71.7%;
+    margin: 1% 0;
+    float: right;
+}
+
+button.editor {
+    margin: 1% 0 0.5% 0;
+}
+
+.span {
+    width: 99%;
+}
+
+.span2 {
+    width: 64%;
+}
+
+.span3 {
+    width: 35%;
+}
+
+.la {
+    text-align: left !important;
+}
+
+button.save,
+button.cancel,
+button.edit,
+button.delete {
+    width: 20px;
+    height: 20px;
+}
+
+button.save span,
+button.cancel span,
+button.edit span,
+button.delete span {
+    margin-left: -4px;
+}
+
+table.components tr:hover,
+table.systems tr:hover {
+    cursor: pointer;
+}
+
+table.systems tr.selected td,
+table.components tr.selected td,
+table.components tr:hover td,
+table.systems tr:hover td {
+    background: #cdcdcd;
+}
+
+table input[type=text] {
     width: 100%;
 }
 

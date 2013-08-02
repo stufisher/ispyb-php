@@ -11,6 +11,16 @@
                               'com' => '_get_components',
                               'scom' => '_get_subcomponents',
                               
+                              'add' => '_add_fault',
+                              
+                              'bladd' => '_add_beamline',
+                              'sysadd' => '_add_system',
+                              'comadd' => '_add_component',
+                              'scomadd' => '_add_subcomponent',
+
+                              'ec' => '_edit_component',
+                              'dc' => '_delete_component',
+                              
                               );
         var $def = 'list';
         var $profile = True;
@@ -72,7 +82,7 @@
             $bl = $this->arg('bl') == 1 ? 'i02' : 'i03';
             
             $st = $this->arg('time');
-            $rows = $this->db->q("SELECT bl.startdate,bl.enddate,p.proposalcode || p.proposalnumber || '-' || bl.visit_number as visit, bl.sessionid FROM ispyb4a_db.blsession bl INNER JOIN ispyb4a_db.proposal p ON p.proposalid = bl.proposalid WHERE ".$st." BETWEEN (bl.startdate - TO_DATE('1970-01-01','YYYY-MM-DD')) * 86400 AND (bl.enddate - TO_DATE('1970-01-01','YYYY-MM-DD')) * 86400 AND bl.beamlinename LIKE '".$bl."' AND bl.sessionid != 886");
+            $rows = $this->db->q("SELECT bl.startdate,bl.enddate,p.proposalcode || p.proposalnumber || '-' || bl.visit_number as visit, bl.sessionid FROM ispyb4a_db.blsession bl INNER JOIN ispyb4a_db.proposal p ON p.proposalid = bl.proposalid WHERE ".$st." BETWEEN (bl.startdate - TO_DATE('1970-01-01','YYYY-MM-DD')) * 86400 AND (bl.enddate - TO_DATE('1970-01-01','YYYY-MM-DD')) * 86400 AND bl.beamlinename LIKE '".$bl."'");
             
             $this->_output($rows);
         }
@@ -92,26 +102,29 @@
         # ------------------------------------------------------------------------
         # Return a list of sytems for a beamline
         function _get_systems() {
-            if (!$this->has_arg('bl')) $this->_error('No beamlineid specified');
-            
-            $this->_output(array(array('SYSTEMID' => 1, 'NAME' => 'EPICS'),
-                                 array('SYSTEMID' => 2, 'NAME' => 'GDA'),
+            if ($this->has_arg('bl')) $where = ' WHERE hs.beamlineid='.$this->arg('bl');
+            else $where = '';
+                                 
+            $this->_output(array(array('SYSTEMID' => 1, 'NAME' => 'EPICS', 'BEAMLINES' => 'i03,i02'),
+                                 array('SYSTEMID' => 2, 'NAME' => 'GDA', 'BEAMLINES' => 'i03'),
                                  ));
             return;
             
-            $rows = $this->db->q('SELECT s.systemid, s.name FROM ispyb4a_db.bf_systems s INNER JOIN ispyb4a_db.bf_has_system hs ON s.hassystemid = hs.hassystemid WHERE hs.beamlineid='.$this->arg('bl'));
+            $rows = $this->db->q('SELECT s.systemid, s.name FROM ispyb4a_db.bf_systems s INNER JOIN ispyb4a_db.bf_has_system hs ON s.hassystemid = hs.hassystemid '.$where);
             $this->_output($rows);
         }
         
         # ------------------------------------------------------------------------
         # Return a list of components for a system on a beamline
         function _get_components() {
-            if (!$this->has_arg('bl')) $this->_error('No beamlineid specified');
             if (!$this->has_arg('sid')) $this->_error('No systemid specified');            
             
+            if ($this->has_arg('bl')) $where = ' AND hc.beamlineid='.$this->arg('bl');
+            else $where = '';
+                                 
             if ($this->arg('sid') == 1)
-                $this->_output(array(array('COMPONENTID' => 1, 'NAME' => 'S4Slit'),
-                                     array('COMPONENTID' => 2, 'NAME' => 'Scintilator'),
+                $this->_output(array(array('COMPONENTID' => 1, 'NAME' => 'S4Slit', 'DESCRIPTION' => 'Phase 1 Slits'),
+                                     array('COMPONENTID' => 2, 'NAME' => 'Scintilator', 'DESCRIPTION' => 'Phase II Scintilator'),
                                      ));
             else
                 $this->_output(array(array('COMPONENTID' => 3, 'NAME' => 'Server'),
@@ -119,23 +132,25 @@
                                      ));
             return;
             
-            $rows = $this->db->q('SELECT c.componentid, c.name FROM ispyb4a_db.bf_components c INNER JOIN ispyb4a_db.bf_has_component hc ON c.hascomponentid = hc.hascomponentid WHERE hc.beamlineid='.$this->arg('bl').' AND c.systemid='.$this->arg('sid'));
+            $rows = $this->db->q('SELECT c.componentid, c.name FROM ispyb4a_db.bf_components c INNER JOIN ispyb4a_db.bf_has_component hc ON c.hascomponentid = hc.hascomponentid WHERE c.systemid='.$this->arg('sid').$where);
             $this->_output($rows);
         }
         
         # ------------------------------------------------------------------------
         # Return a list of subcomponents for a component on a beamline
         function _get_subcomponents() {
-            if (!$this->has_arg('bl')) $this->_error('No beamlineid specified');
             if (!$this->has_arg('cid')) $this->_error('No componentid specified');
             
+            if ($this->has_arg('bl')) $where = ' AND hs.beamlineid='.$this->arg('bl');
+            else $where = '';
+                                 
             if ($this->arg('cid') == 1)
                 $this->_output(array(array('SUBCOMPONENTID' => 1, 'NAME' => 'xpos'),
                                      array('SUBCOMPONENTID' => 2, 'NAME' => 'ypos'),
                                      ));
             else if ($this->arg('cid') == 2)
-                $this->_output(array(array('SUBCOMPONENTID' => 1, 'NAME' => 'x'),
-                                     array('SUBCOMPONENTID' => 2, 'NAME' => 'y'),
+                $this->_output(array(array('SUBCOMPONENTID' => 3, 'NAME' => 'x'),
+                                     array('SUBCOMPONENTID' => 4, 'NAME' => 'y'),
                                      ));
             else if ($this->arg('cid') == 3)
                 $this->_output(array());
@@ -145,10 +160,48 @@
         
             return;
             
-            $rows = $this->db->q('SELECT s.subcomponentid, s.name FROM ispyb4a_db.bf_subcomponents s INNER JOIN ispyb4a_db.bf_has_subcomponent hs ON s.hassubcomponentid = hs.hassubcomponentid WHERE hs.beamlineid='.$this->arg('bl').' AND s.componentid='.$this->arg('cid'));
+            $rows = $this->db->q('SELECT s.subcomponentid, s.name FROM ispyb4a_db.bf_subcomponents s INNER JOIN ispyb4a_db.bf_has_subcomponent hs ON s.hassubcomponentid = hs.hassubcomponentid WHERE s.componentid='.$this->arg('cid').$where);
             $this->_output($rows);
         }
-        
+         
+                                 
+        # ------------------------------------------------------------------------
+        # Add a new beamline
+        function _add_beamline() {
+            $this->_output($_POST);
+        }
+
+        # ------------------------------------------------------------------------
+        # Add a new system
+        function _add_system() {
+            $this->_output($_POST);
+        }
+                                 
+        # ------------------------------------------------------------------------
+        # Add a new component
+        function _add_component() {
+            $this->_output($_POST);
+        }
+                                 
+        # ------------------------------------------------------------------------
+        # Add a new subcomponent
+        function _add_subcomponent() {
+            $this->_output($_POST);
+        }
+                                 
+                                 
+        # ------------------------------------------------------------------------
+        # Delete a row
+        function _delete_component() {
+            $this->_output($_POST);                                 
+        }
+
+        # ------------------------------------------------------------------------
+        # Edit a row
+        function _edit_component() {
+            $this->_output($_POST);                                 
+        }
+                                 
     }
 
 ?>

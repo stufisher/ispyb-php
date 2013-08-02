@@ -32,7 +32,7 @@ $(function() {
   })
 
   $('select[name=resolved]').change(function() {
-    $(this).val() == 1 ? $('.resolution').slideDown() : $('.resolution').slideUp()
+    $(this).val() > 0 ? $('.resolution').slideDown() : $('.resolution').slideUp()
   })
   
   

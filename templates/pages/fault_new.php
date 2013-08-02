@@ -62,15 +62,15 @@
             </li>
 
             <li>
-                <label>Title
-                    <span class="small">Fault title</span>
+                <label>Summary
+                    <span class="small">A short summart of the fault</span>
                 </label>
                 <input type="text" name="title" />
             </li>
 
             <li>
                 <label>Description
-                    <span class="small">Description of the fault</span>
+                    <span class="small">Full description of the fault</span>
                 </label>
                 <textarea name="desc" /></textarea>
             </li>
@@ -81,8 +81,9 @@
                 <span class="small">Has the fault been resolved?</span>
                 </label>
                 <select name="resolved">
-                    <option value='0'>No</option>
-                    <option value='1'>Yes</option>
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
+                    <option value="2">Partially</option>
                 </select>
             </li>
 
