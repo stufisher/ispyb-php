@@ -52,7 +52,7 @@
             }
             
             
-            $this->template('');
+            $this->template('Fault: '.$info['TITLE']);
             $this->t->f = $info;
             $this->render('fault_view');
         }
