@@ -1,9 +1,9 @@
 $(function() {
   
-  $('input[name=start]').datetimepicker();
-  $('input[name=end]').datetimepicker();
-  $('input[name=blstart]').datetimepicker();
-  $('input[name=blend]').datetimepicker();
+  $('input[name=start]').datetimepicker({ dateFormat: "dd-mm-yy" });
+  $('input[name=end]').datetimepicker({ dateFormat: "dd-mm-yy" });
+  $('input[name=blstart]').datetimepicker({ dateFormat: "dd-mm-yy" });
+  $('input[name=blend]').datetimepicker({ dateFormat: "dd-mm-yy" });
   
   $('.beamtime_lost').hide()
   $('.resolution').hide()
@@ -39,8 +39,13 @@ $(function() {
   // Get visits for time on beamline
   $('input[name=start],select[name=beamline]').change(function() {
       if (!$('input[name=start]').val()) return
+                        
                                                       
-      var t = new Date($('input[name=start]').val()).getTime()/1000
+      var dt = $('input[name=start]').val().split(' ')
+      var dmy = dt[0].split('-')
+      var hms = dt[1].split(':')
+      var t = new Date(dmy[2], dmy[1]-1, dmy[0], hms[0], hms[1], 0, 0).getTime()/1000
+
       $.ajax({
         url: '/fault/ajax/visits/time/'+t+'/bl/'+$('select[name=beamline]').val(),
         type: 'GET',
