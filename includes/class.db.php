@@ -82,8 +82,8 @@
             
             
             // Get variables for prepared query
-            $arg_count = substr_count($query, ':');
-            if (sizeof($args) != $arg_count) trigger_error('Number of bound variables does not match number of arguments', E_USER_ERROR);
+            $arg_count = preg_match_all('/:\d+/', $query);
+            //if (sizeof($args) != $arg_count) trigger_error('Number of bound variables does not match number of arguments', E_USER_ERROR);
             
             for ($i = 0; $i < $arg_count; $i++) {
                 oci_bind_by_name($stid, ':'.($i+1), $args[$i]);
