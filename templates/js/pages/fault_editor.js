@@ -148,7 +148,6 @@ $(function() {
   
   // Generate checkboxes for beamlines
   function _beamline_select(name,selected) {
-    console.log(selected)
     if (!selected) selected = ''
     selected = selected.split(',')
   
@@ -318,7 +317,6 @@ $(function() {
     $('button.edit').button({ icons: { primary: 'ui-icon-pencil' } }).unbind('click').click(function() {
         var ty = $(this).parent('td').parent('tr').parent('tbody').parent('table').attr('class').replace('robot_actions ', '')
         var row = $(this).parent('td').parent('tr')
-        console.log('edit type '+ty)
 
         if (ty == 'beamlines') {
             _edit_beamline(row)
@@ -335,7 +333,7 @@ $(function() {
     var name = $(row.children('td')[1]).html()
     $(row.children('td')[1]).html('<input type="text" name="beamline" value="'+name+'" />')
     $(row.children('td')[2]).html('<button class="save"></button>')
-    console.log(row,name)
+
   
     $('table.beamlines button.save').button({ icons: { primary: 'ui-icon-check' } }).click(function() {
           var row = $(this).parent('td').parent('tr')
