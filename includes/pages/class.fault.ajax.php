@@ -2,7 +2,7 @@
 
     class Ajax extends AjaxBase {
         
-        var $arg_list = array('time' => '\d+', 'bl' => '\d+', 'sid' => '\d+', 'cid' => '\d+', 'scid' => '\d+', 'pp' => '\d+', 'page' => '\d+');
+        var $arg_list = array('time' => '\d+', 'bl' => '\d+', 'sid' => '\d+', 'cid' => '\d+', 'scid' => '\d+', 'pp' => '\d+', 'page' => '\d+', 'array' => '\d', 'ty' => '\w+');
         var $dispatch = array('list' => '_get_faults',
                               
                               'visits' => '_get_visits',
@@ -20,6 +20,8 @@
 
                               'ec' => '_edit_component',
                               'dc' => '_delete_component',
+                              
+                              'update' => '_update_fault',
                               
                               );
         var $def = 'list';
@@ -48,7 +50,7 @@
             if ($tot % $pp != 0) $pgs++;
             
             $this->_output(array(4, array(
-                array('FAULTID' => 1, 'BLSESSIONID' => 12, 'BEAMLINEID' => 1, 'BEAMLINE' => 'i03', 'OWNER' => 'vxn01537', 'SYSTEMID' => 1, 'SYSTEM' => 'EPICS', 'COMPONENTID' => 1, 'COMPONENT' => 'Scintilator', 'SUBCOMPONENTID' => 1, 'SUBCOMPONENT' => 'x', 'STARTTIME' => '01-08-2013 11:08:07', 'BEAMTIMELOST' => 1, 'LOST' => 1.3, 'TITLE' => 'Scintilator lost home position', 'RESOLVED' => 1),
+                array('FAULTID' => 1, 'BLSESSIONID' => 12, 'BEAMLINEID' => 1, 'BEAMLINE' => 'i03', 'OWNER' => 'vxn01537', 'SYSTEMID' => 1, 'SYSTEM' => 'EPICS', 'COMPONENTID' => 1, 'COMPONENT' => 'Scintilator', 'SUBCOMPONENTID' => 1, 'SUBCOMPONENT' => 'x', 'STARTTIME' => '01-08-2013 11:08', 'BEAMTIMELOST' => 1, 'LOST' => 1.3, 'TITLE' => 'Scintilator lost home position', 'RESOLVED' => 1),
                 ))
             );
             return;
@@ -72,7 +74,17 @@
             $this->_output(array($pgs, $rows));
         }
         
-        
+
+        # ------------------------------------------------------------------------
+        # Update fields for a fault
+        function _update_fault() {
+            if ($this->arg('ty') == 'starttime') {
+                print $_POST['value'];
+                                 
+            } else $this->_output($_POST);
+        }
+                                 
+                                 
         # ------------------------------------------------------------------------
         # Return visits for a time on a beamline
         function _get_visits() {
@@ -90,13 +102,21 @@
         # ------------------------------------------------------------------------
         # Return a list of beamlines with ids
         function _get_beamlines() {
+            if ($this->has_arg('array')) {
+                $this->_output(array(1=>'i02', 2=>'i03'));
+                return;
+            }
+                                 
             $this->_output(array(array('BEAMLINEID' => 1, 'NAME' => 'i02'),
                                  array('BEAMLINEID' => 2, 'NAME' => 'i03')
                                  ));
             return;
             
             $rows = $this->db->q('SELECT beamlineid, name FROM ispyb4a_db.bf_beamline');
-            $this->_output($rows);
+                                 
+            $bls = array();
+            foreach ($rows as $r) $bls[$r['BEAMLINEID']] = $r['NAME'];
+            $this->_output($this->has_arg('array') ? $bls : $rows);
         }
         
         # ------------------------------------------------------------------------
