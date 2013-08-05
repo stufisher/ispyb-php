@@ -66,9 +66,8 @@
             $info = $this->db->pq("SELECT s.sessionid, s.beamlinename as bl, vr.run, vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')))[0];
             
             for ($i = 0; $i < 4; $i++) array_push($args, $info['SESSIONID']);
-            array_push($args, $start);
-            array_push($args, $end);
         
+            
             if ($this->has_arg('s')) {
                 $st = sizeof($args) + 1;
                 $where = " AND (lower(dc.filetemplate) LIKE lower('%'||:$st||'%') OR lower(dc.imagedirectory) LIKE lower('%'||:".($st+1)."||'%'))";
@@ -92,6 +91,10 @@
             $pgs = intval($tot/$pp);
             if ($tot % $pp != 0) $pgs++;
 
+            $st = sizeof($args) + 1;
+            array_push($args, $start);
+            array_push($args, $end);
+            
             $q = 'SELECT outer.*
              FROM (SELECT ROWNUM rn, inner.*
              FROM (
@@ -113,7 +116,7 @@
              ORDER BY sta DESC
              
              ) inner) outer
-             WHERE outer.rn > :5 AND outer.rn <= :6';
+             WHERE outer.rn > :'.$st.' AND outer.rn <= :'.($st+1);
             
             $dcs = $this->db->pq($q, $args);
             $this->profile('main query');            
