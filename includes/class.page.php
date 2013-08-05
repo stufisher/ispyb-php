@@ -215,6 +215,15 @@
             $this->render('generic_msg');
             exit();
         }
+
+        # Message page
+        function msg($title, $msg) {
+            $this->template($title);
+            $this->t->title = $title;
+            $this->t->msg = $msg;
+            $this->render('generic_msg');
+            exit();
+        }
         
     }
 
