@@ -32,22 +32,26 @@ $(function() {
   
   
   function _unassigned_drop(e,ui) {
-    t = $('.shipment[sid='+ui.draggable.attr('sid')+']').children('.dewar[did='+ui.draggable.attr('did')+']').children('.containers')
-    ui.draggable.appendTo(t).position({ my: 'left top', at: 'left top', of: t})
-    ui.draggable.removeClass('assigned')
+    var t = $('.shipment[sid='+ui.draggable.attr('sid')+']').children('.dewar[did='+ui.draggable.attr('did')+']').children('.containers')
+    _confirm('Unassign Container', 'Are you sure you want to unassign this container?', function() {
+
+      ui.draggable.appendTo(t).position({ my: 'left top', at: 'left top', of: t})
+      ui.draggable.removeClass('assigned')
   
-    // assign db callback
-    console.log('remove container id ' + ui.draggable.attr('cid'))
-    _unassign_container(ui.draggable.attr('cid'))
-  
+      // assign db callback
+      console.log('remove container id ' + ui.draggable.attr('cid'))
+      _unassign_container(ui.draggable.attr('cid'))
+    })
   }
   
   
   // Container Drop
   function _container_drop(e,ui) {
     if (ui.draggable.parent().parent().attr('id') != $(this).attr('id')) {
-      if ($(this).children('div').has('.container').length > 0){
-        prev = $(this).children('div').children('.container')
+     var p = $(this)
+      _confirm('Assign Container', 'Are you sure you want to assign this container? Any other container assigned to this slot will be unassigned', function() {
+      if (p.children('div').has('.container').length > 0){
+        prev = p.children('div').children('.container')
         t = $('.shipment[sid='+prev.attr('sid')+']').children('.dewar[did='+prev.attr('did')+']').children('.containers')
         prev.appendTo(t).attr('loc', '').removeClass('assigned')
   
@@ -57,13 +61,14 @@ $(function() {
         containers[prev.attr('cid')] = 0
       }
   
-      $(this).children('div').html('')
-      ui.draggable.appendTo($(this).children('div')).position({ my: 'left top', at: 'left top', of: $(this).children('div')}).addClass('assigned').attr('loc', $(this).data('blcid'))
+      p.children('div').html('')
+      ui.draggable.appendTo(p.children('div')).position({ my: 'left top', at: 'left top', of: p.children('div')}).addClass('assigned').attr('loc', p.data('blcid'))
 
   
       // assign db callback & refresh
-      console.log('add container id ' + ui.draggable.attr('cid') + ' to ' + bl +'-'+ $(this).data('blcid'))
-      _assign_container(ui.draggable.attr('cid'), $(this).data('blcid'))
+      console.log('add container id ' + ui.draggable.attr('cid') + ' to ' + bl +'-'+ p.data('blcid'))
+      _assign_container(ui.draggable.attr('cid'), p.data('blcid'))
+    })
     }
   }
   
