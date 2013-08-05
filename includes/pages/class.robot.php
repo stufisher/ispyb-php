@@ -10,6 +10,8 @@
         var $root_link = '/robot/';
         
         var $require_staff = True;
+
+        
         
         # Internal dispatcher based on passed arguments
         function _index() {
@@ -67,8 +69,16 @@
         # Show list of visits for beamline/run combinations
         function _get_list() {
             $where = array();
-            if ($this->has_arg('bl')) array_push($where, "s.beamlinename LIKE '".$this->arg('bl')."'");
-            if ($this->has_arg('run')) array_push($where, 'vr.runid = ' . $this->arg('run'));
+            $args = array();
+            
+            if ($this->has_arg('bl')) {
+                array_push($where, 's.beamlinename LIKE :'. (sizeof($args)+1));
+                array_push($args, $this->arg('bl'));
+            }
+            if ($this->has_arg('run')) {
+                array_push($where, 'vr.runid = :' . (sizeof($args)+1));
+                array_push($args, $this->arg('run'));
+            }
             $where = implode(' AND ', $where);
             
             $q = "SELECT TO_CHAR(min(r.starttimestamp), 'DD-MM-YYYY HH24:MI:SS') as st, p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis, s.beamlinename as bl, r.status, count(r.robotactionid) as num, AVG(CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as avgt FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = s.sessionid) WHERE p.proposalcode <> 'cm' AND $where GROUP BY p.proposalcode || p.proposalnumber || '-' || s.visit_number, r.status, s.beamlinename ORDER BY min(r.starttimestamp)";
@@ -80,7 +90,7 @@
             $totalt = 0;
             
             $id = 0;
-            $rows = $this->db->q($q);
+            $rows = $this->db->pq($q, $args);
             
             if (!$rows) {
                 $this->_no_data();
@@ -120,7 +130,7 @@
             $visits[''] =  $total;
             
             if ($this->has_arg('run'))
-                $run = $this->db->q('SELECT run FROM ispyb4a_db.v_run WHERE runid='.$this->args['run'])[0]['RUN'];
+                $run = $this->db->pq('SELECT run FROM ispyb4a_db.v_run WHERE runid=:1', array($this->args['run']))[0]['RUN'];
 
             
             $p = array();
@@ -151,7 +161,7 @@
         
         # Show list of actions for visit
         function _get_visit() {
-            $rows = $this->db->q("SELECT TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, r.status, r.actiontype, r.containerlocation, r.dewarlocation, r.samplebarcode, r.message, (CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as time FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = s.sessionid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE '".$this->arg('visit')."' ORDER BY r.starttimestamp DESC");
+            $rows = $this->db->pq("SELECT TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, r.status, r.actiontype, r.containerlocation, r.dewarlocation, r.samplebarcode, r.message, (CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as time FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = s.sessionid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1 ORDER BY r.starttimestamp DESC", array($this->arg('visit')));
             
             if (!$rows) {
                 $this->_no_data();
@@ -165,7 +175,7 @@
                 array_push($ticks, array(sizeof($rows) - 1 - $i, $r['ST']));
             }
 
-            $info = $this->db->q("SELECT s.beamlinename as bl, vr.run, vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE '".$this->arg('visit')."'")[0];
+            $info = $this->db->pq("SELECT s.beamlinename as bl, vr.run, vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')))[0];
             
             $p = array($info['BL'], $info['RUN'], $this->arg('visit'));
             $l = array('bl/' . $info['BL'], 'run/' .$info['RUNID'], '');

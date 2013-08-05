@@ -26,11 +26,12 @@
                               );
         var $def = 'list';
         var $profile = True;
-        var $debug = True;
+        //var $debug = True;
         
         # ------------------------------------------------------------------------
         # Return faults based on search terms / filters
         function _get_faults() {
+            $args = array();
             $where = array();
             $where = implode($where, ' AND ');
             
@@ -44,7 +45,7 @@
                 $end = $pg*$pp+$pp;
             }
             
-            $tot = 80;//$this->db->q('SELECT count(faultid) as tot FROM ispyb4a_db.bf_faults '.$where)[0]['TOT'];
+            $tot = 80;//$this->db->q('SELECT count(faultid) as tot FROM ispyb4a_db.bf_faults '.$where, $args)[0]['TOT'];
             
             
             $pgs = intval($tot/$pp);
@@ -56,8 +57,10 @@
             );
             return;
             
+            array_push($args, $start);
+            array_push($args, $end);
             
-            $rows = $this->db->q('SELECT outer.*
+            $rows = $this->db->pq("SELECT outer.*
              FROM (SELECT ROWNUM rn, inner.*
                FROM (
                 SELECT f.faultid, f.blsessionid, f.beamlineid, bl.name as beamline f.owner, f.systemid, s.name as system f.componentid, c.name as component, f.subcomponentid, sc.name as subcomponent, f.starttime, f.endtime, f.beamtimelost, (f.beamtimelost_endtime-f.beamtimelost_starttime) as lost, f.title, f.resolved
@@ -66,11 +69,11 @@
                 INNER JOIN bf_system s ON f.systemid = s.systemid
                 INNER JOIN bf_component c ON f.systemid = c.componentid
                 LEFT JOIN bf_subcomponent sc ON f.subcomponentid = sc.subcomponentid
-                '.$where.'
+                $where
                 ORDER BY f.faultid DESC
              
                ) inner) outer
-             WHERE outer.rn > '.$start.' AND outer.rn <= '.$end);
+             WHERE outer.rn > :1 AND outer.rn <= :2", $args);
                                  
             $this->_output(array($pgs, $rows));
         }
@@ -97,7 +100,7 @@
             if (!$this->has_arg('fid')) $this->_error('No fault id specified');
                                 
             // Check that the fault exists
-            $check = $this->db->q('SELECT faultid FROM bf_faults WHERE faultid='.$this->arg('fid'));
+            $check = $this->db->pq('SELECT faultid FROM bf_faults WHERE faultid=:1', array($this->arg('fid')));
             if (!sizeof($check)) $this->_error('A fault with that id doesnt exists');
                                 
             if (array_key_exists($this->arg('ty'))) {
@@ -106,7 +109,7 @@
                                 
                 // Check the value matches the template
                 if (preg_match('/^'.$t[0].'$/', $v)) {
-                    $this->db->q('UPDATE bf_faults SET '.$t[1].'='.$v.' WHERE faultid='.$this->arg('fid'));
+                    $this->db->pq('UPDATE bf_faults SET :1=:2 WHERE faultid=:3', array($t[1], $v, $this->arg('fid')));
                     
                     $ret = $v;
                                  
@@ -129,7 +132,7 @@
             if (!$this->has_arg('time')) $this->_error('No time specified');
             if (!$this->has_arg('bl')) $this->_error('No beamline specified');
             
-            #$bls = $this->db->q('SELECT name FROM bf_beamlines WHERE beamlineid='.$this->arg('bl'));
+            #$bls = $this->db->q('SELECT name FROM bf_beamlines WHERE beamlineid=:1', array($this->arg('bl')));
             #if (sizeof($bls)) $bl = $bls[0]['NAME'];
             #else $this->_error('No beamline with that id');
                                  
@@ -169,8 +172,13 @@
         # ------------------------------------------------------------------------
         # Return a list of sytems for a beamline
         function _get_systems() {
-            if ($this->has_arg('bl')) $where = ' WHERE hs.beamlineid='.$this->arg('bl');
-            else $where = '';
+            $args = array();
+                                  
+            if ($this->has_arg('bl')) {
+                $where = ' WHERE hs.beamlineid=:1';
+                array_push($args, $this->arg('bl'));
+                                  
+            } else $where = '';
                     
             if ($this->has_arg('array')) {
                 $this->_output(array(1=>'EPICS', 2=>'GDA'));
@@ -182,7 +190,7 @@
                                  ));
             return;
             
-            $rows = $this->db->q('SELECT s.systemid, s.name FROM ispyb4a_db.bf_systems s INNER JOIN ispyb4a_db.bf_has_system hs ON s.hassystemid = hs.hassystemid '.$where);
+            $rows = $this->db->pq('SELECT s.systemid, s.name FROM ispyb4a_db.bf_systems s INNER JOIN ispyb4a_db.bf_has_system hs ON s.hassystemid = hs.hassystemid '.$where, $args);
                                  
             $sys = array();
             foreach ($rows as $s) $sys[$s['SYSTEMID']] = $s['NAME'];
@@ -193,10 +201,13 @@
         # ------------------------------------------------------------------------
         # Return a list of components for a system on a beamline
         function _get_components() {
-            if (!$this->has_arg('sid')) $this->_error('No systemid specified');            
+            if (!$this->has_arg('sid')) $this->_error('No systemid specified');
+            $args = array($this->arg('sid'));
             
-            if ($this->has_arg('bl')) $where = ' AND hc.beamlineid='.$this->arg('bl');
-            else $where = '';
+            if ($this->has_arg('bl')) {
+                $where = ' AND hc.beamlineid=:2';
+                array_push($args, $this->arg('bl'));
+            } else $where = '';
                           
             if ($this->has_arg('array')) {
                 if ($this->arg('sid') == 1) $this->_output(array(1=>'S4Slit', 2=>'Scintilator'));
@@ -214,7 +225,7 @@
                                      ));
             return;
             
-            $rows = $this->db->q('SELECT c.componentid, c.name FROM ispyb4a_db.bf_components c INNER JOIN ispyb4a_db.bf_has_component hc ON c.hascomponentid = hc.hascomponentid WHERE c.systemid='.$this->arg('sid').$where);
+            $rows = $this->db->q('SELECT c.componentid, c.name FROM ispyb4a_db.bf_components c INNER JOIN ispyb4a_db.bf_has_component hc ON c.hascomponentid = hc.hascomponentid WHERE c.systemid=:1'.$where, $args);
                                  
             $com = array();
             foreach ($rows as $c) $com[$c['COMPONENTID']] = $c['NAME'];
@@ -226,9 +237,12 @@
         # Return a list of subcomponents for a component on a beamline
         function _get_subcomponents() {
             if (!$this->has_arg('cid')) $this->_error('No componentid specified');
+            $args = array($this->arg('cid'));
             
-            if ($this->has_arg('bl')) $where = ' AND hs.beamlineid='.$this->arg('bl');
-            else $where = '';
+            if ($this->has_arg('bl')) {
+                $where = ' AND hs.beamlineid=:2';
+                array_push($args, $this->arg('bl'));
+            }else $where = '';
                          
             if ($this->has_arg('array')) {
                 if ($this->arg('cid') == 1) $this->_output(array(1=>'xpos', 2=>'ypos'));
@@ -252,7 +266,7 @@
         
             return;
             
-            $rows = $this->db->q('SELECT s.subcomponentid, s.name FROM ispyb4a_db.bf_subcomponents s INNER JOIN ispyb4a_db.bf_has_subcomponent hs ON s.hassubcomponentid = hs.hassubcomponentid WHERE s.componentid='.$this->arg('cid').$where);
+            $rows = $this->db->pq('SELECT s.subcomponentid, s.name FROM ispyb4a_db.bf_subcomponents s INNER JOIN ispyb4a_db.bf_has_subcomponent hs ON s.hassubcomponentid = hs.hassubcomponentid WHERE s.componentid=:1'.$where, $args);
             
             $scom = array();
             foreach ($rows as $s) $scom[$s['SUBCOMPONENTID']] = $s['NAME'];

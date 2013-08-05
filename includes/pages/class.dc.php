@@ -23,7 +23,7 @@
                 $this->error('No data collection id specified', 'You need to specify a data collection id in order to view diffraction images');
             }
             
-            $dc = $this->db->q('SELECT dc.transmission, dc.axisrange, dc.exposuretime, dc.resolution as res, dc.ybeam as y, dc.xbeam as x,dc.wavelength as lam, dc.detectordistance as det, dc.numberofimages as num, dc.filetemplate as ft, dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE dc.datacollectionid='.$this->arg('id'));
+            $dc = $this->db->pq('SELECT dc.transmission, dc.axisrange, dc.exposuretime, dc.resolution as res, dc.ybeam as y, dc.xbeam as x,dc.wavelength as lam, dc.detectordistance as det, dc.numberofimages as num, dc.filetemplate as ft, dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE dc.datacollectionid=:1', array($this->arg('id')));
             
             if (!sizeof($dc)) {
                 $this->_index();
@@ -76,7 +76,7 @@
             $day = mktime(0,0,0,$c_month,1,$c_year);
             $den = mktime(23,59,59,$c_month,$this->t->dim,$c_year);
             
-            $visits = $this->db->q('SELECT p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis, s.beamlinename as bl, TO_CHAR(s.startdate, \'DD-MM-YYYY HH24:MI\') as st FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE s.startdate BETWEEN TO_DATE(\''.strtoupper(date('d-m-Y', $day)).'\',\'dd-mm-yyyy\') AND TO_DATE(\''.strtoupper(date('d-m-Y', $den)).'\',\'dd-mm-yyyy\') AND (s.beamlinename LIKE \'i02\' OR s.beamlinename LIKE \'i03\' OR s.beamlinename LIKE \'i04\' OR s.beamlinename LIKE \'i04-1\' OR s.beamlinename LIKE \'i24\') ORDER BY s.beamlinename, s.startdate');
+            $visits = $this->db->pq("SELECT p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis, s.beamlinename as bl, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE s.startdate BETWEEN TO_DATE(:1,'dd-mm-yyyy') AND TO_DATE(:2,'dd-mm-yyyy') AND (s.beamlinename LIKE 'i02' OR s.beamlinename LIKE 'i03' OR s.beamlinename LIKE 'i04' OR s.beamlinename LIKE 'i04-1' OR s.beamlinename LIKE 'i24') ORDER BY s.beamlinename, s.startdate", array(strtoupper(date('d-m-Y', $day)), strtoupper(date('d-m-Y', $den))));
             
             $vbd = array();
             foreach ($visits as $v) {
@@ -117,13 +117,12 @@
                 $end = $this->arg('page')*$pp+$pp;
             }
             
-            $info = $this->db->q("SELECT s.sessionid, s.beamlinename as bl, vr.run, vr.runid, TO_CHAR(s.startdate, 'YYYY') as yr FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE '".$this->arg('visit')."'");
+            $info = $this->db->pq("SELECT s.sessionid, s.beamlinename as bl, vr.run, vr.runid, TO_CHAR(s.startdate, 'YYYY') as yr FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')));
             
             if (!sizeof($info)) {
                 $this->msg('No such visit', 'That visit doesnt appear to exist');
             } else $info = $info[0];
 
-            #$rows = $this->db->q('SELECT * from energyscan where sessionid='.$info['SESSIONID']);
             
             $p = array($info['BL'], $this->arg('visit'));
             $l = array('', '');

@@ -26,10 +26,7 @@
         function _shipments() {
             if (!$this->has_arg('visit')) $this->_error('No visit specified');
             
-            $rows = $this->db->q("SELECT sh.shippingid, sh.shippingname FROM shipping sh
-                                INNER JOIN blsession bl ON bl.proposalid = sh.proposalid
-                                INNER JOIN proposal p ON sh.proposalid = p.proposalid
-                                WHERE p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE '".$this->arg('visit')."' ORDER BY sh.shippingid DESC");
+            $rows = $this->db->pq("SELECT sh.shippingid, sh.shippingname FROM shipping sh INNER JOIN blsession bl ON bl.proposalid = sh.proposalid INNER JOIN proposal p ON sh.proposalid = p.proposalid WHERE p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE :1 ORDER BY sh.shippingid DESC", array($this->arg('visit')));
                                  
             $this->_output($rows);          
         }
@@ -40,15 +37,15 @@
         function _dewars() {
             if (!$this->has_arg('visit')) $this->_error('No visit specified');
                                  
-            if ($this->has_arg('sid')) $where = 'd.shippingid='.$this->arg('sid').' AND ';
-            else $where = '';
+            $args = array($this->arg('visit'));
+                                  
+            if ($this->has_arg('sid')) {
+                $where = 'd.shippingid=:2 AND ';
+                array_push($args, $this->arg('sid'));
+                
+            }else $where = '';
                                  
-            $rows = $this->db->q("SELECT d.dewarid, d.code, sh.shippingid,d.dewarstatus
-                                FROM dewar d
-                                INNER JOIN shipping sh ON sh.shippingid = d.shippingid
-                                INNER JOIN blsession bl ON bl.proposalid = sh.proposalid
-                                INNER JOIN proposal p ON sh.proposalid = p.proposalid
-                                WHERE ".$where."p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE '".$this->arg('visit')."' ORDER BY sh.shippingid DESC");
+            $rows = $this->db->pq("SELECT d.dewarid, d.code, sh.shippingid,d.dewarstatus FROM dewar d INNER JOIN shipping sh ON sh.shippingid = d.shippingid INNER JOIN blsession bl ON bl.proposalid = sh.proposalid INNER JOIN proposal p ON sh.proposalid = p.proposalid WHERE $where p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE :1 ORDER BY sh.shippingid DESC", $args);
                                  
             $this->_output($rows);          
         }
@@ -58,12 +55,12 @@
         function _containers() {
             if (!$this->has_arg('visit')) $this->_error('No visit specified');
             
-            $rows = $this->db->q("SELECT d.dewarstatus, d.dewarid, s.shippingid, c.beamlinelocation, c.samplechangerlocation, c.containerid, c.code FROM container c
+            $rows = $this->db->pq("SELECT d.dewarstatus, d.dewarid, s.shippingid, c.beamlinelocation, c.samplechangerlocation, c.containerid, c.code FROM container c
                                 INNER JOIN dewar d ON d.dewarid = c.dewarid
                                 INNER JOIN shipping s ON s.shippingid = d.shippingid
                                 INNER JOIN blsession bl ON bl.proposalid = s.proposalid
                                 INNER JOIN proposal p ON s.proposalid = p.proposalid
-                                WHERE p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE '".$this->arg('visit')."' ORDER BY c.containerid DESC");
+                                WHERE p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE :1 ORDER BY c.containerid DESC", array($this->arg('visit')));
                                  
             foreach ($rows as &$r) {
                 if ($r['SAMPLECHANGERLOCATION']) $r['SAMPLECHANGERLOCATION'] = intval($r['SAMPLECHANGERLOCATION']);
@@ -80,7 +77,7 @@
             if (!$this->has_arg('visit')) $this->_error('No visit specified');
             if (!$this->has_arg('cid')) $this->_error('No container specified');
                                  
-            $rows = $this->db->q("SELECT sp.comments, sp.name, to_number(sp.location) as location, pr.acronym FROM blsample sp
+            $rows = $this->db->pq("SELECT sp.comments, sp.name, to_number(sp.location) as location, pr.acronym FROM blsample sp
                                 INNER JOIN crystal cr ON sp.crystalid = cr.crystalid
                                 INNER JOIN protein pr ON cr.proteinid = pr.proteinid
                                 INNER JOIN container c ON sp.containerid = c.containerid
@@ -88,8 +85,8 @@
                                 INNER JOIN shipping s ON s.shippingid = d.shippingid
                                 INNER JOIN blsession bl ON bl.proposalid = s.proposalid
                                 INNER JOIN proposal p ON s.proposalid = p.proposalid
-                                WHERE p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE '".$this->arg('visit')."'
-                                AND c.containerid = ".$this->arg('cid')." ORDER BY to_number(sp.location)");
+                                WHERE p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE :1
+                                AND c.containerid = :2 ORDER BY to_number(sp.location)", array($this->arg('visit'), $this->arg('cid')));
                         
             foreach ($rows as &$r) {
                 $r['LOCATION'] = intval($r['LOCATION']);
@@ -107,7 +104,7 @@
             $rows = $this->db->q("SELECT distinct pr.acronym, max(pr.proteinid) as proteinid FROM protein pr
                                 INNER JOIN blsession bl ON bl.proposalid = pr.proposalid
                                 INNER JOIN proposal p ON bl.proposalid = p.proposalid
-                                WHERE pr.acronym is not null AND p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE '".$this->arg('visit')."' GROUP BY pr.acronym ORDER BY lower(pr.acronym)");
+                                WHERE pr.acronym is not null AND p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE :1 GROUP BY pr.acronym ORDER BY lower(pr.acronym)", array($this->arg('visit')));
             
             $proteins = array();
             foreach ($rows as &$r) {
@@ -139,18 +136,18 @@
                 if ($val) array_push($samples, $s);
             }
                                  
-            $pids = $this->db->q("SELECT p.proposalid FROM blsession bl INNER JOIN proposal p ON bl.proposalid = p.proposalid WHERE p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE '".$this->arg('visit')."'");
+            $pids = $this->db->pq("SELECT p.proposalid FROM blsession bl INNER JOIN proposal p ON bl.proposalid = p.proposalid WHERE p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE :1", array($this->arg('visit')));
                                  
             if (sizeof($pids) > 0) { 
-                $this->db->q("INSERT INTO container (containerid,dewarid,code,bltimestamp,capacity) VALUES (s_container.nextval,".$args['dewar'].",'".$args['container']."',CURRENT_TIMESTAMP,16) RETURNING containerid INTO :id");
+                $this->db->pq("INSERT INTO container (containerid,dewarid,code,bltimestamp,capacity) VALUES (s_container.nextval,:1,:2,CURRENT_TIMESTAMP,16) RETURNING containerid INTO :id", array($args['dewar'], $args['container']));
                                  
                 $cid = $this->db->id();
                                  
                 foreach ($samples as $s) {
-                    $this->db->q("INSERT INTO crystal (crystalid,proteinid,spacegroup) VALUES (s_crystal.nextval,".$s['protein'].",'".$s['sg']."') RETURNING crystalid INTO :id");
+                    $this->db->pq("INSERT INTO crystal (crystalid,proteinid,spacegroup) VALUES (s_crystal.nextval,:1,:2) RETURNING crystalid INTO :id", array($s['protein'], $s['sg']));
                     $crysid = $this->db->id();
                                  
-                    $this->db->q("INSERT INTO blsample (blsampleid,crystalid,containerid,location,comments,name) VALUES (s_blsample.nextval,".$crysid.",".$cid.",".($s['id']+1).",'".$s['comment']."','".$s['name']."')");
+                    $this->db->pq("INSERT INTO blsample (blsampleid,crystalid,containerid,location,comments,name) VALUES (s_blsample.nextval,:1,:2,:3,:4,:5)", array($crysid, $cid, $s['id']+1, $s['comment'], $s['name']));
                 }
                                  
                 $this->_output(1);
@@ -164,16 +161,15 @@
             if (!$this->has_arg('visit')) $this->_error('No visit specified');
             if (!$this->has_arg('name')) $this->_error('No protein name specified');
                                  
-            $pids = $this->db->q("SELECT p.proposalid FROM blsession bl INNER JOIN proposal p ON bl.proposalid = p.proposalid WHERE p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE '".$this->arg('visit')."'");
+            $pids = $this->db->pq("SELECT p.proposalid FROM blsession bl INNER JOIN proposal p ON bl.proposalid = p.proposalid WHERE p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE :1", array($this->arg('visit')));
                                  
             if (sizeof($pids) > 0) {
                 $pid = $pids[0]['PROPOSALID'];
                                  
-                $vals = $this->db->q("INSERT INTO protein (proteinid,proposalid,acronym,bltimestamp) VALUES (s_protein.nextval,".$pid.",'".$this->arg('name')."',CURRENT_TIMESTAMP) RETURNING proteinid INTO :id");
+                $vals = $this->db->pq("INSERT INTO protein (proteinid,proposalid,acronym,bltimestamp) VALUES (s_protein.nextval,:1,:2,CURRENT_TIMESTAMP) RETURNING proteinid INTO :id", array($pid, $this->arg('name')));
                                  
                 $this->_output($this->db->id());
-            }                                 
-            //$this->_output(32282);
+            }
         }
                                  
         # ------------------------------------------------------------------------
@@ -182,12 +178,12 @@
             if (!$this->has_arg('visit')) $this->_error('No visit specified');
             if (!$this->has_arg('name')) $this->_error('No shipment name specified');
                                  
-            $pids = $this->db->q("SELECT p.proposalid FROM blsession bl INNER JOIN proposal p ON bl.proposalid = p.proposalid WHERE p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE '".$this->arg('visit')."'");
+            $pids = $this->db->pq("SELECT p.proposalid FROM blsession bl INNER JOIN proposal p ON bl.proposalid = p.proposalid WHERE p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE :1", array($this->arg('visit')));
                                  
             if (sizeof($pids) > 0) {
                 $pid = $pids[0]['PROPOSALID'];
                                  
-                $vals = $this->db->q("INSERT INTO shipping (shippingid,proposalid,shippingname,bltimestamp) VALUES (s_shipping.nextval,".$pid.",'".$this->arg('name')."',CURRENT_TIMESTAMP) RETURNING shippingid INTO :id");
+                $vals = $this->db->pq("INSERT INTO shipping (shippingid,proposalid,shippingname,bltimestamp) VALUES (s_shipping.nextval,:1,:2,CURRENT_TIMESTAMP) RETURNING shippingid INTO :id", array($pid, $this->arg('name')));
                                  
                 $this->_output($this->db->id());
             }     
@@ -201,12 +197,12 @@
             if (!$this->has_arg('sid')) $this->_error('No shipping id specified');
             if (!$this->has_arg('name')) $this->_error('No dewar name specified');
                                  
-            $pids = $this->db->q("SELECT p.proposalid FROM blsession bl INNER JOIN proposal p ON bl.proposalid = p.proposalid WHERE p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE '".$this->arg('visit')."'");
+            $pids = $this->db->pq("SELECT p.proposalid FROM blsession bl INNER JOIN proposal p ON bl.proposalid = p.proposalid WHERE p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE :1", array($this->arg('visit')));
                                  
             if (sizeof($pids) > 0) {
                 $pid = $pids[0]['PROPOSALID'];
                                  
-                $vals = $this->db->q("INSERT INTO dewar (dewarid,code,shippingid,bltimestamp,dewarstatus) VALUES (s_dewar.nextval,'".$this->arg('name')."',".$this->arg('sid').",CURRENT_TIMESTAMP,'processing') RETURNING dewarid INTO :id");
+                $vals = $this->db->pq("INSERT INTO dewar (dewarid,code,shippingid,bltimestamp,dewarstatus) VALUES (s_dewar.nextval,:1,:2,CURRENT_TIMESTAMP,'processing') RETURNING dewarid INTO :id", array($this->arg('name'), $this->arg('sid')));
                                  
                 $this->_output($this->db->id());
             }
@@ -219,18 +215,18 @@
             if (!$this->has_arg('visit')) $this->_error('No visit specified');
             if (!$this->has_arg('cid')) $this->_error('No container id specified');
                                  
-            $cs = $this->db->q("SELECT d.dewarid,bl.beamlinename,c.containerid FROM container c
+            $cs = $this->db->pq("SELECT d.dewarid,bl.beamlinename,c.containerid FROM container c
                                 INNER JOIN dewar d ON d.dewarid = c.dewarid
                                 INNER JOIN shipping s ON s.shippingid = d.shippingid
                                 INNER JOIN blsession bl ON bl.proposalid = s.proposalid
                                 INNER JOIN proposal p ON s.proposalid = p.proposalid
-                                WHERE p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE '".$this->arg('visit')."' AND c.containerid=".$this->arg('cid'));
+                                WHERE p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE :1 AND c.containerid=:2", array($this->arg('visit'), $this->arg('cid')));
                                
             if (sizeof($cs) > 0) {
                 $c = $cs[0];
-                $this->db->q("UPDATE dewar SET dewarstatus='processing' WHERE dewarid=".$c['DEWARID']);
+                $this->db->pq("UPDATE dewar SET dewarstatus='processing' WHERE dewarid=:1", array($c['DEWARID']));
                                
-                $this->db->q("UPDATE container SET beamlinelocation='".$c['BEAMLINENAME']."',samplechangerlocation=".$this->arg('pos')." WHERE containerid=".$c['CONTAINERID']);
+                $this->db->pq("UPDATE container SET beamlinelocation=:1,samplechangerlocation=:2 WHERE containerid=:3", array($c['BEAMLINENAME'], $this->arg('pos'), $c['CONTAINERID']));
                                
                 $this->_output(1);
             }
@@ -244,17 +240,17 @@
             if (!$this->has_arg('visit')) $this->_error('No visit specified');
             if (!$this->has_arg('cid')) $this->_error('No container id specified');
                                
-            $cs = $this->db->q("SELECT d.dewarid,bl.beamlinename,c.containerid FROM container c
+            $cs = $this->db->pq("SELECT d.dewarid,bl.beamlinename,c.containerid FROM container c
                                 INNER JOIN dewar d ON d.dewarid = c.dewarid
                                 INNER JOIN shipping s ON s.shippingid = d.shippingid
                                 INNER JOIN blsession bl ON bl.proposalid = s.proposalid
                                 INNER JOIN proposal p ON s.proposalid = p.proposalid
-                                WHERE p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE '".$this->arg('visit')."' AND c.containerid=".$this->arg('cid'));
+                                WHERE p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE :1 AND c.containerid=:2", array($this->arg('visit'), $this->arg('cid')));
                                
             if (sizeof($cs) > 0) {
                 $c = $cs[0];
                                
-                $this->db->q("UPDATE container SET samplechangerlocation='' WHERE containerid=".$c['CONTAINERID']);
+                $this->db->pq("UPDATE container SET samplechangerlocation='' WHERE containerid=:1",array($c['CONTAINERID']));
                 $this->_output(1);
             }
             $this->_output(0);

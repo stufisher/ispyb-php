@@ -33,13 +33,13 @@
             if (!$this->has_arg('fid')) $this->error('No fault id specified', 'You must specify a fault id to view');
             
             
-            /*$info = $this->db->q('SELECT f.faultid, f.blsessionid, f.beamlineid, bl.name as beamline, f.owner, f.systemid, s.name as system, f.componentid, c.name as component, f.subcomponentid, sc.name as subcomponent, f.starttime, f.endtime, f.beamtimelost, (f.beamtimelost_endtime-f.beamtimelost_starttime) as lost, f.title, f.resolved, f.description, f.beamtimelost_endtime, f.beamtimelost_starttime
+            /*$info = $this->db->pq('SELECT f.faultid, f.blsessionid, f.beamlineid, bl.name as beamline, f.owner, f.systemid, s.name as system, f.componentid, c.name as component, f.subcomponentid, sc.name as subcomponent, f.starttime, f.endtime, f.beamtimelost, (f.beamtimelost_endtime-f.beamtimelost_starttime) as lost, f.title, f.resolved, f.description, f.beamtimelost_endtime, f.beamtimelost_starttime
                 FROM ispyb4a_db.bf_faults f
                 INNER JOIN bf_beamline bl ON f.beamlineid = bl.beamlineid
                 INNER JOIN bf_system s ON f.systemid = s.systemid
                 INNER JOIN bf_component c ON f.systemid = c.componentid
                 LEFT JOIN bf_subcomponent sc ON f.subcomponentid = sc.subcomponentid
-                WHERE f.faultid='.$this->arg('fid')
+                WHERE f.faultid=:1', array($this->arg('fid')));
                                  
             );*/
             

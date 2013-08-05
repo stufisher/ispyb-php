@@ -18,9 +18,9 @@
             $visit_listl = array();
             $visit_listn = array();
             foreach(array('i02', 'i03', 'i04', 'i04-1', 'i24') as $b) {
-                $visit = $this->db->q('SELECT * FROM (SELECT p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis, TO_CHAR(s.startdate, \'DD-MM-YYYY HH24:MI\') as st, TO_CHAR(s.enddate, \'DD-MM-YYYY HH24:MI\') as en,s.beamlinename as bl FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE s.enddate < TO_DATE(\''.strtoupper(date('d-m-Y 09:01', $day)).'\',\'dd-mm-yyyy HH24:MI\') AND s.beamlinename LIKE \''.$b.'\' ORDER BY s.enddate DESC) where rownum < 3');
+                $visit = $this->db->pq('SELECT * FROM (SELECT p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis, TO_CHAR(s.startdate, \'DD-MM-YYYY HH24:MI\') as st, TO_CHAR(s.enddate, \'DD-MM-YYYY HH24:MI\') as en,s.beamlinename as bl FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE s.enddate < TO_DATE(:1,\'dd-mm-yyyy HH24:MI\') AND s.beamlinename LIKE :2 ORDER BY s.enddate DESC) where rownum < 3', array(strtoupper(date('d-m-Y 09:01', $day)), $b));
 
-                $visitn = $this->db->q('SELECT * FROM (SELECT p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis, TO_CHAR(s.startdate, \'DD-MM-YYYY HH24:MI\') as st, TO_CHAR(s.enddate, \'DD-MM-YYYY HH24:MI\') as en,s.beamlinename as bl FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE s.startdate > TO_DATE(\''.strtoupper(date('d-m-Y 08:59', $day)).'\',\'dd-mm-yyyy HH24:MI\') AND s.beamlinename LIKE \''.$b.'\' ORDER BY s.startdate) where rownum < 3');
+                $visitn = $this->db->pq('SELECT * FROM (SELECT p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis, TO_CHAR(s.startdate, \'DD-MM-YYYY HH24:MI\') as st, TO_CHAR(s.enddate, \'DD-MM-YYYY HH24:MI\') as en,s.beamlinename as bl FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE s.startdate > TO_DATE(:1,\'dd-mm-yyyy HH24:MI\') AND s.beamlinename LIKE:2 ORDER BY s.startdate) where rownum < 3', array(strtoupper(date('d-m-Y 08:59', $day)), $b));
                 
                 if (sizeof($visit) > 0) {
                     // Nasty hack to check for overwritten visits

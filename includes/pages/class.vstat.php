@@ -14,7 +14,7 @@
         var $root_link = '/vstat';
         
         var $require_staff = True;
-        #var $debug = True;
+        //var $debug = True;
         
         
         # Internal dispatcher based on passed arguments
@@ -132,13 +132,14 @@
         # Show list of visits for a BAG
         function _get_bag() {
             $this->p($this->arg('bag'));
-            $where = "WHERE p.proposalcode || p.proposalnumber LIKE '".$this->arg('bag')."'";
+            $args = array($this->arg('bag'));
+            $where = "WHERE p.proposalcode || p.proposalnumber LIKE :1";
             
-            $dc = $this->db->q("SELECT max(p.title) as title, TO_CHAR(MAX(dc.endtime), 'DD-MM-YYYY HH24:MI') as last, SUM(dc.endtime - dc.starttime)*24 as dctime, GREATEST((min(dc.starttime)-min(s.startdate))*24,0) as sup, GREATEST((max(s.enddate)-max(dc.endtime))*24,0) as rem, s.visit_number as visit, TO_CHAR(min(s.startdate), 'DD-MM-YYYY HH24:MI') as st, TO_CHAR(max(s.enddate), 'DD-MM-YYYY HH24:MI') as en, (max(s.enddate) - min(s.startdate))*24 as len FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.datacollection dc ON (dc.sessionid = s.sessionid) $where GROUP BY s.visit_number ORDER BY min(s.startdate) DESC");
+            $dc = $this->db->pq("SELECT max(p.title) as title, TO_CHAR(MAX(dc.endtime), 'DD-MM-YYYY HH24:MI') as last, SUM(dc.endtime - dc.starttime)*24 as dctime, GREATEST((min(dc.starttime)-min(s.startdate))*24,0) as sup, GREATEST((max(s.enddate)-max(dc.endtime))*24,0) as rem, s.visit_number as visit, TO_CHAR(min(s.startdate), 'DD-MM-YYYY HH24:MI') as st, TO_CHAR(max(s.enddate), 'DD-MM-YYYY HH24:MI') as en, (max(s.enddate) - min(s.startdate))*24 as len FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.datacollection dc ON (dc.sessionid = s.sessionid) $where GROUP BY s.visit_number ORDER BY min(s.startdate) DESC", $args);
             
-            $robot = $this->db->q("SELECT SUM(CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*24 as dctime, s.visit_number as visit FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = s.sessionid) $where GROUP BY s.visit_number");
+            $robot = $this->db->pq("SELECT SUM(CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*24 as dctime, s.visit_number as visit FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = s.sessionid) $where GROUP BY s.visit_number", $args);
 
-            $edge = $this->db->q("SELECT SUM(e.endtime-e.starttime)*24 as dctime, s.visit_number as visit FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.energyscan e ON (e.sessionid = s.sessionid) $where GROUP BY s.visit_number");
+            $edge = $this->db->pq("SELECT SUM(e.endtime-e.starttime)*24 as dctime, s.visit_number as visit FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.energyscan e ON (e.sessionid = s.sessionid) $where GROUP BY s.visit_number", $args);
             
             foreach ($robot as $r) {
                 foreach ($dc as &$d) {
@@ -204,9 +205,10 @@
         
         # List of actions for a particular visit
         function _get_visit() {
-            $where = "WHERE p.proposalcode || p.proposalnumber LIKE '".$this->arg('bag')."' AND s.visit_number=".$this->arg('visit');
+            $args = array($this->arg('bag'), $this->arg('visit'));
+            $where = "WHERE p.proposalcode || p.proposalnumber LIKE :1 AND s.visit_number=:2";
             
-            $info = $this->db->q("SELECT s.beamlinename as bl, s.sessionid as sid, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st, TO_CHAR(s.enddate, 'DD-MM-YYYY HH24:MI') as en, (s.enddate - s.startdate)*24 as len FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) $where");
+            $info = $this->db->pq("SELECT s.beamlinename as bl, s.sessionid as sid, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st, TO_CHAR(s.enddate, 'DD-MM-YYYY HH24:MI') as en, (s.enddate - s.startdate)*24 as len FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) $where", $args);
             
             if (!sizeof($info)) {
                 $this->msg('No such visit', 'That visit doesnt seem to exist');
@@ -214,11 +216,11 @@
             
             
             # Visit breakdown
-            $dc = $this->db->q("SELECT TO_CHAR(dc.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(dc.endtime, 'DD-MM-YYYY HH24:MI:SS') as en, (dc.endtime - dc.starttime)*86400 as dctime FROM ispyb4a_db.datacollection dc WHERE dc.sessionid=".$info['SID']." ORDER BY dc.endtime DESC");
+            $dc = $this->db->pq("SELECT TO_CHAR(dc.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(dc.endtime, 'DD-MM-YYYY HH24:MI:SS') as en, (dc.endtime - dc.starttime)*86400 as dctime FROM ispyb4a_db.datacollection dc WHERE dc.sessionid=:1 ORDER BY dc.endtime DESC", array($info['SID']));
             
-            $robot = $this->db->q("SELECT r.status, r.actiontype, TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(r.endtimestamp, 'DD-MM-YYYY HH24:MI:SS') as en, (CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as dctime FROM ispyb4a_db.robotaction r WHERE r.blsessionid=".$info['SID']." ORDER BY r.endtimestamp DESC");
+            $robot = $this->db->pq("SELECT r.status, r.actiontype, TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(r.endtimestamp, 'DD-MM-YYYY HH24:MI:SS') as en, (CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as dctime FROM ispyb4a_db.robotaction r WHERE r.blsessionid=:1 ORDER BY r.endtimestamp DESC", array($info['SID']));
 
-            $edge = $this->db->q("SELECT TO_CHAR(e.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(e.endtime, 'DD-MM-YYYY HH24:MI:SS') as en, (e.endtime - e.starttime)*86400 as dctime FROM ispyb4a_db.energyscan e WHERE e.sessionid=".$info['SID']." ORDER BY e.endtime DESC");
+            $edge = $this->db->pq("SELECT TO_CHAR(e.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(e.endtime, 'DD-MM-YYYY HH24:MI:SS') as en, (e.endtime - e.starttime)*86400 as dctime FROM ispyb4a_db.energyscan e WHERE e.sessionid=:1 ORDER BY e.endtime DESC", array($info['SID']));
             
             $info['DC_TOT'] = sizeof($dc);
             $info['E_TOT'] = sizeof($edge);
@@ -282,7 +284,7 @@
             $bs2 = 50;
             $bc = 10;
             
-            $dchist = $this->db->q("SELECT count(1) as c, bin FROM (SELECT width_bucket((dc.endtime - dc.starttime)*86400, 0, ".($bc*$bs).", ".$bc.") as bin FROM ispyb4a_db.datacollection dc WHERE dc.sessionid=".$info['SID'].") GROUP BY bin ORDER BY bin");
+            $dchist = $this->db->pq("SELECT count(1) as c, bin FROM (SELECT width_bucket((dc.endtime - dc.starttime)*86400, 0, :1, :2) as bin FROM ispyb4a_db.datacollection dc WHERE dc.sessionid=:3) GROUP BY bin ORDER BY bin", array($bc*$bs, $bc, $info['SID']));
             
             $dch = array();
             $max = 0;
@@ -299,7 +301,7 @@
             
             
             
-            $dchist = $this->db->q("SELECT count(1) as c, bin FROM (SELECT width_bucket(numberofimages, 0, ".($bc*$bs2).", ".$bc.") as bin FROM ispyb4a_db.datacollection dc WHERE dc.sessionid=".$info['SID'].") GROUP BY bin ORDER BY bin");
+            $dchist = $this->db->pq("SELECT count(1) as c, bin FROM (SELECT width_bucket(numberofimages, 0, :1, :2) as bin FROM ispyb4a_db.datacollection dc WHERE dc.sessionid=:3) GROUP BY bin ORDER BY bin", array($bc*$bs2, $bc, $info['SID']));
 
             $dch = array();
             $max = 0;
@@ -316,11 +318,11 @@
             
             
             # Percentage breakdown of time used
-            $dc = $this->db->q("SELECT TO_CHAR(MAX(dc.endtime), 'DD-MM-YYYY HH24:MI') as last, SUM(dc.endtime - dc.starttime)*24 as dctime, GREATEST((max(s.enddate)-max(dc.endtime))*24,0) as rem, GREATEST((min(dc.starttime)-min(s.startdate))*24,0) as sup  FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON dc.sessionid=s.sessionid WHERE dc.sessionid=".$info['SID']." ORDER BY min(s.startdate)")[0];
+            $dc = $this->db->pq("SELECT TO_CHAR(MAX(dc.endtime), 'DD-MM-YYYY HH24:MI') as last, SUM(dc.endtime - dc.starttime)*24 as dctime, GREATEST((max(s.enddate)-max(dc.endtime))*24,0) as rem, GREATEST((min(dc.starttime)-min(s.startdate))*24,0) as sup  FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON dc.sessionid=s.sessionid WHERE dc.sessionid=:1 ORDER BY min(s.startdate)", array($info['SID']))[0];
             
-            $rb = $this->db->q("SELECT SUM(CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*24 as dctime FROM ispyb4a_db.robotaction r WHERE r.blsessionid=".$info['SID'])[0];
+            $rb = $this->db->pq("SELECT SUM(CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*24 as dctime FROM ispyb4a_db.robotaction r WHERE r.blsessionid=:1", array($info['SID']))[0];
             
-            $ed = $this->db->q("SELECT SUM(e.endtime-e.starttime)*24 as dctime FROM ispyb4a_db.energyscan e WHERE e.sessionid=".$info['SID'])[0];
+            $ed = $this->db->pq("SELECT SUM(e.endtime-e.starttime)*24 as dctime FROM ispyb4a_db.energyscan e WHERE e.sessionid=:1", array($info['SID']))[0];
             
             $rb = array_key_exists('DCTIME', $rb) ? $rb['DCTIME'] : 0;
             $ed = array_key_exists('DCTIME', $ed) ? $ed['DCTIME'] : 0;
@@ -337,7 +339,7 @@
             
             
             # Get Robot Errors
-            $robotl = $this->db->q("SELECT TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, r.status, r.actiontype, r.containerlocation, r.dewarlocation, r.samplebarcode, r.message, (CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as time FROM ispyb4a_db.robotaction r WHERE r.status != 'SUCCESS' AND r.blsessionid=".$info['SID']." ORDER BY r.starttimestamp DESC");
+            $robotl = $this->db->pq("SELECT TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, r.status, r.actiontype, r.containerlocation, r.dewarlocation, r.samplebarcode, r.message, (CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as time FROM ispyb4a_db.robotaction r WHERE r.status != 'SUCCESS' AND r.blsessionid=:1 ORDER BY r.starttimestamp DESC", array($info['SID']));
             
             
             $this->template('Visit: ' . $this->arg('bag'), array('Bag: '.$this->arg('bag'), 'Visit: ' . $this->arg('visit')), array('/bag/'.$this->arg('bag'), ''));

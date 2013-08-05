@@ -5,13 +5,13 @@
         var $arg_list = array('id' => '\d+', 'n' => '\d+', 'f' => '\d');
         var $dispatch = array('xtal' => '_xtal_image', 'diff' => '_diffraction_image', 'dimp' => '_dimple_images', 'di' => '_diffraction_viewer');
         var $def = 'xtal';
-        
+
         
         # Forward xtal images from visit directory to browser
         function _xtal_image() {
             if (!$this->has_arg('id')) return;
             
-            $row = $this->db->q('SELECT dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4 FROM ispyb4a_db.datacollection dc WHERE dc.datacollectionid='.$this->arg('id'))[0];
+            $row = $this->db->pq('SELECT dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4 FROM ispyb4a_db.datacollection dc WHERE dc.datacollectionid=:1', array($this->arg('id')))[0];
             
             $images = array();
             foreach (array('X1', 'X2', 'X3', 'X4') as $i) {
@@ -38,7 +38,7 @@
             if (!$this->has_arg('id')) return;
             $n = $this->has_arg('n') ? $this->arg('n') : 1;
             
-            $info = $this->db->q('SELECT imagedirectory as loc, filetemplate as ft, numberofimages as num FROM ispyb4a_db.datacollection WHERE datacollectionid='.$this->arg('id'))[0];
+            $info = $this->db->pq('SELECT imagedirectory as loc, filetemplate as ft, numberofimages as num FROM ispyb4a_db.datacollection WHERE datacollectionid=:1', array($this->arg('id')))[0];
             
             if ($n > $info['NUM']) return;
             
@@ -60,7 +60,7 @@
             if (!$this->has_arg('id')) return;
             
             $n = $this->has_arg('n') ? $this->arg('n') : 1;
-            $rows = $this->db->q('SELECT jpegfilefullpath as im FROM ispyb4a_db.image WHERE datacollectionid='.$this->arg('id') . ' AND imagenumber='.$n);
+            $rows = $this->db->pq('SELECT jpegfilefullpath as im FROM ispyb4a_db.image WHERE datacollectionid=:1 AND imagenumber=:2', array($this->arg('id'), $n));
 
             if (sizeof($rows) > 0) {
                 $im = $rows[0]['IM'];
@@ -87,7 +87,7 @@
             $n = 1;
             if ($this->has_arg('n')) $n = $this->arg('n');
             
-            $info = $this->db->q('SELECT dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE dc.datacollectionid='.$this->arg('id'))[0];
+            $info = $this->db->pq('SELECT dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE dc.datacollectionid=:1', array($this->arg('id')))[0];
             $this->ads($info['DIR']);
             
             $root = str_replace($info['VIS'], $info['VIS'] . '/processed', $info['DIR']).$info['IMP'].'_'.$info['RUN'].'_/fast_dp/dimple';
