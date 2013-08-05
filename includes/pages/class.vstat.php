@@ -206,7 +206,11 @@
         function _get_visit() {
             $where = "WHERE p.proposalcode || p.proposalnumber LIKE '".$this->arg('bag')."' AND s.visit_number=".$this->arg('visit');
             
-            $info = $this->db->q("SELECT s.beamlinename as bl, s.sessionid as sid, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st, TO_CHAR(s.enddate, 'DD-MM-YYYY HH24:MI') as en, (s.enddate - s.startdate)*24 as len FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) $where")[0];
+            $info = $this->db->q("SELECT s.beamlinename as bl, s.sessionid as sid, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st, TO_CHAR(s.enddate, 'DD-MM-YYYY HH24:MI') as en, (s.enddate - s.startdate)*24 as len FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) $where");
+            
+            if (!sizeof($info)) {
+                $this->msg('No such visit', 'That visit doesnt seem to exist');
+            } else $info = $info[0];
             
             
             # Visit breakdown
@@ -219,6 +223,8 @@
             $info['DC_TOT'] = sizeof($dc);
             $info['E_TOT'] = sizeof($edge);
             $info['R_TOT'] = sizeof($robot);
+            
+            if ($info['DC_TOT'] + $info['E_TOT'] + $info['R_TOT'] == 0) $this->msg('No Data', 'There is no data associated with that visit');
             
             $data = array();
             foreach ($dc as $d) {
