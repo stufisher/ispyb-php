@@ -101,7 +101,7 @@
                 <textarea name="resolution"></textarea>
             </li>
 
-            <button type="submit">Submit Report</button>
+            <button type="submit" class="submit">Submit Report</button>
 
 
         </ul>
