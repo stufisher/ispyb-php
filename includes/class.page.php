@@ -135,6 +135,19 @@
                 
             }
             
+            # Append _GET args when not on url
+            $pg = array_merge($_GET, $_POST);
+            foreach ($this->arg_list as $k => $v) {
+                if (!array_key_exists($k, $parsed)) {
+                    if (array_key_exists($k, $pg)) {
+                    
+                        if (preg_match('/^'.$v.'$/', $pg[$k])) {
+                            $parsed[$k] = $pg[$k];
+                        }
+                    }
+                }
+            }
+            
             #$this->args = json_decode(json_encode($parsed), FALSE);
             $this->args = $parsed;
         }
