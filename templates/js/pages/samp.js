@@ -486,7 +486,7 @@ $(function() {
   
       var samples = []
       $.each(prs, function(i,p) {
-             if (p > -1) samples.push({id: i, protein: p, name: sns[i], comment: cms[i]})
+             if (p > -1) samples.push({id: i, protein: p, name: sns[i], comment: cms[i], sg: ''})
       })
   
       var data = {
