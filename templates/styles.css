@@ -502,13 +502,27 @@ div.form .clear {
     clear: both;
 }
 
-div.form button {
+div.form button.submit {
     width: 150px;
     height: 30px;
 }
 
 div.form .half {
     /*width: 34%;*/
+}
+
+.editable {
+    padding: 1%;
+    border-radius: 5px;
+}
+
+.editable:hover {
+    cursor: pointer;
+    background: #cdcdcd;
+}
+
+.editable button {
+    margin: 3px;
 }
 
 
@@ -1251,9 +1265,12 @@ ul.latest li ul li {
 /* Fault Reporting
  ---------------------------------------------------------*/
 div.text {
-    width: 71.7%;
+    width: 69.7%;
     margin: 1% 0;
+    padding: 1%;
     float: right;
+    background: #eeeeee;
+    border-radius: 5px;
 }
 
 button.editor {

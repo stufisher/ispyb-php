@@ -1,7 +1,7 @@
 
     <h1>New Fault Report</h1>
 
-    <form>
+    <form method="post" id="add_fault">
 
     <div class="form border">
         <ul>
@@ -95,13 +95,13 @@
             </li>
 
             <li class="resolution">
-                <label>Resolution
+                <label>Resolution / Workaround
                     <span class="small">How the fault was resolved</span>
                 </label>
                 <textarea name="resolution"></textarea>
             </li>
 
-            <button type="submit" class="submit">Submit Report</button>
+            <button name="submit" value="1" type="submit" class="submit">Submit Report</button>
 
 
         </ul>

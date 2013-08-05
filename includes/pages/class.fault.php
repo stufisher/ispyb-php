@@ -43,7 +43,7 @@
                                  
             );*/
             
-            $info = array(array('FAULTID' => 1, 'BLSESSIONID' => 12, 'BEAMLINEID' => 1, 'BEAMLINE' => 'i03', 'OWNER' => 'vxn01537', 'SYSTEMID' => 1, 'SYSTEM' => 'EPICS', 'COMPONENTID' => 1, 'COMPONENT' => 'Scintilator', 'SUBCOMPONENTID' => 1, 'SUBCOMPONENT' => 'x', 'STARTTIME' => '01-08-2013 11:08:07', 'ENDTIME' => '01-08-2013 11:08:07','BEAMTIMELOST' => 1, 'BEAMTIMELOST_STARTTIME' => '01-08-2013 11:08:07', 'BEAMTIMELOST_ENDTIME' => '01-08-2013 11:08:07', 'LOST' => 1.3, 'TITLE' => 'Scintilator lost home position', 'RESOLVED' => 1, 'DESCRIPTION' => 'skjdksd fkjs kflsjd fkjs lkfjs ldkfj lksjd flksdj lfksjd lfksj lfk', 'RESOLUTION' => 'sdf skjd fksj dfkjs dkjf skdj fksjd f', 'VISIT' => 'mx5677-32'));
+            $info = array(array('FAULTID' => 1, 'BLSESSIONID' => 12, 'BEAMLINEID' => 1, 'BEAMLINE' => 'i03', 'OWNER' => 'vxn01537', 'SYSTEMID' => 1, 'SYSTEM' => 'EPICS', 'COMPONENTID' => 1, 'COMPONENT' => 'Scintilator', 'SUBCOMPONENTID' => 1, 'SUBCOMPONENT' => 'x', 'STARTTIME' => '01-08-2013 11:08', 'ENDTIME' => '01-08-2013 11:08','BEAMTIMELOST' => 0, 'BEAMTIMELOST_STARTTIME' => '01-08-2013 11:08', 'BEAMTIMELOST_ENDTIME' => '01-08-2013 11:08', 'LOST' => 1.3, 'TITLE' => 'Scintilator lost home position', 'RESOLVED' => 1, 'DESCRIPTION' => 'skjdksd fkjs kflsjd fkjs lkfjs ldkfj lksjd flksdj lfksjd lfksj lfk', 'RESOLUTION' => 'sdf skjd fksj dfkjs dkjf skdj fksjd f', 'VISIT' => 'mx5677-32'));
             
             if (sizeof($info)) {
                 $info = $info[0];
@@ -54,6 +54,19 @@
             
             $this->template('Fault: '.$info['TITLE']);
             $this->t->f = $info;
+            
+            $this->t->js_var('fid', $info['FAULTID']);
+            
+            $this->t->js_var('owner', $info['OWNER'] == phpCAS::getUser());
+            $this->t->js_var('blid', $info['BEAMLINEID']);
+            
+            $this->t->js_var('sid', $info['SYSTEMID']);
+            $this->t->js_var('cid', $info['COMPONENTID']);
+            $this->t->js_var('scid', $info['SUBCOMPONENTID']);
+            
+            $this->t->js_var('resolved', $info['RESOLVED']);
+            $this->t->js_var('btl', $info['BEAMTIMELOST']);
+            
             $this->render('fault_view');
         }
         
@@ -63,8 +76,15 @@
         
         # Add new fault report
         function _add_fault() {
-            $this->template('Add New Fault Report', array('New'), array(''));
-            $this->render('fault_new');
+            if (array_key_exists('submit', $_POST)) {
+                
+                $id = 1;
+                
+                $this->msg('New Fault Added', 'Your fault report was sucessfully submitted. Click <a href="/fault/fid/'.$id.'">here</a> to see to the fault listing');
+            } else {
+                $this->template('Add New Fault Report', array('New'), array(''));
+                $this->render('fault_new');
+            }
         }
         
         

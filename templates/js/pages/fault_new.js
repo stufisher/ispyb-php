@@ -139,5 +139,10 @@ $(function() {
       })
   }
   
+  // Validate form before submission
+  $('#add_fault').submit(function() {
+                         
+  })
+  
   
 });

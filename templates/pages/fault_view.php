@@ -1,70 +1,71 @@
-    <h1><?php echo $f['TITLE'] ?></h1>
+    <h1><span class="title"><?php echo $f['TITLE'] ?></span></h1>
 
     <div class="form border">
         <ul>
 
             <li>
                 <span class="label">Beamline</span>
-                <?php echo $f['BEAMLINE'] ?>
+                <span class="beamline"><?php echo $f['BEAMLINE'] ?></span>
             </li>
 
             <li>
                 <span class="label">Start Date/Time</span>
-                <?php echo $f['STARTTIME'] ?>
+                <span class="starttime"><?php echo $f['STARTTIME'] ?></span>
             </li>
 
             <li>
                 <span class="label">Visit ID</span>
-                <?php echo $f['VISIT'] ?>
+                <span class="visit"><?php echo $f['VISIT'] ?></span>
             </li>
 
             <li>
                 <span class="label">System</span>
-                <?php echo $f['SYSTEM'] ?>
+                <span class="system"><?php echo $f['SYSTEM'] ?></span>
             </li>
 
             <li>
                 <span class="label">Component & Sub Component</span>
-                <?php echo $f['COMPONENT'] ?>
-                <?php if ($f['SUBCOMPONENT']) echo ' &raquo; ' . $f['SUBCOMPONENT']; ?>
+                <span class="component"><?php echo $f['COMPONENT'] ?></span>
+                <?php if ($f['SUBCOMPONENT']) echo ' &raquo; ' . '<span class="subcomponent">'.$f['SUBCOMPONENT'].'</span>'; ?>
             </li>
 
             <li>
                 <span class="label">Beamtime Lost</span>
-                <?php echo $f['BEAMTIMELOST'] ? 'Yes' : 'No' ?>
+                <span class="btl"><?php echo $f['BEAMTIMELOST'] ? 'Yes' : 'No' ?></span>
             </li>
 
-            <?php if ($f['BEAMTIMELOST']): ?>
             <li class="beamtime_lost">
                 <span class="label">Beamtime Lost Between</span>
-                <?php echo $f['BEAMTIMELOST_STARTTIME'] ?> -
-                <?php echo $f['BEAMTIMELOST_ENDTIME'] ?>
-                (<?php echo $f['LOST'] ?>hr)
+                <span class="btl_start"><?php echo $f['BEAMTIMELOST_STARTTIME'] ?></span> -
+                <span class="btl_end"><?php echo $f['BEAMTIMELOST_ENDTIME'] ?></span>
+                (<span class="lost"><?php echo $f['LOST'] ?></span>hr)
             </li>
-            <?php endif; ?>
+
+
 
             <li>
-                <div class="text"><?php echo $f['DESCRIPTION'] ?></div>
+                <div class="description text"><?php echo $f['DESCRIPTION'] ?></div>
                 <span class="label">Description</span>
 
             </li>
 
+
             <li>
                 <span class="label">Fault Resolved</span>
-                <?php echo $f['RESOLVED'] ? 'Yes' : 'No' ?>
+                <span class="resolved"><?php echo $f['RESOLVED']  == 2 ? 'Partial' : ($f['RESOLVED'] ? 'Yes' : 'No') ?></span>
             </li>
 
-            <?php if ($f['RESOLVED']): ?>
-            <li class="resolution">
-                <span class="label">End Date/Time</spaN>
-                <?php echo $f['ENDTIME'] ?>
+            <li class="fresolved">
+                <span class="label">End Date/Time</span>
+                <span class="endtime"><?php echo $f['ENDTIME'] ?></span>
             </li>
 
-            <li class="resolution">
-                <div class="text"><?php echo $f['RESOLUTION'] ?></div>
+            <li class="fresolved">
+                <div class="resolution text"><?php echo $f['RESOLUTION'] ?></div>
                 <span class="label">Resolution</span>
             </li>
-            <?php endif; ?>
 
         </ul>
+
+        <div class="clear"></div>
     </div>
