@@ -101,7 +101,7 @@
         function _proteins() {
             if (!$this->has_arg('visit')) $this->_error('No visit specified');
             
-            $rows = $this->db->q("SELECT distinct pr.acronym, max(pr.proteinid) as proteinid FROM protein pr
+            $rows = $this->db->pq("SELECT distinct pr.acronym, max(pr.proteinid) as proteinid FROM protein pr
                                 INNER JOIN blsession bl ON bl.proposalid = pr.proposalid
                                 INNER JOIN proposal p ON bl.proposalid = p.proposalid
                                 WHERE pr.acronym is not null AND p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE :1 GROUP BY pr.acronym ORDER BY lower(pr.acronym)", array($this->arg('visit')));
