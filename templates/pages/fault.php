@@ -2,10 +2,10 @@
 
     <div class="filter">
         <ul>
-            <li id="dc">Beamline</li>
-            <li id="ed">System</li>
-            <li id="fl">Component</li>
-            <li id="rb">Subcomponent</li>
+            <li id="dc">Beamline: <select name="beamline"></select> <span class="beamline remove"></span></li>
+            <li id="ed">System: <select name="system"></select> <span class="system remove"></span></li>
+            <li id="fl">Component: <select name="component"></select> <span class="component remove"></span></li>
+            <li id="rb">Subcomponent: <select name="subcomponent"></select> <span class="subcomponent remove"></span></li>
         </ul>
     </div>
 
