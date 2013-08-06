@@ -6,7 +6,7 @@
         var $dispatch = array('list' => '_get_faults',
                               
                               'visits' => '_get_visits',
-                              'bl' => '_get_beamlines',
+                              'bls' => '_get_beamlines',
                               'sys' => '_get_systems',
                               'com' => '_get_components',
                               'scom' => '_get_subcomponents',

@@ -50,7 +50,7 @@ $(function() {
     }).addClass('editable');
   
     $('.beamline').editable('/fault/ajax/update/fid/'+fid+'/ty/bl/', {
-        loadurl: '/fault/ajax/bl/array/1/',
+        loadurl: '/fault/ajax/bls/array/1/',
         type: 'select',
         submit: 'Ok',
         style: 'display: inline',

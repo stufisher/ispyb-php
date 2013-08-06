@@ -12,7 +12,7 @@ $(function() {
   
   function _get_beamlines() {
       $.ajax({
-        url: '/fault/ajax/bl',
+        url: '/fault/ajax/bls',
         type: 'GET',
         dataType: 'json',
         timeout: 5000,
