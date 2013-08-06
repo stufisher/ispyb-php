@@ -15,12 +15,17 @@ $(function() {
   });
   
   
-  function showhide() {
-    resolved == 1 ? $('.fresolved').slideDown() : $('.fresolved').slideUp()
-    btl == 1 ? $('.beamtime_lost').slideDown() : $('.beamtime_lost').slideUp()
+  function showhide(onload) {
+    if (onload) {
+      resolved == 1 ? $('.fresolved').show() : $('.fresolved').hide()
+      btl == 1 ? $('.beamtime_lost').show() : $('.beamtime_lost').hide()
+    } else {
+      resolved == 1 ? $('.fresolved').slideDown() : $('.fresolved').slideUp()
+      btl == 1 ? $('.beamtime_lost').slideDown() : $('.beamtime_lost').slideUp()
+    }
   }
   
-  showhide()
+  showhide(true)
   
   function _diff() {
     var diff = (_d2u($('.btl_end').html()) - _d2u($('.btl_start').html()))/3600
@@ -42,7 +47,7 @@ $(function() {
         type: 'text',
         submit: 'Ok',
         style: 'display: inline',
-    }).addClass('editable'); 
+    }).addClass('editable');
   
     $('.beamline').editable('/fault/ajax/update/fid/'+fid+'/ty/bl/', {
         loadurl: '/fault/ajax/bl/array/1/',
