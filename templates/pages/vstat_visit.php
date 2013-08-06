@@ -76,3 +76,35 @@
 
             </table>
         </div>
+
+
+        <h1>Faults</h1>
+
+        <div class="table">
+            <table class="robot_actions">
+                <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Time</th>
+                    <th>System</th>
+                    <th>Component</th>
+                    <th>Sub Component</th>
+                    <th>Resolved</th>
+                    <th>Beamtime Lost</th>
+                </tr>
+                </thead>
+
+                <?php foreach ($fault as $f): ?>
+                <tr>
+                    <td><a href="/fault/fid/<?php echo $f['FAULTID'] ?>"><?php echo $f['TITLE'] ?></a></td>
+                    <td><?php echo $f['STARTTIME'] ?></td>
+                    <td><?php echo $f['SYSTEM'] ?></td>
+                    <td><?php echo $f['COMPONENT'] ?></td>
+                    <td><?php echo $f['SUBCOMPONENT'] ?></td>
+                    <td><?php echo $f['RESOLVED'] ? ($f['RESOLVED'] == 2 ? 'Partial' : 'Yes') : 'No' ?></td>
+                    <td><?php echo $f['BEAMTIMELOST'] ? ('Yes ('.$f['LOST'].'h)') : 'No' ?></td>
+                </tr>
+                <?php endforeach ?>
+
+            </table>
+        </div>
