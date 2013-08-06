@@ -57,13 +57,13 @@
             );
             return;
             
-            array_push($args, $start);
-            array_push($args, $end);
+            array_unshift($args, $start);
+            array_unshift($args, $end);
             
             $rows = $this->db->pq("SELECT outer.*
              FROM (SELECT ROWNUM rn, inner.*
                FROM (
-                SELECT f.faultid, f.blsessionid, f.beamlineid, bl.name as beamline f.owner, f.systemid, s.name as system f.componentid, c.name as component, f.subcomponentid, sc.name as subcomponent, f.starttime, f.endtime, f.beamtimelost, (f.beamtimelost_endtime-f.beamtimelost_starttime) as lost, f.title, f.resolved
+                SELECT f.faultid, f.blsessionid, f.beamlineid, bl.name as beamline f.owner, f.systemid, s.name as system f.componentid, c.name as component, f.subcomponentid, sc.name as subcomponent, f.starttime, f.endtime, f.beamtimelost, (f.beamtimelost_endtime-f.beamtimelost_starttime)*24 as lost, f.title, f.resolved
                 FROM ispyb4a_db.bf_faults f
                 INNER JOIN bf_beamline bl ON f.beamlineid = bl.beamlineid
                 INNER JOIN bf_system s ON f.systemid = s.systemid
