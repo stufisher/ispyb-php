@@ -258,7 +258,7 @@
                 if ($f['BEAMTIMELOST']) {
                     array_push($data, array('data' => array(
                         array($this->jst($e['ST']), 4, $this->jst($e['ST'])),
-                        array($this->jst($e['EN']), 4, $this->jst($e['ST']))), 'color' => 'grey', 'status' => $f['TITLE']));
+                        array($this->jst($e['EN']), 4, $this->jst($e['ST']))), 'color' => 'grey', 'status' => ' '.$f['TITLE']));
                     
                 }
             }
