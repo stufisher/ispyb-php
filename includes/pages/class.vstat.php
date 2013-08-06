@@ -222,9 +222,15 @@
 
             $edge = $this->db->pq("SELECT TO_CHAR(e.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(e.endtime, 'DD-MM-YYYY HH24:MI:SS') as en, (e.endtime - e.starttime)*86400 as dctime FROM ispyb4a_db.energyscan e WHERE e.sessionid=:1 ORDER BY e.endtime DESC", array($info['SID']));
             
+            # Get Faults
+            $faultl = array();
+            #$faultl = $this->db->pq("SELECT f.faultid, f.beamlineid, bl.name as beamline f.owner, s.name as system, c.name as component, sc.name as subcomponent, f.starttime, f.endtime, f.beamtimelost, (f.beamtimelost_endtime-f.beamtimelost_starttime)*24 as lost, beamtimelost_starttime as st, beamtimelost_endtime as en, f.title, f.resolved FROM ispyb4a_db.bf_faults f INNER JOIN bf_beamline bl ON f.beamlineid = bl.beamlineid INNER JOIN bf_system s ON f.systemid = s.systemid INNER JOIN bf_component c ON f.systemid = c.componentid LEFT JOIN bf_subcomponent sc ON f.subcomponentid = sc.subcomponentid WHERE f.blsessionid = :1", array($info['SID']));
+            
+            
             $info['DC_TOT'] = sizeof($dc);
             $info['E_TOT'] = sizeof($edge);
             $info['R_TOT'] = sizeof($robot);
+            $info['F_TOT'] = sizeof($faultl);
             
             if ($info['DC_TOT'] + $info['E_TOT'] + $info['R_TOT'] == 0) $this->msg('No Data', 'There is no data associated with that visit');
             
@@ -239,7 +245,7 @@
             foreach ($robot as $r) {
                 array_push($data, array('data' => array(
                         array($this->jst($r['ST']), 2, $this->jst($r['ST'])),
-                        array($this->jst($r['EN']), 2, $this->jst($r['ST']))), 'color' => 'blue',             'status' => ' ' . $r['ACTIONTYPE'] . ' (' . $r['STATUS'] . ')'));
+                        array($this->jst($r['EN']), 2, $this->jst($r['ST']))), 'color' => 'blue', 'status' => ' ' . $r['ACTIONTYPE'] . ' (' . $r['STATUS'] . ')'));
             }
             
             foreach ($edge as $e) {
@@ -248,6 +254,15 @@
                         array($this->jst($e['EN']), 3, $this->jst($e['ST']))), 'color' => 'orange'));
             }
 
+            foreach ($faultl as $f) {
+                if ($f['BEAMTIMELOST']) {
+                    array_push($data, array('data' => array(
+                        array($this->jst($e['ST']), 4, $this->jst($e['ST'])),
+                        array($this->jst($e['EN']), 4, $this->jst($e['ST']))), 'color' => 'grey', 'status' => $f['TITLE']));
+                    
+                }
+            }
+            
             // Beam status
             $bs = $this->_get_archive('SR-DI-DCCT-01:SIGNAL', strtotime($info['ST'])+3600, strtotime($info['EN'])+3600, 200);
             #$bs = $this->_get_archive('CS-CS-MSTAT-01:MODE', strtotime($info['ST'])+3600, strtotime($info['EN'])+3600, 200);
@@ -324,8 +339,13 @@
             
             $ed = $this->db->pq("SELECT SUM(e.endtime-e.starttime)*24 as dctime FROM ispyb4a_db.energyscan e WHERE e.sessionid=:1", array($info['SID']))[0];
             
+            #$fa = $this->db->pq("SELECT SUM(f.beamtimelost_endtime-f.beamtimelost_starttime)*24 as dctime FROM ispyb4a_db.bf_faults f WHERE f.sessionid=:1", array($info['SID']))[0];
+            $fa = array();
+            
+            
             $rb = array_key_exists('DCTIME', $rb) ? $rb['DCTIME'] : 0;
             $ed = array_key_exists('DCTIME', $ed) ? $ed['DCTIME'] : 0;
+            $fa = array_key_exists('DCTIME', $fa) ? $fa['DCTIME'] : 0;
             $t = max($info['LEN'] - $dc['SUP'] - $dc['DCTIME'] - $dc['REM'] - $rb - $ed,0);
             
             $pie = array();
@@ -336,11 +356,12 @@
             array_push($pie, array('label'=>'Thinking', 'color'=> 'purple', 'data'=>$t));
             array_push($pie, array('label'=>'Remaining', 'color'=> 'red', 'data'=>$dc['REM']));
             array_push($pie, array('label'=>'Beam Dump', 'color'=> 'black', 'data'=>$total_no_beam/3600));
+            array_push($pie, array('label'=>'Faults', 'color'=> 'black', 'data'=>$fa));
             
             
             # Get Robot Errors
             $robotl = $this->db->pq("SELECT TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, r.status, r.actiontype, r.containerlocation, r.dewarlocation, r.samplebarcode, r.message, (CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as time FROM ispyb4a_db.robotaction r WHERE r.status != 'SUCCESS' AND r.blsessionid=:1 ORDER BY r.starttimestamp DESC", array($info['SID']));
-            
+        
             
             $this->template('Visit: ' . $this->arg('bag'), array('Bag: '.$this->arg('bag'), 'Visit: ' . $this->arg('visit')), array('/bag/'.$this->arg('bag'), ''));
             $this->t->bag = $this->arg('bag');
@@ -349,6 +370,7 @@
             $this->t->last = $dc['LAST'];
             
             $this->t->robot = $robotl;
+            $this->t->fault = $faultl;
             $this->t->js_var('visit_info', $data);
             $this->t->js_var('start', $this->jst($info['ST']));
             $this->t->js_var('end', $this->jst(strtotime($info['EN']) < strtotime($dc['LAST']) ? $dc['LAST'] : $info['EN']));
