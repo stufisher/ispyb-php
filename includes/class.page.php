@@ -78,7 +78,7 @@
                 if ($this->staff) {
                     $auth = True;
                 } else {
-                    $rows = $this->db->q("SELECT lower(i.visit_id) as vis from investigation@DICAT_RO i inner join investigationuser@DICAT_RO iu on i.id = iu.investigation_id inner join user_@DICAT_RO u on u.id = iu.user_id where u.name='".$u."'");
+                    $rows = $this->db->pq("SELECT lower(i.visit_id) as vis from investigation@DICAT_RO i inner join investigationuser@DICAT_RO iu on i.id = iu.investigation_id inner join user_@DICAT_RO u on u.id = iu.user_id where u.name=:1", array($u));
                     
                     foreach ($rows as $row) {
                         array_push($this->visits, strtolower($row['VIS']));
@@ -88,7 +88,7 @@
                     
                         // Check user is in this visit
                         if ($this->has_arg('id')) {
-                            $vis = strtoupper($this->db->q('SELECT p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.datacollection dc ON s.sessionid = dc.sessionid WHERE dc.datacollectionid ='.$this->arg('id'))[0]['VIS']);
+                            $vis = strtoupper($this->db->pq('SELECT p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.datacollection dc ON s.sessionid = dc.sessionid WHERE dc.datacollectionid = :1', array($this->arg('id')))[0]['VIS']);
                             
                         } else if ($this->has_arg('visit')) {
                             $vis = $this->arg('visit');
