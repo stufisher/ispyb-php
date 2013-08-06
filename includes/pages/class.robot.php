@@ -10,7 +10,7 @@
         var $root_link = '/robot/';
         
         var $require_staff = True;
-
+        #var $debug = True;
         
         
         # Internal dispatcher based on passed arguments
@@ -133,6 +133,9 @@
                 $run = $this->db->pq('SELECT run FROM ispyb4a_db.v_run WHERE runid=:1', array($this->args['run']))[0]['RUN'];
 
             
+            # Get latest errors for run / beamline
+            $errors = $this->db->pq("SELECT * FROM (SELECT ROWNUM,r.samplebarcode, r.actiontype, r.dewarlocation, r.containerlocation, r.message, TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis, s.beamlinename as bl, r.status, (CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as time FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = s.sessionid) WHERE r.status != 'SUCCESS' AND $where ORDER BY r.starttimestamp DESC) WHERE rownum <= 100", $args);
+            
             $p = array();
             $l = array();
             
@@ -149,6 +152,7 @@
             
             $this->template(join(' > ', $p), $p, $l);
             
+            $this->t->errors = $errors;
             $this->t->js_var('avg_time', $avts);
             $this->t->js_var('avg_ticks', $ticks);
             $this->t->js_var('url', 1);
