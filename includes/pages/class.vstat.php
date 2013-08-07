@@ -223,8 +223,12 @@
             $edge = $this->db->pq("SELECT TO_CHAR(e.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(e.endtime, 'DD-MM-YYYY HH24:MI:SS') as en, (e.endtime - e.starttime)*86400 as dctime FROM ispyb4a_db.energyscan e WHERE e.sessionid=:1 ORDER BY e.endtime DESC", array($info['SID']));
             
             # Get Faults
-            $faultl = array();
-            #$faultl = $this->db->pq("SELECT f.faultid, bl.beamlinename as beamline f.owner, s.name as system, c.name as component, sc.name as subcomponent, f.starttime, f.endtime, f.beamtimelost, (f.beamtimelost_endtime-f.beamtimelost_starttime)*24 as lost, beamtimelost_starttime as st, beamtimelost_endtime as en, f.title, f.resolved FROM ispyb4a_db.bf_faults f INNER JOIN blsession bl ON f.blsessionid = bl.sessionid INNER JOIN bf_system s ON f.systemid = s.systemid INNER JOIN bf_component c ON f.systemid = c.componentid LEFT JOIN bf_subcomponent sc ON f.subcomponentid = sc.subcomponentid WHERE f.blsessionid = :1", array($info['SID']));
+            $faultl = $this->db->pq("SELECT f.faultid, bl.beamlinename as beamline, f.owner, s.name as system, c.name as component, sc.name as subcomponent, TO_CHAR(f.starttime, 'DD-MM-YYYY HH24:MI') as starttime, f.beamtimelost, round((f.beamtimelost_endtime-f.beamtimelost_starttime)*24,2) as lost, f.title, f.resolved, TO_CHAR(f.beamtimelost_starttime, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(f.beamtimelost_endtime, 'DD-MM-YYYY HH24:MI:SS') as en
+                FROM ispyb4a_db.bf_fault f INNER JOIN blsession bl ON f.sessionid = bl.sessionid
+                INNER JOIN bf_subcomponent sc ON f.subcomponentid = sc.subcomponentid
+                INNER JOIN bf_component c ON sc.componentid = c.componentid
+                INNER JOIN bf_system s ON c.systemid = s.systemid
+                WHERE f.sessionid = :1", array($info['SID']));
             
             
             $info['DC_TOT'] = sizeof($dc);
@@ -257,8 +261,8 @@
             foreach ($faultl as $f) {
                 if ($f['BEAMTIMELOST']) {
                     array_push($data, array('data' => array(
-                        array($this->jst($e['ST']), 4, $this->jst($e['ST'])),
-                        array($this->jst($e['EN']), 4, $this->jst($e['ST']))), 'color' => 'grey', 'status' => ' '.$f['TITLE']));
+                        array($this->jst($f['ST']), 4, $this->jst($f['ST'])),
+                        array($this->jst($f['EN']), 4, $this->jst($f['ST']))), 'color' => 'grey', 'status' => ' Fault: '.$f['TITLE']));
                     
                 }
             }
@@ -286,7 +290,7 @@
                 if ($lastv && ($v != $lastv)) {
                     array_push($data, array('data' => array(
                             array($st+$ex, 4, $st+$ex),
-                            array($c+$ex, 4, $st+$ex)), 'color' => 'black'));
+                            array($c+$ex, 4, $st+$ex)), 'color' => 'black', 'status' => ' Beam Dump'));
                     $bd = False;
                     $total_no_beam += ($c - $st) / 1000;
                 }
@@ -339,9 +343,7 @@
             
             $ed = $this->db->pq("SELECT SUM(e.endtime-e.starttime)*24 as dctime FROM ispyb4a_db.energyscan e WHERE e.sessionid=:1", array($info['SID']))[0];
             
-            #$fa = $this->db->pq("SELECT SUM(f.beamtimelost_endtime-f.beamtimelost_starttime)*24 as dctime FROM ispyb4a_db.bf_faults f WHERE f.sessionid=:1", array($info['SID']))[0];
-            $fa = array();
-            
+            $fa = $this->db->pq("SELECT SUM(f.beamtimelost_endtime-f.beamtimelost_starttime)*24 as dctime FROM ispyb4a_db.bf_fault f WHERE f.sessionid=:1", array($info['SID']))[0];
             
             $rb = array_key_exists('DCTIME', $rb) ? $rb['DCTIME'] : 0;
             $ed = array_key_exists('DCTIME', $ed) ? $ed['DCTIME'] : 0;

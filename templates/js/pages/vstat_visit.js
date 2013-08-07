@@ -8,14 +8,14 @@ $(function() {
 
         if (v[2] <= x && v[0] >= x && v[1] == y) {
             len = (v[0]-v[2])/1000
-            if (y == 2) e = visit_info[i]['status']
+            if (y == 2 || y == 4) e = visit_info[i]['status']
             break
 
         }
         
     }
   
-     return (y == 1 ? 'Data Collection': (y == 2 ? 'Robot Action' : (y == 3 ? 'Edge Scan': 'Beam Dump'))) + ': ' + len + 's ' + e
+     return (y == 1 ? 'Data Collection': (y == 2 ? 'Robot Action' : (y == 3 ? 'Edge Scan': 'Issue'))) + ': ' + len + 's ' + e
   }
   
   options = {
