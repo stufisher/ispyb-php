@@ -31,6 +31,7 @@
                 <th>Title</th>
                 <th>Time</th>
                 <th>Beamline</th>
+                <th>Visit</th>
                 <th>System</th>
                 <th>Component</th>
                 <th>Sub Component</th>
