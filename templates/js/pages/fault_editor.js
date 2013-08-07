@@ -3,7 +3,7 @@ $(function() {
     var systemid = -1;
     var componentid = -1;
   
-    var types = { beamlines: ['Beamline', 'beamline'], systems: ['System', 'system'], components: ['Component', 'component'] }
+    var types = { systems: ['System', 'system'], components: ['Component', 'component'], subcomponents: ['Subcomponent', 'subcomponent'] }
   
     $('.confirm').dialog({ autoOpen: false, modal: true })
   
