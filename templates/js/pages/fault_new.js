@@ -134,7 +134,7 @@ $(function() {
                 $('select[name=sub_component]').append('<option value='+s['SUBCOMPONENTID']+'>'+s['NAME']+'</option>')
             })
              
-            $('select[name=sub_component]').html() ? $('select[name=sub_component]').show() : $('select[name=sub_component]').hide()             
+            //$('select[name=sub_component]').html() ? $('select[name=sub_component]').show() : $('select[name=sub_component]').hide()
         }
       })
   }
