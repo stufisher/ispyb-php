@@ -131,7 +131,7 @@
             
             $this->t->vis = $this->arg('visit');
             $this->t->js_var('visit', $this->arg('visit'));
-                  $this->t->js_var('page', $this->has_arg('page') ? intval($this->arg('page')) : 1);
+            $this->t->js_var('page', $this->has_arg('page') ? intval($this->arg('page')) : 1);
             $this->t->js_var('bl', $info['BL']);
             $this->t->js_var('year', $info['YR']);
             $this->t->js_var('type', $this->has_arg('t') ? $this->arg('t') : '');
