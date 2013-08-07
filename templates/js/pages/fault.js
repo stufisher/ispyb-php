@@ -1,7 +1,7 @@
 $(function() {
   var search = ''; // search string
   var page = 1
-  
+  var thread;
   
   _get_faults()
   
@@ -19,13 +19,9 @@ $(function() {
   
   // Return list of faults
   function _get_faults() {
-      var bl = $('select[name=beamline]').val()
-      var sys = $('select[name=system]').val()
-      var com = $('select[name=component]').val()
-      var scom = $('select[name=subcomponent]').val()
-  
+
       $.ajax({
-        url: '/fault/ajax' + (search ? '/s/'+search : '') + (bl ? '/bl/'+bl : '') + (sys ? '/sid/'+sys : '') + (com ? '/cid/'+com : '') + (scom ? '/scid/'+scom : ''),
+        url: '/fault/ajax' + (search ? '/s/'+search : '') + (bl ? '/bl/'+bl : '') + (sid ? '/sid/'+sid : '') + (cid ? '/cid/'+cid : '') + (scid ? '/scid/'+scid : '') + '/page/'+page,
         type: 'GET',
         dataType: 'json',
         timeout: 5000,
@@ -43,6 +39,7 @@ $(function() {
                         '<td><a href="/fault/fid/'+f['FAULTID']+'">'+f['TITLE']+'</a></td>'+
                         '<td>'+f['STARTTIME']+'</td>'+
                         '<td><a href="/fault/bl/'+f['BEAMLINE']+'">'+f['BEAMLINE']+'</a></td>'+
+                        '<td><a href="/vstat/bag/'+f['BAG']+'/visit/'+f['VISIT']+'">'+f['BAG']+'-'+f['VISIT']+'</a></td>'+
                         '<td><a href="/fault/sid/'+f['SYSTEMID']+'">'+f['SYSTEM']+'</td>'+
                         '<td><a href="/fault/cid/'+f['COMPONENTID']+'">'+f['COMPONENT']+'</td>'+
                         '<td><a href="/fault/scid/'+f['SUBCOMPONENTID']+'">'+f['SUBCOMPONENT']+'</td>'+
@@ -52,9 +49,23 @@ $(function() {
                 )
 
             })
+             
+            map_callbacks()
         }
       })     
   
+  }
+  
+  function map_callbacks() {
+      // Page links
+      $('.pages a').unbind('click').click(function() {
+           page = parseInt($(this).attr('href').replace('#', ''))
+           $('table.robot_actions tbody').empty()
+           _get_faults()
+           url = window.location.pathname.replace(/\/page\/\d+/, '')+'/page/'+page
+           window.history.pushState({}, '', url)
+           return false
+      })
   }
   
   
@@ -75,6 +86,7 @@ $(function() {
   }
 
   $('select[name=beamline]').change(function() {
+    bl = $(this).val()
     refresh_systems()
     _get_faults()
   })  
@@ -103,6 +115,7 @@ $(function() {
   }
   
   $('select[name=system]').change(function() {
+    sid = $(this).val()
     refresh_components()
     _get_faults()
   })
@@ -137,6 +150,7 @@ $(function() {
   }
   
   $('select[name=component]').change(function() {
+    cid = $(this).val()
     refresh_sub_components()
     _get_faults()
   })  
@@ -168,6 +182,7 @@ $(function() {
   }
   
   $('select[name=subcomponent]').change(function() {
+    scid = $(this).val()
     _get_faults()
   })
   

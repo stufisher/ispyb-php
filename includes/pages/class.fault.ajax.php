@@ -33,6 +33,14 @@
         function _get_faults() {
             $args = array();
             $where = array();
+            
+            if ($this->has_arg('s')) {
+                $st = sizeof($args) + 1;
+                array_push($where, "(f.title LIKE '%'||".$st."||'%' OR f.description LIKE '%'||".($st+1)."||'%')");
+                array_push($args, $this->arg('s'));
+                array_push($args, $this->arg('s'));
+            }
+            
             $where = implode($where, ' AND ');
             
             $start = 0;
@@ -52,7 +60,7 @@
             if ($tot % $pp != 0) $pgs++;
             
             $this->_output(array(4, array(
-                array('FAULTID' => 1, 'BLSESSIONID' => 12, 'BEAMLINEID' => 1, 'BEAMLINE' => 'i03', 'OWNER' => 'vxn01537', 'SYSTEMID' => 1, 'SYSTEM' => 'EPICS', 'COMPONENTID' => 1, 'COMPONENT' => 'Scintilator', 'SUBCOMPONENTID' => 1, 'SUBCOMPONENT' => 'x', 'STARTTIME' => '01-08-2013 11:08', 'BEAMTIMELOST' => 1, 'LOST' => 1.3, 'TITLE' => 'Scintilator lost home position', 'RESOLVED' => 1),
+                array('FAULTID' => 1, 'BLSESSIONID' => 12, 'BAG' => 'mx5431', 'VISIT' => '12', 'BEAMLINEID' => 1, 'BEAMLINE' => 'i03', 'OWNER' => 'vxn01537', 'SYSTEMID' => 1, 'SYSTEM' => 'EPICS', 'COMPONENTID' => 1, 'COMPONENT' => 'Scintilator', 'SUBCOMPONENTID' => 1, 'SUBCOMPONENT' => 'x', 'STARTTIME' => '01-08-2013 11:08', 'BEAMTIMELOST' => 1, 'LOST' => 1.3, 'TITLE' => 'Scintilator lost home position', 'RESOLVED' => 1),
                 ))
             );
             return;
@@ -64,12 +72,13 @@
             $rows = $this->db->pq("SELECT outer.*
              FROM (SELECT ROWNUM rn, inner.*
                FROM (
-                SELECT f.faultid, f.blsessionid, bl.beamlinename as beamline f.owner, f.systemid, s.name as system f.componentid, c.name as component, f.subcomponentid, sc.name as subcomponent, f.starttime, f.endtime, f.beamtimelost, (f.beamtimelost_endtime-f.beamtimelost_starttime)*24 as lost, f.title, f.resolved
+                SELECT f.faultid, f.blsessionid, bl.visit_number as visit, p.proposalcode || p.proposalnumber as bag, bl.beamlinename as beamline f.owner, f.systemid, s.name as system f.componentid, c.name as component, f.subcomponentid, sc.name as subcomponent, f.starttime, f.endtime, f.beamtimelost, (f.beamtimelost_endtime-f.beamtimelost_starttime)*24 as lost, f.title, f.resolved
                 FROM ispyb4a_db.bf_faults f
                 INNER JOIN bf_system s ON f.systemid = s.systemid
                 INNER JOIN bf_component c ON f.systemid = c.componentid
                 INNER JOIN blsession bl ON f.blsessionid = bl.sessionid
-                LEFT JOIN bf_subcomponent sc ON f.subcomponentid = sc.subcomponentid
+                INNER JOIN proposal p on p.proposalid = bl.proposalid
+                INNER JOIN bf_subcomponent sc ON f.subcomponentid = sc.subcomponentid
                 $where
                 ORDER BY f.faultid DESC
              

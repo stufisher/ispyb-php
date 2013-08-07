@@ -25,6 +25,13 @@
         function _index() {
             
             $this->template('Fault List');
+            
+            $this->t->js_var('bl', $this->has_arg('bl') ? $this->arg('bl') : '');
+            $this->t->js_var('sid', $this->has_arg('sid') ? $this->arg('sid') : '');
+            $this->t->js_var('cid', $this->has_arg('cid') ? $this->arg('cid') : '');
+            $this->t->js_var('scid', $this->has_arg('scid') ? $this->arg('scid') : '');
+            $this->t->js_var('page', $this->has_arg('page') ? $this->arg('page') : 1);
+            
             $this->render('fault');
         }
         
