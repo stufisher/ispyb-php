@@ -41,8 +41,7 @@ $(function() {
                         '<td><a href="/fault/bl/'+f['BEAMLINE']+'">'+f['BEAMLINE']+'</a></td>'+
                         '<td><a href="/vstat/bag/'+f['BAG']+'/visit/'+f['VISIT']+'">'+f['BAG']+'-'+f['VISIT']+'</a></td>'+
                         '<td><a href="/fault/sid/'+f['SYSTEMID']+'">'+f['SYSTEM']+'</td>'+
-                        '<td><a href="/fault/cid/'+f['COMPONENTID']+'">'+f['COMPONENT']+'</td>'+
-                        '<td><a href="/fault/scid/'+f['SUBCOMPONENTID']+'">'+f['SUBCOMPONENT']+'</td>'+
+                        '<td><a href="/fault/cid/'+f['COMPONENTID']+'">'+f['COMPONENT']+'</a> &raquo; <a href="/fault/scid/'+f['SUBCOMPONENTID']+'">'+f['SUBCOMPONENT']+'</a></td>'+
                         '<td>'+(f['RESOLVED'] ? (f['RESOLVED'] == 2 ? 'Partial' : 'Yes') : 'No')+'</td>'+
                         '<td>'+(f['BEAMTIMELOST'] ? ('Yes ('+f['LOST']+'h)') : 'No')+'</td>'+
                     '</tr>'
