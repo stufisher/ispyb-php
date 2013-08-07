@@ -10,14 +10,14 @@
                 <label>Beamline
                     <span class="small">Beamline where fault occured</span>
                 </label>
-                <select name="beamline"></select>
+                <select name="beamline" required></select>
             </li>
 
             <li>
                 <label>Start Date/Time
                     <span class="small">Time the fault started</span>
                 </label>
-                <input class="half" type="text" name="start" />
+                <input class="half datetime" type="text" name="start" required datetime />
             </li>
 
 
@@ -25,29 +25,29 @@
                 <label>Visit ID
                     <span class="small">The visit during which the fault occured</span>
                 </label>
-                <select name="visit"><select>
+                <select name="visit" required><select>
             </li>
 
             <li>
                 <label>System
                     <span class="small">The overreaching system responsible for the fault</span>
                 </label>
-                <select name="system"></select>
+                <select name="system" required></select>
             </li>
 
             <li>
                 <label>Component
                     <span class="small">The component and sub-component at fault</span>
                 </label>
-                <select name="component"></select>
-                <select name="sub_component"></select>
+                <select name="component" required></select>
+                <select name="sub_component" required></select>
             </li>
 
             <li>
                 <label>Beamtime Lost
                 <span class="small">Was beamtime lost as a result?</span>
                 </label>
-                <select name="beamtime_lost">
+                <select name="beamtime_lost" required>
                     <option value='0'>No</option>
                     <option value='1'>Yes</option>
                 </select>
@@ -57,22 +57,22 @@
                 <label>Beamtime Lost Between
                 <span class="small">Time and date between which beamtime was lost</span>
                 </label>
-                <input class="half" type="text" name="blstart" />
-                <input class="half" type="text" name="blend" />
+                <input class="half" type="text" name="blstart" required />
+                <input class="half" type="text" name="blend" required />
             </li>
 
             <li>
                 <label>Summary
                     <span class="small">A short summart of the fault</span>
                 </label>
-                <input type="text" name="title" />
+                <input type="text" name="title" required />
             </li>
 
             <li>
                 <label>Description
                     <span class="small">Full description of the fault</span>
                 </label>
-                <textarea name="desc" /></textarea>
+                <textarea name="desc" required /></textarea>
             </li>
 
 
@@ -80,7 +80,7 @@
                 <label>Fault Resolved
                 <span class="small">Has the fault been resolved?</span>
                 </label>
-                <select name="resolved">
+                <select name="resolved" required>
                     <option value="0">No</option>
                     <option value="1">Yes</option>
                     <option value="2">Partially</option>
@@ -91,14 +91,14 @@
                 <label>End Date/Time
                     <span class="small">Time the fault was resolved</span>
                 </label>
-                <input class="half" type="text" name="end" />
+                <input class="half" type="text" name="end" required/>
             </li>
 
             <li class="resolution">
                 <label>Resolution / Workaround
                     <span class="small">How the fault was resolved</span>
                 </label>
-                <textarea name="resolution"></textarea>
+                <textarea name="resolution" required></textarea>
             </li>
 
             <button name="submit" value="1" type="submit" class="submit">Submit Report</button>

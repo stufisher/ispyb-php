@@ -2,7 +2,23 @@
 
     class Fault extends Page {
         
-        var $arg_list = array('bl' => '\w\d\d', 'page' => '\d+', 'fid' => '\d+');
+        var $arg_list = array('bl' => '\w\d\d(-\d)?', 'page' => '\d+', 'fid' => '\d+',
+                              
+                              'start' => '\d\d-\d\d-\d\d\d\d \d\d:\d\d',
+                              'end' => '\d\d-\d\d-\d\d\d\d \d\d:\d\d',
+                              'blstart' => '\d\d-\d\d-\d\d\d\d \d\d:\d\d',
+                              'blend' => '\d\d-\d\d-\d\d\d\d \d\d:\d\d',
+                              'sub_component' => '\d+',
+                              'beamtime_lost' => '\d',
+                              'resolved' => '\d',
+                              'visit' => '\d+',
+                              
+                              'title' => '.*',
+                              'desc' => '.*',
+                              'resolution' => '.*',
+                              'submit' => '\d',
+                              );
+        
         var $dispatch = array('list' => '_dispatch',
                               'new' => '_add_fault',
                               'edit' => '_editor',
@@ -40,17 +56,15 @@
             if (!$this->has_arg('fid')) $this->error('No fault id specified', 'You must specify a fault id to view');
             
             
-            /*$info = $this->db->pq('SELECT f.faultid, f.blsessionid, f.beamlineid, bl.beamlinename as beamline, f.owner, f.systemid, s.name as system, f.componentid, c.name as component, f.subcomponentid, sc.name as subcomponent, f.starttime, f.endtime, f.beamtimelost, (f.beamtimelost_endtime-f.beamtimelost_starttime) as lost, f.title, f.resolved, f.description, f.beamtimelost_endtime, f.beamtimelost_starttime
-                FROM ispyb4a_db.bf_faults f
-                INNER JOIN blsession bl ON f.blsessionid = bl.sessionid
-                INNER JOIN bf_system s ON f.systemid = s.systemid
-                INNER JOIN bf_component c ON f.systemid = c.componentid
-                LEFT JOIN bf_subcomponent sc ON f.subcomponentid = sc.subcomponentid
-                WHERE f.faultid=:1', array($this->arg('fid')));
-                                 
-            );*/
-            
-            $info = array(array('FAULTID' => 1, 'BLSESSIONID' => 12, 'BEAMLINE' => 'i03', 'OWNER' => 'vxn01537', 'SYSTEMID' => 1, 'SYSTEM' => 'EPICS', 'COMPONENTID' => 1, 'COMPONENT' => 'Scintilator', 'SUBCOMPONENTID' => 1, 'SUBCOMPONENT' => 'x', 'STARTTIME' => '01-08-2013 11:08', 'ENDTIME' => '01-08-2013 11:08','BEAMTIMELOST' => 0, 'BEAMTIMELOST_STARTTIME' => '01-08-2013 11:08', 'BEAMTIMELOST_ENDTIME' => '01-08-2013 11:08', 'LOST' => 1.3, 'TITLE' => 'Scintilator lost home position', 'RESOLVED' => 1, 'DESCRIPTION' => 'skjdksd fkjs kflsjd fkjs lkfjs ldkfj lksjd flksdj lfksjd lfksj lfk', 'RESOLUTION' => 'sdf skjd fksj dfkjs dkjf skdj fksjd f', 'VISIT' => 'mx5677-32'));
+            $info = $this->db->pq("SELECT p.proposalcode || p.proposalnumber || '-' || bl.visit_number as visit, f.faultid, f.sessionid, bl.beamlinename as beamline, f.owner, s.systemid, s.name as system, c.componentid, c.name as component, sc.subcomponentid, sc.name as subcomponent, TO_CHAR(f.starttime, 'DD-MM-YYYY HH24:MI') as starttime, TO_CHAR(f.endtime, 'DD-MM-YYYY HH24:MI') as endtime, f.beamtimelost, round((f.beamtimelost_endtime-f.beamtimelost_starttime)*24,2) as lost, f.title, f.resolved, f.resolution, f.description, TO_CHAR(f.beamtimelost_endtime, 'DD-MM-YYYY HH24:MI') as beamtimelost_endtime, TO_CHAR(f.beamtimelost_starttime, 'DD-MM-YYYY HH24:MI') as beamtimelost_starttime
+                FROM ispyb4a_db.bf_fault f
+                INNER JOIN bf_subcomponent sc ON f.subcomponentid = sc.subcomponentid
+                INNER JOIN bf_component c ON sc.componentid = c.componentid
+                INNER JOIN bf_system s ON c.systemid = s.systemid
+                INNER JOIN blsession bl ON f.sessionid = bl.sessionid
+                INNER JOIN proposal p ON bl.proposalid = p.proposalid
+
+                WHERE f.faultid=:1", array($this->arg('fid')));
             
             if (sizeof($info)) {
                 $info = $info[0];
@@ -83,11 +97,22 @@
         
         # Add new fault report
         function _add_fault() {
-            if (array_key_exists('submit', $_POST)) {
+            if ($this->has_arg('submit')) {
                 
-                $id = 1;
+                $valid = True;
+                foreach (array('title', 'desc', 'visit', 'start', 'beamtime_lost', 'resolved') as $f) {
+                    if (!$this->has_arg($f)) $valid = False;
+                }
                 
-                $this->msg('New Fault Added', 'Your fault report was sucessfully submitted. Click <a href="/fault/fid/'.$id.'">here</a> to see to the fault listing');
+                if (!$valid) $this->error('Missing Fields', 'Some fields were missing from the submitted fault report');
+                
+                $btlstart = $this->has_arg('blstart') ? $this->arg('blstart') : '';
+                $btlend = $this->has_arg('blend') ? $this->arg('blend') : '';
+                $end = $this->has_arg('end') ? $this->arg('end') : '';
+                
+                $this->db->pq("INSERT INTO bf_fault (faultid, sessionid, owner, subcomponentid, starttime, endtime, beamtimelost, beamtimelost_starttime, beamtimelost_endtime, title, description, resolved, resolution) VALUES (s_bf_fault.nextval, :1, :2, :3, TO_DATE(:4, 'DD-MM-YYYY HH24:MI'), TO_DATE(:5, 'DD-MM-YYYY HH24:MI'), :6, TO_DATE(:7, 'DD-MM-YYYY HH24:MI'), TO_DATE(:8, 'DD-MM-YYYY HH24:MI'), :9, :10, :11, :12) RETURNING faultid INTO :id", array($this->arg('visit'), phpCAS::getUser(), $this->arg('sub_component'), $this->arg('start'), $end, $this->arg('beamtime_lost'), $btlstart, $btlend, $this->arg('title'), $this->arg('desc'), $this->arg('resolved'), $this->arg('resolution')));
+                
+                $this->msg('New Fault Added', 'Your fault report was sucessfully submitted. Click <a href="/fault/fid/'.$this->db->id().'">here</a> to see to the fault listing');
             } else {
                 $this->template('Add New Fault Report', array('New'), array(''));
                 $this->render('fault_new');

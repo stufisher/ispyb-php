@@ -10,6 +10,13 @@ $(function() {
   
   _get_beamlines()
   
+  $('#add_fault').validate({ validClass: 'fvalid', errorClass: 'ferror', rules: { start: { datetime: true }, end: { datetime: true }, blend: { datetime: true }, blstart: { datetime: true } } })
+  
+  $.validator.addMethod("datetime", function(value, element) {
+    console.log('mooooo')
+    return this.optional(element) || /^\d\d-\d\d-\d\d\d\d \d\d:\d\d$/.test(value);
+  }, "Please specify the correct domain for your documents");
+  
   function _get_beamlines() {
       $.ajax({
         url: '/fault/ajax/bls',
@@ -93,6 +100,7 @@ $(function() {
             })
              
             if (systems.length) refresh_components()
+            else $('select[name=component]').empty()
         }
       })
   }
@@ -114,6 +122,7 @@ $(function() {
             })
              
             if (components.length) refresh_sub_components()
+            else $('select[name=sub_component]').empty()
         }
       })
   }  
@@ -138,11 +147,6 @@ $(function() {
         }
       })
   }
-  
-  // Validate form before submission
-  $('#add_fault').submit(function() {
-                         
-  })
   
   
 });

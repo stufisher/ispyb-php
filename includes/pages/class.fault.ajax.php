@@ -2,7 +2,7 @@
 
     class Ajax extends AjaxBase {
         
-        var $arg_list = array('time' => '\d+', 'bl' => '\w\d\d(-\d)?', 'sid' => '\d+', 'cid' => '\d+', 'scid' => '\d+', 'pp' => '\d+', 'page' => '\d+', 'array' => '\d', 'ty' => '\w+', 'fid' => '\d+');
+        var $arg_list = array('time' => '\d+', 'bl' => '\w\d\d(-\d)?', 'sid' => '\d+', 'cid' => '\d+', 'scid' => '\d+', 'pp' => '\d+', 'page' => '\d+', 'array' => '\d', 'ty' => '\w+', 'fid' => '\d+', 'name' => '[A-Za-z0-9_\- ]+', 'desc' => '[A-Za-z0-9_\- ]+', 's' => '\w+');
         var $dispatch = array('list' => '_get_faults',
                               
                               'visits' => '_get_visits',
@@ -36,12 +36,13 @@
             
             if ($this->has_arg('s')) {
                 $st = sizeof($args) + 1;
-                array_push($where, "(f.title LIKE '%'||".$st."||'%' OR f.description LIKE '%'||".($st+1)."||'%')");
+                array_push($where, "(f.title LIKE '%'||:".$st."||'%' OR f.description LIKE '%'||:".($st+1)."||'%')");
                 array_push($args, $this->arg('s'));
                 array_push($args, $this->arg('s'));
             }
             
             $where = implode($where, ' AND ');
+            if ($where) $where = ' WHERE ' . $where;
             
             $start = 0;
             $end = 10;
@@ -53,32 +54,25 @@
                 $end = $pg*$pp+$pp;
             }
             
-            $tot = 80;//$this->db->q('SELECT count(faultid) as tot FROM ispyb4a_db.bf_faults '.$where, $args)[0]['TOT'];
-            
+            $tot = $this->db->pq('SELECT count(faultid) as tot FROM ispyb4a_db.bf_fault f '.$where, $args)[0]['TOT'];
             
             $pgs = intval($tot/$pp);
             if ($tot % $pp != 0) $pgs++;
             
-            $this->_output(array(4, array(
-                array('FAULTID' => 1, 'BLSESSIONID' => 12, 'BAG' => 'mx5431', 'VISIT' => '12', 'BEAMLINEID' => 1, 'BEAMLINE' => 'i03', 'OWNER' => 'vxn01537', 'SYSTEMID' => 1, 'SYSTEM' => 'EPICS', 'COMPONENTID' => 1, 'COMPONENT' => 'Scintilator', 'SUBCOMPONENTID' => 1, 'SUBCOMPONENT' => 'x', 'STARTTIME' => '01-08-2013 11:08', 'BEAMTIMELOST' => 1, 'LOST' => 1.3, 'TITLE' => 'Scintilator lost home position', 'RESOLVED' => 1),
-                ))
-            );
-            return;
-            
             $st = sizeof($args) + 1;
-            array_unshift($args, $start);
-            array_unshift($args, $end);
+            array_push($args, $start);
+            array_push($args, $end);
             
             $rows = $this->db->pq("SELECT outer.*
              FROM (SELECT ROWNUM rn, inner.*
                FROM (
-                SELECT f.faultid, f.blsessionid, bl.visit_number as visit, p.proposalcode || p.proposalnumber as bag, bl.beamlinename as beamline f.owner, f.systemid, s.name as system f.componentid, c.name as component, f.subcomponentid, sc.name as subcomponent, f.starttime, f.endtime, f.beamtimelost, (f.beamtimelost_endtime-f.beamtimelost_starttime)*24 as lost, f.title, f.resolved
-                FROM ispyb4a_db.bf_faults f
-                INNER JOIN bf_system s ON f.systemid = s.systemid
-                INNER JOIN bf_component c ON f.systemid = c.componentid
-                INNER JOIN blsession bl ON f.blsessionid = bl.sessionid
-                INNER JOIN proposal p on p.proposalid = bl.proposalid
+                SELECT f.faultid, f.sessionid, bl.visit_number as visit, p.proposalcode || p.proposalnumber as bag, bl.beamlinename as beamline, f.owner, s.systemid, s.name as system, c.componentid, c.name as component, f.subcomponentid, sc.name as subcomponent, TO_CHAR(f.starttime, 'DD-MM-YYYY HH24:MI') as starttime, f.endtime, f.beamtimelost, round((f.beamtimelost_endtime-f.beamtimelost_starttime)*24,2) as lost, f.title, f.resolved
+                FROM ispyb4a_db.bf_fault f
                 INNER JOIN bf_subcomponent sc ON f.subcomponentid = sc.subcomponentid
+                INNER JOIN bf_component c ON sc.componentid = c.componentid
+                INNER JOIN bf_system s ON c.systemid = s.systemid
+                INNER JOIN blsession bl ON f.sessionid = bl.sessionid
+                INNER JOIN proposal p on p.proposalid = bl.proposalid
                 $where
                 ORDER BY f.faultid DESC
              
@@ -92,34 +86,45 @@
         # ------------------------------------------------------------------------
         # Update fields for a fault
         function _update_fault() {
-            $types = array( 'title' => array('\w+', 'title', ''),
+            $types = array( 'title' => array('\w+', 'title', '', 0),
                            
-                            'starttime' => array('\d+-\d+-\d+ \d+:\d+', 'starttime', ''),
-                            'endtime' => array('\d+-\d+-\d+ \d+:\d+', 'endtime', ''),
+                            'starttime' => array('\d+-\d+-\d+ \d+:\d+', 'starttime', '', 1),
+                            'endtime' => array('\d+-\d+-\d+ \d+:\d+', 'endtime', '', 1),
+                            'btlstart' => array('\d+-\d+-\d+ \d+:\d+', 'beamtimelost_starttime', '', 1),
+                            'btlend' => array('\d+-\d+-\d+ \d+:\d+', 'beamtimelost_endtime', '', 1),
+
+                            'visit' => array('\d+', 'sessionid', "SELECT p.proposalcode || p.proposalnumber || '-' || bl.visit_number as value FROM ispyb4a_db.blsession bl INNER JOIN ispyb4a_db.proposal p ON bl.proposalid = p.proposalid WHERE bl.sessionid=:1", 0),
                            
-                            'bl' => array('\d+', 'beamlineid', 'SELECT name as value FROM bf_beamlines WHERE beamlineid=:1'),
-                            'sys' => array('\d+', 'systemid', 'SELECT name as value FROM bf_systems WHERE systemid=:1'),
-                            'com' => array('\d+', 'componentid', 'SELECT name as value FROM bf_components WHERE componentid=:1'),
-                            'scom' => array('\d+', 'subcomponentid', 'SELECT name as value FROM bf_subcomponents WHERE subcomponentid=:1'),
+                            'scom' => array('\d+', 'subcomponentid', 'SELECT name as value FROM bf_subcomponent WHERE subcomponentid=:1', 0),
                            
-                            'btl' => array('\d+', 'beamtimelost', ''),
-                            'res' => array('\d+', 'resolved', ''),
+                            'btl' => array('\d+', 'beamtimelost', '', 0),
+                            'res' => array('\d+', 'resolved', '', 0),
+                           
+                            'resolution' => array('.*', 'resolution', '', 0),
+                            'desc' => array('.*', 'description', '', 0),
                            );
                     
             // Check we have a fault id
             if (!$this->has_arg('fid')) $this->_error('No fault id specified');
                                 
             // Check that the fault exists
-            $check = $this->db->pq('SELECT faultid FROM bf_faults WHERE faultid=:1', array($this->arg('fid')));
+            $check = $this->db->pq('SELECT faultid FROM bf_fault WHERE faultid=:1', array($this->arg('fid')));
             if (!sizeof($check)) $this->_error('A fault with that id doesnt exists');
                                 
-            if (array_key_exists($this->arg('ty'))) {
+            if (array_key_exists($this->arg('ty'), $types)) {
                 $t = $types[$this->arg('ty')];
                 $v = $_POST['value'];
                                 
                 // Check the value matches the template
                 if (preg_match('/^'.$t[0].'$/', $v)) {
-                    $this->db->pq('UPDATE bf_faults SET :1=:2 WHERE faultid=:3', array($t[1], $v, $this->arg('fid')));
+                    $pp = array('','');
+
+                    if ($t[3]) {
+                        $pp[0] = 'TO_DATE(';
+                        $pp[1] = ", 'DD-MM-YYYY HH24:MI')";
+                    }
+                                  
+                    $this->db->pq('UPDATE bf_fault SET '.$t[1].'='.$pp[0].':1'.$pp[1].' WHERE faultid=:2', array($v, $this->arg('fid')));
                     
                     $ret = $v;
                                   
@@ -134,8 +139,6 @@
                 }
                                  
             }
-                                 
-            print $_POST['value'];
         }
                                  
                                  
@@ -164,18 +167,13 @@
         
         # ------------------------------------------------------------------------
         # Return a list of beamlines with ids
-        function _get_beamlines() {
-            if ($this->has_arg('array')) {
-                $this->_output(array(1=>'i02', 2=>'i03'));
-                return;
-            }
-            
+        function _get_beamlines() {            
             #$rows = $this->db->q("SELECT distinct beamlinename as name FROM ispyb4a_db.blsession WHERE beamlinename NOT LIKE 'i04 1' ORDER BY beamlinename");
                                   
             $rows = array(array('NAME' => 'i02'), array('NAME' => 'i03'), array('NAME' => 'i04'), array('NAME' => 'i04-1'), array('NAME' => 'i24'));
                                  
             $bls = array();
-            foreach ($rows as $r) array_push($bls, $r['NAME']);
+            foreach ($rows as $r) $bls[$r['NAME']] = $r['NAME'];
             $this->_output($this->has_arg('array') ? $bls : $rows);
         }
         
@@ -189,18 +187,8 @@
                 array_push($args, $this->arg('bl'));
                                   
             } else $where = '';
-                    
-            if ($this->has_arg('array')) {
-                $this->_output(array(1=>'EPICS', 2=>'GDA'));
-                return;
-            }
-                                 
-            $this->_output(array(array('SYSTEMID' => 1, 'NAME' => 'EPICS', 'BEAMLINES' => 'i03,i02'),
-                                 array('SYSTEMID' => 2, 'NAME' => 'GDA', 'BEAMLINES' => 'i03'),
-                                 ));
-            return;
             
-            $rows = $this->db->pq('SELECT s.systemid, s.name FROM ispyb4a_db.bf_systems s INNER JOIN ispyb4a_db.bf_has_system hs ON s.hassystemid = hs.hassystemid '.$where, $args);
+            $rows = $this->db->pq("SELECT s.systemid, s.name, s.description, string_agg(hs.beamlinename) as beamlines FROM ispyb4a_db.bf_system s INNER JOIN ispyb4a_db.bf_system_beamline hs ON s.systemid = hs.systemid ".$where." GROUP BY s.systemid, s.name, s.description", $args);
                                  
             $sys = array();
             foreach ($rows as $s) $sys[$s['SYSTEMID']] = $s['NAME'];
@@ -218,24 +206,8 @@
                 $where = ' AND hc.beamlinename=:2';
                 array_push($args, $this->arg('bl'));
             } else $where = '';
-                          
-            if ($this->has_arg('array')) {
-                if ($this->arg('sid') == 1) $this->_output(array(1=>'S4Slit', 2=>'Scintilator'));
-                else $this->_output(array(3=>'Server', 4=>'Client'));
-                return;
-            }
-                                 
-            if ($this->arg('sid') == 1)
-                $this->_output(array(array('COMPONENTID' => 1, 'NAME' => 'S4Slit', 'DESCRIPTION' => 'Phase 1 Slits'),
-                                     array('COMPONENTID' => 2, 'NAME' => 'Scintilator', 'DESCRIPTION' => 'Phase II Scintilator'),
-                                     ));
-            else
-                $this->_output(array(array('COMPONENTID' => 3, 'NAME' => 'Server'),
-                                     array('COMPONENTID' => 4, 'NAME' => 'Client'),
-                                     ));
-            return;
             
-            $rows = $this->db->q('SELECT c.componentid, c.name FROM ispyb4a_db.bf_components c INNER JOIN ispyb4a_db.bf_has_component hc ON c.hascomponentid = hc.hascomponentid WHERE c.systemid=:1'.$where, $args);
+            $rows = $this->db->pq('SELECT c.componentid, c.name, c.description, string_agg(hc.beamlinename) as beamlines FROM ispyb4a_db.bf_component c INNER JOIN ispyb4a_db.bf_component_beamline hc ON c.componentid = hc.componentid WHERE c.systemid=:1'.$where.' GROUP BY c.componentid, c.name, c.description', $args);
                                  
             $com = array();
             foreach ($rows as $c) $com[$c['COMPONENTID']] = $c['NAME'];
@@ -252,31 +224,9 @@
             if ($this->has_arg('bl')) {
                 $where = ' AND hs.beamlinename=:2';
                 array_push($args, $this->arg('bl'));
-            }else $where = '';
-                         
-            if ($this->has_arg('array')) {
-                if ($this->arg('cid') == 1) $this->_output(array(1=>'xpos', 2=>'ypos'));
-                else $this->_output(array(3=>'x', 4=>'y'));
-                return;
-            }
-                                 
-            if ($this->arg('cid') == 1)
-                $this->_output(array(array('SUBCOMPONENTID' => 1, 'NAME' => 'xpos'),
-                                     array('SUBCOMPONENTID' => 2, 'NAME' => 'ypos'),
-                                     ));
-            else if ($this->arg('cid') == 2)
-                $this->_output(array(array('SUBCOMPONENTID' => 3, 'NAME' => 'x'),
-                                     array('SUBCOMPONENTID' => 4, 'NAME' => 'y'),
-                                     ));
-            else if ($this->arg('cid') == 3)
-                $this->_output(array());
-            else
-                $this->_output(array());
+            } else $where = '';
             
-        
-            return;
-            
-            $rows = $this->db->pq('SELECT s.subcomponentid, s.name FROM ispyb4a_db.bf_subcomponents s INNER JOIN ispyb4a_db.bf_has_subcomponent hs ON s.hassubcomponentid = hs.hassubcomponentid WHERE s.componentid=:1'.$where, $args);
+            $rows = $this->db->pq('SELECT s.subcomponentid, s.name, s.description, string_agg(hs.beamlinename) as beamlines FROM ispyb4a_db.bf_subcomponent s INNER JOIN ispyb4a_db.bf_subcomponent_beamline hs ON s.subcomponentid = hs.subcomponentid WHERE s.componentid=:1'.$where.' GROUP BY s.subcomponentid, s.name, s.description', $args);
             
             $scom = array();
             foreach ($rows as $s) $scom[$s['SUBCOMPONENTID']] = $s['NAME'];
@@ -284,23 +234,69 @@
             $this->_output($this->has_arg('array') ? $scom : $rows);
         }
         
+                       
+        # Check beamline array is valid
+        function check_bls($bls) {
+            $br = array();
+            foreach ($bls as $b) {
+                if (preg_match('/^'.$this->arg_list['bl'].'$/', $b)) array_push($br, $b);
+            }
+                                  
+            return $br;
+        }
 
         # ------------------------------------------------------------------------
         # Add a new system
         function _add_system() {
-            $this->_output($_POST);
+
+            if (!$this->has_arg('name')) $this->_error('Please specify a system name');
+                                  
+            $this->db->pq('INSERT INTO ispyb4a_db.bf_system (systemid,name,description) VALUES (s_bf_system.nextval, :1, :2) RETURNING systemid INTO :id', array($this->arg('name'), $this->has_arg('desc') ? $this->arg('desc') : ''));
+                            
+            $sysid = $this->db->id();
+            $bls = $this->check_bls($_POST['bls']);
+                                  
+            foreach ($bls as $b) {
+                $this->db->pq('INSERT INTO ispyb4a_db.bf_system_beamline (system_beamlineid, systemid, beamlinename) VALUES (s_bf_system_beamline.nextval,:1, :2)', array($sysid, $b));
+            }
+                                  
+            $this->_output(1);
         }
                                  
         # ------------------------------------------------------------------------
         # Add a new component
         function _add_component() {
-            $this->_output($_POST);
+            if (!$this->has_arg('name')) $this->_error('Please specify a component name');
+            if (!$this->has_arg('sid')) $this->_error('Please specify a system id');
+                                  
+            $this->db->pq('INSERT INTO ispyb4a_db.bf_component (componentid, systemid,name,description) VALUES (s_bf_component.nextval, :1, :2, :3) RETURNING componentid INTO :id', array($this->arg('sid'), $this->arg('name'), $this->has_arg('desc') ? $this->arg('desc') : ''));
+                            
+            $sysid = $this->db->id();
+            $bls = $this->check_bls($_POST['bls']);
+                                  
+            foreach ($bls as $b) {
+                $this->db->pq('INSERT INTO ispyb4a_db.bf_component_beamline (component_beamlineid, componentid, beamlinename) VALUES (s_bf_component_beamline.nextval,:1, :2)', array($sysid, $b));
+            }
+                                  
+            $this->_output(1);                                  
         }
                                  
         # ------------------------------------------------------------------------
         # Add a new subcomponent
         function _add_subcomponent() {
-            $this->_output($_POST);
+            if (!$this->has_arg('name')) $this->_error('Please specify a subcomponent name');
+            if (!$this->has_arg('cid')) $this->_error('Please specify a component id');
+                                  
+            $this->db->pq('INSERT INTO ispyb4a_db.bf_subcomponent (subcomponentid, componentid,name,description) VALUES (s_bf_subcomponent.nextval, :1, :2, :3) RETURNING subcomponentid INTO :id', array($this->arg('cid'), $this->arg('name'), $this->has_arg('desc') ? $this->arg('desc') : ''));
+                            
+            $sysid = $this->db->id();
+            $bls = $this->check_bls($_POST['bls']);
+                                  
+            foreach ($bls as $b) {
+                $this->db->pq('INSERT INTO ispyb4a_db.bf_subcomponent_beamline (subcomponent_beamlineid, subcomponentid, beamlinename) VALUES (s_bf_subcomponent_beamline.nextval,:1, :2)', array($sysid, $b));
+            }
+                                  
+            $this->_output(1);    
         }
                                  
                                  

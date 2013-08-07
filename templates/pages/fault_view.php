@@ -44,7 +44,7 @@
 
 
             <li>
-                <div class="description text"><?php echo $f['DESCRIPTION'] ?></div>
+                <div class="description text"><?php echo $f['DESCRIPTION']->read($f['DESCRIPTION']->size()) ?></div>
                 <span class="label">Description</span>
 
             </li>
@@ -61,7 +61,7 @@
             </li>
 
             <li class="fresolved">
-                <div class="resolution text"><?php echo $f['RESOLUTION'] ?></div>
+                <div class="resolution text"><?php echo $f['RESOLUTION']->read($f['RESOLUTION']->size()) ?></div>
                 <span class="label">Resolution</span>
             </li>
 

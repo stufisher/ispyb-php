@@ -15,6 +15,7 @@ $(function() {
         $('table.systems tbody').prepend('<tr class="new">'+
             '<td>&nbsp;</td>'+
             '<td><input type="text" name="system" /></td>'+
+            '<td><input type="text" name="systemdesc" /></td>'+
             '<td class="la">'+_beamline_select('system')+'</td>'+
             '<td><button class="save"></button></td>'+
             '<td><button class="cancel"></button></td>'+
@@ -65,7 +66,7 @@ $(function() {
             data: { name: $('input[name=component]').val(),
                     bls: $('input[name=component_beamlines]:checked').map(function() {return $(this).val()}).get(),
                     desc: $('input[name=componentdesc]').val(),
-                    systemid: systemid },
+                    sid: systemid },
             dataType: 'json',
             timeout: 5000,
             success: function(status){
@@ -101,7 +102,7 @@ $(function() {
             data: { name: $('input[name=subcomponent]').val(),
                     bls: $('input[name=subcomponent_beamlines]:checked').map(function() {return $(this).val()}).get(),
                     desc: $('input[name=subcomponentdesc]').val(),
-                    componentid: componentid },
+                    cid: componentid },
             dataType: 'json',
             timeout: 5000,
             success: function(status){
@@ -177,7 +178,7 @@ $(function() {
          success: function(systems){
             $('table.systems tbody').empty()
             $.each(systems, function(i,s) {
-                $('table.systems tbody').append('<tr><td>'+s['SYSTEMID']+'</td><td class="la">'+s['NAME']+'</td><td class="la">'+s['BEAMLINES']+'</td><td><button class="edit"></button></td><td><button class="delete"></button></td></tr>')
+                $('table.systems tbody').append('<tr><td>'+s['SYSTEMID']+'</td><td class="la">'+s['NAME']+'</td><td class="la">'+s['DESCRIPTION']+'</td><td class="la">'+s['BEAMLINES']+'</td><td><button class="edit"></button></td><td><button class="delete"></button></td></tr>')
             })
             map_callbacks()
          }

@@ -7,7 +7,8 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th class="span2">Name</th>
+                <th class="span3">Name</th>
+                <th class="span3">Description</th>
                 <th class="span3">Beamlines</th>
                 <th>&nbsp;</th>
                 <th>&nbsp;</th>

@@ -49,7 +49,9 @@ $(function() {
         style: 'display: inline',
     }).addClass('editable');
   
-    $('.beamline').editable('/fault/ajax/update/fid/'+fid+'/ty/bl/', {
+  $('.beamline').editable(function(v,s) {
+        return v
+        }, {
         loadurl: '/fault/ajax/bls/array/1/',
         type: 'select',
         submit: 'Ok',
