@@ -33,9 +33,9 @@
             if (!$this->has_arg('fid')) $this->error('No fault id specified', 'You must specify a fault id to view');
             
             
-            /*$info = $this->db->pq('SELECT f.faultid, f.blsessionid, f.beamlineid, bl.name as beamline, f.owner, f.systemid, s.name as system, f.componentid, c.name as component, f.subcomponentid, sc.name as subcomponent, f.starttime, f.endtime, f.beamtimelost, (f.beamtimelost_endtime-f.beamtimelost_starttime) as lost, f.title, f.resolved, f.description, f.beamtimelost_endtime, f.beamtimelost_starttime
+            /*$info = $this->db->pq('SELECT f.faultid, f.blsessionid, f.beamlineid, bl.beamlinename as beamline, f.owner, f.systemid, s.name as system, f.componentid, c.name as component, f.subcomponentid, sc.name as subcomponent, f.starttime, f.endtime, f.beamtimelost, (f.beamtimelost_endtime-f.beamtimelost_starttime) as lost, f.title, f.resolved, f.description, f.beamtimelost_endtime, f.beamtimelost_starttime
                 FROM ispyb4a_db.bf_faults f
-                INNER JOIN bf_beamline bl ON f.beamlineid = bl.beamlineid
+                INNER JOIN blsession bl ON f.blsessionid = bl.sessionid
                 INNER JOIN bf_system s ON f.systemid = s.systemid
                 INNER JOIN bf_component c ON f.systemid = c.componentid
                 LEFT JOIN bf_subcomponent sc ON f.subcomponentid = sc.subcomponentid
@@ -43,7 +43,7 @@
                                  
             );*/
             
-            $info = array(array('FAULTID' => 1, 'BLSESSIONID' => 12, 'BEAMLINEID' => 1, 'BEAMLINE' => 'i03', 'OWNER' => 'vxn01537', 'SYSTEMID' => 1, 'SYSTEM' => 'EPICS', 'COMPONENTID' => 1, 'COMPONENT' => 'Scintilator', 'SUBCOMPONENTID' => 1, 'SUBCOMPONENT' => 'x', 'STARTTIME' => '01-08-2013 11:08', 'ENDTIME' => '01-08-2013 11:08','BEAMTIMELOST' => 0, 'BEAMTIMELOST_STARTTIME' => '01-08-2013 11:08', 'BEAMTIMELOST_ENDTIME' => '01-08-2013 11:08', 'LOST' => 1.3, 'TITLE' => 'Scintilator lost home position', 'RESOLVED' => 1, 'DESCRIPTION' => 'skjdksd fkjs kflsjd fkjs lkfjs ldkfj lksjd flksdj lfksjd lfksj lfk', 'RESOLUTION' => 'sdf skjd fksj dfkjs dkjf skdj fksjd f', 'VISIT' => 'mx5677-32'));
+            $info = array(array('FAULTID' => 1, 'BLSESSIONID' => 12, 'BEAMLINE' => 'i03', 'OWNER' => 'vxn01537', 'SYSTEMID' => 1, 'SYSTEM' => 'EPICS', 'COMPONENTID' => 1, 'COMPONENT' => 'Scintilator', 'SUBCOMPONENTID' => 1, 'SUBCOMPONENT' => 'x', 'STARTTIME' => '01-08-2013 11:08', 'ENDTIME' => '01-08-2013 11:08','BEAMTIMELOST' => 0, 'BEAMTIMELOST_STARTTIME' => '01-08-2013 11:08', 'BEAMTIMELOST_ENDTIME' => '01-08-2013 11:08', 'LOST' => 1.3, 'TITLE' => 'Scintilator lost home position', 'RESOLVED' => 1, 'DESCRIPTION' => 'skjdksd fkjs kflsjd fkjs lkfjs ldkfj lksjd flksdj lfksjd lfksj lfk', 'RESOLUTION' => 'sdf skjd fksj dfkjs dkjf skdj fksjd f', 'VISIT' => 'mx5677-32'));
             
             if (sizeof($info)) {
                 $info = $info[0];
@@ -58,7 +58,7 @@
             $this->t->js_var('fid', $info['FAULTID']);
             
             $this->t->js_var('owner', $info['OWNER'] == phpCAS::getUser());
-            $this->t->js_var('blid', $info['BEAMLINEID']);
+            $this->t->js_var('bl', $info['BEAMLINE']);
             
             $this->t->js_var('sid', $info['SYSTEMID']);
             $this->t->js_var('cid', $info['COMPONENTID']);

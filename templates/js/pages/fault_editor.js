@@ -1,43 +1,11 @@
 $(function() {
-    var beamlines = {};
+    var beamlines = [];
     var systemid = -1;
     var componentid = -1;
   
     var types = { beamlines: ['Beamline', 'beamline'], systems: ['System', 'system'], components: ['Component', 'component'] }
   
     $('.confirm').dialog({ autoOpen: false, modal: true })
-  
-    $('button[name=add_beamline]').button(
-        { icons: { primary: 'ui-icon-circle-plus' } }
-    ).click(function() {
-        if ($('table.beamlines tbody tr.new').length) return
-            
-        $('table.beamlines tbody').prepend('<tr class="new">'+
-            '<td>&nbsp;</td>'+
-            '<td><input type="text" name="beamline" /></td>'+
-            '<td><button class="save"></button></td>'+
-            '<td><button class="cancel"></button></td>'+
-        '</tr>')
-        
-                
-        // Add a beamline
-        $('table.beamlines button.save').button({ icons: { primary: 'ui-icon-check' } }).click(function() {
-          var row = $(this).parent('td').parent('tr')
-          $.ajax({
-            url: '/fault/ajax/bladd',
-            type: 'POST',
-            data: { name: $('input[name=beamline]').val() },
-            dataType: 'json',
-            timeout: 5000,
-            success: function(status){
-                _get_beamlines()
-            }
-          })
-        })
-            
-        map_callbacks()
-    })
-  
   
     $('button[name=add_system]').button(
         { icons: { primary: 'ui-icon-circle-plus' } }
@@ -59,7 +27,7 @@ $(function() {
             url: '/fault/ajax/sysadd',
             type: 'POST',
             data: { name: $('input[name=system]').val(),
-                    bls: $('input[name=system_beamlines]:checked').map(function() {return parseInt($(this).val())}).get(),
+                    bls: $('input[name=system_beamlines]:checked').map(function() {return $(this).val()}).get(),
                     desc: $('input[name=systemdesc]').val() },
             dataType: 'json',
             timeout: 5000,
@@ -95,7 +63,7 @@ $(function() {
             url: '/fault/ajax/comadd',
             type: 'POST',
             data: { name: $('input[name=component]').val(),
-                    bls: $('input[name=component_beamlines]:checked').map(function() {return parseInt($(this).val())}).get(),
+                    bls: $('input[name=component_beamlines]:checked').map(function() {return $(this).val()}).get(),
                     desc: $('input[name=componentdesc]').val(),
                     systemid: systemid },
             dataType: 'json',
@@ -131,7 +99,7 @@ $(function() {
             url: '/fault/ajax/scomadd',
             type: 'POST',
             data: { name: $('input[name=subcomponent]').val(),
-                    bls: $('input[name=subcomponent_beamlines]:checked').map(function() {return parseInt($(this).val())}).get(),
+                    bls: $('input[name=subcomponent_beamlines]:checked').map(function() {return $(this).val()}).get(),
                     desc: $('input[name=subcomponentdesc]').val(),
                     componentid: componentid },
             dataType: 'json',
@@ -152,9 +120,9 @@ $(function() {
     selected = selected.split(',')
   
     var out  = ''
-    for (blid in beamlines) {
-        var s = $.inArray(beamlines[blid], selected) > -1 ? ' checked="checked"' : ''
-        out += '<input type="checkbox" name="'+name+'_beamlines" value="'+blid+'" '+s+' /> '+beamlines[blid] + ' '
+    for (var i = 0; i < beamlines.length; i++) {
+        var s = $.inArray(beamlines[i], selected) > -1 ? ' checked="checked"' : ''
+        out += '<input type="checkbox" name="'+name+'_beamlines" value="'+beamlines[i]+'" '+s+' /> '+beamlines[i] +' '
     }
   
     return out
@@ -190,11 +158,9 @@ $(function() {
         dataType: 'json',
         timeout: 5000,
         success: function(bls){
-            $('table.beamlines tbody').empty()
-            beamlines = {}
+            beamlines = []
             $.each(bls, function(i,b) {
-                beamlines[b['BEAMLINEID']] = b['NAME']
-                $('table.beamlines tbody').append('<tr><td>'+b['BEAMLINEID']+'</td><td class="la">'+b['NAME']+'</td><td><button class="edit"></button></td><td><button class="delete"></button></td></tr>')
+                beamlines.push(b['NAME'])
             })
             map_callbacks()             
         }
@@ -318,39 +284,9 @@ $(function() {
         var ty = $(this).parent('td').parent('tr').parent('tbody').parent('table').attr('class').replace('robot_actions ', '')
         var row = $(this).parent('td').parent('tr')
 
-        if (ty == 'beamlines') {
-            _edit_beamline(row)
-        } else {
-            _edit_component(row,ty)
-        }
+        _edit_component(row,ty)
                     
     })
-  }
-  
-  
-  // Edit a beamline
-  function _edit_beamline(row) {
-    var name = $(row.children('td')[1]).html()
-    $(row.children('td')[1]).html('<input type="text" name="beamline" value="'+name+'" />')
-    $(row.children('td')[2]).html('<button class="save"></button>')
-
-  
-    $('table.beamlines button.save').button({ icons: { primary: 'ui-icon-check' } }).click(function() {
-          var row = $(this).parent('td').parent('tr')
-          $.ajax({
-            url: '/fault/ajax/ec',
-            type: 'POST',
-            data: { ty: 'beamline', id: row.children('td:first').html(), name: $('input[name=beamline]').val(),
-                     },
-            dataType: 'json',
-            timeout: 5000,
-            success: function(status){
-                _get_beamlines()
-            }
-          })
-    })
-  
-    map_callbacks()
   }
   
   
@@ -363,8 +299,8 @@ $(function() {
   
     $(row.children('td').slice(-2,-1)).html('<button class="save"></button>')
   
-    $('table button.save').button({ icons: { primary: 'ui-icon-check' } }).click(function() {
-          var row = $(this).parent('td').parent('tr')
+    $('button.save', row).button({ icons: { primary: 'ui-icon-check' } }).click(function() {
+        var row = $(this).parent('td').parent('tr')
         $.ajax({
             url: '/fault/ajax/ec',
             type: 'POST',
@@ -372,7 +308,7 @@ $(function() {
                id: row.children('td:first').html(),
                name: row.find('input[name='+prefix+']').val(),
                desc: row.find('input[name='+prefix+'desc]').val(),
-               bls: row.find('input[name='+prefix+'_beamlines]:checked').map(function() {return parseInt($(this).val())}).get(),
+               bls: row.find('input[name='+prefix+'_beamlines]:checked').map(function() {return $(this).val()}).get(),
                      },
             dataType: 'json',
             timeout: 5000,

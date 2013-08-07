@@ -2,7 +2,7 @@
 
     class Ajax extends AjaxBase {
         
-        var $arg_list = array('time' => '\d+', 'bl' => '\d+', 'sid' => '\d+', 'cid' => '\d+', 'scid' => '\d+', 'pp' => '\d+', 'page' => '\d+', 'array' => '\d', 'ty' => '\w+', 'fid' => '\d+');
+        var $arg_list = array('time' => '\d+', 'bl' => '\w\d\d(-\d)?', 'sid' => '\d+', 'cid' => '\d+', 'scid' => '\d+', 'pp' => '\d+', 'page' => '\d+', 'array' => '\d', 'ty' => '\w+', 'fid' => '\d+');
         var $dispatch = array('list' => '_get_faults',
                               
                               'visits' => '_get_visits',
@@ -57,23 +57,24 @@
             );
             return;
             
+            $st = sizeof($args) + 1;
             array_unshift($args, $start);
             array_unshift($args, $end);
             
             $rows = $this->db->pq("SELECT outer.*
              FROM (SELECT ROWNUM rn, inner.*
                FROM (
-                SELECT f.faultid, f.blsessionid, f.beamlineid, bl.name as beamline f.owner, f.systemid, s.name as system f.componentid, c.name as component, f.subcomponentid, sc.name as subcomponent, f.starttime, f.endtime, f.beamtimelost, (f.beamtimelost_endtime-f.beamtimelost_starttime)*24 as lost, f.title, f.resolved
+                SELECT f.faultid, f.blsessionid, bl.beamlinename as beamline f.owner, f.systemid, s.name as system f.componentid, c.name as component, f.subcomponentid, sc.name as subcomponent, f.starttime, f.endtime, f.beamtimelost, (f.beamtimelost_endtime-f.beamtimelost_starttime)*24 as lost, f.title, f.resolved
                 FROM ispyb4a_db.bf_faults f
-                INNER JOIN bf_beamline bl ON f.beamlineid = bl.beamlineid
                 INNER JOIN bf_system s ON f.systemid = s.systemid
                 INNER JOIN bf_component c ON f.systemid = c.componentid
+                INNER JOIN blsession bl ON f.blsessionid = bl.sessionid
                 LEFT JOIN bf_subcomponent sc ON f.subcomponentid = sc.subcomponentid
                 $where
                 ORDER BY f.faultid DESC
              
                ) inner) outer
-             WHERE outer.rn > :1 AND outer.rn <= :2", $args);
+             WHERE outer.rn > :".$st." AND outer.rn <= :".($st+1), $args);
                                  
             $this->_output(array($pgs, $rows));
         }
@@ -87,13 +88,13 @@
                             'starttime' => array('\d+-\d+-\d+ \d+:\d+', 'starttime', ''),
                             'endtime' => array('\d+-\d+-\d+ \d+:\d+', 'endtime', ''),
                            
-                            'bl' => array('\d+', 'beamlineid', 'SELECT name as value FROM bf_beamlines WHERE beamlineid='),
-                            'sys' => array('\d+', 'systemid', 'SELECT name as value FROM bf_systems WHERE systemid='),
-                            'com' => array('\d+', 'componentid', 'SELECT name as value FROM bf_components WHERE componentid='),
-                            'scom' => array('\d+', 'subcomponentid', 'SELECT name as value FROM bf_subcomponents WHERE subcomponentid='),
+                            'bl' => array('\d+', 'beamlineid', 'SELECT name as value FROM bf_beamlines WHERE beamlineid=:1'),
+                            'sys' => array('\d+', 'systemid', 'SELECT name as value FROM bf_systems WHERE systemid=:1'),
+                            'com' => array('\d+', 'componentid', 'SELECT name as value FROM bf_components WHERE componentid=:1'),
+                            'scom' => array('\d+', 'subcomponentid', 'SELECT name as value FROM bf_subcomponents WHERE subcomponentid=:1'),
                            
-                            'btl' => array('\d+', 'beamtimelost', 'SELECT name as value FROM bf_subcomponents WHERE subcomponentid='),
-                            'res' => array('\d+', 'resolved', 'SELECT name as value FROM bf_subcomponents WHERE subcomponentid='),
+                            'btl' => array('\d+', 'beamtimelost', ''),
+                            'res' => array('\d+', 'resolved', ''),
                            );
                     
             // Check we have a fault id
@@ -112,9 +113,12 @@
                     $this->db->pq('UPDATE bf_faults SET :1=:2 WHERE faultid=:3', array($t[1], $v, $this->arg('fid')));
                     
                     $ret = $v;
-                                 
-                    if ($t[2]) {
-                        $rets = $this->db->q($t[2].$v);
+                                  
+                    if ($this->arg('ty') == 'res') $ret = $v == 2 ? 'Partial' : ($v == 1 ? 'Yes' : 'No');
+                    else if ($this->arg('ty') == 'btl') $ret = $v == 1 ? 'Yes' : 'No';
+                                  
+                    else if ($t[2]) {
+                        $rets = $this->db->pq($t[2], array($v));
                         if (sizeof($rets)) $ret = $rets[0]['VALUE'];
                     }
                     print $ret;
@@ -135,13 +139,13 @@
             #$bls = $this->db->q('SELECT name FROM bf_beamlines WHERE beamlineid=:1', array($this->arg('bl')));
             #if (sizeof($bls)) $bl = $bls[0]['NAME'];
             #else $this->_error('No beamline with that id');
-                                 
-            $bl = $this->arg('bl') == 1 ? 'i02' : 'i03';
             
             $st = $this->arg('time');
-            $rows = $this->db->pq("SELECT bl.startdate,bl.enddate,p.proposalcode || p.proposalnumber || '-' || bl.visit_number as visit, bl.sessionid FROM ispyb4a_db.blsession bl INNER JOIN ispyb4a_db.proposal p ON p.proposalid = bl.proposalid WHERE :1 BETWEEN (bl.startdate - TO_DATE('1970-01-01','YYYY-MM-DD')) * 86400 AND (bl.enddate - TO_DATE('1970-01-01','YYYY-MM-DD')) * 86400 AND bl.beamlinename LIKE :2", array($st, $bl));
-            
-            array_push($rows, array('VISIT' => 'N/A', 'SESSIONID' => -1));
+            $rows = $this->db->pq("SELECT bl.startdate,bl.enddate,p.proposalcode || p.proposalnumber || '-' || bl.visit_number as visit, bl.sessionid FROM ispyb4a_db.blsession bl INNER JOIN ispyb4a_db.proposal p ON p.proposalid = bl.proposalid WHERE :1 BETWEEN (bl.startdate - TO_DATE('1970-01-01','YYYY-MM-DD')) * 86400 AND (bl.enddate - TO_DATE('1970-01-01','YYYY-MM-DD')) * 86400 AND bl.beamlinename LIKE :2 AND p.proposalid != 0", array($this->arg('time'), $this->arg('bl')));
+
+            $rows = array_merge($rows,$this->db->pq("SELECT * FROM (SELECT bl.startdate,bl.enddate,p.proposalcode || p.proposalnumber || '-' || bl.visit_number as visit, bl.sessionid FROM ispyb4a_db.blsession bl INNER JOIN ispyb4a_db.proposal p ON p.proposalid = bl.proposalid WHERE bl.startdate < SYSDATE AND (p.proposalcode LIKE 'cm' OR p.proposalcode LIKE 'nt') AND bl.beamlinename LIKE :1 ORDER BY bl.startdate DESC) WHERE ROWNUM <= 10", array($this->arg('bl'))));
+                                  
+            //array_push($rows, array('VISIT' => 'N/A', 'SESSIONID' => -1));
                                  
             $vis = array();
             foreach ($rows as $v) $vis[$v['SESSIONID']] = $v['VISIT'];
@@ -156,16 +160,13 @@
                 $this->_output(array(1=>'i02', 2=>'i03'));
                 return;
             }
-                                 
-            $this->_output(array(array('BEAMLINEID' => 1, 'NAME' => 'i02'),
-                                 array('BEAMLINEID' => 2, 'NAME' => 'i03')
-                                 ));
-            return;
             
-            $rows = $this->db->q('SELECT beamlineid, name FROM ispyb4a_db.bf_beamline');
+            #$rows = $this->db->q("SELECT distinct beamlinename as name FROM ispyb4a_db.blsession WHERE beamlinename NOT LIKE 'i04 1' ORDER BY beamlinename");
+                                  
+            $rows = array(array('NAME' => 'i02'), array('NAME' => 'i03'), array('NAME' => 'i04'), array('NAME' => 'i04-1'), array('NAME' => 'i24'));
                                  
             $bls = array();
-            foreach ($rows as $r) $bls[$r['BEAMLINEID']] = $r['NAME'];
+            foreach ($rows as $r) array_push($bls, $r['NAME']);
             $this->_output($this->has_arg('array') ? $bls : $rows);
         }
         
@@ -175,7 +176,7 @@
             $args = array();
                                   
             if ($this->has_arg('bl')) {
-                $where = ' WHERE hs.beamlineid=:1';
+                $where = ' WHERE hs.beamlinename=:1';
                 array_push($args, $this->arg('bl'));
                                   
             } else $where = '';
@@ -205,7 +206,7 @@
             $args = array($this->arg('sid'));
             
             if ($this->has_arg('bl')) {
-                $where = ' AND hc.beamlineid=:2';
+                $where = ' AND hc.beamlinename=:2';
                 array_push($args, $this->arg('bl'));
             } else $where = '';
                           
@@ -240,7 +241,7 @@
             $args = array($this->arg('cid'));
             
             if ($this->has_arg('bl')) {
-                $where = ' AND hs.beamlineid=:2';
+                $where = ' AND hs.beamlinename=:2';
                 array_push($args, $this->arg('bl'));
             }else $where = '';
                          
@@ -273,13 +274,7 @@
                                  
             $this->_output($this->has_arg('array') ? $scom : $rows);
         }
-         
-                                 
-        # ------------------------------------------------------------------------
-        # Add a new beamline
-        function _add_beamline() {
-            $this->_output($_POST);
-        }
+        
 
         # ------------------------------------------------------------------------
         # Add a new system

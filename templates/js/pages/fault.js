@@ -42,7 +42,7 @@ $(function() {
                     '<tr>'+
                         '<td><a href="/fault/fid/'+f['FAULTID']+'">'+f['TITLE']+'</a></td>'+
                         '<td>'+f['STARTTIME']+'</td>'+
-                        '<td><a href="/fault/bl/'+f['BEAMLINEID']+'">'+f['BEAMLINE']+'</a></td>'+
+                        '<td><a href="/fault/bl/'+f['BEAMLINE']+'">'+f['BEAMLINE']+'</a></td>'+
                         '<td><a href="/fault/sid/'+f['SYSTEMID']+'">'+f['SYSTEM']+'</td>'+
                         '<td><a href="/fault/cid/'+f['COMPONENTID']+'">'+f['COMPONENT']+'</td>'+
                         '<td><a href="/fault/scid/'+f['SUBCOMPONENTID']+'">'+f['SUBCOMPONENT']+'</td>'+
@@ -68,7 +68,7 @@ $(function() {
         success: function(bls){
             $('select[name=beamline]').html('<option value="">-</option>')
             $.each(bls, function(i,b) {
-                $('select[name=beamline]').append('<option value='+b['BEAMLINEID']+'>'+b['NAME']+'</option>')
+                $('select[name=beamline]').append('<option value='+b['NAME']+'>'+b['NAME']+'</option>')
             })
         }
       })   

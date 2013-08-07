@@ -54,13 +54,13 @@ $(function() {
         type: 'select',
         submit: 'Ok',
         style: 'display: inline',
-        callback: function(v,s) { blid = v },
+        callback: function(v,s) { bl = v },
     }).addClass('editable');
 
     $('.visit').editable('/fault/ajax/update/fid/'+fid+'/ty/visit/', {
         loadurl: '/fault/ajax/visits/array/1/',
         loaddata: function() {
-            return { time: _d2u($('.starttime').html()), bl: blid }
+            return { time: _d2u($('.starttime').html()), bl: bl }
         },
         type: 'select',
         submit: 'Ok',
@@ -76,7 +76,7 @@ $(function() {
   
     $('.system').editable('/fault/ajax/update/fid/'+fid+'/ty/sys/', {
         loadurl: '/fault/ajax/sys/array/1/',
-        loaddata: function() { return { bl: blid } },
+        loaddata: function() { return { bl: bl } },
         type: 'select',
         submit: 'Ok',
         style: 'display: inline',
@@ -85,7 +85,7 @@ $(function() {
 
     $('.component').editable('/fault/ajax/update/fid/'+fid+'/ty/com/', {
         loadurl: '/fault/ajax/com/array/1/',
-        loaddata: function() { return { bl: blid, sid: sid } },
+        loaddata: function() { return { bl: bl, sid: sid } },
         type: 'select',
         submit: 'Ok',
         style: 'display: inline',
@@ -94,7 +94,7 @@ $(function() {
   
     $('.subcomponent').editable('/fault/ajax/update/fid/'+fid+'/ty/scom/', {
         loadurl: '/fault/ajax/scom/array/1/',
-        loaddata: function() { return { bl: blid, cid: cid } },
+        loaddata: function() { return { bl: bl, cid: cid } },
         type: 'select',
         submit: 'Ok',
         style: 'display: inline',

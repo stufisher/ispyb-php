@@ -40,3 +40,8 @@
         </thead>
         <tbody></tbody>
     </table>
+
+    <div class="page_wrap">
+        <div class="pages"></div>
+        <div class="clear"></div>
+    </div>

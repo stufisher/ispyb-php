@@ -2,20 +2,6 @@
 
     <div class="confirm"></div>
 
-    <button name="add_beamline" class="editor">Add Beamline</button>
-    <table class="robot_actions beamlines">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th class="span">Name</th>
-                <th>&nbsp;</th>
-                <th>&nbsp;</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-
-
     <button name="add_system" class="editor">Add System</button>
     <table class="robot_actions systems">
         <thead>

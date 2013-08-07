@@ -224,7 +224,7 @@
             
             # Get Faults
             $faultl = array();
-            #$faultl = $this->db->pq("SELECT f.faultid, f.beamlineid, bl.name as beamline f.owner, s.name as system, c.name as component, sc.name as subcomponent, f.starttime, f.endtime, f.beamtimelost, (f.beamtimelost_endtime-f.beamtimelost_starttime)*24 as lost, beamtimelost_starttime as st, beamtimelost_endtime as en, f.title, f.resolved FROM ispyb4a_db.bf_faults f INNER JOIN bf_beamline bl ON f.beamlineid = bl.beamlineid INNER JOIN bf_system s ON f.systemid = s.systemid INNER JOIN bf_component c ON f.systemid = c.componentid LEFT JOIN bf_subcomponent sc ON f.subcomponentid = sc.subcomponentid WHERE f.blsessionid = :1", array($info['SID']));
+            #$faultl = $this->db->pq("SELECT f.faultid, bl.beamlinename as beamline f.owner, s.name as system, c.name as component, sc.name as subcomponent, f.starttime, f.endtime, f.beamtimelost, (f.beamtimelost_endtime-f.beamtimelost_starttime)*24 as lost, beamtimelost_starttime as st, beamtimelost_endtime as en, f.title, f.resolved FROM ispyb4a_db.bf_faults f INNER JOIN blsession bl ON f.blsessionid = bl.sessionid INNER JOIN bf_system s ON f.systemid = s.systemid INNER JOIN bf_component c ON f.systemid = c.componentid LEFT JOIN bf_subcomponent sc ON f.subcomponentid = sc.subcomponentid WHERE f.blsessionid = :1", array($info['SID']));
             
             
             $info['DC_TOT'] = sizeof($dc);

@@ -19,7 +19,7 @@ $(function() {
         success: function(bls){
             $('select[name=beamline]').empty()
             $.each(bls, function(i,b) {
-                $('select[name=beamline]').append('<option value='+b['BEAMLINEID']+'>'+b['NAME']+'</option>')
+                $('select[name=beamline]').append('<option value='+b['NAME']+'>'+b['NAME']+'</option>')
             })
              
             refresh_systems()
