@@ -1,5 +1,27 @@
-        <h1>Statistics for <?php echo $bag ?></h1>
-        <h2><?php echo $data[0]['TITLE'] ?></h2>
+        <h1><?php echo $bag ?>: <?php echo $data[0]['TITLE'] ?></h1>
+
+        <!--
+        <div class="plot_container border right">
+            <div id="visit_pie"></div>
+            <p>Breakdown of Average Visit Time</p>
+        </div>
+
+        <div class="data_collection left">
+            <ul>
+                <li>Number of Visits :</li>
+                <li>Total Hours Allocated: </li>
+                <li>Total Hours Remaining: </li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+            </ul>
+        </div>
+
+        <div class="clear"></div>
+
+        <h1>Visit List</h1>
+        -->
 
         <div class="pages"></div>
         <div class="legend"></div>
