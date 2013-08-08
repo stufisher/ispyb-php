@@ -26,7 +26,7 @@
                               );
         var $def = 'list';
         var $profile = True;
-        //var $debug = True;
+        #var $debug = True;
         
         # ------------------------------------------------------------------------
         # Return faults based on search terms / filters
@@ -39,6 +39,26 @@
                 array_push($where, "(f.title LIKE '%'||:".$st."||'%' OR f.description LIKE '%'||:".($st+1)."||'%')");
                 array_push($args, $this->arg('s'));
                 array_push($args, $this->arg('s'));
+            }
+            
+            if ($this->has_arg('sid')) {
+                array_push($where, 's.systemid=:'.(sizeof($args) + 1));
+                array_push($args, $this->arg('sid'));
+            }
+
+            if ($this->has_arg('cid')) {
+                array_push($where, 'c.componentid=:'.(sizeof($args) + 1));
+                array_push($args, $this->arg('cid'));
+            }
+            
+            if ($this->has_arg('scid')) {
+                array_push($where, 'sc.subcomponentid=:'.(sizeof($args) + 1));
+                array_push($args, $this->arg('scid'));
+            }
+
+            if ($this->has_arg('bl')) {
+                array_push($where, 'bl.beamlinename LIKE :'.(sizeof($args) + 1));
+                array_push($args, $this->arg('bl'));
             }
             
             $where = implode($where, ' AND ');
@@ -54,7 +74,13 @@
                 $end = $pg*$pp+$pp;
             }
             
-            $tot = $this->db->pq('SELECT count(faultid) as tot FROM ispyb4a_db.bf_fault f '.$where, $args)[0]['TOT'];
+            $tot = $this->db->pq('SELECT count(faultid) as tot
+                FROM ispyb4a_db.bf_fault f
+                INNER JOIN bf_subcomponent sc ON f.subcomponentid = sc.subcomponentid
+                INNER JOIN bf_component c ON sc.componentid = c.componentid
+                INNER JOIN bf_system s ON c.systemid = s.systemid
+                INNER JOIN blsession bl ON f.sessionid = bl.sessionid
+                '.$where, $args)[0]['TOT'];
             
             $pgs = intval($tot/$pp);
             if ($tot % $pp != 0) $pgs++;
