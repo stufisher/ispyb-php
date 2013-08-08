@@ -42,7 +42,7 @@ $(function() {
                         '<td><a href="/vstat/bag/'+f['BAG']+'/visit/'+f['VISIT']+'">'+f['BAG']+'-'+f['VISIT']+'</a></td>'+
                         '<td><a href="/fault/sid/'+f['SYSTEMID']+'">'+f['SYSTEM']+'</td>'+
                         '<td><a href="/fault/cid/'+f['COMPONENTID']+'">'+f['COMPONENT']+'</a> &raquo; <a href="/fault/scid/'+f['SUBCOMPONENTID']+'">'+f['SUBCOMPONENT']+'</a></td>'+
-                        '<td>'+(f['RESOLVED'] ? (f['RESOLVED'] == 2 ? 'Partial' : 'Yes') : 'No')+'</td>'+
+                        '<td>'+(f['RESOLVED'] != 0 ? (f['RESOLVED'] == 2 ? 'Partial' : 'Yes') : 'No')+'</td>'+
                         '<td>'+(f['BEAMTIMELOST'] == 1 ? ('Yes ('+f['LOST']+'h)') : 'No')+'</td>'+
                     '</tr>'
                 ).hide().appendTo('table.robot_actions tbody').fadeIn()
