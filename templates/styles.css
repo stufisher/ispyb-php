@@ -511,6 +511,14 @@ div.form .half {
     /*width: 34%;*/
 }
 
+div.form label.ferror {
+    display: none !important;
+}
+
+div.form .ferror {
+    border: 1px solid red;
+}
+
 .editable {
     padding: 1%;
     border-radius: 5px;

@@ -44,7 +44,7 @@
         <li class="selected"><a href="/dc">Data</a></li>
     </ul>
 
-    <h1><a href="/">MXW</a></h1>
+    <h1><a href="/">MX</a></h1>
     <!--<h2>Hi <?php echo phpCAS::getUser(); ?></h2>-->
 
     <ul id="navigation">
