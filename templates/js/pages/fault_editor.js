@@ -2,6 +2,8 @@ $(function() {
     var beamlines = [];
     var systemid = -1;
     var componentid = -1;
+    var systembls = ''
+    var componentbls = ''
   
     var types = { systems: ['System', 'system'], components: ['Component', 'component'], subcomponents: ['Subcomponent', 'subcomponent'] }
   
@@ -52,7 +54,7 @@ $(function() {
             '<td>&nbsp;</td>'+
             '<td><input type="text" name="component" /></td>'+
             '<td><input type="text" name="componentdesc" /></td>'+
-            '<td class="la">'+_beamline_select('component')+'</td>'+
+            '<td class="la">'+_beamline_select('component', systembls)+'</td>'+
             '<td><button class="save"></button></td>'+
             '<td><button class="cancel"></button></td>'+
         '</tr>')
@@ -88,7 +90,7 @@ $(function() {
             '<td>&nbsp;</td>'+
             '<td><input type="text" name="subcomponent" /></td>'+
             '<td><input type="text" name="subcomponentdesc" /></td>'+
-            '<td class="la">'+_beamline_select('subcomponent')+'</td>'+
+            '<td class="la">'+_beamline_select('subcomponent', componentbls)+'</td>'+
             '<td><button class="save"></button></td>'+
             '<td><button class="cancel"></button></td>'+
         '</tr>')
@@ -232,7 +234,8 @@ $(function() {
     // Map row click to load components
     $('table.systems tr td').unbind('click').click(function() {
         if ($(this).parent('tr').hasClass('new')) return
-                                                   
+                                         
+        systembls = $($(this).parent('tr').children('td')[3]).html()
         systemid = $(this).parent('tr').children('td:first').html()
                    
         $('table.systems tr').removeClass('selected')
@@ -246,6 +249,7 @@ $(function() {
         if ($(this).parent('tr').hasClass('new')) return
                                                       
         componentid = $(this).parent('tr').children('td:first').html()
+        componentbls = $($(this).parent('tr').children('td')[3]).html()
                    
         $('table.components tr').removeClass('selected')
         $(this).parent('tr').addClass('selected')
@@ -295,7 +299,7 @@ $(function() {
   function _edit_component(row,ty) {
     var prefix = types[ty][1]
     $(row.children('td')[1]).html('<input type="text" name="'+prefix+'" value="'+$(row.children('td')[1]).html()+'" />')
-    if (ty != 'systems') $(row.children('td')[2]).html('<input type="text" name="'+prefix+'desc" value="'+$(row.children('td')[2]).html()+'" />')
+    $(row.children('td')[2]).html('<input type="text" name="'+prefix+'desc" value="'+$(row.children('td')[2]).html()+'" />')
     $(row.children('td').slice(-3,-2)).html(_beamline_select(prefix, $(row.children('td').slice(-3,-2)).html()))
   
     $(row.children('td').slice(-2,-1)).html('<button class="save"></button>')
