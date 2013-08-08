@@ -36,9 +36,8 @@
             
             if ($this->has_arg('s')) {
                 $st = sizeof($args) + 1;
-                array_push($where, "(f.title LIKE '%'||:".$st."||'%' OR f.description LIKE '%'||:".($st+1)."||'%')");
-                array_push($args, $this->arg('s'));
-                array_push($args, $this->arg('s'));
+                array_push($where, "(lower(f.title) LIKE lower('%'||:".$st."||'%') OR lower(f.description) LIKE lower('%'||:".($st+1)."||'%') OR lower(s.name) LIKE lower('%'||:".($st+2)."||'%') OR lower(c.name) LIKE lower('%'||:".($st+3)."||'%') OR lower(sc.name) LIKE lower('%'||:".($st+4)."||'%'))");
+                for ($i = 0; $i < 5; $i++) array_push($args, $this->arg('s'));
             }
             
             if ($this->has_arg('sid')) {
