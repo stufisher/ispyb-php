@@ -102,7 +102,7 @@
             
             $data = array();
             
-            if (strpos($query, 'INSERT') === false && strpos($query, 'UPDATE') === false) {
+            if (strpos($query, 'SELECT') !== false) {
                 while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
                     #array_push($data, json_decode(json_encode($row), FALSE));
                     array_push($data, $row);
