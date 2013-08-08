@@ -34,7 +34,7 @@ $(function() {
             //if (search)
             $('table.robot_actions tbody').empty()
             $.each(json[1], function(i,f) {
-                $('table.robot_actions tbody').append(
+                $(
                     '<tr>'+
                         '<td><a href="/fault/fid/'+f['FAULTID']+'">'+f['TITLE']+'</a></td>'+
                         '<td>'+f['STARTTIME']+'</td>'+
@@ -45,9 +45,11 @@ $(function() {
                         '<td>'+(f['RESOLVED'] ? (f['RESOLVED'] == 2 ? 'Partial' : 'Yes') : 'No')+'</td>'+
                         '<td>'+(f['BEAMTIMELOST'] ? ('Yes ('+f['LOST']+'h)') : 'No')+'</td>'+
                     '</tr>'
-                )
+                ).hide().appendTo('table.robot_actions tbody').fadeIn()
 
             })
+             
+            if (!json[1].length) $('<tr><td colspan="8">No faults found</td></tr>').hide().prependTo('table.robot_actions tbody').fadeIn()
              
             map_callbacks()
         }
