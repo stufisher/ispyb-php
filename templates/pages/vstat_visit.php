@@ -44,6 +44,8 @@
 
         <div class="clear"></div>
 
+        <?php if (sizeof($robot)): ?>
+
         <h1>Robot Errors</h1>
 
         <div class="table">
@@ -77,6 +79,11 @@
             </table>
         </div>
 
+        <?php else: ?>
+        <h1>No Robot Errors</h1>
+        <?php endif ?>
+
+        <?php if (sizeof($fault)): ?>
 
         <h1>Faults</h1>
 
@@ -108,3 +115,7 @@
 
             </table>
         </div>
+
+        <?php else: ?>
+        <h1>No Faults Reported</h1>
+        <?php endif ?>
