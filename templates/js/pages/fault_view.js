@@ -76,22 +76,26 @@ $(function() {
     }).addClass('editable');
   
   
-    $('.system').editable('/fault/ajax/update/fid/'+fid+'/ty/sys/', {
+    $('.system').editable(function(v,s) {
+            sid = v
+            return $('option[value='+v+']', this).html()                        
+        }, {
         loadurl: '/fault/ajax/sys/array/1/',
         loaddata: function() { return { bl: bl } },
         type: 'select',
         submit: 'Ok',
         style: 'display: inline',
-        callback: function(v,s) { sid = v }
     }).addClass('editable');
 
-    $('.component').editable('/fault/ajax/update/fid/'+fid+'/ty/com/', {
+    $('.component').editable(function(v,s) {
+            cid = v
+            return $('option[value='+v+']', this).html()                           
+        }, {
         loadurl: '/fault/ajax/com/array/1/',
         loaddata: function() { return { bl: bl, sid: sid } },
         type: 'select',
         submit: 'Ok',
         style: 'display: inline',
-        callback: function(v,s) { cid = v }
     }).addClass('editable');
   
     $('.subcomponent').editable('/fault/ajax/update/fid/'+fid+'/ty/scom/', {
