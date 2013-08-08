@@ -61,7 +61,7 @@
             </li>
 
             <li class="fresolved">
-                <div class="resolution text"><?php echo $f['RESOLUTION']->read($f['RESOLUTION']->size()) ?></div>
+                <div class="resolution text"><?php echo $f['RESOLUTION'] ? $f['RESOLUTION']->read($f['RESOLUTION']->size()) : '' ?></div>
                 <span class="label">Resolution</span>
             </li>
 
