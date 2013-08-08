@@ -2,7 +2,7 @@
 
     class Ajax extends AjaxBase {
         
-        var $arg_list = array('time' => '\d+', 'bl' => '\w\d\d(-\d)?', 'sid' => '\d+', 'cid' => '\d+', 'scid' => '\d+', 'pp' => '\d+', 'page' => '\d+', 'array' => '\d', 'ty' => '\w+', 'fid' => '\d+', 'name' => '[A-Za-z0-9_\- ]+', 'desc' => '[A-Za-z0-9_\- ]+', 's' => '\w+');
+        var $arg_list = array('time' => '\d+', 'bl' => '\w\d\d(-\d)?', 'sid' => '\d+', 'cid' => '\d+', 'scid' => '\d+', 'pp' => '\d+', 'page' => '\d+', 'array' => '\d', 'ty' => '\w+', 'fid' => '\d+', 'name' => '[A-Za-z0-9_\- ]+', 'desc' => '[A-Za-z0-9_\- ]+', 's' => '\w+', 'id' => '\d+');
         var $dispatch = array('list' => '_get_faults',
                               
                               'visits' => '_get_visits',
@@ -127,6 +127,7 @@
                            
                             'resolution' => array('.*', 'resolution', '', 0),
                             'desc' => array('.*', 'description', '', 0),
+                            'title' => array('.*', 'title', '', 0),
                            );
                     
             // Check we have a fault id
@@ -328,13 +329,47 @@
         # ------------------------------------------------------------------------
         # Delete a row
         function _delete_component() {
-            $this->_output($_POST);                                 
+            $this->_output($_POST);
+        
         }
 
         # ------------------------------------------------------------------------
         # Edit a row
-        function _edit_component() {
-            $this->_output($_POST);                                 
+        function _edit_component() {  
+            if (!$this->has_arg('id')) $this->_error('No id specified');
+            if (!$this->has_arg('ty')) $this->_error('No type specified');
+            if (!$this->has_arg('name')) $this->_error('No name specified');
+                                  
+            $types = array('systems' => array('system'), 'components' => array('component'), 'subcomponents' => array('subcomponent'));
+            if (!array_key_exists($this->arg('ty'), $types)) $this->_error('That type doesnt exists');
+                                 
+            $ty = $types[$this->arg('ty')];
+                                  
+            $check = $this->db->pq('SELECT '.$ty[0].'id as id FROM bf_'.$ty[0].' WHERE '.$ty[0].'id=:1', array($this->arg('id')));
+            if (!sizeof($check)) $this->_error('That id doesnt exist');
+                                  
+            $desc = $this->has_arg('desc') ? $this->arg('desc') : '';
+                                  
+            $bls = $this->check_bls($_POST['bls']);
+            $bl_temp = $this->db->pq('SELECT '.$ty[0].'_beamlineid as id,beamlinename FROM bf_'.$ty[0].'_beamline WHERE '.$ty[0].'id=:1', array($this->arg('id')));
+            $bl_old = array();
+            foreach ($bl_temp as $b) $bl_old[$b['BEAMLINENAME']] = $b['ID'];
+                                  
+            $rem = array_values(array_diff(array_keys($bl_old), $bls));
+            $add = array_values(array_diff($bls, array_keys($bl_old)));
+                            
+                                  
+            foreach ($rem as $r) {
+                $this->db->pq('DELETE FROM bf_'.$ty[0].'_beamline WHERE '.$ty[0].'_beamlineid=:1', array($bl_old[$r]));
+            }
+                                  
+            foreach ($add as $a) {
+                $this->db->pq('INSERT INTO bf_'.$ty[0].'_beamline ('.$ty[0].'_beamlineid, '.$ty[0].'id, beamlinename) VALUES (s_bf_'.$ty[0].'_beamline.nextval, :1, :2)', array($this->arg('id'), $a));
+            }
+                                  
+            $this->db->pq('UPDATE bf_'.$ty[0].' SET name=:1, description=:2 WHERE '.$ty[0].'id=:3', array($this->arg('name'), $desc, $this->arg('id')));
+                                  
+            $this->_output(1);
         }
                                  
     }
