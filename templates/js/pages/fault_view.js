@@ -150,7 +150,7 @@ $(function() {
         style: 'display: inline'
     }).addClass('editable');
   
-    $('.resolution').editable('/fault/ajax/update/ty/resolution/', {
+    $('.resolution').editable('/fault/ajax/update/fid/'+fid+'/ty/resolution/', {
         type: 'textarea',
         rows: 5,
         submit: 'Ok',
