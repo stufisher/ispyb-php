@@ -134,9 +134,11 @@
             if (!$this->has_arg('fid')) $this->_error('No fault id specified');
                                 
             // Check that the fault exists
-            $check = $this->db->pq('SELECT faultid FROM bf_fault WHERE faultid=:1', array($this->arg('fid')));
+            $check = $this->db->pq('SELECT owner FROM bf_fault WHERE faultid=:1', array($this->arg('fid')));
             if (!sizeof($check)) $this->_error('A fault with that id doesnt exists');
                                 
+            if (phpCAS::getUser() != $check['OWNER']) $this->_error('You dont own that fault report');
+                                  
             if (array_key_exists($this->arg('ty'), $types)) {
                 $t = $types[$this->arg('ty')];
                 $v = $_POST['value'];
@@ -214,7 +216,7 @@
                                   
             } else $where = '';
             
-            $rows = $this->db->pq("SELECT s.systemid, s.name, s.description, string_agg(hs.beamlinename) as beamlines FROM ispyb4a_db.bf_system s INNER JOIN ispyb4a_db.bf_system_beamline hs ON s.systemid = hs.systemid ".$where." GROUP BY s.systemid, s.name, s.description", $args);
+            $rows = $this->db->pq("SELECT s.systemid, s.name, s.description, string_agg(hs.beamlinename) as beamlines FROM ispyb4a_db.bf_system s INNER JOIN ispyb4a_db.bf_system_beamline hs ON s.systemid = hs.systemid ".$where." GROUP BY s.systemid, s.name, s.description ORDER BY s.name", $args);
                                  
             $sys = array();
             foreach ($rows as $s) $sys[$s['SYSTEMID']] = $s['NAME'];
@@ -233,7 +235,7 @@
                 array_push($args, $this->arg('bl'));
             } else $where = '';
             
-            $rows = $this->db->pq('SELECT c.componentid, c.name, c.description, string_agg(hc.beamlinename) as beamlines FROM ispyb4a_db.bf_component c INNER JOIN ispyb4a_db.bf_component_beamline hc ON c.componentid = hc.componentid WHERE c.systemid=:1'.$where.' GROUP BY c.componentid, c.name, c.description', $args);
+            $rows = $this->db->pq('SELECT c.componentid, c.name, c.description, string_agg(hc.beamlinename) as beamlines FROM ispyb4a_db.bf_component c INNER JOIN ispyb4a_db.bf_component_beamline hc ON c.componentid = hc.componentid WHERE c.systemid=:1'.$where.' GROUP BY c.componentid, c.name, c.description ORDER BY beamlines,c.name', $args);
                                  
             $com = array();
             foreach ($rows as $c) $com[$c['COMPONENTID']] = $c['NAME'];
@@ -252,7 +254,7 @@
                 array_push($args, $this->arg('bl'));
             } else $where = '';
             
-            $rows = $this->db->pq('SELECT s.subcomponentid, s.name, s.description, string_agg(hs.beamlinename) as beamlines FROM ispyb4a_db.bf_subcomponent s INNER JOIN ispyb4a_db.bf_subcomponent_beamline hs ON s.subcomponentid = hs.subcomponentid WHERE s.componentid=:1'.$where.' GROUP BY s.subcomponentid, s.name, s.description', $args);
+            $rows = $this->db->pq('SELECT s.subcomponentid, s.name, s.description, string_agg(hs.beamlinename) as beamlines FROM ispyb4a_db.bf_subcomponent s INNER JOIN ispyb4a_db.bf_subcomponent_beamline hs ON s.subcomponentid = hs.subcomponentid WHERE s.componentid=:1'.$where.' GROUP BY s.subcomponentid, s.name, s.description ORDER BY s.name', $args);
             
             $scom = array();
             foreach ($rows as $s) $scom[$s['SUBCOMPONENTID']] = $s['NAME'];
