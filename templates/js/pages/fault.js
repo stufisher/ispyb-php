@@ -82,6 +82,7 @@ $(function() {
             $.each(bls, function(i,b) {
                 $('select[name=beamline]').append('<option value='+b['NAME']+'>'+b['NAME']+'</option>')
             })
+            if (bl) $('select[name=beamline]').val(bl)
         }
       })   
   }
@@ -90,6 +91,9 @@ $(function() {
     bl = $(this).val()
     refresh_systems()
     _get_faults()
+                                    
+    url = window.location.pathname.replace(/\/bl\/\w\d\d(-\d)?/, '')+(bl ? '/bl/'+bl : '')
+    window.history.pushState({}, '', url)
   })  
   
   _get_beamlines()
@@ -111,6 +115,7 @@ $(function() {
             })
              
             if (last) $('select[name=system]').val(last)
+            else if (sid) $('select[name=system]').val(sid)
         }
       })
   }
@@ -118,7 +123,12 @@ $(function() {
   $('select[name=system]').change(function() {
     sid = $(this).val()
     refresh_components()
+    refresh_sub_components()
     _get_faults()
+                                  
+    url = window.location.pathname.replace(/\/sid\/\d+/, '')+(sid ? '/sid/'+sid : '')
+    url = url.replace(/\/cid\/\d+/, '').replace(/\/scid\/\d+/, '')
+    window.history.pushState({}, '', url)
   })
   
   refresh_systems()
@@ -146,6 +156,7 @@ $(function() {
                 $('select[name=component]').append('<option value='+c['COMPONENTID']+'>'+c['NAME']+'</option>')
             })
             if (last) $('select[name=component]').val(last)
+            else if (cid) $('select[name=component]').val(cid)
         }
       })
   }
@@ -154,6 +165,10 @@ $(function() {
     cid = $(this).val()
     refresh_sub_components()
     _get_faults()
+                                     
+    url = window.location.pathname.replace(/\/cid\/\d+/, '')+(cid ? '/cid/'+cid : '')
+    url = url.replace(/\/scid\/\d+/, '')
+    window.history.pushState({}, '', url)
   })  
   
   // Refresh subcomponent list based on beamline and component
@@ -178,6 +193,7 @@ $(function() {
                 $('select[name=subcomponent]').append('<option value='+s['SUBCOMPONENTID']+'>'+s['NAME']+'</option>')
             })
             if (last) $('select[name=subcomponent]').val(last)
+            else if (scid) $('select[name=subcomponent]').val(scid)
         }
       })
   }
@@ -185,6 +201,9 @@ $(function() {
   $('select[name=subcomponent]').change(function() {
     scid = $(this).val()
     _get_faults()
+                                        
+    url = window.location.pathname.replace(/\/scid\/\d+/, '')+(scid ? '/scid/'+scid : '')
+    window.history.pushState({}, '', url)
   })
   
   refresh_sub_components()
