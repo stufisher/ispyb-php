@@ -59,9 +59,7 @@
         }
         
         
-        function _auth() {
-            global $icat;
-            
+        function _auth() {            
             $u = phpCAS::getUser();
             $groups = explode(' ', exec('groups ' . $u));
             $this->staff = in_array('mx_staff', $groups) ? True : False;
