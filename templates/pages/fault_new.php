@@ -25,7 +25,7 @@
                 <label>Visit ID
                     <span class="small">The visit during which the fault occured</span>
                 </label>
-                <select name="visit" required><select>
+                <select name="session" required></select>
             </li>
 
             <li>
