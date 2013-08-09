@@ -59,9 +59,9 @@ $(function() {
         dataType: 'json',
         timeout: 5000,
         success: function(visits){
-            $('select[name=visit]').empty()
+            $('select[name=session]').empty()
             $.each(visits, function(i,v) {
-                $('select[name=visit]').append('<option value='+v['SESSIONID']+'>'+v['VISIT']+'</option>')
+                $('select[name=session]').append('<option value='+v['SESSIONID']+'>'+v['VISIT']+'</option>')
                     
             })
         }
