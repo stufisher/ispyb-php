@@ -4,6 +4,10 @@
         
         var $arg_list = array('bl' => '\w\d\d(-\d)?', 'page' => '\d+', 'fid' => '\d+',
                               
+                              'sid' => '\d+',
+                              'cid' => '\d+',
+                              'scid' => '\d+',
+                              
                               'start' => '\d\d-\d\d-\d\d\d\d \d\d:\d\d',
                               'end' => '\d\d-\d\d-\d\d\d\d \d\d:\d\d',
                               'blstart' => '\d\d-\d\d-\d\d\d\d \d\d:\d\d',
