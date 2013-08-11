@@ -2,8 +2,13 @@
 
     class Image extends Page {
         
-        var $arg_list = array('id' => '\d+', 'n' => '\d+', 'f' => '\d');
-        var $dispatch = array('xtal' => '_xtal_image', 'diff' => '_diffraction_image', 'dimp' => '_dimple_images', 'di' => '_diffraction_viewer');
+        var $arg_list = array('id' => '\d+', 'n' => '\d+', 'f' => '\d', 'bl' => '\w\d\d(-\d)?', 'w' => '\d+');
+        var $dispatch = array('xtal' => '_xtal_image',
+                              'diff' => '_diffraction_image',
+                              'dimp' => '_dimple_images',
+                              'di' => '_diffraction_viewer',
+                              'cam' => '_forward_webcam',
+                              );
         var $def = 'xtal';
 
         
@@ -98,6 +103,43 @@
                 header('Content-Type:image/png');
                 readfile($im);
             }
+        }
+        
+        # Forward beamline webcams
+        function _forward_webcam() {
+            if (!$this->has_arg('bl')) return;
+            
+            $bls = array('i02' => array('172.23.102.177', '172.23.102.176'),
+                         'i03' => array('172.23.103.177', '172.23.103.176'),
+                         'i04' => array('172.23.104.177', '172.23.104.176'),
+                         'i04-1' => array('i04-1-webcam1.diamond.ac.uk', 'i04-1-webcam2.diamond.ac.uk'),
+                         'i24' => array('172.23.124.177', '172.23.124.176')
+                         );
+            
+            if (!array_key_exists($this->arg('bl'), $bls)) return;
+            
+            $n = $this->has_arg('n') ? $this->arg('n') : 0;
+            $img = $bls[$this->arg('bl')][$n];
+            
+            set_time_limit(0);
+            for ($i = 0; $i < ob_get_level(); $i++)
+                ob_end_flush();
+            ob_implicit_flush(1);
+            
+            while (@ob_end_clean());
+            header('content-type: multipart/x-mixed-replace; boundary=--myboundary');
+            
+            # Close session for this page as to not block the rest of the php process
+            session_write_close();
+            
+            #header('Content-Type:image/jpeg');
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, 'http://'.$img.'/axis-cgi/mjpg/video.cgi?fps=15');
+            #curl_setopt($ch, CURLOPT_URL, 'http://'.$img.'/axis-cgi/jpg/image.cgi');
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            $im = curl_exec($ch);
+            curl_close($ch);
+            echo $im;
         }
         
         
