@@ -1,4 +1,13 @@
-    <?php if ($this->staff): ?>
+
+    <?php if ($active): ?>
+    <h1 class="status">Beamline Status</h1>
+    <div class="status">
+        <div class="pvs"></div>
+
+        <div class="webcam"><img src="" alt="webcam1" /></div>
+        <div class="webcam"><img src="" alt="webcam2" /></div>
+    </div>
+    <?php endif ?>
 
     <div class="filter">
         <ul>
@@ -9,6 +18,7 @@
         </ul>
     </div>
 
+    <?php if ($this->staff): ?>
     <div class="robot">
         <a href="/robot/visit/<?php echo $vis ?>">Robot Stats</a> | <a href="/vstat/bag/<?php echo $vid ?>/visit/<?php echo $vno ?>">Visit Stats</a>
     </div>

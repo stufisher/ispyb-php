@@ -551,6 +551,7 @@ div.form .ferror {
     text-align: right;
     padding: 5px;
 }
+.status,
 .log {
     box-shadow: 2px 2px 15px #bfbfbf;
     border-radius: 6px;
@@ -558,6 +559,7 @@ div.form .ferror {
     margin-bottom: 10px;
 }
 
+.status,
 .log h1 {
     font-size: 14px;
     padding: 5px;
@@ -906,7 +908,45 @@ div.form .ferror {
     background: #efefef;
 }
 
+h1.status {
+    cursor: pointer;
+}
 
+div.status {
+    display: none;
+}
+
+.webcam {
+    width: 49.7%;
+    display: inline-block;
+}
+
+.webcam img {
+    width: 100%;
+    float: none;
+}
+
+.pvs {
+    padding: 0.2%;
+}
+
+.pvs .pv {
+    display: inline-block;
+    width: 12.8857143%;
+    padding: 0.5%;
+    background: #cdcdcd;
+    margin: 0.2%;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.pvs .pv.on {
+    background: green;
+}
+
+.pvs .pv.off {
+    background: red;
+}
 
 /* Data Collections - Calendar
  ---------------------------------------------------------*/

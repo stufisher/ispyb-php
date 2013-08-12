@@ -197,10 +197,7 @@ $(function() {
                          if (!first) log_message('New sample loaded', '<a href="#'+r['ID'] +'">Barcode: ' +r['DIR'] + '</a>')
                        
                        }
-                       
-                       //update_aps(r['ID'], false)
-                       //update_jobs(r['ID'], r['AP'], false)
-                       
+
                        if ($('div.data_collection').length > json[1].length) {
                            $('div.data_collection:last').slideUp().remove()
                        }
@@ -214,14 +211,7 @@ $(function() {
                        
                            if (!$(sn).attr('dsrc') && r['SN']) $(sn).attr('dsrc', '/image/id/'+r['ID'])
                            if (!$(di).attr('dsrc') && r['DI']) $(di).attr('dsrc', '/image/diff/id/'+r['ID'])
-                           //update_aps(r['ID'], true)
                        }
-                    
-                       
-                       //if (!arrcmp(apr[r['ID']],r['AP'])) {
-                           //update_jobs(r['ID'], r['AP'], true)
-                           //$('.data_collection[dcid="'+r['ID']+'"]').data('apr', r['AP'])
-                       //}
                        
                    }
 
@@ -875,13 +865,54 @@ $(function() {
   }
   
   
-  function arrcmp(a, b) {
-    var i = a.length;
-    if (i != b.length) return false;
-        while (i--) {
-            if (a[i] !== b[i]) return false;
+  // Status H1 toggles status visibility
+  $('h1.status').click(function() {
+    $('div.status').slideToggle()
+                    
+    if ($('div.status').is(':visible')) refresh_pvs()
+                       
+    $('.webcam img').each(function(i,w) {
+      $(this).attr('src', $('div.status').is(':visible') ? ('/image/cam/bl/'+bl+'/n/'+i) : '')
+    })
+  })
+  
+  // Get PVs
+  function refresh_pvs() {
+    var t = new Date()
+    $.ajax({
+        url: '/dc/ajax/pvs/bl/'+bl+'/t/'+t,
+        type: 'GET',
+        dataType: 'json',
+        error: function(a,b,c) {
+           console.log(a)
+           console.log(b)
+           console.log(c)
+        },
+           
+        success: function(pvs){           
+          $.each(pvs, function(k,v) {
+            var c;
+            if (k == 'Ring Current') c = v < 10 ? 'off' : 'on'
+            else if (k == 'Ring State') c = v == 'User' ? 'on' : 'off'
+            else if (k == 'Hutch') c = v == 'Locked' ? 'on' : 'off'
+            else if (k == 'Refil') c = v == -1 ? 'off' : 'on'
+            else c = v == 'Closed' ? 'off' : 'on'
+                 
+            if ($('.pv[pv="'+k+'"]').length) {
+              $('.pv[pv="'+k+'"]').removeClass('on').removeClass('off').addClass(c).children('p').html(v)
+            } else {
+              $('<div class="pv" pv="'+k+'"><h1>'+k+'</h1><p>'+v+'</p></div>').addClass(c).hide().appendTo('.status .pvs').fadeIn()
+            }
+          })
         }
-        return true;
+      })
+  
+      if ($('div.status').is(':visible')) {
+        setTimeout(function() {
+          refresh_pvs()
+        }, 3000)
+      }
   }
+  
   
 });
