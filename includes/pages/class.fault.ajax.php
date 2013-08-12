@@ -99,7 +99,7 @@
                 INNER JOIN blsession bl ON f.sessionid = bl.sessionid
                 INNER JOIN proposal p on p.proposalid = bl.proposalid
                 $where
-                ORDER BY f.faultid DESC
+                ORDER BY f.starttime DESC
              
                ) inner) outer
              WHERE outer.rn > :".$st." AND outer.rn <= :".($st+1), $args);
@@ -136,6 +136,7 @@
             // Check that the fault exists
             $check = $this->db->pq('SELECT owner FROM bf_fault WHERE faultid=:1', array($this->arg('fid')));
             if (!sizeof($check)) $this->_error('A fault with that id doesnt exists');
+            $check = $check[0];
                                 
             if (phpCAS::getUser() != $check['OWNER']) $this->_error('You dont own that fault report');
                                   
@@ -144,7 +145,7 @@
                 $v = $_POST['value'];
                                 
                 // Check the value matches the template
-                if (preg_match('/^'.$t[0].'$/', $v)) {
+                if (preg_match('/^'.$t[0].'$/m', $v)) {
                     $pp = array('','');
 
                     if ($t[3]) {
