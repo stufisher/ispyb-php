@@ -134,7 +134,7 @@
             
             #header('Content-Type:image/jpeg');
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, 'http://'.$img.'/axis-cgi/mjpg/video.cgi?fps=15');
+            curl_setopt($ch, CURLOPT_URL, 'http://'.$img.'/axis-cgi/mjpg/video.cgi?fps=15&resolution=CIF');
             #curl_setopt($ch, CURLOPT_URL, 'http://'.$img.'/axis-cgi/jpg/image.cgi');
             curl_setopt($ch, CURLOPT_HEADER, 0);
             $im = curl_exec($ch);
