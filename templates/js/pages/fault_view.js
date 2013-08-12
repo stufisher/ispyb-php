@@ -1,5 +1,7 @@
 $(function() {
   
+  var values = { 'Yes': 1, 'No': 0, 'Partial': 2 }
+  
   // Custom editable type for datetimepicker
   $.editable.addInputType('datetime', {
     element : function(settings, original) {
@@ -111,6 +113,7 @@ $(function() {
         type: 'textarea',
         rows: 5,
         submit: 'Ok',
+        onblur: 'ignore',
     }).addClass('editable');
   
   
@@ -119,7 +122,7 @@ $(function() {
         data: { 1: 'Yes', 0: 'No' },
         submit: 'Ok',
         style: 'display: inline',
-        callback: function(v,s) { btl = v; showhide() }
+        callback: function(v,s) { btl = values[v]; showhide() }
     }).addClass('editable');
   
     $('.btl_start').editable('/fault/ajax/update/fid/'+fid+'/ty/btlstart/', {
@@ -141,7 +144,7 @@ $(function() {
         data: { 2: 'Partial', 1: 'Yes', 0: 'No' },
         submit: 'Ok',
         style: 'display: inline',
-        callback: function(v,s) { resolved = v; showhide() }
+        callback: function(v,s) { resolved = values[v]; showhide() }
     }).addClass('editable');  
   
     $('.endtime').editable('/fault/ajax/update/fid/'+fid+'/ty/endtime/', {
@@ -154,6 +157,7 @@ $(function() {
         type: 'textarea',
         rows: 5,
         submit: 'Ok',
+        onblur: 'ignore',
     }).addClass('editable');  
   
   }  
