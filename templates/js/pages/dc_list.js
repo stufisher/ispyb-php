@@ -107,6 +107,7 @@ $(function() {
                                  (r['SAN'] != null ? ('<li>Sample: ' + r['SAN'] + ' (m' + r['SCON'] + 'p' + r['SPOS']+')') : '')+
                                  '<li>&Omega; Start: '+r['AXISSTART']+'&deg;</li>'+
                                  '<li>&Omega; Osc: '+r['AXISRANGE']+'&deg;</li>'+
+                                 '<li>&Omega; Overlap: '+r['OVERLAP']+'&deg;</li>'+
                                  '<li>No. Images: '+r['NUMIMG']+'</li>'+
                                  '<li>Resolution: '+r['RESOLUTION']+'&#197;</li>'+
                                  '<li>Wavelength: '+r['WAVELENGTH']+'&#197;</li>'+

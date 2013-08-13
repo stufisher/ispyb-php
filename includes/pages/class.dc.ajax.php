@@ -11,7 +11,6 @@
                               'mca' => '_mca',
                               'aps' => '_ap_status',
                               'imq' => '_image_qi',
-                              'pvs' => '_get_pvs',
                               );
         
         var $def = 'dc';
@@ -101,19 +100,19 @@
             $q = 'SELECT outer.*
              FROM (SELECT ROWNUM rn, inner.*
              FROM (
-             SELECT im.measuredintensity as flux, c.samplechangerlocation as scon, bls.location as spos, bls.name as san, \'data\' as type, dc.imageprefix as imp, dc.datacollectionnumber as run, dc.filetemplate, dc.datacollectionid as id, dc.numberofimages as ni, dc.imagedirectory as dir, dc.resolution, dc.exposuretime, dc.axisstart, dc.numberofimages as numimg, TO_CHAR(dc.starttime, \'DD-MM-YYYY HH24:MI:SS\') as st, dc.transmission, dc.axisrange, dc.wavelength, dc.comments, 1 as epk, 1 as ein, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4, dc.starttime as sta FROM ispyb4a_db.datacollection dc
+             SELECT dc.overlap, im.measuredintensity as flux, c.samplechangerlocation as scon, bls.location as spos, bls.name as san, \'data\' as type, dc.imageprefix as imp, dc.datacollectionnumber as run, dc.filetemplate, dc.datacollectionid as id, dc.numberofimages as ni, dc.imagedirectory as dir, dc.resolution, dc.exposuretime, dc.axisstart, dc.numberofimages as numimg, TO_CHAR(dc.starttime, \'DD-MM-YYYY HH24:MI:SS\') as st, dc.transmission, dc.axisrange, dc.wavelength, dc.comments, 1 as epk, 1 as ein, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4, dc.starttime as sta FROM ispyb4a_db.datacollection dc
              LEFT OUTER JOIN ispyb4a_db.blsample bls ON bls.blsampleid = dc.blsampleid
              LEFT OUTER JOIN ispyb4a_db.container c ON bls.containerid = c.containerid
              LEFT OUTER JOIN ispyb4a_db.image im ON im.datacollectionid = dc.datacollectionid AND im.imagenumber = 1
              WHERE dc.sessionid=:1'.$where.'
              UNION
-             SELECT 1, \'A\' as scon, \'A\' as spos, \'A\' as sn, \'edge\' as type, es.jpegchoochfilefullpath, 1, \'A\', es.energyscanid, 1, es.element, es.peakfprime, es.exposuretime, es.peakfdoubleprime, 1, TO_CHAR(es.starttime, \'DD-MM-YYYY HH24:MI:SS\') as st, es.transmissionfactor, es.inflectionfprime, es.inflectionfdoubleprime, es.comments, es.peakenergy, es.inflectionenergy, \'A\', \'A\', \'A\', \'A\', es.starttime as sta FROM ispyb4a_db.energyscan es WHERE es.sessionid=:2'.$where2.'
+             SELECT 1, 1, \'A\' as scon, \'A\' as spos, \'A\' as sn, \'edge\' as type, es.jpegchoochfilefullpath, 1, \'A\', es.energyscanid, 1, es.element, es.peakfprime, es.exposuretime, es.peakfdoubleprime, 1, TO_CHAR(es.starttime, \'DD-MM-YYYY HH24:MI:SS\') as st, es.transmissionfactor, es.inflectionfprime, es.inflectionfdoubleprime, es.comments, es.peakenergy, es.inflectionenergy, \'A\', \'A\', \'A\', \'A\', es.starttime as sta FROM ispyb4a_db.energyscan es WHERE es.sessionid=:2'.$where2.'
 
             UNION
-            SELECT 1, \'A\', \'A\', \'A\', \'mca\' as type, \'A\', 1, \'A\', xrf.xfefluorescencespectrumid, 1, xrf.filename, 1, xrf.exposuretime, 1, 1, TO_CHAR(xrf.starttime, \'DD-MM-YYYY HH24:MI:SS\') as st, xrf.beamtransmission, 1, xrf.energy, xrf.comments, 1, 1, \'A\', \'A\', \'A\', \'A\', xrf.starttime as sta FROM ispyb4a_db.xfefluorescencespectrum xrf WHERE xrf.sessionid=:3'.$where4.'
+            SELECT 1, 1, \'A\', \'A\', \'A\', \'mca\' as type, \'A\', 1, \'A\', xrf.xfefluorescencespectrumid, 1, xrf.filename, 1, xrf.exposuretime, 1, 1, TO_CHAR(xrf.starttime, \'DD-MM-YYYY HH24:MI:SS\') as st, xrf.beamtransmission, 1, xrf.energy, xrf.comments, 1, 1, \'A\', \'A\', \'A\', \'A\', xrf.starttime as sta FROM ispyb4a_db.xfefluorescencespectrum xrf WHERE xrf.sessionid=:3'.$where4.'
                    
              UNION
-             SELECT 1, \'A\' as scon, \'A\' as spos, \'A\' as sn, \'load\' as type, \'A\', 1, \'A\', r.robotactionid, 1,  r.samplebarcode, r.containerlocation, r.dewarlocation, 1, 1, TO_CHAR(r.starttimestamp, \'DD-MM-YYYY HH24:MI:SS\') as st, 1, 1, 1, \'A\', 1, 1, \'A\', \'A\', \'A\', \'A\', r.starttimestamp as sta FROM ispyb4a_db.robotaction r WHERE r.status=\'SUCCESS\' AND r.actiontype=\'LOAD\' AND r.blsessionid=:4'.$where3.'
+             SELECT 1, 1, \'A\' as scon, \'A\' as spos, \'A\' as sn, \'load\' as type, \'A\', 1, \'A\', r.robotactionid, 1,  r.samplebarcode, r.containerlocation, r.dewarlocation, 1, 1, TO_CHAR(r.starttimestamp, \'DD-MM-YYYY HH24:MI:SS\') as st, 1, 1, 1, \'A\', 1, 1, \'A\', \'A\', \'A\', \'A\', r.starttimestamp as sta FROM ispyb4a_db.robotaction r WHERE r.status=\'SUCCESS\' AND r.actiontype=\'LOAD\' AND r.blsessionid=:4'.$where3.'
              
              
              ORDER BY sta DESC
@@ -630,59 +629,6 @@
             }
 
             $this->_output($iqs);
-        }
-        
-        
-        # ------------------------------------------------------------------------
-        # Return beam / ring status pvs for a beamline
-        function _get_pvs() {
-            session_write_close();
-            
-            if (!$this->has_arg('bl')) $this->_error('No beamline specified');
-            
-            $ring_pvs = array('Ring Current' => 'SR-DI-DCCT-01:SIGNAL',
-                              'Ring State' => 'CS-CS-MSTAT-01:MODE',
-                              'Refill' => 'SR-CS-FILL-01:COUNTDOWN'
-                              );
-            
-            $bl_pvs = array(
-                            'i02' => array('Hutch' => 'BL02I-PS-IOC-01:M14:LOP',
-                                           'Port Shutter' => 'FE02I-PS-SHTR-01:STA',
-                                           'Expt Shutter' => 'BL02I-PS-SHTR-01:STA',
-                                           'Fast Shutter' => 'BL02I-EA-SHTR-01:SHUTTER_STATE',
-                                           ),
-                            'i03' => array('Hutch' => 'BL03I-PS-IOC-01:M14:LOP',
-                                           'Port Shutter' => 'FE03I-PS-SHTR-01:STA',
-                                           'Expt Shutter' => 'BL03I-PS-SHTR-01:STA',
-                                           'Fast Shutter' => 'BL03I-EA-SHTR-01:SHUTTER_STATE',
-                                           ),
-                            'i04' => array('Hutch' => 'BL04I-PS-IOC-01:M14:LOP',
-                                           'Port Shutter' => 'FE04I-PS-SHTR-01:STA',
-                                           'Expt Shutter' => 'BL04I-PS-SHTR-01:STA',
-                                           'Fast Shutter' => 'BL04I-EA-SHTR-01:SHUTTER_STATE',
-                                           ),
-                            'i04-1' => array('Hutch' => 'BL04J-PS-IOC-01:M14:LOP',
-                                           'Port Shutter' => 'FE04I-PS-SHTR-01:STA',
-                                           'Expt Shutter' => 'BL04J-PS-SHTR-02:STA',
-                                           'Fast Shutter' => 'BL04J-EA-SHTR-01:STA',
-                                           ),
-                            'i24' => array('Hutch' => 'BL24I-PS-IOC-01:M14:LOP',
-                                           'Port Shutter' => 'FE24I-PS-SHTR-01:STA',
-                                           'Expt Shutter' => 'BL24I-PS-SHTR-01:STA',
-                                           'Fast Shutter' => 'BL24I-EA-SHTR-01:EQU:POSN',
-                                           ),
-                            );
-            
-            if (!array_key_exists($this->arg('bl'), $bl_pvs)) $this->_error('No such beamline');
-            
-            $return = array();
-            foreach (array_merge($ring_pvs, $bl_pvs[$this->arg('bl')]) as $k => $pv) {
-                $return[$k] = $this->pv($pv);
-                if ($k == 'Hutch') $return[$k] = $return[$k] == 7 ? 'Open' : 'Locked';
-            }
-            
-            $this->_output($return);
-            
         }
 
     }
