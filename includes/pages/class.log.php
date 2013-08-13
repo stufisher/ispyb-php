@@ -7,7 +7,7 @@
         var $def = 'list';
         
         var $root = 'Latest Visits';
-        var $root_link = '/fault/';
+        var $root_link = '/';
     
         //var $debug = True;
         
