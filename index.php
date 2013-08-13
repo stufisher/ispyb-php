@@ -27,6 +27,7 @@
                    'fault' => array('Fault', 'Fault Logging'),
                    'vstat' => array('Visit', 'Visit Statistics'),
                    'log' => array('Log', 'Visit Summary'),
+                   'status' => array('Status', 'Beamline Status'),
                    );
     
     if (array_key_exists($parts[0], $pages)) {
