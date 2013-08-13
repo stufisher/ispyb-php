@@ -8,6 +8,7 @@
                               'dimp' => '_dimple_images',
                               'di' => '_diffraction_viewer',
                               'cam' => '_forward_webcam',
+                              'oav' => '_forward_oav',
                               );
         var $def = 'xtal';
 
@@ -103,6 +104,37 @@
                 header('Content-Type:image/png');
                 readfile($im);
             }
+        }
+        
+        function _forward_oav() {
+            if (!$this->has_arg('bl')) return;
+            
+            $bls = array(
+                         'i02' => 'http://i02-firewire01:8080/OAV.MJPG.mjpg',
+                         'i03' => 'http://i03-firewire01:8080/OAV.MJPG.mjpg',
+                         'i04' => 'http://i04-firewire01:8080/OAV.MJPG.mjpg',
+                         'i04-1' => 'http://i04-1-firewire01:8080/OAV.MJPG.mjpg',
+                         'i24' => 'http://i24-control:8081/oav.MJPG.mjpg'
+                         );
+            
+            if (!array_key_exists($this->arg('bl'), $bls)) return;
+            
+            set_time_limit(0);
+            for ($i = 0; $i < ob_get_level(); $i++)
+                ob_end_flush();
+            ob_implicit_flush(1);
+            
+            while (@ob_end_clean());
+            header('content-type: multipart/x-mixed-replace; boundary=--BOUNDARY');
+        
+            session_write_close();
+        
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $bls[$this->arg('bl')]);
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            $im = curl_exec($ch);
+            curl_close($ch);
+            echo $im;
         }
         
         # Forward beamline webcams
