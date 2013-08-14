@@ -881,7 +881,7 @@ $(function() {
   function refresh_pvs() {
     var t = new Date()
     $.ajax({
-        url: '/dc/ajax/pvs/bl/'+bl+'/t/'+t,
+        url: '/status/ajax/bl/'+bl+'/t/'+t,
         type: 'GET',
         dataType: 'json',
         error: function(a,b,c) {
