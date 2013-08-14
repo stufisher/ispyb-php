@@ -131,7 +131,9 @@
             
             $this->t->bl = $info['BL'];
             $this->t->vis = $this->arg('visit');
-            $this->t->active = 1;#$info['ACTIVE'];
+            $this->t->active = $info['ACTIVE'];
+            
+            $this->t->js_var('active', $info['ACTIVE']);
             
             $this->t->js_var('visit', $this->arg('visit'));
             $this->t->js_var('page', $this->has_arg('page') ? intval($this->arg('page')) : 1);

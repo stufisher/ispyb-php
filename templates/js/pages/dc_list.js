@@ -7,9 +7,13 @@ $(function() {
   var search = ''
   //var type = ''
   
+  
+  if (active == 0) $('div.log').hide()
+  
+  
   var dragImg = document.createElement('img');
   dragImg.src = '/templates/images/drag.png'
-
+  
   
   // Filter by type
   $('.filter ul li[id='+type+']').addClass('current')
