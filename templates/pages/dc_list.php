@@ -20,7 +20,7 @@
 
     <?php if ($this->staff): ?>
     <div class="robot">
-        <a href="/robot/visit/<?php echo $vis ?>">Robot Stats</a> | <a href="/vstat/bag/<?php echo $vid ?>/visit/<?php echo $vno ?>">Visit Stats</a>
+        <a href="/robot/visit/<?php echo $vis ?>">Robot Stats</a> | <a href="/vstat/bag/<?php echo $vid ?>/visit/<?php echo $vno ?>">Visit Stats</a> | <a href="/status/bl/<?php echo $bl ?>">Beamline Status</a>
     </div>
     <?php endif; ?>
 
