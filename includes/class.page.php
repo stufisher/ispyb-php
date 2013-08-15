@@ -126,7 +126,7 @@
             $parsed = array();
             foreach ($this->arg_list as $k => $v) {
                 if (array_key_exists($k, $temp)) {
-                    if (preg_match('/^'.$v.'$/', $temp[$k])) {
+                    if (preg_match('/^'.$v.'$/m', $temp[$k])) {
                         $parsed[$k] = $temp[$k];
                     }
                 }
@@ -139,7 +139,7 @@
                 if (!array_key_exists($k, $parsed)) {
                     if (array_key_exists($k, $pg)) {
                     
-                        if (preg_match('/^'.$v.'$/', $pg[$k])) {
+                        if (preg_match('/^'.$v.'$/m', $pg[$k])) {
                             $parsed[$k] = $pg[$k];
                         }
                     }
