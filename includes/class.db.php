@@ -13,7 +13,8 @@
             $this->conn = oci_connect($user, $pass, $db);
             if (!$this->conn) {
                 $e = oci_error();
-                trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+                $this->error('There was an connecting to Oracle', htmlentities($e['message']));
+                //trigger_error(, ENT_QUOTES), E_USER_ERROR);
             }
         
         }
@@ -32,7 +33,8 @@
             $stid = oci_parse($this->conn, $query);
             if (!$stid) {
                 $e = oci_error($conn);
-                trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+                $this->error('There was an error preparing a database query', htmlentities($e['message']));
+                //trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
             }
             
             
@@ -43,7 +45,8 @@
             $r = oci_execute($stid);
             if (!$r) {
                 $e = oci_error($stid);
-                trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+                $this->error('There was an error executing a database query', htmlentities($e['message']));
+                //trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
             }
             
             $data = array();
@@ -77,7 +80,7 @@
             $stid = oci_parse($this->conn, $query);
             if (!$stid) {
                 $e = oci_error($conn);
-                trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+                $this->error('There was an error with Oracle', htmlentities($e['message']));
             }
             
             
@@ -97,7 +100,8 @@
             $r = oci_execute($stid);
             if (!$r) {
                 $e = oci_error($stid);
-                trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+                //trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+                $this->error('There was an error with Oracle', htmlentities($e['message']));
             }
             
             $data = array();
@@ -117,7 +121,7 @@
         
         # Cleanup when finished
         function __destruct() {
-            return;
+            //return;
             oci_close($this->conn);
         }
         
@@ -127,6 +131,17 @@
             $dt = DateTime::createFromFormat("d#M#y H#i#s*A", $date, $this->tz);
             return $dt->getTimestamp();
         }
+        
+        
+        # Error page
+        function error($title, $msg) {
+            $this->t = new Template('Error', array('p' => array(), 'l' => array()));
+            $this->t->title = 'Error: '.$title;
+            $this->t->msg = $msg;
+            $this->t->staff = false;
+            $this->t->render('generic_msg');
+            exit();
+        }        
         
         
     }
