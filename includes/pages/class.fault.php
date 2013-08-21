@@ -1,5 +1,8 @@
 <?php
 
+    require_once('Michelf/Markdown.php');
+    use \Michelf\Markdown;
+    
     class Fault extends Page {
         
         var $arg_list = array('bl' => '\w\d\d(-\d)?', 'page' => '\d+', 'fid' => '\d+',
@@ -75,7 +78,13 @@
             } else {
                 $this->error('Fault id doesnt exists', 'There is not fault recorded with that id');
             }
-            
+                                  
+            foreach (array('DESCRIPTION', 'RESOLUTION') as $k) {
+                if ($info[$k]) {
+                    $info[$k] = Markdown::defaultTransform($info[$k]->read($info[$k]->size()));
+                }
+            }
+                                  
             
             $this->template('Fault: '.$info['TITLE']);
             $this->t->f = $info;
