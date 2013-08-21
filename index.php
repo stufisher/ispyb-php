@@ -1,9 +1,9 @@
 <?php
-
+    
     require_once('config.php');
     
     require_once 'CAS/CAS.php';
-    phpCAS::client(CAS_VERSION_2_0, 'stageauth.diamond.ac.uk', 443, '/cas');
+    phpCAS::client(CAS_VERSION_2_0, 'auth.diamond.ac.uk', 443, '/cas');
     phpCAS::setNoCasServerValidation();
     phpCAS::forceAuthentication();
     
