@@ -63,7 +63,7 @@
             if (!$this->has_arg('fid')) $this->error('No fault id specified', 'You must specify a fault id to view');
             
             
-            $info = $this->db->pq("SELECT p.proposalcode || p.proposalnumber || '-' || bl.visit_number as visit, f.faultid, f.sessionid, bl.beamlinename as beamline, f.owner, s.systemid, s.name as system, c.componentid, c.name as component, sc.subcomponentid, sc.name as subcomponent, TO_CHAR(f.starttime, 'DD-MM-YYYY HH24:MI') as starttime, TO_CHAR(f.endtime, 'DD-MM-YYYY HH24:MI') as endtime, f.beamtimelost, round((f.beamtimelost_endtime-f.beamtimelost_starttime)*24,2) as lost, f.title, f.resolved, f.resolution, f.description, TO_CHAR(f.beamtimelost_endtime, 'DD-MM-YYYY HH24:MI') as beamtimelost_endtime, TO_CHAR(f.beamtimelost_starttime, 'DD-MM-YYYY HH24:MI') as beamtimelost_starttime
+            $info = $this->db->pq("SELECT p.proposalcode || p.proposalnumber || '-' || bl.visit_number as visit, f.faultid, f.sessionid, bl.beamlinename as beamline, f.owner, f.assignee, s.systemid, s.name as system, c.componentid, c.name as component, sc.subcomponentid, sc.name as subcomponent, TO_CHAR(f.starttime, 'DD-MM-YYYY HH24:MI') as starttime, TO_CHAR(f.endtime, 'DD-MM-YYYY HH24:MI') as endtime, f.beamtimelost, round((f.beamtimelost_endtime-f.beamtimelost_starttime)*24,2) as lost, f.title, f.resolved, f.resolution, f.description, TO_CHAR(f.beamtimelost_endtime, 'DD-MM-YYYY HH24:MI') as beamtimelost_endtime, TO_CHAR(f.beamtimelost_starttime, 'DD-MM-YYYY HH24:MI') as beamtimelost_starttime
                 FROM ispyb4a_db.bf_fault f
                 INNER JOIN bf_subcomponent sc ON f.subcomponentid = sc.subcomponentid
                 INNER JOIN bf_component c ON sc.componentid = c.componentid
@@ -91,7 +91,7 @@
             
             $this->t->js_var('fid', $info['FAULTID']);
             
-            $this->t->js_var('owner', $info['OWNER'] == phpCAS::getUser());
+            $this->t->js_var('owner', ($info['OWNER'] == phpCAS::getUser()) || $info['ASSIGNEE'] == phpCAS::getUser());
             $this->t->js_var('bl', $info['BEAMLINE']);
             
             $this->t->js_var('sid', $info['SYSTEMID']);
