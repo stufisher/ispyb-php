@@ -201,6 +201,23 @@ ul.beamline_list li {
     padding: 0 5px 0 0;
 }
 
+.logcontent {
+    /*display: none;*/
+
+}
+
+table.robot_actions tbody tr.log {
+    cursor: pointer;
+}
+
+table.robot_actions tbody tr.log:hover td {
+    background: #dedede;
+}
+
+table.robot_actions tbody tr.logcontent td {
+    background: #cfcfcf;
+    padding: 1%;
+}
 
 
 /* Data Tables
@@ -973,6 +990,9 @@ div.status.oavs {
     font-weight: bold;
 }
 
+
+
+
 /* Data Collections - Calendar
  ---------------------------------------------------------*/
 
@@ -1642,3 +1662,8 @@ table input[type=text] {
 .ui-combobox .ui-autocomplete { max-height: 10em; overflow-y: auto; overflow-x: hidden; }
 .ui-widget.ui-widget-content.ui-corner-left.ui-combobox-input.ui-autocomplete-input { width: 100%; }
 .ui-dialog .ui-dialog-content { padding: 0.5em; }
+
+.ui-autocomplete-loading {
+    background:url('images/load_small.gif') no-repeat right center
+}
+
