@@ -10,6 +10,8 @@ $(function() {
   
   _get_beamlines()
   
+  $('input[name=assignee]').autocomplete({source: '/fault/ajax/names/'})
+  
   $('#add_fault').validate({ validClass: 'fvalid', errorClass: 'ferror', rules: { start: { datetime: true }, end: { datetime: true }, blend: { datetime: true }, blstart: { datetime: true } } })
   
   $.validator.addMethod("datetime", function(value, element) {

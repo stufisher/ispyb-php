@@ -75,6 +75,13 @@
                 <textarea name="desc" required /></textarea>
             </li>
 
+            <li>
+                <label>Assignee
+                    <span class="small">An optional assignee for the fault</span>
+                </label>
+                <input class="half" type="text" name="assignee" />
+            </li>
+
 
             <li>
                 <label>Fault Resolved
