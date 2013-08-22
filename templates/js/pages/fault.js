@@ -44,6 +44,7 @@ $(function() {
                         '<td><a href="/fault/cid/'+f['COMPONENTID']+'">'+f['COMPONENT']+'</a> &raquo; <a href="/fault/scid/'+f['SUBCOMPONENTID']+'">'+f['SUBCOMPONENT']+'</a></td>'+
                         '<td>'+(f['RESOLVED'] != 0 ? (f['RESOLVED'] == 2 ? 'Partial' : 'Yes') : 'No')+'</td>'+
                         '<td>'+(f['BEAMTIMELOST'] == 1 ? ('Yes ('+f['LOST']+'h)') : 'No')+'</td>'+
+                        '<td>'+f['NAME']+'</td>'+
                     '</tr>'
                 ).hide().appendTo('table.robot_actions tbody').fadeIn()
 

@@ -36,6 +36,7 @@
                 <th>Component</th>
                 <th>Resolved</th>
                 <th>Beamtime Lost</th>
+                <th>Reported By</th>
             </tr>
         </thead>
         <tbody></tbody>
