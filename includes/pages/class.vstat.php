@@ -364,7 +364,28 @@
             # Get Robot Errors
             $robotl = $this->db->pq("SELECT TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, r.status, r.actiontype, r.containerlocation, r.dewarlocation, r.samplebarcode, r.message, (CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as time FROM ispyb4a_db.robotaction r WHERE r.status != 'SUCCESS' AND r.blsessionid=:1 ORDER BY r.starttimestamp DESC", array($info['SID']));
         
-            
+            $st = strtotime($info['ST']);
+            $en = strtotime($info['EN']);
+                                    
+            # Call out log
+            $calls = @simplexml_load_file('https://rdb.pri.diamond.ac.uk/php/elog/cs_logwscalloutinfo.php?startdate='.date('d/m/Y', $st).'&enddate='.date('d/m/Y', $en));
+            if (!$calls) $calls = array();
+                                    
+                                    
+            //print_r($calls);
+
+            # EHC log
+            $ehc_tmp = @simplexml_load_file('https://rdb.pri.diamond.ac.uk/php/elog/cs_logwscontentinfo.php?startdate='.date('d/m/Y', $en));
+            if (!$ehc_tmp) $ehc_tmp = array();
+                     
+            $ehcs = array();
+            foreach ($ehc_tmp as $e) {
+                if (strpos($e->title, 'shift') !== False) array_push($ehcs, $e);
+            }
+                                    
+            //print_r($ehcs);
+                                          
+                                          
             $this->template('Visit: ' . $this->arg('bag'), array('Bag: '.$this->arg('bag'), 'Visit: ' . $this->arg('visit')), array('/bag/'.$this->arg('bag'), ''));
             $this->t->bag = $this->arg('bag');
             $this->t->visit = $this->arg('visit');
@@ -373,6 +394,9 @@
             
             $this->t->robot = $robotl;
             $this->t->fault = $faultl;
+            $this->t->calls = $calls;
+            $this->t->ehcs = $ehcs;
+                                    
             $this->t->js_var('visit_info', $data);
             $this->t->js_var('start', $this->jst($info['ST']));
             $this->t->js_var('end', $this->jst(strtotime($info['EN']) < strtotime($dc['LAST']) ? $dc['LAST'] : $info['EN']));

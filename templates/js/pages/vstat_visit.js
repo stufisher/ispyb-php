@@ -1,5 +1,10 @@
 $(function() {
   
+  $('.logcontent').hide()
+  $('tr.log').click(function() {
+    $(this).next('.logcontent').fadeToggle()
+  })
+  
   function getToolTip(x, y) {
     len = 0
     e = ''

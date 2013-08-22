@@ -119,3 +119,66 @@
         <?php else: ?>
         <h1>No Faults Reported</h1>
         <?php endif ?>
+
+
+        <?php if (sizeof($calls)): ?>
+
+        <h1>Call Out Log</h1>
+
+        <div class="table">
+            <table class="robot_actions">
+                <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Description</th>
+                    <th>In Time</th>
+                    <th>Home Time</th>
+                </tr>
+                </thead>
+                <?php foreach ($calls as $c): ?>
+                <tr>
+                    <td><?php echo $c->username ?></td>
+                    <td><?php echo $c->logcontent ?></td>
+                    <td><?php echo $c->intime ?></td>
+                    <td><?php echo $c->hometime ?></td>
+                </tr>
+                <?php endforeach ?>
+
+            </table>
+        </div>
+
+        <?php else: ?>
+        <h1>No Call Outs</h1>
+        <?php endif ?>
+
+        <?php if (sizeof($ehcs)): ?>
+
+        <h1>EHC Log</h1>
+
+        <div class="table">
+            <table class="robot_actions">
+                <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Date</th>
+                    <th>Posted By</th>
+                </tr>
+                </thead>
+                <?php foreach ($ehcs as $e): ?>
+                <tr class="log">
+                    <td class="la"><?php echo $e->title ?></td>
+                    <td><?php echo $e->posteddate ?></td>
+                    <td><?php echo $e->postedby ?></td>
+                </tr>
+                <tr class="logcontent">
+                    <td colspan="3" class="la"><?php echo $e->logcontent ?></td>
+                </tr>
+                <?php endforeach ?>
+
+            </table>
+        </div>
+
+        <?php else: ?>
+        <h1>No EHC Log</h1>
+        <?php endif ?>
+
