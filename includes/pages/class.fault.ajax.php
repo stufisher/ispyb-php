@@ -2,7 +2,7 @@
 
     class Ajax extends AjaxBase {
         
-        var $arg_list = array('time' => '\d+', 'bl' => '\w\d\d(-\d)?', 'sid' => '\d+', 'cid' => '\d+', 'scid' => '\d+', 'pp' => '\d+', 'page' => '\d+', 'array' => '\d', 'ty' => '\w+', 'fid' => '\d+', 'name' => '[A-Za-z0-9_\- ]+', 'desc' => '[A-Za-z0-9_\- ]+', 's' => '\w+', 'id' => '\d+');
+        var $arg_list = array('time' => '\d+', 'bl' => '\w\d\d(-\d)?', 'sid' => '\d+', 'cid' => '\d+', 'scid' => '\d+', 'pp' => '\d+', 'page' => '\d+', 'array' => '\d', 'ty' => '\w+', 'fid' => '\d+', 'name' => '[A-Za-z0-9_\- ]+', 'desc' => '[A-Za-z0-9_\- ]+', 's' => '\w+', 'id' => '\d+', 'term' => '\w+');
         var $dispatch = array('list' => '_get_faults',
                               
                               'visits' => '_get_visits',
@@ -22,6 +22,8 @@
                               'dc' => '_delete_component',
                               
                               'update' => '_update_fault',
+                              
+                              'names' => '_name_lookup',
                               
                               );
         var $def = 'list';
@@ -103,7 +105,8 @@
              
                ) inner) outer
              WHERE outer.rn > :".$st." AND outer.rn <= :".($st+1), $args);
-                                 
+               
+            foreach ($rows as &$r) $r['NAME'] = $this->_get_name($r['OWNER']);
             $this->_output(array($pgs, $rows));
         }
         
@@ -374,7 +377,47 @@
                                   
             $this->_output(1);
         }
-                                 
+                                  
+                                  
+        # ------------------------------------------------------------------------
+        # Return a name for a fedid
+        function _get_name($fedid) {
+            return $this->_ldap_search('uid='.$fedid)[$fedid];
+        }
+                    
+                                  
+        # ------------------------------------------------------------------------
+        # Return feed of fedid / name combinations for search
+        function _name_lookup() {
+            if (!$this->has_arg('term')) $this->_error('No name specified');
+                                  
+            $vals = array();
+            # |(cn=*'.$this->arg('term').'*)(uid=*'.$this->arg('term').'*)
+            foreach ($this->_ldap_search('cn=*'.$this->arg('term').'*') as $fid => $n) {
+                array_push($vals, array('label' => $n, 'value' => $fid));
+            }
+            $this->_output($vals);
+                                  
+        }
+              
+        # ------------------------------------------------------------------------
+        # Run an ldap search
+        function _ldap_search($search) {
+            $ret = array();
+            $ds=ldap_connect("ldap.diamond.ac.uk");
+            if ($ds) {
+                $r=ldap_bind($ds);
+                $sr=ldap_search($ds, "ou=People,dc=diamond,dc=ac,dc=uk", $search);
+                $info = ldap_get_entries($ds, $sr);
+                                  
+                for ($i=0; $i<$info["count"]; $i++) {
+                    $ret[$info[$i]['uid'][0]] = $info[$i]['cn'][0];
+                }
+                
+                ldap_close($ds);                                  
+            }
+            return $ret;
+        }
     }
 
 ?>
