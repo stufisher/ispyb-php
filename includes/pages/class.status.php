@@ -1,9 +1,9 @@
 <?php
-
+    
     class Status extends Page {
         
         var $arg_list = array('bl' => '\w\d\d(-\d)?');
-        var $dispatch = array('list' => '_index');
+        var $dispatch = array('list' => '_index', 'moo' => 'moo');
         var $def = 'list';
         
         var $root = 'Beamline Status';
@@ -23,6 +23,12 @@
             $this->render('status');
         }
         
+        
+        
+        
+        function moo() {
+            
+        }
         
     }
 ?>
