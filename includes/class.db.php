@@ -10,7 +10,7 @@
         function __construct($user, $pass, $db) {
             $this->tz = new DateTimeZone('UTC');
 
-            $this->conn = oci_connect($user, $pass, $db);
+            $this->conn = @oci_connect($user, $pass, $db);
             if (!$this->conn) {
                 $e = oci_error();
                 $this->error('There was an connecting to Oracle', htmlentities($e['message']));
@@ -122,7 +122,7 @@
         # Cleanup when finished
         function __destruct() {
             //return;
-            oci_close($this->conn);
+            if ($this->conn) oci_close($this->conn);
         }
         
         
