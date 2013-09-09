@@ -11,6 +11,7 @@
                               'cid' => '\d+',
                               'scid' => '\d+',
                               
+                              'beamline' => '\w\d\d(-\d)?',
                               'start' => '\d\d-\d\d-\d\d\d\d \d\d:\d\d',
                               'end' => '\d\d-\d\d-\d\d\d\d \d\d:\d\d',
                               'blstart' => '\d\d-\d\d-\d\d\d\d \d\d:\d\d',
@@ -125,8 +126,49 @@
                 $as = $this->has_arg('assignee') ? $this->arg('assignee') : '';
                 
                 $this->db->pq("INSERT INTO bf_fault (faultid, sessionid, owner, subcomponentid, starttime, endtime, beamtimelost, beamtimelost_starttime, beamtimelost_endtime, title, description, resolved, resolution, assignee) VALUES (s_bf_fault.nextval, :1, :2, :3, TO_DATE(:4, 'DD-MM-YYYY HH24:MI'), TO_DATE(:5, 'DD-MM-YYYY HH24:MI'), :6, TO_DATE(:7, 'DD-MM-YYYY HH24:MI'), TO_DATE(:8, 'DD-MM-YYYY HH24:MI'), :9, :10, :11, :12, :13) RETURNING faultid INTO :id", array($this->arg('session'), phpCAS::getUser(), $this->arg('sub_component'), $this->arg('start'), $end, $this->arg('beamtime_lost'), $btlstart, $btlend, $this->arg('title'), $this->arg('desc'), $this->arg('resolved'), $this->arg('resolution'), $as));
+                        
+                $newid = $this->db->id();
+
+                $info = $this->db->pq("SELECT p.proposalcode || p.proposalnumber || '-' || bl.visit_number as visit, s.name as system, c.name as component, sc.name as subcomponent, TO_CHAR(f.starttime, 'DD-MM-YYYY HH24:MI') as starttime, TO_CHAR(f.endtime, 'DD-MM-YYYY HH24:MI') as endtime, f.beamtimelost, round((f.beamtimelost_endtime-f.beamtimelost_starttime)*24,2) as lost, f.title, f.resolved, f.resolution, f.description, TO_CHAR(f.beamtimelost_endtime, 'DD-MM-YYYY HH24:MI') as beamtimelost_endtime, TO_CHAR(f.beamtimelost_starttime, 'DD-MM-YYYY HH24:MI') as beamtimelost_starttime
+                    FROM ispyb4a_db.bf_fault f
+                    INNER JOIN bf_subcomponent sc ON f.subcomponentid = sc.subcomponentid
+                    INNER JOIN bf_component c ON sc.componentid = c.componentid
+                    INNER JOIN bf_system s ON c.systemid = s.systemid
+                    INNER JOIN blsession bl ON f.sessionid = bl.sessionid
+                    INNER JOIN proposal p ON bl.proposalid = p.proposalid
+
+                    WHERE f.faultid=:1", array($newid));
                 
-                $this->msg('New Fault Added', 'Your fault report was sucessfully submitted. Click <a href="/fault/fid/'.$this->db->id().'">here</a> to see to the fault listing');
+                $info = $info[0];
+                                    
+                foreach (array('DESCRIPTION', 'RESOLUTION') as $k) {
+                    if ($info[$k]) {
+                        $info[$k] = Markdown::defaultTransform($info[$k]->read($info[$k]->size()));
+                    }
+                }
+                                      
+                $report = '<b>'.$info['TITLE'].'</b><br/><br/>System: '.$info['SYSTEM'].'<br/>Component: '.$info['COMPONENT'].' => '.$info['SUBCOMPONENT'].'<br/><br/>Start: '.$info['STARTTIME'].' End: '.($info['RESOLVED'] == 1 ? $info['ENDTIME'] : 'N/A') .'<br/>Resolved: '.($info['RESOLVED']  == 2 ? 'Partial' : ($info['RESOLVED'] ? 'Yes' : 'No')).'<br/>Beamtime Lost: '.($info['BEAMTIMELOST'] ? ('Yes ('.$info['LOST'].'h between '.$info['BEAMTIMELOST_STARTTIME'].' and '.$info['BEAMTIMELOST_ENDTIME'].')') : 'No').'<br/><br/><b>Description</b><br/>'.($info['RESOLVED'] ? ($info['DESCRIPTION'].'<br/><br/><b>Resolution</b><br/>'.$info['RESOLUTION']):'').'<br/><br/><a href="http://i03-ws006:5000/fault/fid/'.$this->db->id().'">Fault Report Link</a>';
+                                      
+                $data = array('txtTITLE'      => 'Fault Report: '. $info['TITLE'],
+                              'txtCONTENT'    => $report,
+                              'txtLOGBOOKID'  =>'BL'.strtoupper
+($this->arg('beamline')),
+                              'txtGROUPID'    => 'GEN',
+                              'txtENTRYTYPEID'=> '41',
+                              'txtUSERID'     => phpCAS::getUser(),
+                              'txtMANUALAUTO' => 'M',
+                              );
+                                      
+                $ch = curl_init('http://rdb.pri.diamond.ac.uk/php/elog/cs_logentryext_bl.php');
+                curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+                $response = curl_exec($ch);
+                curl_close($ch);
+                    
+                $this->msg('New Fault Added', 'Your fault report was sucessfully submitted. Click <a href="/fault/fid/'.$newid.'">here</a> to see to the fault listing');
+                                  
             } else {
                 $this->template('Add New Fault Report', array('New'), array(''));
                 $this->render('fault_new');
