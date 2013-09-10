@@ -236,6 +236,32 @@
             exit();
         }
         
+        
+        # ------------------------------------------------------------------------
+        # Return a name for a fedid
+        function _get_name($fedid) {
+            return $this->_ldap_search('uid='.$fedid)[$fedid];
+        }
+              
+        # ------------------------------------------------------------------------
+        # Run an ldap search
+        function _ldap_search($search) {
+            $ret = array();
+            $ds=ldap_connect("ldap.diamond.ac.uk");
+            if ($ds) {
+                $r=ldap_bind($ds);
+                $sr=ldap_search($ds, "ou=People,dc=diamond,dc=ac,dc=uk", $search);
+                $info = ldap_get_entries($ds, $sr);
+                                  
+                for ($i=0; $i<$info["count"]; $i++) {
+                    $ret[$info[$i]['uid'][0]] = $info[$i]['cn'][0];
+                }
+                
+                ldap_close($ds);                                  
+            }
+            return $ret;
+        }        
+        
     }
 
 
