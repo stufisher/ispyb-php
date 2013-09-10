@@ -1,7 +1,7 @@
 
     <h1>New Fault Report</h1>
 
-    <form method="post" id="add_fault">
+    <form method="post" id="add_fault" enctype="multipart/form-data">
 
     <div class="form border">
         <ul>
@@ -73,6 +73,13 @@
                     <span class="small">Full description of the fault</span>
                 </label>
                 <textarea name="desc" required /></textarea>
+            </li>
+
+            <li>
+                <label>Attachment
+                    <span class="small">Attachment to add to the report</span>
+                </label>
+                <input type="file" name="userfile1" />
             </li>
 
             <li>
