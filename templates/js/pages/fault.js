@@ -2,6 +2,8 @@ $(function() {
   var search = ''; // search string
   var page = 1
   var thread;
+  var auto_load_thread;
+  var auto_load = 0;
   
   _get_faults()
   
@@ -11,6 +13,11 @@ $(function() {
       clearTimeout(thread);
       $this = $(this);
       thread = setTimeout(function() {
+            if ($this.val() != '') {
+                clearTimeout(auto_load_thread)
+                auto_load = 0
+            } else auto_load = 1                          
+                          
             page = 1
             search = $this.val()
             _get_faults();
@@ -41,7 +48,7 @@ $(function() {
                         '<td><a href="/fault/bl/'+f['BEAMLINE']+'">'+f['BEAMLINE']+'</a></td>'+
                         '<td><a href="/vstat/bag/'+f['BAG']+'/visit/'+f['VISIT']+'">'+f['BAG']+'-'+f['VISIT']+'</a></td>'+
                         '<td><a href="/fault/sid/'+f['SYSTEMID']+'">'+f['SYSTEM']+'</td>'+
-                        '<td><a href="/fault/cid/'+f['COMPONENTID']+'">'+f['COMPONENT']+'</a> &raquo; <a href="/fault/scid/'+f['SUBCOMPONENTID']+'">'+f['SUBCOMPONENT']+'</a></td>'+
+                        '<td><a href="/fault/sid/'+f['SYSTEMID']+'/cid/'+f['COMPONENTID']+'">'+f['COMPONENT']+'</a> &raquo; <a href="/fault/sid/'+f['SYSTEMID']+'/cid/'+f['COMPONENTID']+'/scid/'+f['SUBCOMPONENTID']+'">'+f['SUBCOMPONENT']+'</a></td>'+
                         '<td>'+(f['RESOLVED'] != 0 ? (f['RESOLVED'] == 2 ? 'Partial' : 'Yes') : 'No')+'</td>'+
                         '<td>'+(f['BEAMTIMELOST'] == 1 ? ('Yes ('+f['LOST']+'h)') : 'No')+'</td>'+
                         '<td>'+f['NAME']+'</td>'+
@@ -54,7 +61,13 @@ $(function() {
              
             map_callbacks()
         }
-      })     
+      })
+  
+      if (auto_load) {
+        auto_load_thread = setTimeout(function() {
+            _get_faults()
+        }, 5000)
+      }
   
   }
   
@@ -116,13 +129,19 @@ $(function() {
             })
              
             if (last) $('select[name=system]').val(last)
-            else if (sid) $('select[name=system]').val(sid)
+            else if (sid) {
+                $('select[name=system]').val(sid)
+                refresh_components()
+            }
         }
       })
   }
   
   $('select[name=system]').change(function() {
     sid = $(this).val()
+    cid = ''
+    scid = ''
+                                  
     refresh_components()
     refresh_sub_components()
     _get_faults()
@@ -157,13 +176,17 @@ $(function() {
                 $('select[name=component]').append('<option value='+c['COMPONENTID']+'>'+c['NAME']+'</option>')
             })
             if (last) $('select[name=component]').val(last)
-            else if (cid) $('select[name=component]').val(cid)
+            else if (cid) {
+                $('select[name=component]').val(cid)
+                refresh_sub_components()
+            }
         }
       })
   }
   
   $('select[name=component]').change(function() {
     cid = $(this).val()
+    scid = ''
     refresh_sub_components()
     _get_faults()
                                      
