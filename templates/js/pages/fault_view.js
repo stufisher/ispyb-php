@@ -110,6 +110,7 @@ $(function() {
     }).addClass('editable');  
   
     $('.description').editable('/fault/ajax/update/fid/'+fid+'/ty/desc/', {
+        loadurl: '/fault/ajax/load/fid/'+fid+'/ty/desc/',
         type: 'textarea',
         rows: 5,
         submit: 'Ok',
@@ -154,6 +155,7 @@ $(function() {
     }).addClass('editable');
   
     $('.resolution').editable('/fault/ajax/update/fid/'+fid+'/ty/resolution/', {
+        loadurl: '/fault/ajax/load/fid/'+fid+'/ty/resolution/',
         type: 'textarea',
         rows: 5,
         submit: 'Ok',

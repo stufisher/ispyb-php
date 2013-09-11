@@ -1,5 +1,8 @@
 <?php
 
+    require_once('Michelf/Markdown.php');
+    use \Michelf\Markdown;
+    
     class Ajax extends AjaxBase {
         
         var $arg_list = array('time' => '\d+', 'bl' => '\w\d\d(-\d)?', 'sid' => '\d+', 'cid' => '\d+', 'scid' => '\d+', 'pp' => '\d+', 'page' => '\d+', 'array' => '\d', 'ty' => '\w+', 'fid' => '\d+', 'name' => '[A-Za-z0-9_\- ]+', 'desc' => '[A-Za-z0-9_\- ]+', 's' => '\w+', 'id' => '\d+', 'term' => '\w+');
@@ -22,6 +25,7 @@
                               'dc' => '_delete_component',
                               
                               'update' => '_update_fault',
+                              'load' => '_load_field',
                               
                               'names' => '_name_lookup',
                               
@@ -109,7 +113,38 @@
             foreach ($rows as &$r) $r['NAME'] = $this->_get_name($r['OWNER']);
             $this->_output(array($pgs, $rows));
         }
-        
+
+        # ------------------------------------------------------------------------
+        # Return an unformatted field from the db
+        function _load_field() {
+            $types = array('desc' => 'description',
+                           'resolution' => 'resolution',
+                           );
+                                  
+                                  
+            // Check we have a fault id
+            if (!$this->has_arg('fid')) $this->_error('No fault id specified');
+                                
+            // Check that the fault exists
+            $check = $this->db->pq('SELECT owner FROM bf_fault WHERE faultid=:1', array($this->arg('fid')));
+            if (!sizeof($check)) $this->_error('A fault with that id doesnt exists');
+            $check = $check[0];
+                                
+            //if (phpCAS::getUser() != $check['OWNER']) $this->_error('You dont own that fault report');
+                                  
+            if (array_key_exists($this->arg('ty'), $types)) {
+                $f = $types[$this->arg('ty')];
+                                  
+                $rows = $this->db->pq('SELECT '.$f.' FROM ispyb4a_db.bf_fault WHERE faultid=:1', array($this->arg('fid')));
+                                  
+                if (!sizeof($rows)) $this->_error('No such fault id');
+                                  
+                $fld = $rows[0][strtoupper($f)];
+                print $fld->read($fld->size());
+                                  
+            } else $this->_error('No such field type');
+        }
+                                  
 
         # ------------------------------------------------------------------------
         # Update fields for a fault
@@ -167,6 +202,9 @@
                         $rets = $this->db->pq($t[2], array($v));
                         if (sizeof($rets)) $ret = $rets[0]['VALUE'];
                     }
+                                  
+                    if ($this->arg('ty') == 'desc' || $this->arg('ty') == 'resolution') $ret = Markdown::defaultTransform($ret);
+                                  
                     print $ret;
                 }
                                  
