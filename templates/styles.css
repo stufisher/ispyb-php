@@ -1375,6 +1375,42 @@ div.text {
     border-radius: 5px;
 }
 
+div.text p {
+    padding: 1% !important;
+}
+
+
+div.text pre {
+    background: #dddddd;
+    padding: 1%;
+    border-radius: 5px;
+}
+
+div.text code {
+    font-size: 10px;
+    word-wrap: break-word;
+}
+
+div.text ul, div.text ul li {
+    list-style-type: circle;
+}
+
+div.text ul {
+    padding: 1% 2.5%;
+}
+
+div.text h1 {
+    text-decoration: underline;
+    font-size: 14px;
+    padding-bottom: 0.5%;
+}
+
+div.text h2 {
+    text-decoration: underline;
+    font-size: 12px;
+    padding-bottom: 0.5%;
+}
+
 .image img {
     width: 100%;
 }
