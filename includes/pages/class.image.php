@@ -2,16 +2,39 @@
 
     class Image extends Page {
         
-        var $arg_list = array('id' => '\d+', 'n' => '\d+', 'f' => '\d', 'bl' => '\w\d\d(-\d)?', 'w' => '\d+');
+        var $arg_list = array('id' => '\d+', 'n' => '\d+', 'f' => '\d', 'bl' => '\w\d\d(-\d)?', 'w' => '\d+', 'fid' => '\d+');
         var $dispatch = array('xtal' => '_xtal_image',
                               'diff' => '_diffraction_image',
                               'dimp' => '_dimple_images',
                               'di' => '_diffraction_viewer',
                               'cam' => '_forward_webcam',
                               'oav' => '_forward_oav',
+                              'fa' => '_fault_attachment',
                               );
         var $def = 'xtal';
 
+        
+        # Fault DB Attachments
+        function _fault_attachment() {
+            if (!$this->has_arg('fid')) return;
+            
+            $attachments = $this->db->pq('SELECT attachment from ispyb4a_db.bf_fault WHERE faultid = :1', array($this->arg('fid')));
+            
+            if (sizeof($attachments)) {
+                $attachment = $attachments[0]['ATTACHMENT'];
+                $ext = pathinfo($attachment, PATHINFO_EXTENSION);
+                
+                if (in_array($ext, array('png', 'jpg', 'jpeg', 'gif'))) $head = 'image'.$ext;
+                else $head = 'application/octet-stream';
+                
+                header('Content-Type:'.$head);
+                readfile('http://rdb.pri.diamond.ac.uk/php/elog/files/2013/'.$attachment);
+            }
+            else return;
+        
+            
+        }
+        
         
         # Forward xtal images from visit directory to browser
         function _xtal_image() {
