@@ -205,7 +205,7 @@
                          array('xia2/3daii-run/', 'xia2.txt' , 'dF/F'),
                          
                          array('fast_ep/', 'fast_ep.log', 'Best spacegroup'),
-                         array('fast_dp/dimple/', '08-refmac5_restr.log', 'Cruickshanks'),
+                         array('fast_dp/dimple/', '09-refmac5_restr.log', 'Cruickshanks'),
                          );
             
             $out = array();
@@ -548,7 +548,7 @@
                     # Dimple
                     } else if ($n == 'Dimple') {
                         //$pth = glob($root.'/EDApplication_*.log');
-                        $lf = $root . '/dimple/08-refmac5_restr.log';
+                        $lf = $root . '/dimple/09-refmac5_restr.log';
                         //if (sizeof($pth) > 0) {
                         if (file_exists($lf)) {
                             $log = file_get_contents($lf);
