@@ -25,6 +25,9 @@
                               'desc' => '.*',
                               'resolution' => '.*',
                               'submit' => '\d',
+                              
+                              'assignee' => '\w+\d+',
+                              
                               );
         
         var $dispatch = array('list' => '_dispatch',
@@ -64,7 +67,7 @@
             if (!$this->has_arg('fid')) $this->error('No fault id specified', 'You must specify a fault id to view');
             
             
-            $info = $this->db->pq("SELECT p.proposalcode || p.proposalnumber || '-' || bl.visit_number as visit, f.faultid, f.sessionid, bl.beamlinename as beamline, f.owner, f.assignee, s.systemid, s.name as system, c.componentid, c.name as component, sc.subcomponentid, sc.name as subcomponent, TO_CHAR(f.starttime, 'DD-MM-YYYY HH24:MI') as starttime, TO_CHAR(f.endtime, 'DD-MM-YYYY HH24:MI') as endtime, f.beamtimelost, round((f.beamtimelost_endtime-f.beamtimelost_starttime)*24,2) as lost, f.title, f.resolved, f.resolution, f.description, TO_CHAR(f.beamtimelost_endtime, 'DD-MM-YYYY HH24:MI') as beamtimelost_endtime, TO_CHAR(f.beamtimelost_starttime, 'DD-MM-YYYY HH24:MI') as beamtimelost_starttime
+            $info = $this->db->pq("SELECT p.proposalcode || p.proposalnumber || '-' || bl.visit_number as visit, f.attachment, f.elogid, f.faultid, f.sessionid, bl.beamlinename as beamline, f.owner, f.assignee, s.systemid, s.name as system, c.componentid, c.name as component, sc.subcomponentid, sc.name as subcomponent, TO_CHAR(f.starttime, 'DD-MM-YYYY HH24:MI') as starttime, TO_CHAR(f.endtime, 'DD-MM-YYYY HH24:MI') as endtime, f.beamtimelost, round((f.beamtimelost_endtime-f.beamtimelost_starttime)*24,2) as lost, f.title, f.resolved, f.resolution, f.description, TO_CHAR(f.beamtimelost_endtime, 'DD-MM-YYYY HH24:MI') as beamtimelost_endtime, TO_CHAR(f.beamtimelost_starttime, 'DD-MM-YYYY HH24:MI') as beamtimelost_starttime
                 FROM ispyb4a_db.bf_fault f
                 INNER JOIN bf_subcomponent sc ON f.subcomponentid = sc.subcomponentid
                 INNER JOIN bf_component c ON sc.componentid = c.componentid
@@ -85,14 +88,26 @@
                     $info[$k] = Markdown::defaultTransform($info[$k]->read($info[$k]->size()));
                 }
             }
+                
+            $info['ATTACH_IMAGE'] = false;
+            if ($info['ATTACHMENT']) {
+                $info['ATTACHMENT'] = basename($info['ATTACHMENT']);
+                $ext = pathinfo($info['ATTACHMENT'], PATHINFO_EXTENSION);
+                                  
+                if (in_array($ext, array('png', 'jpg', 'jpeg', 'gif'))) $info['ATTACH_IMAGE'] = true;
+            }
                                   
             
             $this->template('Fault: '.$info['TITLE']);
-            $this->t->f = $info;
             
             $this->t->js_var('fid', $info['FAULTID']);
-            
+                                  
             $this->t->js_var('owner', ($info['OWNER'] == phpCAS::getUser()) || $info['ASSIGNEE'] == phpCAS::getUser());
+                                  
+            $info['REPORTER'] = $this->_get_name($info['OWNER']);
+            if ($info['ASSIGNEE']) $info['ASSIGNEE'] = $this->_get_name($info['ASSIGNEE']);
+            $this->t->f = $info;
+                                  
             $this->t->js_var('bl', $info['BEAMLINE']);
             
             $this->t->js_var('sid', $info['SYSTEMID']);
@@ -147,7 +162,7 @@
                     }
                 }
                                       
-                $report = '<b>'.$info['TITLE'].'</b><br/><br/>System: '.$info['SYSTEM'].'<br/>Component: '.$info['COMPONENT'].' => '.$info['SUBCOMPONENT'].'<br/><br/>Start: '.$info['STARTTIME'].' End: '.($info['RESOLVED'] == 1 ? $info['ENDTIME'] : 'N/A') .'<br/>Resolved: '.($info['RESOLVED']  == 2 ? 'Partial' : ($info['RESOLVED'] ? 'Yes' : 'No')).'<br/>Beamtime Lost: '.($info['BEAMTIMELOST'] ? ('Yes ('.$info['LOST'].'h between '.$info['BEAMTIMELOST_STARTTIME'].' and '.$info['BEAMTIMELOST_ENDTIME'].')') : 'No').'<br/><br/><b>Description</b><br/>'.($info['RESOLVED'] ? ($info['DESCRIPTION'].'<br/><br/><b>Resolution</b><br/>'.$info['RESOLUTION']):'').'<br/><br/><a href="http://i03-ws006:5000/fault/fid/'.$this->db->id().'">Fault Report Link</a>';
+                $report = '<b>'.$info['TITLE'].'</b><br/><br/>System: '.$info['SYSTEM'].'<br/>Component: '.$info['COMPONENT'].' &raquo; '.$info['SUBCOMPONENT'].'<br/><br/>Start: '.$info['STARTTIME'].' End: '.($info['RESOLVED'] == 1 ? $info['ENDTIME'] : 'N/A') .'<br/>Resolved: '.($info['RESOLVED']  == 2 ? 'Partial' : ($info['RESOLVED'] ? 'Yes' : 'No')).'<br/>Beamtime Lost: '.($info['BEAMTIMELOST'] ? ('Yes ('.$info['LOST'].'h between '.$info['BEAMTIMELOST_STARTTIME'].' and '.$info['BEAMTIMELOST_ENDTIME'].')') : 'No').'<br/><br/><b>Description</b><br/>'.$info['DESCRIPTION'].'<br/><br/>'.($info['RESOLVED'] ? ('<b>Resolution</b><br/>'.$info['RESOLUTION']):'').'<br/><br/><a href="http://i03-ws006:5000/fault/fid/'.$this->db->id().'">Fault Report Link</a>';
                                       
                 $data = array('txtTITLE'      => 'Fault Report: '. $info['TITLE'],
                               'txtCONTENT'    => $report,
@@ -158,7 +173,13 @@
                               'txtUSERID'     => phpCAS::getUser(),
                               'txtMANUALAUTO' => 'M',
                               );
-                                      
+                
+                
+                if ($_FILES['userfile1']['name']) {
+                    move_uploaded_file($_FILES['userfile1']['tmp_name'], '/tmp/fault_'.strtolower($_FILES['userfile1']['name']));
+                    $data['userfile1'] = '@/tmp/fault_'.strtolower($_FILES['userfile1']['name']);
+                }
+                
                 $ch = curl_init('http://rdb.pri.diamond.ac.uk/php/elog/cs_logentryext_bl.php');
                 curl_setopt($ch, CURLOPT_POST, 1);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
@@ -166,7 +187,16 @@
 
                 $response = curl_exec($ch);
                 curl_close($ch);
-                    
+
+                
+                if (preg_match('/New Log Entry ID:(\d+)/', $response, $eid)) {
+                    $this->db->pq('UPDATE ispyb4a_db.bf_fault SET elogid=:1 WHERE faultid=:2', array($eid[1], $newid));
+                }
+                                      
+                if (preg_match('/Attachment Id:(\d+)/', $response, $aid)) {
+                    $this->db->pq('UPDATE ispyb4a_db.bf_fault SET attachment=:1 WHERE faultid=:2', array($aid[1].'-fault_'.strtolower($_FILES['userfile1']['name']), $newid));
+                }
+                 
                 $this->msg('New Fault Added', 'Your fault report was sucessfully submitted. Click <a href="/fault/fid/'.$newid.'">here</a> to see to the fault listing');
                                   
             } else {

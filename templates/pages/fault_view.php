@@ -44,11 +44,42 @@
 
 
             <li>
-                <div class="description text"><?php echo $f['DESCRIPTION'] ?></div>
+                <div class="description text">
+                    <?php echo $f['DESCRIPTION'] ?>
+                </div>
                 <span class="label">Description</span>
 
             </li>
 
+
+            <?php if (array_key_exists('ATTACHMENT', $f)): ?>
+            <li>
+
+                <?php if ($f['ATTACH_IMAGE']): ?>
+                    <div class="image text">
+                        <a href="/image/fa/fid/<?php echo $f['FAULTID'] ?>"><img src="/image/fa/fid/<?php echo $f['FAULTID'] ?>" alt="<?php echo $f['ATTACHMENT'] ?>" /></a>
+                    </div>
+                <?php else: ?>
+                    <div class="attachment text">
+                        <?php echo $f['ATTACHMENT'] ?>
+                        <a href="/image/fa/fid/<?php echo $f['FAULTID'] ?>">Download</a>
+                    </div>
+                <?php endif; ?>
+                <span class="label">Attachment</span>
+            </li>
+            <?php endif; ?>
+
+            <li>
+                <span class="label">Reported By</span>
+                <span class="owner"><?php echo $f['REPORTER'] ?></span>
+            </li>
+
+            <?php if ($f['ASSIGNEE']): ?>
+            <li>
+                <span class="label">Assignee</span>
+                <span class="assignee"><?php echo $f['ASSIGNEE'] ?></span>
+            </li>
+            <?php endif; ?>
 
             <li>
                 <span class="label">Fault Resolved</span>
@@ -63,6 +94,11 @@
             <li class="fresolved">
                 <div class="resolution text"><?php echo $f['RESOLUTION'] ?></div>
                 <span class="label">Resolution</span>
+            </li>
+
+            <li>
+                <span class="label">eLog Entry</span>
+                <span class="elogid"><a href="https://elog.pri.diamond.ac.uk/php/elog/cs_logentdtlret.php?log_entry_id=<?php echo $f['ELOGID'] ?>">Go to eLog</a></span>
             </li>
 
         </ul>
