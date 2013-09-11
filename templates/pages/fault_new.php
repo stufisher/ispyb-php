@@ -70,7 +70,7 @@
 
             <li>
                 <label>Description
-                    <span class="small">Full description of the fault</span>
+                    <span class="small">Full description of the fault.<br /><a href="http://daringfireball.net/projects/markdown/">Markdown Supported</a></span>
                 </label>
                 <textarea name="desc" required /></textarea>
             </li>
@@ -110,7 +110,7 @@
 
             <li class="resolution">
                 <label>Resolution / Workaround
-                    <span class="small">How the fault was resolved</span>
+                    <span class="small">How the fault was resolved.<br /><a href="http://daringfireball.net/projects/markdown/">Markdown Supported</a></span>
                 </label>
                 <textarea name="resolution" required></textarea>
             </li>
