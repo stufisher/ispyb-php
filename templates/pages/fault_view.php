@@ -52,7 +52,7 @@
             </li>
 
 
-            <?php if (array_key_exists('ATTACHMENT', $f)): ?>
+            <?php if ($f['ATTACHMENT']): ?>
             <li>
 
                 <?php if ($f['ATTACH_IMAGE']): ?>
@@ -96,10 +96,12 @@
                 <span class="label">Resolution</span>
             </li>
 
+            <?php if ($f['ELOGID']): ?>
             <li>
                 <span class="label">eLog Entry</span>
                 <span class="elogid"><a href="https://elog.pri.diamond.ac.uk/php/elog/cs_logentdtlret.php?log_entry_id=<?php echo $f['ELOGID'] ?>">Go to eLog</a></span>
             </li>
+            <?php endif; ?>
 
         </ul>
 
