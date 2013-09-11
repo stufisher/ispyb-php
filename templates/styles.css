@@ -1375,6 +1375,10 @@ div.text {
     border-radius: 5px;
 }
 
+.image img {
+    width: 100%;
+}
+
 button.editor {
     margin: 1% 0 0.5% 0;
 }
