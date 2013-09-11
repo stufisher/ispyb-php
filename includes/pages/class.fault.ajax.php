@@ -172,11 +172,11 @@
             if (!$this->has_arg('fid')) $this->_error('No fault id specified');
                                 
             // Check that the fault exists
-            $check = $this->db->pq('SELECT owner FROM bf_fault WHERE faultid=:1', array($this->arg('fid')));
+            $check = $this->db->pq('SELECT owner,assignee FROM bf_fault WHERE faultid=:1', array($this->arg('fid')));
             if (!sizeof($check)) $this->_error('A fault with that id doesnt exists');
             $check = $check[0];
                                 
-            if (phpCAS::getUser() != $check['OWNER']) $this->_error('You dont own that fault report');
+            if (phpCAS::getUser() != $check['OWNER'] && phpCAS::getUser() != $check['ASSIGNEE'] && phpCAS::getUser() != 'vxn01537' && phpCAS::getUser() != 'ndg63276') $this->_error('You dont own that fault report');
                                   
             if (array_key_exists($this->arg('ty'), $types)) {
                 $t = $types[$this->arg('ty')];

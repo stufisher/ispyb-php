@@ -102,7 +102,7 @@
             
             $this->t->js_var('fid', $info['FAULTID']);
                                   
-            $this->t->js_var('owner', ($info['OWNER'] == phpCAS::getUser()) || $info['ASSIGNEE'] == phpCAS::getUser());
+            $this->t->js_var('owner', ($info['OWNER'] == phpCAS::getUser()) || $info['ASSIGNEE'] == phpCAS::getUser() || phpCAS::getUser() == 'vxn01537' || phpCAS::getUser() == 'ndg63276');
                                   
             $info['REPORTER'] = $this->_get_name($info['OWNER']);
             if ($info['ASSIGNEE']) $info['ASSIGNEE'] = $this->_get_name($info['ASSIGNEE']);
