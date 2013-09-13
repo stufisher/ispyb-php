@@ -62,8 +62,17 @@
             }
 
             if ($this->has_arg('bl')) {
-                array_push($where, 'bl.beamlinename LIKE :'.(sizeof($args) + 1));
-                array_push($args, $this->arg('bl'));
+                if ($this->arg('bl') == 'P01') {
+                    $bls = array();
+                    foreach (array('i02', 'i03', 'i04') as $b) {
+                        array_push($bls, 'bl.beamlinename LIKE :'.(sizeof($args) + 1));
+                        array_push($args, $b);
+                    }
+                    array_push($where, '('.implode($bls, ' OR ').')');
+                } else {
+                    array_push($where, 'bl.beamlinename LIKE :'.(sizeof($args) + 1));
+                    array_push($args, $this->arg('bl'));
+                }
             }
             
             $where = implode($where, ' AND ');
@@ -140,7 +149,8 @@
                 if (!sizeof($rows)) $this->_error('No such fault id');
                                   
                 $fld = $rows[0][strtoupper($f)];
-                print $fld->read($fld->size());
+                    
+                print $fld ? $fld->read($fld->size()) : '';
                                   
             } else $this->_error('No such field type');
         }

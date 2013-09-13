@@ -92,7 +92,7 @@ $(function() {
         dataType: 'json',
         timeout: 5000,
         success: function(bls){
-            $('select[name=beamline]').html('<option value="">-</option>')
+            $('select[name=beamline]').html('<option value="">-</option><option value="P01">Phase I</option>')
             $.each(bls, function(i,b) {
                 $('select[name=beamline]').append('<option value='+b['NAME']+'>'+b['NAME']+'</option>')
             })
