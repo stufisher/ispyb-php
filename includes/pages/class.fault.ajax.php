@@ -263,8 +263,15 @@
             $args = array();
                                   
             if ($this->has_arg('bl')) {
-                $where = ' WHERE hs.beamlinename=:1';
-                array_push($args, $this->arg('bl'));
+                $bls = $this->arg('bl') == 'P01' ? array('i02', 'i03', 'i04') : array($this->arg('bl'));
+
+                $blw = array();
+                foreach ($bls as $b) {
+                    array_push($blw, 'hs.beamlinename LIKE :'.(sizeof($args) + 1));
+                    array_push($args, $b);
+                }
+                                  
+                $where = ' WHERE ('.implode($blw, ' OR ').')';
                                   
             } else $where = '';
             
@@ -283,8 +290,15 @@
             $args = array($this->arg('sid'));
             
             if ($this->has_arg('bl')) {
-                $where = ' AND hc.beamlinename=:2';
-                array_push($args, $this->arg('bl'));
+                $bls = $this->arg('bl') == 'P01' ? array('i02', 'i03', 'i04') : array($this->arg('bl'));
+
+                $blw = array();
+                foreach ($bls as $b) {
+                    array_push($blw, 'hc.beamlinename LIKE :'.(sizeof($args) + 1));
+                    array_push($args, $b);
+                }
+                                  
+                $where = ' AND ('.implode($blw, ' OR ').')';
             } else $where = '';
             
             $rows = $this->db->pq('SELECT c.componentid, c.name, c.description, string_agg(hc.beamlinename) as beamlines FROM ispyb4a_db.bf_component c INNER JOIN ispyb4a_db.bf_component_beamline hc ON c.componentid = hc.componentid WHERE c.systemid=:1'.$where.' GROUP BY c.componentid, c.name, c.description ORDER BY beamlines,c.name', $args);
@@ -302,8 +316,15 @@
             $args = array($this->arg('cid'));
             
             if ($this->has_arg('bl')) {
-                $where = ' AND hs.beamlinename=:2';
-                array_push($args, $this->arg('bl'));
+                $bls = $this->arg('bl') == 'P01' ? array('i02', 'i03', 'i04') : array($this->arg('bl'));
+                                  
+                $blw = array();
+                foreach ($bls as $b) {
+                    array_push($blw, 'hs.beamlinename LIKE :'.(sizeof($args) + 1));
+                    array_push($args, $b);
+                }
+                                  
+                $where = ' AND ('.implode($blw, ' OR ').')';
             } else $where = '';
             
             $rows = $this->db->pq('SELECT s.subcomponentid, s.name, s.description, string_agg(hs.beamlinename) as beamlines FROM ispyb4a_db.bf_subcomponent s INNER JOIN ispyb4a_db.bf_subcomponent_beamline hs ON s.subcomponentid = hs.subcomponentid WHERE s.componentid=:1'.$where.' GROUP BY s.subcomponentid, s.name, s.description ORDER BY s.name', $args);
