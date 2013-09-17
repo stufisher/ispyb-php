@@ -19,10 +19,10 @@ $(function() {
   
   function showhide(onload) {
     if (onload) {
-      resolved == 1 ? $('.fresolved').show() : $('.fresolved').hide()
+      resolved != 0 ? $('.fresolved').show() : $('.fresolved').hide()
       btl == 1 ? $('.beamtime_lost').show() : $('.beamtime_lost').hide()
     } else {
-      resolved == 1 ? $('.fresolved').slideDown() : $('.fresolved').slideUp()
+      resolved != 0 ? $('.fresolved').slideDown() : $('.fresolved').slideUp()
       btl == 1 ? $('.beamtime_lost').slideDown() : $('.beamtime_lost').slideUp()
     }
   }
