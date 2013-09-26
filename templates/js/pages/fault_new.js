@@ -63,7 +63,7 @@ $(function() {
         success: function(visits){
             $('select[name=session]').empty()
             $.each(visits, function(i,v) {
-                $('select[name=session]').append('<option value='+v['SESSIONID']+'>'+v['VISIT']+'</option>')
+                $('select[name=session]').append('<option value='+v['SESSIONID']+'>'+v['VISIT']+' ('+v['STDT']+')</option>')
                     
             })
         }

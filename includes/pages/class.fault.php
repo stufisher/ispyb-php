@@ -215,7 +215,53 @@
         
         # View fault stats
         function _stats() {
+            $overall = $this->db->pq('SELECT sum((f.beamtimelost_endtime-f.beamtimelost_starttime)*24) as lost, max(s.name) as system,s.systemid
+            FROM ispyb4a_db.bf_fault f
+            INNER JOIN bf_subcomponent sc ON f.subcomponentid = sc.subcomponentid
+            INNER JOIN bf_component c ON sc.componentid = c.componentid
+            INNER JOIN bf_system s ON c.systemid = s.systemid
+            WHERE f.beamtimelost=1
+            GROUP BY s.systemid
+            ');
+               
+            $cols = array('red', 'green', 'blue', 'orange', 'turquoise', 'purple');
+            $ovr_pie = array();
+            foreach ($overall as $i => $ovr) {
+                array_push($ovr_pie, array('label'=>$ovr['SYSTEM'], 'color'=>$cols[$i], 'data'=>$ovr['LOST'], 'sid'=>$ovr['SYSTEMID']));
+            }
+                                     
+            $sys = $this->db->pq('SELECT count(f.faultid) as count, max(c.description) as dc, sum((f.beamtimelost_endtime-f.beamtimelost_starttime)*24) as lost, max(c.name) as component,c.componentid, s.systemid
+            FROM ispyb4a_db.bf_fault f
+            INNER JOIN bf_subcomponent sc ON f.subcomponentid = sc.subcomponentid
+            INNER JOIN bf_component c ON sc.componentid = c.componentid
+            INNER JOIN bf_system s ON c.systemid = s.systemid
+            WHERE f.beamtimelost=1
+            GROUP BY c.componentid, s.systemid
+            ');
+                    
+            $sys_pie = array();
+            foreach ($sys as $i=>$s) {
+                if (!array_key_exists($s['SYSTEMID'], $sys_pie)) $sys_pie[$s['SYSTEMID']] = array();
+                array_push($sys_pie[$s['SYSTEMID']], array('label'=>$s['COMPONENT'], 'color'=>$cols[sizeof($sys_pie[$s['SYSTEMID']])], 'data'=>$s['LOST'], 'cid'=>$s['COMPONENTID']));
+            }
+
+                                     
+            $sc = $this->db->pq('SELECT count(faultid) as count, max(sc.name) as sc, f.subcomponentid
+            FROM ispyb4a_db.bf_fault f
+            INNER JOIN bf_subcomponent sc ON f.subcomponentid = sc.subcomponentid
+            INNER JOIN bf_component c ON sc.componentid = c.componentid
+            INNER JOIN bf_system s ON c.systemid = s.systemid
+            GROUP BY f.subcomponentid
+            ORDER BY count DESC
+            ');
+                                
+            print_r($sc);
+                                      
             $this->template('Fault Statistics', array('Statistics'), array(''));
+                                     
+            $this->t->js_var('ovr_pie', $ovr_pie);
+            $this->t->js_var('sys_pie', $sys_pie);
+                                
             $this->render('fault_stats');
         }
     }

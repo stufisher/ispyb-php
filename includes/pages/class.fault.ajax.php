@@ -233,14 +233,14 @@
             #else $this->_error('No beamline with that id');
             
             $st = $this->arg('time');
-            $rows = $this->db->pq("SELECT bl.startdate,bl.enddate,p.proposalcode || p.proposalnumber || '-' || bl.visit_number as visit, bl.sessionid FROM ispyb4a_db.blsession bl INNER JOIN ispyb4a_db.proposal p ON p.proposalid = bl.proposalid WHERE :1 BETWEEN (bl.startdate - TO_DATE('1970-01-01','YYYY-MM-DD')) * 86400 AND (bl.enddate - TO_DATE('1970-01-01','YYYY-MM-DD')) * 86400 AND bl.beamlinename LIKE :2 AND p.proposalid != 0", array($this->arg('time'), $this->arg('bl')));
+            $rows = $this->db->pq("SELECT TO_CHAR(bl.startdate, 'DD-MM-YYYY HH24:MI') as stdt, bl.startdate,bl.enddate,p.proposalcode || p.proposalnumber || '-' || bl.visit_number as visit, bl.sessionid FROM ispyb4a_db.blsession bl INNER JOIN ispyb4a_db.proposal p ON p.proposalid = bl.proposalid WHERE :1 BETWEEN ((bl.startdate - TO_DATE('1970-01-01','YYYY-MM-DD')) * 86400) - 86400 AND ((bl.enddate - TO_DATE('1970-01-01','YYYY-MM-DD')) * 86400) + 86400 AND bl.beamlinename LIKE :2 AND p.proposalid != 0", array($this->arg('time'), $this->arg('bl')));
 
-            $rows = array_merge($rows,$this->db->pq("SELECT * FROM (SELECT bl.startdate,bl.enddate,p.proposalcode || p.proposalnumber || '-' || bl.visit_number as visit, bl.sessionid FROM ispyb4a_db.blsession bl INNER JOIN ispyb4a_db.proposal p ON p.proposalid = bl.proposalid WHERE bl.startdate < SYSDATE AND (p.proposalcode LIKE 'cm' OR p.proposalcode LIKE 'nt') AND bl.beamlinename LIKE :1 ORDER BY bl.startdate DESC) WHERE ROWNUM <= 10", array($this->arg('bl'))));
+            $rows = array_merge($rows,$this->db->pq("SELECT * FROM (SELECT TO_CHAR(bl.startdate, 'DD-MM-YYYY HH24:MI') as stdt, bl.startdate,bl.enddate,p.proposalcode,p.proposalcode || p.proposalnumber || '-' || bl.visit_number as visit, bl.sessionid FROM ispyb4a_db.blsession bl INNER JOIN ispyb4a_db.proposal p ON p.proposalid = bl.proposalid WHERE bl.startdate < SYSDATE AND (p.proposalcode LIKE 'cm' OR p.proposalcode LIKE 'nt') AND bl.beamlinename LIKE :1 ORDER BY bl.startdate DESC) WHERE ROWNUM <= 10", array($this->arg('bl'))));
                                   
             //array_push($rows, array('VISIT' => 'N/A', 'SESSIONID' => -1));
                                  
             $vis = array();
-            foreach ($rows as $v) $vis[$v['SESSIONID']] = $v['VISIT'];
+            foreach ($rows as $v) $vis[$v['SESSIONID']] = $v['VISIT'] . ' ('.$v['STDT'].')';
                                  
             $this->_output($this->has_arg('array') ? $vis : $rows);
         }
