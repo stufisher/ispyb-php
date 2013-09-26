@@ -422,6 +422,8 @@ html[xmlns] .dataTables_wrapper { display: block; }
     height: 167px;
 }
 
+#system_pie,
+#ovr_pie,
 #visit_pie {
     height: 400px;
 }
@@ -1435,6 +1437,10 @@ button.editor {
     text-align: left !important;
 }
 
+.tw {
+    overflow-x: auto;
+}
+
 button.save,
 button.cancel,
 button.edit,
@@ -1673,6 +1679,8 @@ table input[type=text] {
         width: 98% !important;
     }
     
+    #system_pie,
+    #ovr_pie,
     #visit_pie {
         height: 320px !important;
     }
