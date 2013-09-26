@@ -25,6 +25,7 @@
         <div class="clear"></div>
     </div>
 
+    <div class="table tw">
     <table class="robot_actions">
         <thead>
             <tr>
@@ -41,6 +42,7 @@
         </thead>
         <tbody></tbody>
     </table>
+    </div>
 
     <div class="page_wrap">
         <div class="pages"></div>
