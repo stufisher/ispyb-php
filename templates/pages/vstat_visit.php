@@ -87,7 +87,7 @@
 
         <h1>Faults</h1>
 
-        <div class="table">
+        <div class="table tw">
             <table class="robot_actions">
                 <thead>
                 <tr>
