@@ -196,7 +196,7 @@ $(function() {
                        // Robot loads
                        } else if (r['TYPE'] == 'load') {
                          $('<div class="data_collection" dcid="'+r['ID']+'">' +
-                           '<h1>'+r['ST']+' - Robot '+r['SCON'].toLowerCase()+'ed puck ' + r['EXPOSURETIME'] +' pin ' + r['RESOLUTION'] + ' (Barcode: '+r['DIR']+') Status: '+r['SPOS']+' - '+r['SAN']+'</h1>' +
+                           '<h1>'+r['ST']+' - Robot '+r['SCON'].toLowerCase()+'ing puck ' + r['EXPOSURETIME'] +' pin ' + r['RESOLUTION'] + ' (Barcode: '+r['DIR']+') Status: '+r['SPOS']+' - '+r['SAN']+'</h1>' +
                            '</div>').data('apr', r['AP']).hide().prependTo('.data_collections').slideDown()
                        
                          if (!first) log_message('New sample loaded', '<a href="#'+r['ID'] +'">Barcode: ' +r['DIR'] + '</a>')
