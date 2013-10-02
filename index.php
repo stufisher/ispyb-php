@@ -23,6 +23,7 @@
                    'image' => array('Image', ''),
                    'robot' => array('Robot', 'Robot Statistics'),
                    'dc' => array('DC', 'Data Collections'),
+                   'mc' => array('MC', 'Multicrystal Integration'),
                    'samples' => array('Samples', 'Sample Creation'),
                    'fault' => array('Fault', 'Fault Logging'),
                    'vstat' => array('Visit', 'Visit Statistics'),
