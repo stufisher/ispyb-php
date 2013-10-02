@@ -275,6 +275,7 @@
         # ------------------------------------------------------------------------
         # Edge Scan Data
         function _edge() {
+            session_write_close();
             if (!$this->has_arg('id')) {
                 $this->_error('No data collection id specified');
                 return;
@@ -316,6 +317,7 @@
         # ------------------------------------------------------------------------
         # MCA Scan Data
         function _mca() {
+            session_write_close();
             if (!$this->has_arg('id')) {
                 $this->_error('No data collection id specified');
                 return;
@@ -619,6 +621,7 @@
         function _image_qi() {
             if (!$this->has_arg('id')) $this->_error('No data collection id specified');
             
+            session_write_close();
             $iqs = array(array(), array(), array());
             $imqs = $this->db->pq('SELECT im.imagenumber as nim, imq.method1res as res, imq.spottotal as s, imq.goodbraggcandidates as b FROM ispyb4a_db.image im INNER JOIN ispyb4a_db.imagequalityindicators imq ON imq.imageid = im.imageid WHERE im.datacollectionid=:1 ORDER BY imagenumber', array($this->arg('id')));
             
