@@ -1473,6 +1473,64 @@ table input[type=text] {
 }
 
 
+/* Multicrystal Integration
+ ---------------------------------------------------------*/
+.dc {
+    width: 23%;
+    background: #dedede;
+    padding: 0.5%;
+    margin: 0.5%;
+    display: inline-block;
+    border-radius: 5px;
+}
+
+.dc h1:hover {
+    cursor: pointer;
+}
+
+.dc .distl {
+    height: 100px;
+}
+
+.dc.selected {
+    background: #cdcdcd
+}
+
+.dc .state {
+    float: right;
+}
+
+.dc .state ul li {
+    display: inline;
+    font-size: 10px;
+    padding-right: 2px;
+}
+
+
+.dc .state ul {
+    list-style: none;
+    position: absolute;
+    margin-left: -95px;
+}
+
+.cell.data_collection label {
+    padding-left: 5px;
+}
+
+.cell.data_collection input {
+    width: 65px;
+    
+}
+
+.integrated tr td:hover {
+    cursor: pointer;
+}
+
+.integrated tr.selected td {
+    background: #cdcdcd;
+}
+
+
 
 /* Responsive Styling
  ---------------------------------------------------------*/
