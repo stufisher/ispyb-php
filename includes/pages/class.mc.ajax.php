@@ -2,12 +2,12 @@
 
     class Ajax extends AjaxBase {
         
-        var $arg_list = array('visit' => '\w\w\d\d\d\d-\d+', 's' => '\w+', 'd' => '\w+', 'id' => '\d+', 'sg' => '\w+', 'a' => '\d+(.\d+)?', 'b' => '\d+(.\d+)?', 'c' => '\d+(.\d+)?', 'alpha' => '\d+(.\d+)?', 'beta' => '\d+(.\d+)?', 'gamma' => '\d+(.\d+)?', 'res' => '\d+(.\d+)?');
+        var $arg_list = array('visit' => '\w\w\d\d\d\d-\d+', 's' => '\w+', 'd' => '\w+', 'id' => '\d+', 'sg' => '\w+', 'a' => '\d+(.\d+)?', 'b' => '\d+(.\d+)?', 'c' => '\d+(.\d+)?', 'alpha' => '\d+(.\d+)?', 'beta' => '\d+(.\d+)?', 'gamma' => '\d+(.\d+)?', 'res' => '\d+(.\d+)?', 'rfrad' => '\d+(.\d+)?', 'isigi' => '\d+(.\d+)?');
         var $dispatch = array('list' => '_data_collections',
                               'dirs' => '_get_dirs',
                               'integrate' => '_integrate',
-                              'blend' => '_blend_analyse',
-                              'merge' => '_blend_merge',
+                              'blend' => '_blend',
+                              'blended' => '_blended',
                               'status' => '_get_status',
                               );
         
@@ -167,11 +167,16 @@
         
         # ------------------------------------------------------------------------
         # Blend analyse selected integrated data sets
-        function _blend_analyse() {
+        function _blend() {
+            session_write_close();
+            
             $ret = '';
             
             $args = array();
             $where = array();
+            
+            if (!array_key_exists('dcs', $_POST)) $this->_error('No data collections specified');
+            
             foreach ($_POST['dcs'] as $d) {
                 if (is_numeric($d)) {
                     array_push($args, $d);
@@ -200,14 +205,33 @@
                     
                 }
                 
-                if (!file_exists($blend)) mkdir($blend);
+                $last = 0;
+                foreach (glob($blend.'/run_*') as $d) {
+                    if (preg_match('/run_(\d+)$/', $d, $m)) {
+                        if ($m[1] > $last) $last = $m[1];
+                    }
+                }
+                $last++;
+                $blend .= '/run_'.$last;
+                
+                if (!file_exists($blend)) mkdir($blend, 0777, true);
                 chdir($blend);
-                foreach (glob($blend.'/*') as $f) @unlink($f);
+                #foreach (glob($blend.'/*') as $f) @unlink($f);
+                
+                $radfrac = $this->has_arg('rfrac') ? $this->arg('rfrac') : 0.25;
+                $isigi = $this->has_arg('isigi') ? $this->arg('isigi') : 1.5;
+                $res = $this->has_arg('res') ? ('RESOLUTION HIGH '.$this->arg('res')) : '';
+                
+                $sets = array();
+                for ($i = 0; $i < sizeof($args); $i++) array_push($sets, $i+1);
                 
                 file_put_contents($blend.'/files.dat', implode("\n", $files));
-                file_put_contents($blend.'/analyse.sh', "#!/bin/sh\nmodule load blend\nblend -a files.dat");
+                file_put_contents($blend.'/blend.sh', "#!/bin/sh\nmodule load blend\nblend -a files.dat 2> blend.elog\nblend -c ".implode(' ', $sets)." 2>> blend.elog");
+                file_put_contents($blend.'/BLEND_KEYWORDS.dat', "BLEND KEYWORDS\nNBIN	  20\nRADFRAC   $radfrac\nISIGI     $isigi\nCPARWT    1.000\nPOINTLESS KEYWORDS\nAIMLESS KEYWORDS\n$res");
                 
-                $ret = exec("module load global/cluster;qsub analyse.sh");
+                # no x11 on cluster
+                #$ret = exec("module load global/cluster;qsub blend.sh");
+                $ret = exec("chmod +x blend.sh;./blend.sh");
                 
             } else $ret = 'No data sets specified';
             
@@ -215,6 +239,65 @@
             
             
         }
+        
+        # ------------------------------------------------------------------------
+        # List of blended data sets
+        function _blended() {
+            session_write_close();
+            
+            $info = $this->db->pq("SELECT TO_CHAR(s.startdate, 'YYYY') as yr, s.sessionid, s.beamlinename as bl, vr.run, vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')));
+            
+            if (!sizeof($info)) $this->_error('No such visit');
+            $info = $info[0];
+            
+            $vis = '/dls/'.$info['BL'].'/data/'.$info['YR'].'/'.$this->arg('visit');
+            $root = $vis.'/processing/auto_mc/blend';
+            
+            $runs = array();
+            if (file_exists($root)) {
+                foreach (glob($root.'/run_*') as $r) {
+                    $id = preg_match('/run_(\d+)$/', $r, $m) ? $m[1] : 0;
+                    $run = array('ID' => $id, 'STATE' => 0);
+                    
+                    $log = $r.'/blend.elog';
+                    if (file_exists($log)) {
+                        foreach (explode("\n", file_get_contents($log)) as $l) {
+                            if (strpos($l, 'Execution halted') !== false) $run['STATE'] = 2;
+                        }
+                    }
+                    
+                    $aim = $r.'/combined_files/aimless_001.log';
+                    if (file_exists($aim)) {
+                        $stats = array();
+                        $run['STATE'] = 1;
+                        foreach (explode("\n", file_get_contents($aim)) as $l) {
+                            if (strpos($l, 'Rmerge  (within I+/I-)') !== false) $stats['RMERGE'] = array_slice(preg_split('/\s\s\s+/', $l), 0);
+                            if (strpos($l, 'Mean((I)/sd(I))') !== false) $stats['ISIGI'] = array_slice(preg_split('/\s\s\s+/', $l), 0);
+                            if (strpos($l, 'Completeness   ') !== false) $stats['C'] = array_slice(preg_split('/\s\s\s+/', $l), 0);
+                            if (strpos($l, 'Multiplicity   ') !== false) $stats['M'] = array_slice(preg_split('/\s\s\s+/', $l), 0);
+                            if (strpos($l, 'Low resolution limit') !== false) $stats['RESL'] = array_slice(preg_split('/\s\s\s+/', $l), 0);
+                            if (strpos($l, 'High resolution limit') !== false) $stats['RESH'] = array_slice(preg_split('/\s\s\s+/', $l), 0);
+                        }
+                        
+                        $run['STATS'] = $stats;
+                    }
+                    
+                    $files = array();
+                    if (file_exists($r.'/files.dat')) {
+                        foreach (explode("\n", file_get_contents($r.'/files.dat')) as $f) {
+                            array_push($files, str_replace('/DEFAULT/NATIVE/SWEEP1/integrate/INTEGRATE.HKL', '####.cbf', str_replace($vis.'/processing/auto_mc/', '', $f)));
+                        }
+                    }
+                    
+                    $run['FILES'] = $files;
+                    
+                    array_push($runs, $run);
+                }
+            }
+            
+            $this->_output($runs);
+        }
+        
         
     }
 
