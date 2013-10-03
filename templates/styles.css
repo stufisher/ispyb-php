@@ -1542,7 +1542,10 @@ table input[type=text] {
     float: right;
     background: #cdcdcd;
     border-radius: 5px;
+    overflow-y: auto;
+    height: 168px;
 }
+
 
 .files h2 {
     padding: 1%;
@@ -1552,6 +1555,14 @@ table input[type=text] {
 .files ul {
     padding: 1%;
     list-style: none;
+}
+
+.filter ul li a {
+    text-decoration: none;
+}
+
+.filter ul li.running {
+    background: #82d180;
 }
 
 .files ul li {
@@ -1564,6 +1575,13 @@ span.run_state {
     float: right;
 }
 
+.autoproc {
+    padding: 0 0 1% 0;
+}
+
+.dc_count {
+    float: right;
+}
 
 
 /* Responsive Styling

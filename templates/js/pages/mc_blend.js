@@ -2,14 +2,17 @@ $(function() {
   
   var auto_load = 1;
   
+  
+  $('#dialog').dialog({ autoOpen: false, buttons: { 'Ok': function() { $(this).dialog('close'); } } });
+  
   // Filter selection by Rmerge
   $('input[name=rmerge]').keyup(function() {
     var val = parseFloat($(this).val())
     $('.integrated tr').each(function(i,e) {
         var r = parseFloat($($(this).children('td')[5]).html())
         r < val ? $(this).addClass('selected') : $(this).removeClass('selected')
-                             
     })
+    count()
   })
   
   // Initiate a blend run
@@ -21,14 +24,15 @@ $(function() {
         $.ajax({
             url: '/mc/ajax/blend/visit/' + visit,
             type: 'POST',
-            data: { dcs: $('.integrated tr.selected').map(function() { return parseInt($(this).attr('dcid')) }).get(), res: $('input[name=res]').val(), isigi: $('input[name=isigi]').val(), rfrac: $('input[name=radfrac]').val() },
+            data: { dcs: $('.integrated tr.selected').map(function() { return parseInt($(this).attr('dcid')) }).get(), res: $('input[name=res]').val(), isigi: $('input[name=isigi]').val(), rfrac: $('input[name=rfrac]').val() },
             dataType: 'json',
             timeout: 15000,
             success: function(r){
                if (r) state = 1
             }
         })
-                                   
+                                  
+        $('#dialog').dialog('open')
      }
      
     
@@ -61,6 +65,7 @@ $(function() {
                        
                 $('.integrated td').unbind('click').click(function() {
                     $(this).parent().hasClass('selected') ? $(this).parent().removeClass('selected') : $(this).parent().addClass('selected')
+                    count()
                 })
              }
         })
@@ -104,7 +109,8 @@ $(function() {
                     $('<div class="data_collection" run="'+r['ID']+'" state="'+r['STATE']+'">'+
                       '<span class="run_state">'+val[r['STATE']]+'</span>'+
                       '<h1>Run '+r['ID']+'</h1>'+
-                      '<div class="files"><h2>Files</h2><ul>'+files+'</ul></div>'+
+                      '<p>Radfrac: '+r['RFRAC']+' I/&sigma;(I): '+r['ISIGI']+'</p>'+
+                      '<div class="files"><h2>'+r['FILES'].length+' Files</h2><ul>'+files+'</ul></div>'+
                       tab+
                       '<div class="clear"></div></div>').hide().prependTo($('.blended')).slideDown()
                   }
@@ -139,6 +145,30 @@ $(function() {
     }
 
     return tab+'</tbody></table>'
+  }
+  
+  
+  // Check how many jobs are currently running
+  function job_state() {
+    $.ajax({
+        url: '/mc/ajax/status',
+        type: 'GET',
+        dataType: 'json',
+        timeout: 15000,
+        success: function(jobs){
+          jobs > 0 ? $('.jobs').parent('li').addClass('running') : $('.jobs').parent('li').removeClass('running')
+          $('.jobs').html(jobs)
+        }
+    })
+  
+    setTimeout(function() { job_state() }, 5000)
+  }
+  
+  job_state()
+  
+  
+  function count() {
+    $('.count').html($('.integrated tr.selected').length)
   }
              
 });

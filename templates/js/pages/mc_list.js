@@ -5,6 +5,9 @@ $(function() {
   var dir = ''
   var plots = {}
   var state = 0
+  var cells = {}
+  
+  $('#dialog').dialog({ autoOpen: false, buttons: { 'Ok': function() { $(this).dialog('close'); } } });
   
   // Search as you type
   var thread = null;
@@ -14,6 +17,8 @@ $(function() {
       $this = $(this);
       thread = setTimeout(function() {
             search = $this.val()
+            $('.dc').remove()
+            plots = {}
             if (search) load_datacollection();
       }, 500);
   });
@@ -55,8 +60,8 @@ $(function() {
                                   
       var max = Math.max.apply(null, list)
       var c = $('div[dcid='+i+']')
-      console.log(i, list, max)
       max >= val ? c.addClass('selected') : c.removeClass('selected')
+      if (max < val) plots[i].setSelection({})
     }
   })  
   
@@ -91,12 +96,44 @@ $(function() {
                if (r) state = 1
             }
         })
-                                   
+
+        $('#dialog').dialog('open')
      }
      
     
   })
   
+  
+  $('select[name=cells]').change(function() {
+    var id = $(this).val()
+    if (id in cells) {
+        e = cells[id]
+        $('input[name=sg]').val(e['SG'])
+        $('input[name=a]').val(e['CELL_A'])
+        $('input[name=b]').val(e['CELL_B'])
+        $('input[name=c]').val(e['CELL_C'])
+        $('input[name=alpha]').val(e['CELL_AL'])
+        $('input[name=beta]').val(e['CELL_BE'])
+        $('input[name=gamma]').val(e['CELL_GA'])
+    }
+  })
+  
+  function load_cells() {
+    $.ajax({
+        url: '/mc/ajax/cells/visit/' + visit + '/d/'+dir,
+        type: 'GET',
+        dataType: 'json',
+        timeout: 5000,
+        success: function(json){
+           cells = {}
+           $('select[name=cells]').empty()
+           $.each(json, function(i,e) {
+             cells[e['ID']] = e
+             $('select[name=cells]').append('<option value="'+e['ID']+'">'+e['DIR']+e['PREFIX']+' ('+e['SG']+': '+e['CELL_A']+','+e['CELL_B']+','+e['CELL_C']+','+e['CELL_AL']+','+e['CELL_BE']+','+e['CELL_GA']+') ['+e['TYPE']+']</option>')
+           })
+        }
+    })
+  }
   
   
   $('select[name=dir]').change(function() {
@@ -105,6 +142,7 @@ $(function() {
         $('.dc').remove()
         plots = {}
         load_datacollection()
+        load_cells()
     }
   })
   
@@ -119,6 +157,7 @@ $(function() {
            $.each(json, function(i,e) {
              $('select[name=dir]').append('<option value="'+e+'">'+e+'</option>')
            })
+           $('select[name=dir]').trigger('change')
         }
     })
   }
@@ -138,8 +177,6 @@ $(function() {
              dataType: 'json',
              timeout: 5000,
              success: function(json){
-                if (search) $('.dc').remove()
-             
                 $('.count').html(json[0]+' data collections')
              
                 $.each(json[1].reverse(), function(i,r) {
@@ -178,7 +215,7 @@ $(function() {
                           '<h1>'+r['PREFIX']+'</h1>'+
                           '<h2>'+r['DIR']+'</h2>'+
                           '<div class="distl"></div>'+
-                          '<span>&Omega; Start: '+r['OST']+'&deg; &Omega; Osc: '+r['OOS']+'&deg;</span>'+
+                          '<span>&Omega; Start: '+r['OST']+'&deg; &Omega; Osc: '+r['OOS']+'&deg; <a href="/dc/view/id/'+r['DID']+'" target="_blank">Images</a></span>'+
                           '</div>').hide().prependTo('.data_collections').slideDown()
                            
                     }
@@ -188,6 +225,7 @@ $(function() {
              
                 $('.dc h1').unbind('click').click(function() {
                     $(this).parent().hasClass('selected') ? $(this).parent().removeClass('selected') : $(this).parent().addClass('selected')
+                    if (!$(this).parent().hasClass('selected')) plots[$(this).parent('div').attr('dcid')].setSelection({})
                 })
              }
       })
@@ -230,6 +268,9 @@ $(function() {
                  }
              
                  plots[$(d).attr('dcid')] = $.plot($(d).children('div.distl'), [j[0], j[1]], options);
+               
+                 $(d).bind('plotselected', set_selected.bind(null,$(d).attr('dcid')))
+                 $(d).bind('plotunselected', set_deselected.bind(null,$(d).attr('dcid')))
             }
         })
       }
@@ -237,6 +278,13 @@ $(function() {
   }
   
   
+  function set_selected(dcid, x1,x2) {
+    if (x1 != null && x2 != null) $('div[dcid='+dcid+']').addClass('selected')
+  }
+  
+  function set_deselected(dcid, e) {
+    $('div[dcid='+dcid+']').removeClass('selected')
+  }
   
   function job_state() {
     $.ajax({
@@ -245,7 +293,9 @@ $(function() {
         dataType: 'json',
         timeout: 15000,
         success: function(jobs){
-             $('.jobs').html(jobs)
+          jobs > 0 ? $('.jobs').parent('li').addClass('running') : $('.jobs').parent('li').removeClass('running')
+           
+          $('.jobs').html(jobs)
         }
     })
   

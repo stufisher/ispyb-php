@@ -5,6 +5,7 @@
         var $arg_list = array('visit' => '\w\w\d\d\d\d-\d+', 's' => '\w+', 'd' => '\w+', 'id' => '\d+', 'sg' => '\w+', 'a' => '\d+(.\d+)?', 'b' => '\d+(.\d+)?', 'c' => '\d+(.\d+)?', 'alpha' => '\d+(.\d+)?', 'beta' => '\d+(.\d+)?', 'gamma' => '\d+(.\d+)?', 'res' => '\d+(.\d+)?', 'rfrad' => '\d+(.\d+)?', 'isigi' => '\d+(.\d+)?');
         var $dispatch = array('list' => '_data_collections',
                               'dirs' => '_get_dirs',
+                              'cells' => '_get_cells',
                               'integrate' => '_integrate',
                               'blend' => '_blend',
                               'blended' => '_blended',
@@ -41,7 +42,53 @@
         # ------------------------------------------------------------------------
         # Get unit cells for any autoprocessed data sets
         function _get_cells() {
+            if (!$this->has_arg('visit')) {
+                $this->_error('No visit specified');
+            }
             
+            $args = array($this->arg('visit'));
+        
+            if ($this->has_arg('d')) {
+                array_push($args, $this->arg('d'));
+                $where = " AND dc.imagedirectory LIKE '%".$this->arg('d')."/'";
+            }
+            
+            $rows = $this->db->pq("SELECT dc.imagedirectory as dir, dc.filetemplate as prefix, dc.datacollectionid as id, app.processingcommandline as type,  ap.spacegroup as sg, ap.refinedcell_a as cell_a, ap.refinedcell_b as cell_b, ap.refinedcell_c as cell_c, ap.refinedcell_alpha as cell_al, ap.refinedcell_beta as cell_be, ap.refinedcell_gamma as cell_ga FROM ispyb4a_db.autoprocintegration api INNER JOIN ispyb4a_db.autoprocscaling_has_int aph ON api.autoprocintegrationid = aph.autoprocintegrationid INNER JOIN ispyb4a_db.autoprocscaling aps ON aph.autoprocscalingid = aps.autoprocscalingid INNER JOIN ispyb4a_db.autoproc ap ON aps.autoprocid = ap.autoprocid INNER JOIN ispyb4a_db.autoprocprogram app ON api.autoprocprogramid = app.autoprocprogramid
+            INNER JOIN ispyb4a_db.datacollection dc on api.datacollectionid = dc.datacollectionid
+            INNER JOIN ispyb4a_db.blsession s ON s.sessionid = dc.sessionid
+                                  
+            INNER JOIN ispyb4a_db.v_run vr ON (s.startdate BETWEEN vr.startdate AND vr.enddate)
+            INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid
+            WHERE p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1 $where", $args);
+            
+            $types = array('fast_dp' => 'Fast DP', '-3da ' => 'XIA2 3da', '-2da ' => 'XIA2 2da', '-3daii ' => 'XIA2 3daii');
+            
+            $dts = array('rlow', 'rhigh', 'cell_a', 'cell_b', 'cell_c', 'cell_al', 'cell_be', 'cell_ga');
+            
+
+            foreach ($rows as &$r) {
+                $r['DIR'] = $this->ads($r['DIR']);
+                $r['DIR'] = substr($r['DIR'], strpos($r['DIR'], $this->arg('visit'))+strlen($this->arg('visit'))+1);
+                                  
+                foreach ($r as $k => &$v) {
+                    if ($k == 'TYPE') {
+                        foreach ($types as $id => $name) {
+                            if (strpos($v, $id)) {
+                                $v = $name;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (in_array(strtolower($k), $dts)) $v = number_format($v, 2);
+                    
+                    if ($k == 'RMERGE') $v = number_format($v, 3);
+                    if ($k == 'COMPLETENESS') $v = number_format($v, 1);
+                    if ($k == 'MULTIPLICITY') $v = number_format($v, 1);
+                }
+            }
+                  
+            $this->_output($rows);            
         }
         
         
@@ -70,12 +117,12 @@
             
             if ($this->has_arg('s')) {
                 array_push($args, $this->arg('s'));
-                $where = " AND (dc.imagedirectory LIKE '%".$this->arg('s')."%' OR dc.filetemplate LIKE '%".$this->arg('s')."%')";
+                $where .= " AND (dc.imagedirectory LIKE '%".$this->arg('s')."%' OR dc.filetemplate LIKE '%".$this->arg('s')."%')";
             }
 
             if ($this->has_arg('d')) {
                 array_push($args, $this->arg('d'));
-                $where = " AND dc.imagedirectory LIKE '%".$this->arg('d')."/'";
+                $where .= " AND dc.imagedirectory LIKE '%".$this->arg('d')."/'";
             }
             
             $rows = $this->db->pq("SELECT TO_CHAR(dc.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, dc.filetemplate as prefix, dc.imagedirectory as dir, dc.datacollectionid as did, dc.numberofimages as ni, dc.axisstart as ost, dc.axisrange as oos FROM ispyb4a_db.datacollection dc WHERE dc.sessionid=:1 $where ORDER BY dc.imagedirectory, dc.starttime", $args);
@@ -231,7 +278,7 @@
                 
                 # no x11 on cluster
                 #$ret = exec("module load global/cluster;qsub blend.sh");
-                $ret = exec("chmod +x blend.sh;./blend.sh");
+                $ret = exec("chmod +x blend.sh;./blend.sh &");
                 
             } else $ret = 'No data sets specified';
             
@@ -263,6 +310,14 @@
                     if (file_exists($log)) {
                         foreach (explode("\n", file_get_contents($log)) as $l) {
                             if (strpos($l, 'Execution halted') !== false) $run['STATE'] = 2;
+                        }
+                    }
+                    
+                    $prs = $r.'/BLEND_KEYWORDS.dat';
+                    if (file_exists($prs)) {
+                        foreach (explode("\n", file_get_contents($prs)) as $l) {
+                            if (strpos($l, 'RADFRAC') !== false) $run['RFRAC'] = preg_split('/\s+/', $l)[1];
+                            if (strpos($l, 'ISIGI') !== false) $run['ISIGI'] = preg_split('/\s+/', $l)[1];
                         }
                     }
                     
