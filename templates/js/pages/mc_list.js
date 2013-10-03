@@ -25,25 +25,41 @@ $(function() {
     })
   })
   
+  
   $('input[name=start]').keyup(function() {
     var val = parseInt($(this).val())
     for (var i in plots) {
       var cur = plots[i].getSelection()
       var end = cur ? cur.xaxis.to : 10
-      console.log(val, end, cur)
       plots[i].setSelection({xaxis: { from: val, to: end } })
     }
   })
 
+  
   $('input[name=end]').keyup(function() {
     var val = parseInt($(this).val())
     for (var i in plots) {
       var cur = plots[i].getSelection()
       var start = cur ? cur.xaxis.from : 0
-      console.log(start, val, cur)
       plots[i].setSelection({xaxis: { from: start, to: val } })
     }
   })
+  
+  
+  $('input[name=minspots]').keyup(function() {
+    var val = parseInt($(this).val())
+    for (var i in plots) {
+      var data = plots[i].getData()[0].data
+      var list = []
+      for (var j = 0; j < data.length; j++) list.push(data[j][1])
+                                  
+      var max = Math.max.apply(null, list)
+      var c = $('div[dcid='+i+']')
+      console.log(i, list, max)
+      max >= val ? c.addClass('selected') : c.removeClass('selected')
+    }
+  })  
+  
   
   $('button[name=integrate').click(function() {
      if (!$('.dc.selected').length) {
@@ -87,6 +103,7 @@ $(function() {
     dir = $(this).val()
     if (dir) {
         $('.dc').remove()
+        plots = {}
         load_datacollection()
     }
   })

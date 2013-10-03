@@ -1,17 +1,21 @@
 
     <h1>Data Collections for <?php echo $visit ?></h1>
 
+    <a href="/mc/blend/visit/<?php echo $visit ?>">Blend Datasets</a>
+
     <div class="search">
-        <label>Directory: </label><input type="text" name="search" /> <select name="dir"></select>
+        <label for="search">Search:</label> <input type="text" name="search" /> <label for="dir">Directory: </label><select name="dir"></select>
     </div>
     <div class="count"></div>
 
     <div><span class="jobs">0</span> job(s) running</div>
 
-    <div class="options">
+    <div class="options data_collection">
         <label for="all">Select </label><button name="all">All</button>
-        <label for="start">Start #</label><input type="text" name="start" value="0" />
-        <label for="end">End #</label><input type="text" name="end" value="0" />
+        <label for="minspots">Min # Spots</label><input type="text" name="minspots" />
+
+        <label for="start">Start Image #</label><input type="text" name="start" value="0" />
+        <label for="end">End Image #</label><input type="text" name="end" value="0" />
     </div>
 
     <div class="cell data_collection">

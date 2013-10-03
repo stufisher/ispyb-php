@@ -1477,7 +1477,7 @@ table input[type=text] {
  ---------------------------------------------------------*/
 .dc {
     width: 23%;
-    background: #dedede;
+    background: #eaeaea;
     padding: 0.5%;
     margin: 0.5%;
     display: inline-block;
@@ -1513,10 +1513,12 @@ table input[type=text] {
     margin-left: -95px;
 }
 
+.options.data_collection label,
 .cell.data_collection label {
     padding-left: 5px;
 }
 
+.options.data_collection input,
 .cell.data_collection input {
     width: 65px;
     
@@ -1528,6 +1530,38 @@ table input[type=text] {
 
 .integrated tr.selected td {
     background: #cdcdcd;
+}
+
+.robot_actions.half {
+    width: 38%;
+    clear: none;
+}
+
+.files {
+    width: 60%;
+    float: right;
+    background: #cdcdcd;
+    border-radius: 5px;
+}
+
+.files h2 {
+    padding: 1%;
+    font-weight: bold;
+}
+
+.files ul {
+    padding: 1%;
+    list-style: none;
+}
+
+.files ul li {
+    display: inline-block;
+    width: 48%;
+    padding: 0.5%;
+}
+
+span.run_state {
+    float: right;
 }
 
 
