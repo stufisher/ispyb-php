@@ -107,9 +107,8 @@ $(function() {
                     }
                        
                     $('<div class="data_collection" run="'+r['ID']+'" state="'+r['STATE']+'">'+
-                      '<span class="run_state">'+val[r['STATE']]+'</span>'+
+                      '<span class="run_state">Radfrac: '+r['RFRAC']+' I/&sigma;(I): '+r['ISIGI']+' | '+val[r['STATE']]+'</span>'+
                       '<h1>Run '+r['ID']+'</h1>'+
-                      '<p>Radfrac: '+r['RFRAC']+' I/&sigma;(I): '+r['ISIGI']+'</p>'+
                       '<div class="files"><h2>'+r['FILES'].length+' Files</h2><ul>'+files+'</ul></div>'+
                       tab+
                       '<div class="clear"></div></div>').hide().prependTo($('.blended')).slideDown()

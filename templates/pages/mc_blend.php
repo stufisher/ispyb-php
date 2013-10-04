@@ -3,7 +3,7 @@
         <p>You job has been submitted</p>
     </div>
 
-    <h1>Blended Data Sets</h1>
+    <h1>Blended Data Sets for <?php echo $visit ?></h1>
 
     <div class="filter">
         <ul>
@@ -14,8 +14,9 @@
         <div class="clear"></div>
     </div>
 
-    <div class="blended"></div>
-
+    <div class="blended_wrap">
+        <div class="blended"></div>
+    </div>
 
     <h1>Integrated Data Collections for <?php echo $visit ?></h1>
     <div class="options data_collection">
@@ -28,21 +29,23 @@
         <button name="analyse">Blend</button>
     </div>
 
-    <table class="integrated robot_actions">
-    <thead>
-        <tr>
-            <th>Directory</th>
-            <th>Prefix</th>
-            <th>&Omega; Start</th>
-            <th>SG</th>
-            <th>Cell</th>
-            <th>Rmerge</th>
-            <th>Completeness</th>
-            <th>High Resolution</th>
-        </tr>
-    </thead>
+    <div class="table_wrap">
+        <table class="integrated robot_actions">
+        <thead>
+            <tr>
+                <th>Directory</th>
+                <th>Prefix</th>
+                <th>&Omega; Start</th>
+                <th>SG</th>
+                <th>Cell</th>
+                <th>Rmerge</th>
+                <th>Completeness</th>
+                <th>High Resolution</th>
+            </tr>
+        </thead>
 
-    <tbody></tbody>
-    </table>
+        <tbody></tbody>
+        </table>
+    </div>
 
 

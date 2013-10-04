@@ -47,6 +47,8 @@
         <button name="integrate">Integrate</button>
     </div>
 
-    <div class="data_collections"></div>
+    <div class="dc_wrap">
+        <div class="data_collections int"></div>
+    </div>
 
 

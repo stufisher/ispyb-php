@@ -1509,8 +1509,8 @@ table input[type=text] {
 
 .dc .state ul {
     list-style: none;
-    position: absolute;
-    margin-left: -95px;
+    /*position: absolute;*/
+    margin-left: -85px;
 }
 
 .options.data_collection label,
@@ -1581,6 +1581,31 @@ span.run_state {
 
 .dc_count {
     float: right;
+}
+
+.blended_wrap,
+.table_wrap {
+    height: 28%;
+    overflow-y: auto;
+}
+
+.blended_wrap {
+    margin-bottom: 1%;
+    padding: 0.5%;
+}
+
+.table_wrap {
+    box-shadow: 2px 2px 15px #bfbfbf;
+    border-radius: 6px;
+}
+
+.dc_wrap {
+    height: 55%;
+    overflow-y: auto;
+}
+
+.data_collections.int {
+    width: 99%;
 }
 
 

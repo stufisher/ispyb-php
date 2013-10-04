@@ -138,9 +138,9 @@
                     $r['INT'] = 2;
                     
                     foreach ($log as $l) {
-                        if (strpos($l, 'High resolution limit') !== false) $stats['RESH'] = preg_split('/\t/', $l)[1];
-                        if (strpos($l, 'Completeness') !== false) $stats['C'] = preg_split('/\t/', $l)[1];
-                        if (strpos($l, 'Rmerge') !== false) $stats['R'] = preg_split('/\t/', $l)[1];
+                        if (strpos($l, 'High resolution limit') !== false) $stats['RESH'] = number_format(preg_split('/\t/', $l)[1],2);
+                        if (strpos($l, 'Completeness') !== false) $stats['C'] = number_format(preg_split('/\t/', $l)[1],1);
+                        if (strpos($l, 'Rmerge') !== false) $stats['R'] = number_format(preg_split('/\t/', $l)[1],3);
                         if (strpos($l, 'Cell:') !== false) $stats['CELL'] = array_slice(preg_split('/\s+/', $l), 1);
                         if (strpos($l, 'Spacegroup:') !== false) $stats['SG'] = preg_split('/\s+/', $l)[1];
                     }

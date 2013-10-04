@@ -7,7 +7,7 @@
                               'blend' => '_blend');
         var $def = 'mc';
         
-        var $root = 'Multicrystal Integration';
+        var $root = 'Multi-Crystal Integration';
         var $root_link = '/mc';
         
         
@@ -17,7 +17,7 @@
             
             
             
-            $this->template('Muticrystal Integration', array($this->arg('visit')), array('/visit/'.$this->arg('visit')));
+            $this->template('Multi-Crystal Integration', array($this->arg('visit')), array('/visit/'.$this->arg('visit')));
             
             $this->t->visit = $this->arg('visit');
             $this->t->js_var('visit', $this->arg('visit'));
@@ -33,7 +33,7 @@
             
             
             
-            $this->template('Muticrystal Integration - Blend', array($this->arg('visit'), 'Blend'), array('/visit/'.$this->arg('visit'), ''));
+            $this->template('Multi-Crystal Integration - Blend', array($this->arg('visit'), 'Blend'), array('/visit/'.$this->arg('visit'), ''));
             
             $this->t->visit = $this->arg('visit');
             $this->t->js_var('visit', $this->arg('visit'));

@@ -215,7 +215,7 @@ $(function() {
                           '<h1>'+r['PREFIX']+'</h1>'+
                           '<h2>'+r['DIR']+'</h2>'+
                           '<div class="distl"></div>'+
-                          '<span>&Omega; Start: '+r['OST']+'&deg; &Omega; Osc: '+r['OOS']+'&deg; <a href="/dc/view/id/'+r['DID']+'" target="_blank">Images</a></span>'+
+                          '<span>&Omega; Start: '+r['OST']+'&deg; &Omega; Osc: '+r['OOS']+'&deg; | <a href="/dc/view/id/'+r['DID']+'" target="_blank">Images</a></span>'+
                           '</div>').hide().prependTo('.data_collections').slideDown()
                            
                     }
