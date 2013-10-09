@@ -152,6 +152,7 @@ ul#navigation li:before {
 
 .content {
     /*margin-top: 20px;*/
+    padding-bottom: 1%;
 }
 
 
@@ -1526,10 +1527,12 @@ table input[type=text] {
     
 }
 
+.blended_table tr td:hover,
 .integrated tr td:hover {
     cursor: pointer;
 }
 
+.blended_table tr.selected td,
 .integrated tr.selected td {
     background: #cdcdcd;
 }
@@ -1628,10 +1631,6 @@ span.run_state {
     width: 96%;
 }
 
-.dend_toggle {
-    pointer: cursor;
-}
-
 #images iframe {
     width: 100%;
     height: 100%;
@@ -1639,7 +1638,7 @@ span.run_state {
 }
 
 .dend_wrap .slider {
-    width: 30%;
+    width: 50%;
     display: inline-block;
 }
 
