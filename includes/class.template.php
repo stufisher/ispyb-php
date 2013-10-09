@@ -60,7 +60,7 @@
         
             extract($this->vars);
             
-            if ($this->hf) include($this->template_path.'header.php');
+            include($this->template_path.'header.php');
             include($this->template_path .'/pages/' . $template . '.php');
             if ($this->hf) include($this->template_path.'footer.php');
         }

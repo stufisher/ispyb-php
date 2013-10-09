@@ -34,6 +34,7 @@
 
 <div id="wrapper">
 
+<?php if ($hf): ?>
 <div id="header">
     <ul id="menu">
         <?php if ($this->staff): ?>
@@ -57,6 +58,7 @@
         <?php endforeach ?>
     </ul>
 </div>
+<?php endif; ?>
 
 <div id="container">
 
