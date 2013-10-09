@@ -3,6 +3,10 @@
         <p>You job has been submitted to the cluster</p>
     </div>
 
+    <div id="images" title="Image Viewer">
+        <iframe name="images"></iframe>
+    </div>
+
     <h1>Data Collections for <?php echo $visit ?></h1>
 
     <div class="search">

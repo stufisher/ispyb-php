@@ -8,6 +8,8 @@ $(function() {
   var cells = {}
   
   $('#dialog').dialog({ autoOpen: false, buttons: { 'Ok': function() { $(this).dialog('close'); } } });
+
+  $('#images').dialog({ width: 850, height: 700, autoOpen: false, buttons: { 'Close': function() { $(this).dialog('close'); } } });
   
   // Search as you type
   var thread = null;
@@ -66,7 +68,7 @@ $(function() {
   })  
   
   
-  $('button[name=integrate').click(function() {
+  $('button[name=integrate]').click(function() {
      if (!$('.dc.selected').length) {
         alert('You need to select some data sets to integrate')
         return
@@ -215,18 +217,26 @@ $(function() {
                           '<h1>'+r['PREFIX']+'</h1>'+
                           '<h2>'+r['DIR']+'</h2>'+
                           '<div class="distl"></div>'+
-                          '<span>&Omega; Start: '+r['OST']+'&deg; &Omega; Osc: '+r['OOS']+'&deg; | <a href="/dc/view/id/'+r['DID']+'" target="_blank">Images</a></span>'+
-                          '</div>').hide().prependTo('.data_collections').slideDown()
+                          '<span>&Omega; Start: '+r['OST']+'&deg; &Omega; Osc: '+r['OOS']+'&deg; | <a class="images" href="/dc/view/id/'+r['DID']+'" target="_blank">Images</a></span>'+
+                          '</div>').hide().prependTo('.data_collections').fadeIn()
                            
                     }
                 })
              
                 load_imq()
              
-                $('.dc h1').unbind('click').click(function() {
+                /*$('.dc h1').unbind('click').click(function() {
                     $(this).parent().hasClass('selected') ? $(this).parent().removeClass('selected') : $(this).parent().addClass('selected')
                     if (!$(this).parent().hasClass('selected')) plots[$(this).parent('div').attr('dcid')].setSelection({})
+                })*/
+             
+                $('a.images').unbind('click').click(function() {
+                    $('#images iframe[name=images]').attr('src', $(this).attr('href')+'/iframe/1')
+                    $('#images').dialog('open')
+                    return false
                 })
+                
+                
              }
       })
   
