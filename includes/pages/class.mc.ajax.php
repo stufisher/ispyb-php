@@ -290,8 +290,8 @@
                 
                 file_put_contents($blend.'/blend.sh', "#!/bin/sh\nmodule load blend\n".$cmd);
                 
-                $sg = $this->has_arg('sg')  ? ("\nCHOOSE SPACEGROUP ".$this->arg('sg')) : '';
-                file_put_contents($blend.'/BLEND_KEYWORDS.dat', "BLEND KEYWORDS\nNBIN	  20\nRADFRAC   $radfrac\nISIGI     $isigi\nCPARWT    1.000\nPOINTLESS KEYWORDS\nAIMLESS KEYWORDS\n$res$sg");
+                $sg = $this->has_arg('sg')  ? ("CHOOSE SPACEGROUP ".$this->arg('sg')) : '';
+                file_put_contents($blend.'/BLEND_KEYWORDS.dat', "BLEND KEYWORDS\nNBIN	  20\nRADFRAC   $radfrac\nISIGI     $isigi\nCPARWT    1.000\nPOINTLESS KEYWORDS\n$sg\nAIMLESS KEYWORDS\n$res");
                 
                 # no x11 on cluster
                 #$ret = exec("module load global/cluster;qsub blend.sh");
@@ -434,9 +434,10 @@
                 $all = @array_map(intval, end($raw)[1]);
                 array_push($data, array($all, 0));
                 foreach ($raw as $r) {
+                    
                     foreach ($r[1] as $e) {
                         $idx = array_search($e, $all);
-                        unset($all[$idx]);
+                        if ($idx > -1) unset($all[$idx]);
                         
                         foreach ($all as $i => $a) {
                             if (preg_match('/\+'.$e.'\+/', $a) || preg_match('/^'.$e.'\+/', $a)) {
