@@ -214,6 +214,7 @@ $(function() {
   job_state()
   
   
+  // Count how many data sets are selected and highlight them on dendrogram
   function count() {
     $('.count').html($('.integrated tr.selected').length)
     $('.dendrogram .yaxis .tickLabel').removeClass('selected')
@@ -227,6 +228,7 @@ $(function() {
   }
   
   
+  // Plot dendrogram from CLUSTERS.txt
   function _plot() {
     $.ajax({
         url: '/mc/ajax/dend/visit/' + visit,
@@ -277,9 +279,10 @@ $(function() {
             for (k in verts) data.push(verts[k])
            
             var opts = {
-              selection: { mode: "xy" },
+              selection: { mode: 'xy' },
               grid: {
                 borderWidth: 0,
+                tickColor: '#ffffff',
               },
               yaxis: {
                 ticks: ticks,
