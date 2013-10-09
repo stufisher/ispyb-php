@@ -49,7 +49,6 @@
         <label for="res">Resolution: </label><input type="text" name="res" />
         <label for="res">Spacegroup: </label><input type="text" name="sg" />
         <button name="blend">Blend</button>
-        <button name="analyse">Analyse</button>
     </div>
 
     <div class="table_wrap">
@@ -73,7 +72,11 @@
     </div>
 
 
-    <h1 class="dend_toggle">Cluster Analysis for Integrated Date Sets</h1>
+    <h1 class="dend_toggle">
+        Cluster Analysis for Integrated Date Sets
+        <button name="analyse">Analyse</button>
+    </h1>
+
     <div class="dend_wrap">
         <div class="controls">
             Scale X-Axis <div class="slider"></div>
