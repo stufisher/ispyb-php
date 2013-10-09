@@ -2,7 +2,7 @@
 
     class DC extends Page {
         
-        var $arg_list = array('visit' => '\w\w\d\d\d\d-\d+', 'page' => '\d+', 'mon' => '\w+', 'year' => '\d\d\d\d', 'id' => '\d+', 't' => '\w+');
+        var $arg_list = array('visit' => '\w\w\d\d\d\d-\d+', 'page' => '\d+', 'mon' => '\w+', 'year' => '\d\d\d\d', 'id' => '\d+', 't' => '\w+', 'iframe' => '\d+');
         var $dispatch = array('dc' => '_dispatch', 'view' => '_viewer');
         var $def = 'dc';
         
@@ -37,7 +37,7 @@
             
             $p = array($dc['VIS'], $dc['DIR'].$dc['FT']);
             $l = array('/visit/'.$dc['VIS'], '');
-            $this->template('Image Viewer: ' . $dc['VIS'] . ' - ' . $dc['DIR'].$dc['FT'], $p, $l);
+            $this->template('Image Viewer: ' . $dc['VIS'] . ' - ' . $dc['DIR'].$dc['FT'], $p, $l, !$this->has_arg('iframe'));
             
             $this->t->d = $dc;
             
