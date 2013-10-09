@@ -35,7 +35,9 @@ a:hover {
 
 #container {
     width: 80%;
-    margin: 2% auto;
+    /*margin: 2% auto;*/
+    margin: 0 auto;
+    padding-top: 20px;
 }
 
 
@@ -95,7 +97,7 @@ ul#menu li a:hover {
 
 #footer {
     background: #000000;
-    padding: 5px;
+    padding: 1%;
 }
 
 #footer p {
@@ -149,7 +151,7 @@ ul#navigation li:before {
 }
 
 .content {
-    margin-top: 20px;
+    /*margin-top: 20px;*/
 }
 
 
@@ -1589,24 +1591,66 @@ span.run_state {
     overflow-y: auto;
 }
 
+.dend_wrap,
 .blended_wrap {
     margin-bottom: 1%;
-    padding: 0.5%;
+    /*padding: 0.5%;*/
+    box-shadow: 2px 2px 15px #bfbfbf;
+    border-radius: 6px;
 }
 
 .table_wrap {
     box-shadow: 2px 2px 15px #bfbfbf;
     border-radius: 6px;
+    margin-bottom: 1%;
 }
 
 .dc_wrap {
     height: 55%;
     overflow-y: auto;
+    box-shadow: 2px 2px 15px #bfbfbf;
+    border-radius: 6px;
 }
 
 .data_collections.int {
     width: 99%;
 }
+
+.dend_wrap {
+    /*height: 30%;*/
+    /*overflow-y: auto;*/
+    padding: 0.5%;
+    /*display: none;*/
+}
+
+.dendrogram {
+    /*height: 1000px;*/
+    width: 96%;
+}
+
+.dend_toggle {
+    pointer: cursor;
+}
+
+#images iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.dend_wrap .slider {
+    width: 30%;
+    display: inline-block;
+}
+
+.dend_wrap .controls {
+    padding: 0.5%;
+}
+
+.yaxis .tickLabel.selected {
+    font-weight: bold;
+}
+
 
 
 /* Responsive Styling
