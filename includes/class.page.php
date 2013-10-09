@@ -170,13 +170,13 @@
         }
         
         
-        function template($title, $p=array(), $l=array()) {
+        function template($title, $p=array(), $l=array(), $hf = 1) {
             $new = array();
             foreach ($l as $a) {
                 array_push($new, $a ? ($this->root_link . $a) : $a);
             }
             
-            $this->t = new Template($title, $this->nav($p, $new));
+            $this->t = new Template($title, $this->nav($p, $new), $hf);
             $this->t->staff = $this->staff;
         }
         
