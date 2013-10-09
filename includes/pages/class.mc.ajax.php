@@ -355,16 +355,12 @@
                         $run['STATS'] = $stats;
                     }
                     
-                    $files = array();
-                    if (file_exists($r.'/files.dat')) {
-                        $fraw = explode("\n", file_get_contents($r.'/files.dat'));
-                        asort($fraw);
-                        foreach ($fraw as $f) {
-                            array_push($files, str_replace('/DEFAULT/NATIVE/SWEEP1/integrate/INTEGRATE.HKL', '####.cbf', str_replace($vis.'/processing/auto_mc/', '', $f)));
-                        }
+                    $ids = array();
+                    if (file_exists($r.'/ids.dat')) {
+                        $ids = explode("\n", file_get_contents($r.'/ids.dat'));
                     }
                     
-                    $run['FILES'] = $files;
+                    $run['IDS'] = $ids;
                     
                     array_push($runs, $run);
                 }
