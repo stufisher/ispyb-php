@@ -24,7 +24,7 @@ $(function() {
   // Select data sets from dendrogram
   $('.dendrogram').bind('plotselected', function (event, ranges) {
         if (!$('input[name=additive]').is(':checked')) $('.integrated tr').removeClass('selected')
-        for (var i = Math.round(ranges.yaxis.from); i < Math.round(ranges.yaxis.to); i++) {
+        for (var i = Math.round(ranges.yaxis.from); i <= Math.round(ranges.yaxis.to); i++) {
             $('tr[dcid='+ids[t[i]-1]+']').addClass('selected')
         }
         count()
@@ -143,11 +143,12 @@ $(function() {
                     }
                        
                     $('tr[run='+r['ID']+']').attr('state', r['STATE'])
+                    $('tr[run='+r['ID']+']').data('ids', r['IDS'])
                        
                   } else {
                        $('<tr run="'+r['ID']+'" state="'+r['STATE']+'">'+
                            '<td>'+r['ID']+'</td>'+
-                           '<td>'+r['FILES'].length+'</td>'+
+                           '<td>'+r['IDS'].length+'</td>'+
                            '<td>'+r['RFRAC']+'</td>'+
                            '<td>'+r['ISIGI']+'</td>'+
                            '<td>'+val[r['STATE']]+'</td>'+
@@ -166,9 +167,26 @@ $(function() {
                             '<td>-</td>'+
                             '<td>-</td>'))+
                          '<td><button class="delete"></button></td>'+
-                         '</tr>').hide().prependTo($('.blended_table tbody')).fadeIn()
+                         '</tr>').data('ids', r['IDS']).hide().prependTo($('.blended_table tbody')).fadeIn()
                   }
                        
+                })
+             
+                $('.blended_table tbody tr').unbind('click').click(function() {
+                    var ids = $(this).data('ids')
+                                  
+                    $('.blended_table tbody tr').removeClass('selected')
+                    $(this).addClass('selected')
+                                                                   
+                    if (ids) {
+                        $('.integrated tr').removeClass('selected')
+                        $.each(ids, function(i,e) {
+                           $('tr[dcid='+e+']').addClass('selected')
+                        })
+
+                    } else $('.integrated tr').removeClass('selected')
+                                                                   
+                    count()
                 })
              
                 $('button.delete').button({ icons: { primary: 'ui-icon-closethick' } }).unbind('click').click(function() {
@@ -239,7 +257,7 @@ $(function() {
             var din = json[1]
             ids = json[0]
 
-            $('.dendrogram').css('height', ids.length*15)
+            $('.dendrogram').css('height', ids.length*17)
            
             t = din[0][0][0].split(/\+/)
             var ticks = []
@@ -264,9 +282,10 @@ $(function() {
                        last_pos[no[0]].h = h
                        
                     } else {
-                       var y = (last_pos[no[0]].m+last_pos[no[1]].m)/2
-                       var dist = Math.abs(last_pos[no[0]].m-last_pos[no[1]].m)
-                       var st = Math.min(last_pos[no[0]].m,last_pos[no[1]].m)
+                       var l = no.length - 1
+                       var y = (last_pos[no[0]].m+last_pos[no[l]].m)/2
+                       var dist = Math.abs(last_pos[no[0]].m-last_pos[no[l]].m)
+                       var st = Math.min(last_pos[no[0]].m,last_pos[no[l]].m)
                        
                        if (!(e in verts)) verts[e] = {data: [[last_pos[no[0]].h,st], [last_pos[no[0]].h,st+dist]], color: 'blue'}
                        
@@ -282,7 +301,7 @@ $(function() {
               selection: { mode: 'xy' },
               grid: {
                 borderWidth: 0,
-                tickColor: '#ffffff',
+                tickColor: 'rgba(255,255,255,255)',
               },
               yaxis: {
                 ticks: ticks,
@@ -290,7 +309,7 @@ $(function() {
             }
           
             dend = $.plot($('.dendrogram'), data, opts)
-            setTimeout(1000, function(){$('.slider').slider('option', 'max', dend.getOptions().xaxes[0].max)});
+            //setTimeout(4000, function(){$('.slider').slider('option', 'max', dend.getOptions().xaxes[0].max)});
         }
     })
   }
