@@ -41,12 +41,9 @@ $(function() {
         dend.getOptions().xaxes[0].max = $('.slider').slider('value');
         dend.setupGrid();
         dend.draw();
-  }
   
-  // Show/Hide dendrogram
-  $('.dend_toggle').click(function() {
-    $('.dend_wrap').slideToggle()
-  })
+        count()
+  }
   
   
   // Initiate a blend run or analyse all data sets
@@ -249,26 +246,36 @@ $(function() {
                 ticks.push([i,$(tr.children('td')[0]).html()+$(tr.children('td')[1]).html().replace(/####\.cbf/, '')])
             }
           
-            data = []
-            last = 1
-            for (var i = 0; i < din.length; i++) {
-                for (var j = 0; j < din[i][0].length; j++) {
-                    if (!isNaN(din[i][0][j])) {
-                        var idx = t.indexOf(String(din[i][0][j]))
-                        data.push({data: [[last,idx,last], [din[i][1],idx,din[i][1]]], color: 'blue'})
+            var data = []
+            var verts = {}
+            var last_pos = {}
+            $.each(t, function(i, k) { last_pos[String(k)] = { h: 0, m: i } });
+  
+            $.each(din.reverse(), function(i,d) {
+                var h = d[1]
+                $.each(d[0], function(j,e) {
+                    var no = String(din[i][0][j]).split(/\+/)
+                    var idx = t.indexOf(no[0])                       
+                       
+                    if (no.length == 1) {
+                       data.push({data: [[last_pos[no[0]].h,idx], [h,idx]], color: 'blue'})
+                       last_pos[no[0]].h = h
+                       
                     } else {
-                        var nos = din[i][0][j].split(/\+/)
-                        var idx = t.indexOf(nos[0])
-                        var y = idx + (nos.length-1)/2
-                        data.push({data: [[din[i][1],y,din[i][1]], [last,y,last]], color: 'blue'})
+                       var y = (last_pos[no[0]].m+last_pos[no[1]].m)/2
+                       var dist = Math.abs(last_pos[no[0]].m-last_pos[no[1]].m)
+                       var st = Math.min(last_pos[no[0]].m,last_pos[no[1]].m)
+                       
+                       if (!(e in verts)) verts[e] = {data: [[last_pos[no[0]].h,st], [last_pos[no[0]].h,st+dist]], color: 'blue'}
+                       
+                       data.push({data: [[last_pos[no[0]].h,y], [h,y]], color: 'blue'})
+                       $.each(no, function(k,n) { last_pos[n].h = h; last_pos[n].m = y })
+                       
                     }
-                }
+                })
+            })
+            for (k in verts) data.push(verts[k])
            
-                //data.push({data: [[din[i][1],idx], [din[i][1],idx+(nos.length-1)]], color: 'blue'})
-                last = din[i][1]
-            }
-           
-          
             var opts = {
               selection: { mode: "xy" },
               grid: {
