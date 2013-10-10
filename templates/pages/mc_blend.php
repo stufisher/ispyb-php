@@ -43,11 +43,11 @@
     <div class="options data_collection">
         <div class="dc_count"><button name="clear">Clear</button> <span class="count">0</span> data collections selected</div>
 
-        <label for="rmerge">Rmerge &lt;: </label><input type="text" name="rmerge" />
-        <label for="rfrac">Rfrac: </label><input type="text" name="rfrac" value="0.75" />
-        <label for="isigi">I/sig(I): </label><input type="text" name="isigi" value="1.5 "/>
-        <label for="res">Resolution: </label><input type="text" name="res" />
-        <label for="res">Spacegroup: </label><input type="text" name="sg" />
+        <label>Rmerge &lt;: <input type="text" name="rmerge" /></label>
+        <label>Rfrac: <input type="text" name="rfrac" value="0.75" /></label>
+        <label>I/sig(I): <input type="text" name="isigi" value="1.5 "/></label>
+        <label>Resolution: <input type="text" name="res" /></label>
+        <label>Spacegroup: <input type="text" name="sg" /></label>
         <button name="blend">Blend</button>
     </div>
 
@@ -80,7 +80,7 @@
     <div class="dend_wrap">
         <div class="controls">
             Scale X-Axis <div class="slider"></div>
-            <label for="additive">Additive Selection:</label> <input type="checkbox" name="additive" />
+            <label>Additive Selection: <input type="checkbox" name="additive" /></label> 
         </div>
         <div class="dendrogram"></div>
     </div>
