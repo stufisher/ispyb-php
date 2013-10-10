@@ -11,8 +11,8 @@
 
     <div class="search">
         <span class="count"></span> |
-        <label for="search">Search:</label> <input type="text" name="search" />
-        <label for="dir">Directory: </label><select name="dir"></select>
+        <label>Search: <input type="text" name="search" /></label> 
+        <label>Directory: <select name="dir"></select></label>
     </div>
 
     <div class="filter">
@@ -25,28 +25,28 @@
     </div>
 
     <div class="options data_collection">
-        <label for="all">Select </label><button name="all">All</button>
-        <label for="minspots">Min # Spots</label> <input type="text" name="minspots" />
+        <label>Select: <button name="all">All</button></label>
+        <label>Min # Spots <input type="text" name="minspots" /></label>
 
-        <label for="start">Start Image #</label> <input type="text" name="start" value="0" />
-        <label for="end">End Image #</label> <input type="text" name="end" value="0" />
+        <label>Start Image # <input type="text" name="start" value="0" /></label>
+        <label>End Image # <input type="text" name="end" value="0" /></label>
     </div>
 
     <div class="cell data_collection">
         <div class="autoproc">
-            <label for="cells">Auto Processed</label> <select name="cells"></select>
+            <label>Auto Processed <select name="cells"></select></label>
         </div>
 
-        <label for="sg">Spacegroup</label> <input type="text" name="sg" />
+        <label>Spacegroup: <input type="text" name="sg" /></label>
 
-        <label for="a">a</label> <input type="text" name="a" />
-        <label for="b">b</label> <input type="text" name="b" />
-        <label for="c">c</label> <input type="text" name="c" />
-        <label for="alpha">&alpha;</label> <input type="text" name="alpha" />
-        <label for="beta">&beta;</label> <input type="text" name="beta" />
-        <label for="gamma">&gamma;</label> <input type="text" name="gamma" />
+        <label>a <input type="text" name="a" /></label>
+        <label>b <input type="text" name="b" /></label>
+        <label>c <input type="text" name="c" /></label>
+        <label>&alpha; <input type="text" name="alpha" /></label>
+        <label>&beta; <input type="text" name="beta" /></label>
+        <label>&gamma; <input type="text" name="gamma" /></label>
 
-        <label for="res">High Resolution</label> <input type="text" name="res" />
+        <label>High Resolution <input type="text" name="res" /></label>
 
         <button name="integrate">Integrate</button>
     </div>
