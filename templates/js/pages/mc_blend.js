@@ -6,6 +6,9 @@ $(function() {
   var ids = []
   var t = []
   
+  var check = false
+  var last_job_count = 0
+  
   $('#dialog').dialog({ autoOpen: false, buttons: { 'Ok': function() { $(this).dialog('close'); } } });
   
   $('.slider').slider({ stop: _scale_plot })
@@ -49,6 +52,8 @@ $(function() {
   // Initiate a blend run or analyse all data sets
   $('button[name=analyse],button[name=blend]').click(function() {
      var ty = $(this).attr('name') == 'analyse' ? 1 : 0
+                                                     
+     if (ty) check = true
                                                       
      if (!$('.integrated tr.selected').length && !ty) {
         alert('You need to select some data sets to blend')
@@ -134,12 +139,15 @@ $(function() {
                     if (last != r['STATE']) {
                        var row = $('tr[run='+r['ID']+']').children('td')
                        $(row[4]).html(val[r['STATE']])
-                       $(row[5]).html(r['SG'])
-                       $(row[6]).html(r['STATS']['RESL'][1]+' - '+r['STATS']['RESH'][1]+' ('+r['STATS']['RESL'][3]+' - '+r['STATS']['RESH'][3]+')')
-                       $(row[7]).html(r['STATS']['RMERGE'][1]+' ('+r['STATS']['RMERGE'][3]+')')
-                       $(row[8]).html(r['STATS']['C'][1]+' ('+r['STATS']['C'][3]+')')
-                       $(row[9]).html(r['STATS']['ISIGI'][1]+' ('+r['STATS']['ISIGI'][3]+')')
-                       $(row[10]).html(r['STATS']['M'][1]+' ('+r['STATS']['M'][3]+')')
+                       
+                       if (r['STATE'] == 1) {
+                         $(row[5]).html(r['SG'])
+                         $(row[6]).html(r['STATS']['RESL'][1]+' - '+r['STATS']['RESH'][1]+' ('+r['STATS']['RESL'][3]+' - '+r['STATS']['RESH'][3]+')')
+                         $(row[7]).html(r['STATS']['RMERGE'][1]+' ('+r['STATS']['RMERGE'][3]+')')
+                         $(row[8]).html(r['STATS']['C'][1]+' ('+r['STATS']['C'][3]+')')
+                         $(row[9]).html(r['STATS']['ISIGI'][1]+' ('+r['STATS']['ISIGI'][3]+')')
+                         $(row[10]).html(r['STATS']['M'][1]+' ('+r['STATS']['M'][3]+')')
+                       }
                     }
                        
                     $('tr[run='+r['ID']+']').attr('state', r['STATE'])
@@ -207,7 +215,7 @@ $(function() {
              }
       })
   
-      auto_load_thread = setTimeout(function() { load_blended() }, 15000)
+      auto_load_thread = setTimeout(function() { load_blended() }, 10000)
   }
   
   load_blended()
@@ -216,13 +224,19 @@ $(function() {
   // Check how many jobs are currently running
   function job_state() {
     $.ajax({
-        url: '/mc/ajax/status',
+        url: '/mc/ajax/status/local/1',
         type: 'GET',
         dataType: 'json',
         timeout: 15000,
         success: function(jobs){
           jobs > 0 ? $('.jobs').parent('li').addClass('running') : $('.jobs').parent('li').removeClass('running')
           $('.jobs').html(jobs)
+           
+          if (check && last_job_count > 0 && jobs == 0) {
+            _plot()
+            check = false
+          }
+          last_job_count = jobs;
         }
     })
   
@@ -301,7 +315,8 @@ $(function() {
               selection: { mode: 'xy' },
               grid: {
                 borderWidth: 0,
-                tickColor: 'rgba(255,255,255,255)',
+                tickColor: '#f4f4f4',
+                backgroundColor: '#f4f4f4',
               },
               yaxis: {
                 ticks: ticks,
