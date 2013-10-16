@@ -1,6 +1,6 @@
 
     <div id="dialog" title="Job Submitted">
-        <p>You job has been submitted to the cluster</p>
+        <p>Your job has been submitted to the cluster</p>
     </div>
 
     <div id="images" title="Image Viewer">
