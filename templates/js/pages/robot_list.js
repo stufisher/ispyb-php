@@ -59,6 +59,21 @@ $(function() {
     if (v && url) window.location = '/robot/visit/'+v
   })
   
+  
+  var opts = {
+     bars: {
+        show: true,
+     },
+     grid: {
+        borderWidth: 0,
+     },
+     yaxes: [{}, { position: 'right' }],
+  }
+  
+  $.plot('#dc_hist', dewar[0], opts)
+  $.plot('#dc_hist2', dewar[1], opts)
+  
+  
   if ($(window).width() <= 600) {
     $('.robot_actions').dataTable({
       'sPaginationType': 'full_numbers',

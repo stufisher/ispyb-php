@@ -134,9 +134,32 @@
 
             
             # Get breakdown of dewar usage for last 7 / 30 days
-            $seven = $this->db->pq("SELECT count(case when r.status='CRITICAL' then 1 end) as ccount, count(case when r.status!='SUCCESS' then 1 end) as ecount, count(case when r.status!='SUCCESS' then 1 end)/count(r.status)*100 as fpc, count(r.status), r.dewarlocation from robotaction r  inner join blsession s on r.blsessionid=s.sessionid WHERE  $where AND r.dewarlocation != 99 AND r.starttimestamp > SYSDATE-7 GROUP BY r.dewarlocation ORDER BY r.dewarlocation", $args);
+            $seven = $this->db->pq("SELECT count(case when r.status='CRITICAL' then 1 end) as ccount, count(case when r.status!='SUCCESS' then 1 end) as ecount, count(case when r.status!='SUCCESS' then 1 end)/count(r.status)*100 as epc, count(case when r.status='CRITICAL' then 1 end)/count(r.status)*100 as cpc, count(r.status) as total, r.dewarlocation from robotaction r  inner join blsession s on r.blsessionid=s.sessionid WHERE  $where AND r.actiontype LIKE 'LOAD' AND r.dewarlocation != 99 AND r.starttimestamp > SYSDATE-7 GROUP BY r.dewarlocation ORDER BY r.dewarlocation", $args);
 
-            $thirty = $this->db->pq("SELECT count(case when r.status='CRITICAL' then 1 end) as ccount, count(case when r.status!='SUCCESS' then 1 end) as ecount, count(case when r.status!='SUCCESS' then 1 end)/count(r.status)*100 as fpc, count(r.status), r.dewarlocation from robotaction r  inner join blsession s on r.blsessionid=s.sessionid WHERE  $where AND r.dewarlocation != 99 AND r.starttimestamp > SYSDATE-30 GROUP BY r.dewarlocation ORDER BY r.dewarlocation", $args);
+            
+            $profile = array(array(
+                    array('label' => 'Total',  'data' => array()),
+                    array('label' => '% Errors',  'data' => array(), 'yaxis' => 2),
+                    array('label' => '% Critical',  'data' => array(), 'yaxis' => 2)),
+                array(
+                    array('label' => 'Total',  'data' => array()),
+                    array('label' => '% Errors',  'data' => array(), 'yaxis' => 2),
+                    array('label' => '% Critical',  'data' => array(), 'yaxis' => 2),
+                ));
+                             
+            foreach ($seven as $e) {
+                array_push($profile[0][0]['data'], array($e['DEWARLOCATION'], $e['TOTAL']));
+                array_push($profile[0][2]['data'], array($e['DEWARLOCATION'], $e['CPC']));
+                array_push($profile[0][1]['data'], array($e['DEWARLOCATION'], $e['EPC']));
+            }
+            
+            $thirty = $this->db->pq("SELECT count(case when r.status='CRITICAL' then 1 end) as ccount, count(case when r.status!='SUCCESS' then 1 end) as ecount, count(case when r.status!='SUCCESS' then 1 end)/count(r.status)*100 as epc, count(case when r.status='CRITICAL' then 1 end)/count(r.status)*100 as cpc, count(r.status) as total, r.dewarlocation from robotaction r  inner join blsession s on r.blsessionid=s.sessionid WHERE $where AND r.actiontype LIKE 'LOAD' AND r.dewarlocation != 99 AND r.starttimestamp > SYSDATE-30 GROUP BY r.dewarlocation ORDER BY r.dewarlocation", $args);
+                           
+            foreach ($thirty as $e) {
+                array_push($profile[1][0]['data'], array($e['DEWARLOCATION'], $e['TOTAL']));
+                array_push($profile[1][2]['data'], array($e['DEWARLOCATION'], $e['CPC']));
+                array_push($profile[1][1]['data'], array($e['DEWARLOCATION'], $e['EPC']));
+            }
             
             # Get latest errors for run / beamline
             $errors = $this->db->pq("SELECT * FROM (SELECT ROWNUM,r.samplebarcode, r.actiontype, r.dewarlocation, r.containerlocation, r.message, TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis, s.beamlinename as bl, r.status, (CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as time FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = s.sessionid) WHERE r.status != 'SUCCESS' AND $where ORDER BY r.starttimestamp DESC) WHERE rownum <= 100", $args);
@@ -161,6 +184,7 @@
             $this->t->js_var('avg_time', $avts);
             $this->t->js_var('avg_ticks', $ticks);
             $this->t->js_var('url', 1);
+            $this->t->js_var('dewar', $profile);
             $this->t->visits = $visits;
             
             $this->render('robot_list');

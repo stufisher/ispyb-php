@@ -48,6 +48,20 @@
             </table>
         </div>
 
+        <h1>Dewar Profile</h1>
+
+        <div class="plot_container border left">
+            <div id="dc_hist"></div>
+            <p>7 Days</p>
+        </div>
+
+        <div class="plot_container border right">
+            <div id="dc_hist2"></div>
+            <p>30 Days</p>
+        </div>
+        <div class="clear"></div>
+
+
         <h1>Recent Errors</h1>
 
         <div class="table">
