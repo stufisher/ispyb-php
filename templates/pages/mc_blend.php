@@ -1,6 +1,21 @@
 
     <div id="dialog" title="Job Submitted">
-        <p>You job has been submitted</p>
+        <p>Your job has been submitted</p>
+    </div>
+
+    <div id="stats" title="Stats for Blend Run #">
+        <table class="robot_actions">
+            <thead>
+                <tr>
+                    <th>&nbsp;</th>
+                    <th>Overall</th>
+                    <th>Inner</th>
+                    <th>Outer</th>
+                </tr>
+            </thead>
+
+            <tbody></tbody>
+        </table>
     </div>
 
     <h1>Blended Data Sets for <?php echo $visit ?></h1>
