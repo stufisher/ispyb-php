@@ -50,6 +50,8 @@ $(function() {
   
   // Set canvas size to parent element
   function resize() {
+    $('.image_container .image').height($(window).height()*0.65)
+  
     $('#img')[0].width = $('.image_container .image').width()
     $('#img')[0].height = $('.image_container .image').height()
   
