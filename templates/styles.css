@@ -10,7 +10,6 @@ Stu Fisher <stuart.fisher@diamond.ac.uk>
     
 }
 
-
 body {
     background: #000000;
 	font-family: "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
@@ -1077,7 +1076,7 @@ div.status.oavs {
 
 .image_container .image {
     width: 100%;
-    height: 65%;
+    /*height: 65%;*/
     background: #cdcdcd;
     overflow: auto;
     background: url('/templates/images/load.gif') center no-repeat;
@@ -1444,6 +1443,8 @@ button.editor {
     overflow-x: auto;
 }
 
+button.logv,
+button.mtz,
 button.save,
 button.cancel,
 button.edit,
@@ -1452,6 +1453,8 @@ button.delete {
     height: 20px;
 }
 
+button.logv span,
+button.mtz span,
 button.save span,
 button.cancel span,
 button.edit span,
@@ -1478,6 +1481,13 @@ table input[type=text] {
 
 /* Multicrystal Integration
  ---------------------------------------------------------*/
+
+/*@media (min-width: 1200px) {
+    .dc {
+        width: 18%;
+    }
+}*/
+
 .dc {
     width: 23%;
     background: #eaeaea;
@@ -1485,10 +1495,6 @@ table input[type=text] {
     margin: 0.5%;
     display: inline-block;
     border-radius: 5px;
-}
-
-.dc h1:hover {
-    cursor: pointer;
 }
 
 .dc .distl {
@@ -1513,7 +1519,11 @@ table input[type=text] {
 .dc .state ul {
     list-style: none;
     /*position: absolute;*/
-    margin-left: -85px;
+    margin-left: -25px;
+}
+
+.dc .state img {
+    float: right;
 }
 
 .options.data_collection label,
@@ -1527,6 +1537,7 @@ table input[type=text] {
     
 }
 
+.dc .cells:hover,
 .blended_table tr td:hover,
 .integrated tr td:hover {
     cursor: pointer;
@@ -1542,6 +1553,7 @@ table input[type=text] {
     clear: none;
 }
 
+/*
 .files {
     width: 60%;
     float: right;
@@ -1560,7 +1572,7 @@ table input[type=text] {
 .files ul {
     padding: 1%;
     list-style: none;
-}
+}*/
 
 .filter ul li a {
     text-decoration: none;
@@ -1570,11 +1582,12 @@ table input[type=text] {
     background: #82d180;
 }
 
+/*
 .files ul li {
     display: inline-block;
     width: 48%;
     padding: 0.5%;
-}
+}*/
 
 span.run_state {
     float: right;
@@ -1582,6 +1595,7 @@ span.run_state {
 
 .autoproc {
     padding: 0 0 1% 0;
+    display: none;
 }
 
 .dc_count {
@@ -1590,7 +1604,7 @@ span.run_state {
 
 .blended_wrap,
 .table_wrap {
-    height: 28%;
+    /*height: 28%;*/
     overflow-y: auto;
 }
 
@@ -1609,7 +1623,7 @@ span.run_state {
 }
 
 .dc_wrap {
-    height: 55%;
+    /*height: 60%;*/
     overflow-y: auto;
     box-shadow: 2px 2px 15px #bfbfbf;
     border-radius: 6px;
@@ -1629,6 +1643,8 @@ span.run_state {
 .dendrogram {
     /*height: 1000px;*/
     width: 96%;
+    height: 100px;
+    background: url('/templates/images/load.gif') center no-repeat;
 }
 
 #images iframe {
@@ -1646,10 +1662,14 @@ span.run_state {
     padding: 0.5%;
 }
 
-.yaxis .tickLabel.selected {
+.yAxis .tickLabel.selected {
     font-weight: bold;
 }
 
+#stats table.robot_actions thead th,
+#stats table.robot_actions tbody td {
+    font-size: 12px !important;
+}
 
 
 /* Responsive Styling
