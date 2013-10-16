@@ -7,6 +7,8 @@ $(function() {
   var state = 0
   var cells = {}
   
+  $('.dc_wrap').height($(window).height()*0.6)
+  
   $('#dialog').dialog({ autoOpen: false, buttons: { 'Ok': function() { $(this).dialog('close'); } } });
 
   $('#images').dialog({ width: 850, height: 700, autoOpen: false, buttons: { 'Close': function() { $(this).dialog('close'); } } });
@@ -29,6 +31,14 @@ $(function() {
   $('button[name=all]').click(function() {
     $('.dc').each(function(i,d){
        if (!$(this).hasClass('selected')) $(this).addClass('selected')
+       plots[$(this).attr('dcid')].setSelection({xaxis: { from: 0, to: $(this).data('ni') } })
+    })
+  })
+
+  $('button[name=none]').click(function() {
+    $('.dc').each(function(i,d){
+       $(this).removeClass('selected')
+       plots[$(this).attr('dcid')].setSelection({})
     })
   })
   
@@ -37,7 +47,7 @@ $(function() {
     var val = parseInt($(this).val())
     for (var i in plots) {
       var cur = plots[i].getSelection()
-      var end = cur ? cur.xaxis.to : 10
+      var end = cur ? cur.xaxis.to : $('div[dcid='+i+']').data('ni')
       plots[i].setSelection({xaxis: { from: val, to: end } })
     }
   })
@@ -48,7 +58,8 @@ $(function() {
     for (var i in plots) {
       var cur = plots[i].getSelection()
       var start = cur ? cur.xaxis.from : 0
-      plots[i].setSelection({xaxis: { from: start, to: val } })
+      var max = $('div[dcid='+i+']').data('ni')
+      plots[i].setSelection({xaxis: { from: start, to: (val > max ? max : val) } })
     }
   })
   
@@ -107,7 +118,10 @@ $(function() {
   
   
   $('select[name=cells]').change(function() {
-    var id = $(this).val()
+    _load_cell($(this).val())
+  })
+                                 
+  function _load_cell(id) {
     if (id in cells) {
         e = cells[id]
         $('input[name=sg]').val(e['SG'])
@@ -118,7 +132,7 @@ $(function() {
         $('input[name=beta]').val(e['CELL_BE'])
         $('input[name=gamma]').val(e['CELL_GA'])
     }
-  })
+  }
   
   function load_cells() {
     $.ajax({
@@ -218,22 +232,22 @@ $(function() {
                           '<h2>'+r['DIR']+'</h2>'+
                           '<div class="distl"></div>'+
                           '<span>&Omega; Start: '+r['OST']+'&deg; &Omega; Osc: '+r['OOS']+'&deg; | <a class="images" href="/dc/view/id/'+r['DID']+'" target="_blank">Images</a></span>'+
-                          '</div>').hide().prependTo('.data_collections').fadeIn()
+                          '<div class="cells">AP Cells</div>'+
+                          '</div>').data('ni', parseInt(r['NI'])).hide().prependTo('.data_collections').fadeIn()
                            
                     }
                 })
              
                 load_imq()
              
-                /*$('.dc h1').unbind('click').click(function() {
-                    $(this).parent().hasClass('selected') ? $(this).parent().removeClass('selected') : $(this).parent().addClass('selected')
-                    if (!$(this).parent().hasClass('selected')) plots[$(this).parent('div').attr('dcid')].setSelection({})
-                })*/
-             
                 $('a.images').unbind('click').click(function() {
                     $('#images iframe[name=images]').attr('src', $(this).attr('href')+'/iframe/1')
                     $('#images').dialog('open')
                     return false
+                })
+             
+                $('.dc .cells').unbind('click').click(function() {
+                    _load_cell($(this).parent('div').attr('dcid'))
                 })
                 
                 
@@ -249,9 +263,27 @@ $(function() {
   }
   
   
+  // Plot image quality indicators for each dc
   function load_imq() {
     $('.dc').each(function(i,d) {
       if (!plots[$(d).attr('dcid')]) {
+        $.ajax({
+             url: '/mc/ajax/cells/visit/'+visit+'/id/' + $(d).attr('dcid'),
+             type: 'GET',
+             dataType: 'json',
+             timeout: 15000,
+             success: function(j){
+               if (j.length > 0) {
+                 var opts = ''
+                 e = j[0]
+                 opts += e['CELL_A']+','+e['CELL_B']+','+e['CELL_C']+','+e['CELL_AL']+','+e['CELL_BE']+','+e['CELL_GA']
+               
+                 $(d).children('div.cells').html('AP: '+opts)
+               } else $(d).children('div.cells').html('AP Cells: N/A')
+             }
+        })
+                  
+                  
         $.ajax({
              url: '/dc/ajax/imq/id/' + $(d).attr('dcid'),
              type: 'GET',
@@ -260,6 +292,7 @@ $(function() {
              success: function(j){
                  var options = {
                     xaxis: {
+                        min: 0,
                         minTickSize: 1,
                         tickDecimals: 0,
              
@@ -277,10 +310,10 @@ $(function() {
                     },
                  }
              
-                 plots[$(d).attr('dcid')] = $.plot($(d).children('div.distl'), [j[0], j[1]], options);
+                 if (j[0].length > ($(d).data('ni') - 5)) plots[$(d).attr('dcid')] = $.plot($(d).children('div.distl'), [j[0], j[1]], options);
                
-                 $(d).bind('plotselected', set_selected.bind(null,$(d).attr('dcid')))
-                 $(d).bind('plotunselected', set_deselected.bind(null,$(d).attr('dcid')))
+                 $(d).unbind('plotselected').bind('plotselected', set_selected.bind(null,$(d).attr('dcid')))
+                 $(d).unbind('plotunselected').bind('plotunselected', set_deselected.bind(null,$(d).attr('dcid')))
             }
         })
       }

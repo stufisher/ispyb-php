@@ -4,12 +4,17 @@ $(function() {
   var auto_load_thread = null
   var dend = null
   var ids = []
+  var blended = {}
   var t = []
   
   var check = false
   var last_job_count = 0
   
+  $('.blended_wrap, .table_wrap').height($(window).height()*.28)
+  
   $('#dialog').dialog({ autoOpen: false, buttons: { 'Ok': function() { $(this).dialog('close'); } } });
+
+  $('#stats').dialog({ width: 'auto', resize: 'auto',  autoOpen: false, buttons: { 'Close': function() { $(this).dialog('close') } }, position: { my: 'center', at: 'center', of: '.blended_wrap'} });
   
   $('.slider').slider({ stop: _scale_plot })
   
@@ -133,6 +138,8 @@ $(function() {
              success: function(json){
              
                 $.each(json, function(i,r) {
+                  blended[r['ID']] = r
+                       
                   if ($('tr[run='+r['ID']+']').length) {
                     var last = $('tr[run='+r['ID']+']').attr('state')
                     
@@ -174,7 +181,7 @@ $(function() {
                             '<td>-</td>'+
                             '<td>-</td>'+
                             '<td>-</td>'))+
-                         '<td><button class="delete"></button></td>'+
+                         '<td><button class="logv"></button> <button class="mtz"></button> &nbsp; <button class="delete"></button></td>'+
                          '</tr>').data('ids', r['IDS']).hide().prependTo($('.blended_table tbody')).fadeIn()
                   }
                        
@@ -196,6 +203,29 @@ $(function() {
                                                                    
                     count()
                 })
+             
+                $('button.logv').button({ icons: { primary: 'ui-icon-search' } }).unbind('click').click(function() {
+                    $('#stats table tbody').html('')
+                    var run = $(this).parent('td').parent('tr').attr('run')
+                    if (run in blended) {
+                        if (blended[run]['STATE'] == 1) {
+                          $.each(blended[run]['STATS'], function(i,s) {
+                            $('#stats table tbody').append('<tr>'+
+                              '<td>'+s[0]+'</td>'+
+                              '<td>'+s[1]+'</td>'+
+                              '<td>'+s[2]+'</td>'+
+                              '<td>'+s[3]+'</td>'+
+                            '</tr>')
+                          })
+                          $('#stats').dialog('option', 'position', 'center');
+                          $('#stats').dialog('option', 'title', 'Stats for Blend Run '+run)
+                          //$('#stats')position({my: "center center", at: "center center", of: $(window)});
+                          $('#stats').dialog('open')
+                        }
+                    }
+                })
+             
+                $('button.mtz').button({ icons: { primary: 'ui-icon-arrowthick-1-s' } })
              
                 $('button.delete').button({ icons: { primary: 'ui-icon-closethick' } }).unbind('click').click(function() {
                         var run = $(this).parent('td').parent('tr').attr('run')
@@ -249,13 +279,13 @@ $(function() {
   // Count how many data sets are selected and highlight them on dendrogram
   function count() {
     $('.count').html($('.integrated tr.selected').length)
-    $('.dendrogram .yaxis .tickLabel').removeClass('selected')
+    $('.dendrogram .yAxis .tickLabel').removeClass('selected')
   
     $('.integrated tr.selected').each(function() {
         var dcid = $(this).attr('dcid')
         var idx = String(ids.indexOf(dcid) + 1)
         var tdx = t.indexOf(idx)
-        $($('.dendrogram .yaxis .tickLabel')[tdx]).addClass('selected')
+        $($('.dendrogram .yAxis .tickLabel')[tdx]).addClass('selected')
     })
   }
   

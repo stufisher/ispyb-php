@@ -2,7 +2,7 @@
 
     class Ajax extends AjaxBase {
         
-        var $arg_list = array('visit' => '\w\w\d\d\d\d-\d+', 's' => '\w+', 'd' => '\w+', 'id' => '\d+', 'sg' => '\w+', 'a' => '\d+(.\d+)?', 'b' => '\d+(.\d+)?', 'c' => '\d+(.\d+)?', 'alpha' => '\d+(.\d+)?', 'beta' => '\d+(.\d+)?', 'gamma' => '\d+(.\d+)?', 'res' => '\d+(.\d+)?', 'rfrac' => '\d+(.\d+)?', 'isigi' => '\d+(.\d+)?', 'run' => '\d+', 'type' => '\d+');
+        var $arg_list = array('visit' => '\w\w\d\d\d\d-\d+', 's' => '\w+', 'd' => '\w+', 'id' => '\d+', 'sg' => '\w+', 'a' => '\d+(.\d+)?', 'b' => '\d+(.\d+)?', 'c' => '\d+(.\d+)?', 'alpha' => '\d+(.\d+)?', 'beta' => '\d+(.\d+)?', 'gamma' => '\d+(.\d+)?', 'res' => '\d+(.\d+)?', 'rfrac' => '\d+(.\d+)?', 'isigi' => '\d+(.\d+)?', 'run' => '\d+', 'type' => '\d+', 'local' => '\d+');
         var $dispatch = array('list' => '_data_collections',
                               'dirs' => '_get_dirs',
                               'cells' => '_get_cells',
@@ -53,10 +53,16 @@
             }
             
             $args = array($this->arg('visit'));
-        
+            $where = '';
+            
             if ($this->has_arg('d')) {
                 array_push($args, $this->arg('d'));
                 $where = " AND dc.imagedirectory LIKE '%".$this->arg('d')."/'";
+            }
+            
+            if ($this->has_arg('id')) {
+                array_push($args, $this->arg('id'));
+                $where .= " AND dc.datacollectionid=:".sizeof($args);
             }
             
             $rows = $this->db->pq("SELECT dc.imagedirectory as dir, dc.filetemplate as prefix, dc.datacollectionid as id, app.processingcommandline as type,  ap.spacegroup as sg, ap.refinedcell_a as cell_a, ap.refinedcell_b as cell_b, ap.refinedcell_c as cell_c, ap.refinedcell_alpha as cell_al, ap.refinedcell_beta as cell_be, ap.refinedcell_gamma as cell_ga FROM ispyb4a_db.autoprocintegration api INNER JOIN ispyb4a_db.autoprocscaling_has_int aph ON api.autoprocintegrationid = aph.autoprocintegrationid INNER JOIN ispyb4a_db.autoprocscaling aps ON aph.autoprocscalingid = aps.autoprocscalingid INNER JOIN ispyb4a_db.autoproc ap ON aps.autoprocid = ap.autoprocid INNER JOIN ispyb4a_db.autoprocprogram app ON api.autoprocprogramid = app.autoprocprogramid INNER JOIN ispyb4a_db.datacollection dc on api.datacollectionid = dc.datacollectionid INNER JOIN ispyb4a_db.blsession s ON s.sessionid = dc.sessionid INNER JOIN ispyb4a_db.v_run vr ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1 $where", $args);
@@ -95,9 +101,13 @@
         # ------------------------------------------------------------------------
         # Find out how many jobs are running
         function _get_status() {
-            $jobs = preg_split('/\s+/', exec('module load global/cluster;qstat -u vxn01537 | wc'))[1];
-            
-            if ($jobs > 0) $jobs -= 2;
+            if ($this->has_arg('local')) {
+                $jobs = exec('ps aux | grep blend.sh | wc -l') - 2;
+                
+            } else {
+                $jobs = exec('module load global/cluster;qstat -u vxn01537 | grep remote.sh | wc -l') - 0;
+            }
+
             $this->_output($jobs);
         }
         
@@ -125,11 +135,11 @@
                 $where .= " AND dc.imagedirectory LIKE '%".$this->arg('d')."/'";
             }
             
-            $rows = $this->db->pq("SELECT TO_CHAR(dc.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, dc.filetemplate as prefix, dc.imagedirectory as dir, dc.datacollectionid as did, dc.numberofimages as ni, dc.axisstart as ost, dc.axisrange as oos FROM ispyb4a_db.datacollection dc WHERE dc.sessionid=:1 $where ORDER BY dc.imagedirectory, dc.starttime", $args);
+            $rows = $this->db->pq("SELECT TO_CHAR(dc.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, dc.filetemplate as prefix, dc.imagedirectory as dir, dc.datacollectionid as did, dc.numberofimages as ni, dc.axisstart as ost, dc.axisrange as oos FROM ispyb4a_db.datacollection dc WHERE dc.sessionid=:1 AND dc.axisrange > 0 $where ORDER BY dc.imagedirectory, dc.starttime", $args);
             
             foreach ($rows as $i => &$r) {
                 $r['INT'] = 0;
-                $root = str_replace($this->arg('visit'), $this->arg('visit').'/processing/auto_mc', $r['DIR']).str_replace('####.cbf', '', $r['PREFIX']);
+                $root = str_replace($this->arg('visit'), $this->arg('visit').'/processing/auto_mc/'.phpCAS::getUser(), $r['DIR']).str_replace('####.cbf', '', $r['PREFIX']);
                 
                 if (file_exists($root)) $r['INT'] = 1;
                 if (file_exists($root.'/xia2-summary.dat')) {
@@ -182,7 +192,7 @@
                 $rows = $this->db->pq("SELECT dc.datacollectionid as id, dc.wavelength,dc.filetemplate as prefix, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || '-' || s.visit_number as visit FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON dc.sessionid = s.sessionid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE $where", $args);
                                       
                 foreach ($rows as $i => $r) {
-                    $root = str_replace($r['VISIT'], $r['VISIT'].'/processing/auto_mc',$r['DIR']) . str_replace('####.cbf', '', $r['PREFIX']);
+                    $root = str_replace($r['VISIT'], $r['VISIT'].'/processing/auto_mc/'.phpCAS::getUser(),$r['DIR']) . str_replace('####.cbf', '', $r['PREFIX']);
                     
                     $st = $ranges[$r['ID']][0] + 1;
                     $en = $ranges[$r['ID']][1];
@@ -244,7 +254,7 @@
                         $blend = substr($r['DIR'], 0, strpos($r['DIR'], $r['VISIT'])).$r['VISIT'].'/processing/auto_mc/blend';
                     }
                     
-                    $root = str_replace($r['VISIT'], $r['VISIT'].'/processing/auto_mc',$r['DIR']) . str_replace('####.cbf', '', $r['PREFIX']);
+                    $root = str_replace($r['VISIT'], $r['VISIT'].'/processing/auto_mc/'.phpCAS::getUser(),$r['DIR']) . str_replace('####.cbf', '', $r['PREFIX']);
                 
                     #$hkl = $root.'/DEFAULT/NATIVE/SWEEP1/integrate/INTEGRATE.HKL';
                     $hkl = $root.'/DEFAULT/scale/NATIVE_SWEEP1.HKL';
@@ -258,7 +268,7 @@
                 if ($this->arg('type') == 1) {
                     $blend .= '/analyse';
                     if (file_exists($blend)) $this->rrmdir($blend);
-                    
+                    $radfrac = 0.25;
                     
                 } else {
                     $last = 0;
@@ -269,13 +279,12 @@
                     }
                     $last++;
                     $blend .= '/run_'.$last;
+                    $radfrac = $this->has_arg('rfrac') ? $this->arg('rfrac') : 0.25;
                 }
                 
                 if (!file_exists($blend)) mkdir($blend, 0777, true);
                 chdir($blend);
-                #foreach (glob($blend.'/*') as $f) @unlink($f);
                 
-                $radfrac = $this->has_arg('rfrac') ? $this->arg('rfrac') : 0.25;
                 $isigi = $this->has_arg('isigi') ? $this->arg('isigi') : 1.5;
                 $res = $this->has_arg('res') ? ('RESOLUTION HIGH '.$this->arg('res')) : '';
                 
@@ -315,7 +324,7 @@
             $info = $info[0];
             
             $vis = '/dls/'.$info['BL'].'/data/'.$info['YR'].'/'.$this->arg('visit');
-            $root = $vis.'/processing/auto_mc/blend';
+            $root = $vis.'/processing/auto_mc/'.phpCAS::getUser().'/blend';
             
             $runs = array();
             if (file_exists($root)) {
@@ -344,12 +353,14 @@
                         $run['STATE'] = 1;
                         foreach (explode("\n", file_get_contents($aim)) as $l) {
                             if (strpos($l, 'Rmerge  (all I+ and I-)') !== false) $stats['RMERGE'] = array_slice(preg_split('/\s\s\s+/', $l), 0);
+                            if (strpos($l, 'Rpim (all I+ & I-)') !== false) $stats['RPIM'] = array_slice(preg_split('/\s\s\s+/', $l), 0);
                             if (strpos($l, 'Mean((I)/sd(I))') !== false) $stats['ISIGI'] = array_slice(preg_split('/\s\s\s+/', $l), 0);
                             if (strpos($l, 'Completeness   ') !== false) $stats['C'] = array_slice(preg_split('/\s\s\s+/', $l), 0);
                             if (strpos($l, 'Multiplicity   ') !== false) $stats['M'] = array_slice(preg_split('/\s\s\s+/', $l), 0);
                             if (strpos($l, 'Low resolution limit') !== false) $stats['RESL'] = array_slice(preg_split('/\s\s\s+/', $l), 0);
                             if (strpos($l, 'High resolution limit') !== false) $stats['RESH'] = array_slice(preg_split('/\s\s\s+/', $l), 0);
                             if (strpos($l, 'Space group: ') !== false) $run['SG'] = implode(' ',array_slice(preg_split('/\s/', $l), 2));
+                            
                         }
                         
                         $run['STATS'] = $stats;
@@ -384,7 +395,7 @@
             $info = $info[0];
             
             $vis = '/dls/'.$info['BL'].'/data/'.$info['YR'].'/'.$this->arg('visit');
-            $root = $vis.'/processing/auto_mc/blend/run_'.$this->arg('run');
+            $root = $vis.'/processing/auto_mc/'.phpCAS::getUser().'/blend/run_'.$this->arg('run');
             $this->rrmdir($root);
                                   
             $this->_output(1);    
@@ -412,7 +423,7 @@
             $info = $info[0];
             
             $vis = '/dls/'.$info['BL'].'/data/'.$info['YR'].'/'.$this->arg('visit');
-            $root = $vis.'/processing/auto_mc/blend/analyse';
+            $root = $vis.'/processing/auto_mc/'.phpCAS::getUser().'/blend/analyse';
             $cf = $root.'/CLUSTERS.txt';
             
             $data = array();
@@ -453,6 +464,17 @@
         }
     
     
+        # ------------------------------------------------------------------------
+        # Get blend aimloss log output
+        function _blend_log() {
+            
+        }
+        
+        # ------------------------------------------------------------------------
+        # Get blend mtz
+        function _get_mtz() {
+            
+        }
     
         
         
