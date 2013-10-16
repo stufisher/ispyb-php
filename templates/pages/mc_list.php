@@ -25,7 +25,7 @@
     </div>
 
     <div class="options data_collection">
-        <label>Select: <button name="all">All</button></label>
+        <label>Select: <button name="all">All</button></label> <button name="none">None</button>
         <label>Min # Spots <input type="text" name="minspots" /></label>
 
         <label>Start Image # <input type="text" name="start" value="0" /></label>
