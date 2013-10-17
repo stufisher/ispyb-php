@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+
 <html>
 
 <head>
@@ -46,7 +48,6 @@
     </ul>
 
     <h1><a href="/">MX</a></h1>
-    <!--<h2>Hi <?php echo phpCAS::getUser(); ?></h2>-->
 
     <ul id="navigation">
         <?php foreach ($nav['p'] as $i => $p): ?>
