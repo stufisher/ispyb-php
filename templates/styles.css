@@ -662,6 +662,11 @@ div.form .ferror {
     background: #efefef;
 }
 
+
+.data_collection h1.center {
+    text-align: center;
+}
+
 .data_collection > h1 {
     font-size: 14px;
     padding: 5px 5px 0px 3px;
