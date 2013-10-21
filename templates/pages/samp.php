@@ -22,7 +22,7 @@
                         <th>Sample Name</th>
                         <th>Comment</th>
                         <th></th>
-                    </th>
+                    </thead>
                     <tbody></tbody>
                 </table>
             </div>
@@ -37,7 +37,7 @@
                         <th>Protein Acronym</th>
                         <th>Sample Name</th>
                         <th>Comment</th>
-                    </th>
+                    </thead>
                     <tbody></tbody>
                 </table>
             </div>
