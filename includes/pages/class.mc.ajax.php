@@ -105,7 +105,7 @@
                 $jobs = exec('ps aux | grep blend.sh | wc -l') - 2;
                 
             } else {
-                $jobs = exec('module load global/cluster;qstat -u vxn01537 | grep remote.sh | wc -l') - 0;
+                $jobs = exec('module load global/cluster;qstat -u vxn01537 | grep x2 | wc -l') - 0;
             }
 
             $this->_output($jobs);
@@ -177,15 +177,17 @@
             $args = array();
             $where = array();
             
+            $running = array_map(function($i) { return intval(preg_replace('/.*x2(\d+).*/', '$1', $i)); }, explode("\n", exec('module load global/cluster;qstat -u vxn01537 | grep x2')));
+            
             $ranges = array();
             foreach ($_POST['int'] as $d) {
-                if (is_numeric($d[0]) && is_numeric($d[1]) && is_numeric($d[2])) {
+                if (is_numeric($d[0]) && is_numeric($d[1]) && is_numeric($d[2]) && !in_array($d[0], $running)) {
                     array_push($args, $d[0]);
                     array_push($where, 'dc.datacollectionid=:'.sizeof($args));
                     $ranges[$d[0]] = array($d[1], $d[2]);
                 }
             }
-            
+                                 
             if (sizeof($where)) {
                 $where = implode(' OR ', $where);
                 
@@ -211,9 +213,9 @@
                     $sg = $this->arg('sg') ? "-spacegroup ".$this->arg('sg') : '';
                     
                     $remote = "module load xia2\nxia2 -failover -3daii $sg $cell $res -xinfo xia.xinfo";
-                    file_put_contents($root.'/remote.sh', $remote);
+                    file_put_contents($root.'/x2'.$r['ID'].'.sh', $remote);
                     
-                    $ret = exec("module load global/cluster;qsub remote.sh");
+                    $ret = exec('module load global/cluster;qsub x2'.$r['ID'].'.sh');
                     
                     
                 }
