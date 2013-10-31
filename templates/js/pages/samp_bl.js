@@ -1,29 +1,33 @@
 var shipments = [];
 var dewars = [];
 var containers = [];
-
-
-$(document).on('pageinit', '#visits', function() {
-    setTimeout(function() { $.mobile.changePage(window.location.href, { reloadPage: true }) }, 300000)
-               
-    $('a.visit').on('click', function() {
-      visit = $(this).attr('vis')
-    })
-})
-
+var ref = null
 
 $(document).on('pageinit', '#allocation', function() {
-  setTimeout(function() { $.mobile.changePage('/samples/bl') }, 600000)
+  //setTimeout(function() { $.mobile.changePage('/samples/bl') }, 600000)
+  setTimeout(function() { window.location.href='/samples/bl' }, 600000) //600000)
+            
+  function _refresh() {
+    console.log('refresing shipments')
+    _get_shipments()
+    ref = setTimeout(_refresh, 10000)
+  }
+               
+  clearTimeout(ref)
+  _refresh()
+               
   jsKeyboard.init('virtualKeyboard');
   var c = null
        
   $('.pos h3 a').click(function (event) {
         return false;
   });
-               
+   
+  /*
   $(document).on('pagebeforeshow', '#allocation', function() {
-    _get_shipments()
-  })
+    clearTimeout(ref)
+    _refresh()
+  })*/
                
 
   function _load_dewars(fn) {
@@ -166,6 +170,13 @@ $(document).on('pageinit', '#allocation', function() {
                
               $('div[sid='+s['SHIPPINGID']+'] .shipment').collapsibleset()
                
+              // Allow multiple shipments to be open
+              $('div[sid='+s['SHIPPINGID']+']').bind('expand', function (e) {
+                e.stopPropagation()
+              }).bind('collapse', function (e) {
+                e.stopPropagation()
+              });
+               
               shipments.push(s['SHIPPINGID'])
             }
         })
@@ -195,6 +206,11 @@ $(document).on('pageinit', '#allocation', function() {
                 '<ul data-role="listview" data-inset="true" class="responsive dewar"></ul>'+
                 '<div class="clear"></div>'+
                 '</div>').prependTo('div[sid='+d['SHIPPINGID']+'] div.shipment')
+               
+               if (d['DEWARSTATUS'] == 'processing') {
+                 $('div[did="'+d['DEWARID']+'"]').attr('data-collapsed', 'false').attr('data-theme', 'a').children('.dewar').attr('data-theme', 'b')
+                 $('div[sid='+d['SHIPPINGID']+']').trigger('expand')
+               }
                
                $('div[did='+d['DEWARID']+'] .dewar').listview()
                
