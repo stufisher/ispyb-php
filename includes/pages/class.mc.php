@@ -2,7 +2,7 @@
 
     class MC extends Page {
         
-        var $arg_list = array('visit' => '\w\w\d\d\d\d-\d+', );
+        var $arg_list = array('visit' => '\w\w\d\d\d\d-\d+', 'user' => '\d+');
         var $dispatch = array('mc' => '_data_collections',
                               'blend' => '_blend');
         var $def = 'mc';
@@ -41,10 +41,16 @@
                 $this->msg('No such visit', 'That visit doesnt appear to exist');
             } else $info = $info[0];            
             
+            $root = '/dls/'.$info['BL'].'/data/'.$info['YR'].'/'.$this->arg('visit').'/processing/auto_mc';
+            $users = $this->dirs($root);
+            
             $this->template('Multi-Crystal Integration - Blend', array($this->arg('visit'), 'Blend'), array('/visit/'.$this->arg('visit'), ''));
             
             $this->t->visit = $this->arg('visit');
             $this->t->js_var('visit', $this->arg('visit'));
+            $this->t->js_var('user', $this->has_arg('user') ? $this->arg('user') : '');
+            
+            $this->t->users = $users;
             
             $this->t->render('mc_blend');
         }
