@@ -84,6 +84,11 @@ $(function() {
         alert('You need to select some data sets to integrate')
         return
      } else {
+        if ($('span.jobs').html() >= 50) {
+            alert('You already have 50 jobs running, please wait before running any more')
+            return
+        }
+                                    
         var integrate = []
         $('.dc.selected').each(function(i,e) {
             var sel = plots[$(e).attr('dcid')].getSelection()

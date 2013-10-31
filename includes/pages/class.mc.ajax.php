@@ -2,7 +2,7 @@
 
     class Ajax extends AjaxBase {
         
-        var $arg_list = array('visit' => '\w\w\d\d\d\d-\d+', 's' => '\w+', 'd' => '\w+', 'id' => '\d+', 'sg' => '\w+', 'a' => '\d+(.\d+)?', 'b' => '\d+(.\d+)?', 'c' => '\d+(.\d+)?', 'alpha' => '\d+(.\d+)?', 'beta' => '\d+(.\d+)?', 'gamma' => '\d+(.\d+)?', 'res' => '\d+(.\d+)?', 'rfrac' => '\d+(.\d+)?', 'isigi' => '\d+(.\d+)?', 'run' => '\d+', 'type' => '\d+', 'local' => '\d+');
+        var $arg_list = array('visit' => '\w\w\d\d\d\d-\d+', 's' => '\w+', 'd' => '\w+', 'id' => '\d+', 'sg' => '\w+', 'a' => '\d+(.\d+)?', 'b' => '\d+(.\d+)?', 'c' => '\d+(.\d+)?', 'alpha' => '\d+(.\d+)?', 'beta' => '\d+(.\d+)?', 'gamma' => '\d+(.\d+)?', 'res' => '\d+(.\d+)?', 'rfrac' => '\d+(.\d+)?', 'isigi' => '\d+(.\d+)?', 'run' => '\d+', 'type' => '\d+', 'local' => '\d+', 'user' => '\d+');
         var $dispatch = array('list' => '_data_collections',
                               'dirs' => '_get_dirs',
                               'cells' => '_get_cells',
@@ -117,10 +117,16 @@
         function _data_collections() {
             session_write_close();
             
-            $info = $this->db->pq("SELECT s.sessionid, s.beamlinename as bl, vr.run, vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')));
+            $info = $this->db->pq("SELECT s.sessionid, s.beamlinename as bl, TO_CHAR(s.startdate, 'YYYY') as yr, vr.run, vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')));
 
             if (!sizeof($info)) $this->_error('No such visit');
             $info = $info[0];
+            
+            $vis = '/dls/'.$info['BL'].'/data/'.$info['YR'].'/'.$this->arg('visit');
+            if ($this->has_arg('user')) {
+                $us = $this->dirs($vis.'/processing/auto_mc');
+                $u = $us[$this->arg('user')];
+            } else $u = phpCAS::getUser();
             
             $where = '';
             $args = array($info['SESSIONID']);
@@ -139,7 +145,7 @@
             
             foreach ($rows as $i => &$r) {
                 $r['INT'] = 0;
-                $root = str_replace($this->arg('visit'), $this->arg('visit').'/processing/auto_mc/'.phpCAS::getUser(), $r['DIR']).str_replace('####.cbf', '', $r['PREFIX']);
+                $root = str_replace($this->arg('visit'), $this->arg('visit').'/processing/auto_mc/'.$u, $r['DIR']).str_replace('####.cbf', '', $r['PREFIX']);
                 
                 if (file_exists($root)) $r['INT'] = 1;
                 if (file_exists($root.'/xia2-summary.dat')) {
@@ -244,6 +250,11 @@
             }
             
             if (sizeof($where)) {
+                if ($this->has_arg('user')) {
+                    $us = $this->dirs($vis.'/processing/auto_mc');
+                    $u = $us[$this->arg('user')];
+                } else $u = phpCAS::getUser();
+                
                 $where = implode(' OR ', $where);
                 
                 $rows = $this->db->pq("SELECT dc.datacollectionid as id, dc.wavelength,dc.filetemplate as prefix, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || '-' || s.visit_number as visit FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON dc.sessionid = s.sessionid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE $where", $args);
@@ -253,7 +264,7 @@
                 $blend = '';
                 foreach ($rows as $i => $r) {
                     if (!$blend) {
-                        $blend = substr($r['DIR'], 0, strpos($r['DIR'], $r['VISIT'])).$r['VISIT'].'/processing/auto_mc/blend';
+                        $blend = substr($r['DIR'], 0, strpos($r['DIR'], $r['VISIT'])).$r['VISIT'].'/processing/auto_mc/'.$u.'/blend';
                     }
                     
                     $root = str_replace($r['VISIT'], $r['VISIT'].'/processing/auto_mc/'.phpCAS::getUser(),$r['DIR']) . str_replace('####.cbf', '', $r['PREFIX']);
@@ -326,7 +337,13 @@
             $info = $info[0];
             
             $vis = '/dls/'.$info['BL'].'/data/'.$info['YR'].'/'.$this->arg('visit');
-            $root = $vis.'/processing/auto_mc/'.phpCAS::getUser().'/blend';
+            
+            if ($this->has_arg('user')) {
+                $us = $this->dirs($vis.'/processing/auto_mc');
+                $u = $us[$this->arg('user')];
+            } else $u = phpCAS::getUser();
+            
+            $root = $vis.'/processing/auto_mc/'.$u.'/blend';
             
             $runs = array();
             if (file_exists($root)) {
@@ -425,7 +442,13 @@
             $info = $info[0];
             
             $vis = '/dls/'.$info['BL'].'/data/'.$info['YR'].'/'.$this->arg('visit');
-            $root = $vis.'/processing/auto_mc/'.phpCAS::getUser().'/blend/analyse';
+            
+            if ($this->has_arg('user')) {
+                $us = $this->dirs($vis.'/processing/auto_mc');
+                $u = $us[$this->arg('user')];
+            } else $u = phpCAS::getUser();
+            
+            $root = $vis.'/processing/auto_mc/'.$u.'/blend/analyse';
             $cf = $root.'/CLUSTERS.txt';
             
             $data = array();

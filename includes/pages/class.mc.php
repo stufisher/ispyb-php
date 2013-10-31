@@ -46,9 +46,17 @@
             
             $this->template('Multi-Crystal Integration - Blend', array($this->arg('visit'), 'Blend'), array('/visit/'.$this->arg('visit'), ''));
             
+            
+            if ($this->has_arg('user')) {
+                $us = $this->dirs($root);
+                $u = $us[$this->arg('user')];
+            } else $u = phpCAS::getUser();
+            
             $this->t->visit = $this->arg('visit');
             $this->t->js_var('visit', $this->arg('visit'));
             $this->t->js_var('user', $this->has_arg('user') ? $this->arg('user') : '');
+            $this->t->js_var('owner', $u == phpCAS::getUser());
+            $this->t->js_var('cas', phpCAS::getUser());
             
             $this->t->users = $users;
             

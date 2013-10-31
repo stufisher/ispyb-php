@@ -20,6 +20,16 @@
 
     <h1>Blended Data Sets for <?php echo $visit ?></h1>
 
+    <div class="search">
+        <label>Results from:
+            <select name="user">
+                <?php foreach ($users as $i => $u): ?>
+                <option value="<?php echo $i ?>"<?php echo $u == phpCAS::getUser() ? ' selected="selected"' : '' ?>><?php echo $u ?></option>
+                <?php endforeach; ?>
+            </select>
+        </label>
+    </div>
+
     <div class="filter">
         <ul>
             <li><a href="/mc/visit/<?php echo $visit ?>">Integrate</a></li>

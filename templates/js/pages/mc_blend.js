@@ -1,5 +1,7 @@
 $(function() {
   
+  var user = null;
+  
   var auto_load = 1;
   var auto_load_thread = null
   var dend = null
@@ -54,6 +56,21 @@ $(function() {
   }
   
   
+  // Show a different users output
+  $('select[name=user]').change(function() {
+    owner = $('select[name=user] option[value='+$('select[name=user]').val()+']').html() == cas
+    
+    owner ? $('.options.data_collection').slideDown() : $('.options.data_collection').slideUp()
+    owner ? $('button[name=analyse]').show() : $('button[name=analyse]').hide()
+                                
+    user = $(this).val()
+    load_datacollection()
+    clearTimeout(auto_load_thread)
+    $('.blended_table tbody').empty()
+    load_blended()
+  })
+  
+  
   // Initiate a blend run or analyse all data sets
   $('button[name=analyse],button[name=blend]').click(function() {
      var ty = $(this).attr('name') == 'analyse' ? 1 : 0
@@ -86,7 +103,7 @@ $(function() {
   // Load list of integrated data sets
   function load_datacollection() {
       $.ajax({
-             url: '/mc/ajax/visit/' + visit,
+             url: '/mc/ajax/visit/' + visit + (user != null ? ('/user/'+user) : ''),
              type: 'GET',
              dataType: 'json',
              timeout: 5000,
@@ -131,7 +148,7 @@ $(function() {
          '<img src="/templates/images/cancel.png" alt="Failed"/>']
   
       $.ajax({
-             url: '/mc/ajax/blended/visit/' + visit,
+             url: '/mc/ajax/blended/visit/' + visit + (user != null ? ('/user/'+user) : ''),
              type: 'GET',
              dataType: 'json',
              timeout: 5000,
@@ -181,7 +198,7 @@ $(function() {
                             '<td>-</td>'+
                             '<td>-</td>'+
                             '<td>-</td>'))+
-                         '<td><button class="logv"></button> <button class="mtz"></button> &nbsp; <button class="delete"></button></td>'+
+                         '<td><button class="logv"></button> <button class="mtz"></button> &nbsp; '+(owner ? '<button class="delete"></button>':'')+'</td>'+
                          '</tr>').data('ids', r['IDS']).hide().prependTo($('.blended_table tbody')).fadeIn()
                   }
                        
@@ -293,7 +310,7 @@ $(function() {
   // Plot dendrogram from CLUSTERS.txt
   function _plot() {
     $.ajax({
-        url: '/mc/ajax/dend/visit/' + visit,
+        url: '/mc/ajax/dend/visit/' + visit + (user != null ? ('/user/'+user) : ''),
         type: 'GET',
         dataType: 'json',
         timeout: 5000,
