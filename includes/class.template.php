@@ -6,6 +6,7 @@
         
         
         function __construct($title, $nav, $hf=1) {
+            $this->mobile = false;
             $this->hf = $hf;
             
             $this->template_url = '/templates/';
@@ -50,6 +51,23 @@
             array_push($this->js_vars, $name.' = '.json_encode($val).';');
         }
         
+        public function mobile() {
+            $this->hf = false;
+            $this->mobile = true;
+
+            $this->header .= '<script type="text/javascript" src="'. $this->template_url.'js/jquery-1.9.1.min.js"></script>' . "\n";
+            $this->header .= '    <script type="text/javascript" src="'. $this->template_url.'mobile/jquery.mobile-1.3.2.min.js"></script>' . "\n";
+            $this->header .= '    <link href="'. $this->template_url.'mobile/jquery.mobile-1.3.2.min.css" type="text/css" rel="stylesheet" />' . "\n";
+            $this->header .= '    <link href="'. $this->template_url.'mobile/mobile.css" type="text/css" rel="stylesheet" >' . "\n";
+            
+            $this->header .= '<script type="text/javascript" src="'. $this->template_url.'mobile/jsKeyboard.js"></script>' . "\n";
+            $this->header .= '<link href="'. $this->template_url.'mobile/jsKeyboard.css" type="text/css" rel="stylesheet" />' . "\n";
+        }
+        
+        public function head($str) {
+            $this->header .= $str;
+        }
+        
         
         public function render($template, $js=null) {
             $this->_js($js ? $js : $template);
@@ -62,7 +80,7 @@
             
             include($this->template_path.'header.php');
             include($this->template_path .'/pages/' . $template . '.php');
-            if ($this->hf) include($this->template_path.'footer.php');
+            include($this->template_path.'footer.php');
         }
     }
 
