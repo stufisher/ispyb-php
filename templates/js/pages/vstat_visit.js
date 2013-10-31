@@ -39,7 +39,8 @@ $(function() {
       },
   
       xaxis: {
-            mode: "time",
+            mode: 'time',
+            timezone: 'browser',
             //timeformat: "%H:%M",
             min: start,
             max: end,
