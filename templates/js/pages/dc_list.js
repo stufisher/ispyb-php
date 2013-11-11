@@ -413,7 +413,7 @@ $(function() {
              url: '/dc/ajax/imq/id/' + id,
              type: 'GET',
              dataType: 'json',
-             timeout: 5000,
+             timeout: 15000,
              success: function(j){
                 var data = [{
                             data: j[0],
