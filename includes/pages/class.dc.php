@@ -94,8 +94,14 @@
                 array_push($vbd[$k][$k2], $v);
             }
             
-            $this->t->next_mon = $this->t->months[($c_month + 1) % 12];
-            $this->t->prev_mon = $this->t->months[($c_month - 1) % 12];
+            $last = ($c_month-2 % 12);
+            if ($last < 0) $last += 12;
+            
+            $next = ($c_month % 12);
+            if ($next < 0) $next+= 12;
+            
+            $this->t->next_mon = $this->t->months[$next+1];
+            $this->t->prev_mon = $this->t->months[$last+1];
             
             $this->t->vbd = $vbd;
             $this->t->c_day = $c_day;
