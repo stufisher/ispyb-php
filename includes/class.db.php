@@ -13,7 +13,7 @@
             $this->conn = @oci_connect($user, $pass, $db);
             if (!$this->conn) {
                 $e = oci_error();
-                $this->error('There was an connecting to Oracle', htmlentities($e['message']));
+                $this->error('There was an error connecting to Oracle', htmlentities($e['message']));
                 //trigger_error(, ENT_QUOTES), E_USER_ERROR);
             }
         
@@ -75,6 +75,7 @@
             if ($this->debug) {
                 print '<h1 class="debug">Debug: Oracle</h1>';
                 print SqlFormatter::format($query);
+                print_r($args);
             }
 
             $stid = oci_parse($this->conn, $query);
