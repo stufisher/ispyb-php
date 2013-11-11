@@ -38,6 +38,7 @@
                     <th>Robot</th>
                     <th>Thinking</th>
                     <th>Remain</th>
+                    <th>Remain (Total)</th>
 
                 </tr>
                 </thead>
@@ -47,7 +48,7 @@
                     <td>
                         <a href="/vstat/bag/<?php echo $b ?>"><?php echo $b ?></a>
                     </td>
-                    <td><span class="sort"><?php echo strtotime($d['LAST']) ?></span><?php echo $d['LAST'] ?></td>
+                    <td><span class="sort"><?php echo strtotime($d['LAST']) ?></span><?php echo $d['LAST'] ?> - <?php echo '' ?></td>
                     <td><?php echo $d['NUM_VIS'] ?></td>
                     <td><?php echo $d['AVGLEN'] ?></td>
                     <td><?php echo $d['AVGSUP'] ?></td>
@@ -56,6 +57,7 @@
                     <td><?php echo $d['R'] ?></td>
                     <td><?php echo $d['T'] ?></td>
                     <td><?php echo $d['AVGREM'] ?></td>
+                    <td><?php echo $d['TOTREM'] ?></td>
                 </tr>
 
                 <?php endforeach ?>
