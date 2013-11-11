@@ -30,7 +30,7 @@
             $where = "(s.enddate - s.startdate) > 0 AND p.proposalcode NOT LIKE 'cm' AND  p.proposalcode NOT LIKE 'nt' AND p.proposalnumber > 0 AND s.startdate > to_date('2012-10-01','YYYY-MM-DD')";
             #$where = "(s.enddate - s.startdate) > 0 AND p.proposalnumber > 0 AND s.startdate > to_date('2012-10-01','YYYY-MM-DD') AND s.enddate < SYSDATE";
             
-            $dc = $this->db->q("SELECT AVG(sup) as avgsup, TO_CHAR(MAX(last), 'DD-MM-YYYY HH24:MI:SS') as last, AVG(len) as avglen, AVG(dctime) as avgdc, count(visit) as num_vis, bag, AVG(rem) as avgrem FROM (SELECT MAX(s.enddate) as last, SUM(dc.endtime - dc.starttime)*24 as dctime, GREATEST((max(s.enddate)-max(dc.endtime))*24,0) as rem, GREATEST((min(dc.starttime)-min(s.startdate))*24,0) as sup, p.proposalcode || p.proposalnumber || '-' || s.visit_number as visit, max(p.proposalcode || p.proposalnumber) as bag, min(s.startdate) as st, max(s.enddate) en, (max(s.enddate) - min(s.startdate))*24 as len FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.datacollection dc ON (dc.sessionid = s.sessionid) WHERE $where GROUP BY p.proposalcode || p.proposalnumber || '-' || s.visit_number, p.proposalnumber ORDER BY max(s.enddate) DESC) GROUP BY bag ORDER BY bag");
+            $dc = $this->db->q("SELECT AVG(sup) as avgsup, TO_CHAR(MAX(last), 'DD-MM-YYYY HH24:MI:SS') as last, AVG(len) as avglen, AVG(dctime) as avgdc, count(visit) as num_vis, bag, AVG(rem) as avgrem, SUM(rem) as totrem FROM (SELECT MAX(s.enddate) as last, SUM(dc.endtime - dc.starttime)*24 as dctime, GREATEST((max(s.enddate)-max(dc.endtime))*24,0) as rem, GREATEST((min(dc.starttime)-min(s.startdate))*24,0) as sup, p.proposalcode || p.proposalnumber || '-' || s.visit_number as visit, max(p.proposalcode || p.proposalnumber) as bag, min(s.startdate) as st, max(s.enddate) en, (max(s.enddate) - min(s.startdate))*24 as len FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.datacollection dc ON (dc.sessionid = s.sessionid) WHERE $where GROUP BY p.proposalcode || p.proposalnumber || '-' || s.visit_number, p.proposalnumber ORDER BY max(s.enddate) DESC) GROUP BY bag ORDER BY bag");
             
             $robot = $this->db->q("SELECT AVG(dctime) as avgdc, bag FROM (SELECT SUM(CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*24 as dctime, max(p.proposalcode || p.proposalnumber) as bag FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = s.sessionid) WHERE $where GROUP BY p.proposalcode || p.proposalnumber || '-' || s.visit_number, p.proposalnumber) GROUP BY bag");
 
@@ -40,7 +40,6 @@
             foreach ($dc as $d) {
                 if (array_key_exists('AVGDC', $d)) {                
                     if (!array_key_exists($d['BAG'], $data)) $data[$d['BAG']] = array();
-                    #if ($d['AVGREM'] < 0) $d['AVGREM'] = 0;
                     $data[$d['BAG']] = $d;
                 }
             }
@@ -53,26 +52,23 @@
             $bids = array();
             
             $i = 0;
-            foreach ($data as $b => &$d) {
-                if (!array_key_exists('R', $d)) $d['R'] = 0;
-                if (!array_key_exists('ED', $d)) $d['ED'] = 0;
-                
-                #foreach (array('AVGSUP', 'AVGREM') as $k) if ($d[$k] < 0) $d[$k] = 0;
-                
-                $d['T'] = max($d['AVGLEN'] - $d['AVGDC'] - $d['R'] - $d['AVGREM'] - $d['AVGSUP'] - $d['ED'],0);
-                #if ($d['T'] < 0) $d['T'] = 0;
+            foreach ($data as $b => &$r) {
+                if (!array_key_exists('R', $r)) $r['R'] = 0;
+                if (!array_key_exists('ED', $r)) $r['ED'] = 0;
+
+                $r['T'] = max($r['AVGLEN'] - $r['AVGDC'] - $r['R'] - $r['AVGREM'] - $r['AVGSUP'] - $r['ED'],0);
                 
                 array_push($plot_ticks, array($i, $b));
                 array_push($bids, $b);
                 
-                array_push($plot[0], array($i, $d['AVGSUP']));
-                array_push($plot[1], array($i, $d['AVGDC']));
-                array_push($plot[2], array($i, $d['ED']));
-                array_push($plot[3], array($i, $d['R']));
-                array_push($plot[4], array($i, $d['AVGREM']));
-                array_push($plot[5], array($i, $d['T']));
+                array_push($plot[0], array($i, $r['AVGSUP']));
+                array_push($plot[1], array($i, $r['AVGDC']));
+                array_push($plot[2], array($i, $r['ED']));
+                array_push($plot[3], array($i, $r['R']));
+                array_push($plot[4], array($i, $r['AVGREM']));
+                array_push($plot[5], array($i, $r['T']));
                 
-                foreach(array('AVGLEN', 'AVGREM', 'AVGDC', 'AVGSUP', 'R', 'ED', 'T') as $f) $d[$f] = number_format($d[$f], 1);
+                foreach(array('AVGLEN', 'AVGREM', 'AVGDC', 'AVGSUP', 'R', 'ED', 'T', 'TOTREM') as $f) $r[$f] = number_format($r[$f], 1);
                 
                 $i++;
             }
