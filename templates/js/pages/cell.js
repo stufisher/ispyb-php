@@ -86,7 +86,7 @@ $(function() {
                   })
                    
                   $('<div class="cells data_collection" dcid="'+r['ID']+'">'+
-                        '<h1>'+r['VISIT']+': '+r['BL']+' - '+r['ST']+' (Distance: '+parseFloat(r['DIST']).toFixed(2)+', '+r['TYPE']+')</h1>'+
+                        '<h1><a href="/dc/visit/'+r['VISIT']+'/id/'+r['ID']+'">'+r['VISIT']+': '+r['BL']+' - '+r['ST']+'</a> (Distance: '+parseFloat(r['DIST']).toFixed(2)+', '+r['TYPE']+')</h1>'+
                         '<h2>'+r['DIR']+r['FILETEMPLATE']+'</h2>'+
                     
                         '<div class="users">'+
