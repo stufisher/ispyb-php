@@ -47,6 +47,8 @@
             $this->_parse_args($args);
             $this->_auth();
             
+            session_write_close();
+            
             $fn = $this->dispatch[$page];
             $this->$fn();
         }
@@ -59,22 +61,45 @@
         }
         
         
-        function _auth() {            
-            $u = phpCAS::getUser();
+        function _auth() {
+            $u = class_exists('phpCAS') ? phpCAS::getUser() : '';
+            
             $groups = explode(' ', exec('groups ' . $u));
             $this->staff = in_array('mx_staff', $groups) ? True : False;
             if (!$this->staff && in_array('dls_dasc', $groups)) $this->staff = True;
-
-        
+            #if (!$this->staff && in_array('dls_sysadmin', $groups)) $this->staff = True;
+            
             // Staff only pages
             if ($this->require_staff) {
                 $auth = $this->staff;
+
+                
+            // Beamline Sample Registration
+            } else if ($this->blsr() && !$u) {                
+                $auth = false;
+                $b = $this->ip2bl();
+                $t = strtoupper(date('d-m-Y 08:59'));
+                
+                if ($this->has_arg('visit')) {
+                    $rows = $this->db->pq("SELECT s.sessionid, s.beamlinename as bl, vr.run, vr.runid, TO_CHAR(s.startdate, 'YYYY') as yr FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1 AND s.startdate > TO_DATE(:2,'dd-mm-yyyy HH24:MI') AND s.enddate < TO_DATE(:3,'dd-mm-yyyy HH24:MI')+2 AND s.beamlinename LIKE :4", array($this->arg('visit'), $t, $t, $b));
+
+                    #$rows = $this->db->pq("SELECT s.sessionid, s.beamlinename as bl, vr.run, vr.runid, TO_CHAR(s.startdate, 'YYYY') as yr FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1 AND s.beamlinename LIKE :2", array($this->arg('visit'), $b));
+                    
+                    if (sizeof($rows)) $auth = true;
+                    
+                } else {
+                    $auth = true;
+                }
+            
+            // Normal validation
             } else {
                 $auth = False;
                 
                 // Registered visit or staff
                 if ($this->staff) {
                     $auth = True;
+                    
+                // Normal users
                 } else {
                     $rows = $this->db->pq("SELECT lower(i.visit_id) as vis from investigation@DICAT_RO i inner join investigationuser@DICAT_RO iu on i.id = iu.investigation_id inner join user_@DICAT_RO u on u.id = iu.user_id where u.name=:1", array($u));
                     
@@ -101,7 +126,7 @@
                 }
             }
             
-            # End execution, show not authed page template
+            // End execution, show not authed page template
             if (!$auth) {
                 $this->template('Access Denied');
                 $this->t->title = 'Access Denied';
@@ -197,7 +222,7 @@
         
         # Unix time to javascript timestamp
         function jst($str, $plus=True) {
-            return strtotime($str)*1000 + ($plus ? (3600*1000) : 0);
+            return strtotime($str)*1000;# + ($plus ? (3600*1000) : 0);
         }
         
         function pro() {
@@ -236,6 +261,38 @@
             exit();
         }
         
+        function dirs($root) {
+            $d = array();
+            foreach (scandir($root) as $f) {
+                if ($f === '.' or $f === '..') continue;
+                if (is_dir($root.'/'.$f)) array_push($d,$f);
+            }
+            
+            return $d;
+        }
+        
+        
+        # Get Beamline from IP
+        function ip2bl() {
+            $parts = explode('.', $_SERVER['REMOTE_ADDR']);
+            $bls = array(103 => 'i03',
+                         146 => 'i03',
+                         104 => 'i04',
+                         102 => 'i02',
+                         73 => 'i04-1',
+                         124 => 'i24');
+            
+            if (array_key_exists($parts[2], $bls)) {
+                return $bls[$parts[2]];
+            }
+        }
+        
+        # Beamline Sample Registration Machine
+        function blsr() {
+            global $blsr;
+            
+            return in_array($_SERVER['REMOTE_ADDR'], $blsr);
+        }
         
         # ------------------------------------------------------------------------
         # Return a name for a fedid
