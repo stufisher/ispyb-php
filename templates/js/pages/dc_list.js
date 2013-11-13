@@ -72,7 +72,7 @@ $(function() {
       //console.log('fn '+new Date())
   
       $.ajax({
-             url: '/dc/ajax/visit/' + visit + (page ? ('/page/' + page) : '') + (search ? ('/s/'+search) : '') + (type ? ('/t/'+type) : '') + ($(window).width() <= 600 ? '/pp/5' : ''),
+             url: '/dc/ajax/visit/' + visit + (page ? ('/page/' + page) : '') + (search ? ('/s/'+search) : '') + (type ? ('/t/'+type) : '') + ($(window).width() <= 600 ? '/pp/5' : '') + (id ? ('/id/'+id) : ''),
              type: 'GET',
              dataType: 'json',
              timeout: 5000,
@@ -105,7 +105,7 @@ $(function() {
                                 '<a href="/dc/view/id/'+r['ID']+'"><img dsrc="" alt="Diffraction Image 1" /></a>' +
                              '</div>'+
                              '<h1>'+r['ST']+'</h1>'+
-                             '<h2><a href="file:///dls/'+bl+'/data/'+year+'/'+visit+'/jpegs/'+r['DIR']+'">'+r['DIR']+r['FILETEMPLATE']+'</a></h2>'+
+                             '<h2><a href="/dc/visit/'+visit+'/id/'+r['ID']+'" title="Permanant Link">'+r['DIR']+r['FILETEMPLATE']+'</a></h2>'+
 
                              '<ul>'+
                                  (r['SAN'] != null ? ('<li>Sample: ' + r['SAN'] + ' (m' + r['SCON'] + 'p' + r['SPOS']+')') : '')+

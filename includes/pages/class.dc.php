@@ -2,7 +2,7 @@
 
     class DC extends Page {
         
-        var $arg_list = array('visit' => '\w\w\d\d\d\d-\d+', 'page' => '\d+', 'mon' => '\w+', 'year' => '\d\d\d\d', 'id' => '\d+', 't' => '\w+', 'iframe' => '\d+');
+        var $arg_list = array('visit' => '\w\w\d\d\d\d-\d+', 'page' => '\d+', 'mon' => '\w+', 'year' => '\d\d\d\d', 'id' => '\d+', 't' => '\w+', 'iframe' => '\d+', 'id' => '\d+');
         var $dispatch = array('dc' => '_dispatch', 'view' => '_viewer');
         var $def = 'dc';
         
@@ -146,6 +146,8 @@
             $this->t->js_var('bl', $info['BL']);
             $this->t->js_var('year', $info['YR']);
             $this->t->js_var('type', $this->has_arg('t') ? $this->arg('t') : '');
+            $this->t->js_var('id', $this->has_arg('id') ? $this->arg('id') : '');
+            $this->t->id = $this->has_arg('id') ? $this->arg('id') : '';
             
             list($this->t->vid, $this->t->vno) = explode('-',$this->arg('visit'));
             

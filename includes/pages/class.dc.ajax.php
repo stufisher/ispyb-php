@@ -69,6 +69,15 @@
             
             for ($i = 0; $i < 4; $i++) array_push($args, $info['SESSIONID']);
         
+            if ($this->has_arg('id')) {
+                $st = sizeof($args)+1;
+                $where .= ' AND dc.datacollectionid=:'.$st;
+                $where3 .= ' AND r.robotactionid=:'.($st+1);
+                $where2 .= ' AND es.energyscanid=:'.($st+2);
+                $where4 .= ' AND xrf.xfefluorescencespectrumid=:'.($st+3);
+                for ($i = 0; $i < 4; $i++) array_push($args, $this->arg('id'));
+            }
+            
             
             if ($this->has_arg('s')) {
                 $st = sizeof($args) + 1;
