@@ -2,13 +2,25 @@
     
     require_once('config.php');
     
-    require_once 'CAS/CAS.php';
-    phpCAS::client(CAS_VERSION_2_0, 'auth.diamond.ac.uk', 443, '/cas');
-    phpCAS::setNoCasServerValidation();
-    phpCAS::forceAuthentication();
-    
     $parts = explode('/', $_SERVER['REQUEST_URI']);
     array_shift($parts);
+    
+    if (sizeof($parts) >= 2) {
+        if (($parts[0] == 'samples' && ($parts[1] == 'bl' || $parts[1] == 'ajax') && in_array($_SERVER["REMOTE_ADDR"], $blsr))) {
+            
+        } else {
+            require_once 'CAS/CAS.php';
+            phpCAS::client(CAS_VERSION_2_0, 'auth.diamond.ac.uk', 443, '/cas');
+            phpCAS::setNoCasServerValidation();
+            phpCAS::forceAuthentication();
+        }
+        
+    } else {
+        require_once 'CAS/CAS.php';
+        phpCAS::client(CAS_VERSION_2_0, 'auth.diamond.ac.uk', 443, '/cas');
+        phpCAS::setNoCasServerValidation();
+        phpCAS::forceAuthentication();
+    }
 
     date_default_timezone_set('Europe/London');
     
@@ -19,7 +31,6 @@
     $db = new Oracle($isb['user'], $isb['pass'], $isb['db']);
     
     $pages = array(
-                   #'ajax' => array('Ajax', ''),
                    'image' => array('Image', ''),
                    'robot' => array('Robot', 'Robot Statistics'),
                    'dc' => array('DC', 'Data Collections'),
@@ -29,6 +40,7 @@
                    'vstat' => array('Visit', 'Visit Statistics'),
                    'log' => array('Log', 'Visit Summary'),
                    'status' => array('Status', 'Beamline Status'),
+                   'cell' => array('Cell', 'Data Collection Finder'),
                    );
     
     if (array_key_exists($parts[0], $pages)) {
