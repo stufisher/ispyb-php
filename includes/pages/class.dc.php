@@ -146,8 +146,8 @@
             $this->t->js_var('bl', $info['BL']);
             $this->t->js_var('year', $info['YR']);
             $this->t->js_var('type', $this->has_arg('t') ? $this->arg('t') : '');
-            $this->t->js_var('id', $this->has_arg('id') ? $this->arg('id') : '');
-            $this->t->id = $this->has_arg('id') ? $this->arg('id') : '';
+            $this->t->js_var('dcid', $this->has_arg('id') ? $this->arg('id') : '');
+            $this->t->dcid = $this->has_arg('id') ? $this->arg('id') : '';
             
             list($this->t->vid, $this->t->vno) = explode('-',$this->arg('visit'));
             

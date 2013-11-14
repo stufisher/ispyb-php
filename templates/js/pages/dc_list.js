@@ -72,7 +72,7 @@ $(function() {
       //console.log('fn '+new Date())
   
       $.ajax({
-             url: '/dc/ajax/visit/' + visit + (page ? ('/page/' + page) : '') + (search ? ('/s/'+search) : '') + (type ? ('/t/'+type) : '') + ($(window).width() <= 600 ? '/pp/5' : '') + (id ? ('/id/'+id) : ''),
+             url: '/dc/ajax/visit/' + visit + (page ? ('/page/' + page) : '') + (search ? ('/s/'+search) : '') + (type ? ('/t/'+type) : '') + ($(window).width() <= 600 ? '/pp/5' : '') + (dcid ? ('/id/'+dcid) : ''),
              type: 'GET',
              dataType: 'json',
              timeout: 5000,
@@ -104,11 +104,11 @@ $(function() {
                              '<div class="diffraction">'+
                                 '<a href="/dc/view/id/'+r['ID']+'"><img dsrc="" alt="Diffraction Image 1" /></a>' +
                              '</div>'+
-                             '<h1>'+r['ST']+'</h1>'+
-                             '<h2><a href="/dc/visit/'+visit+'/id/'+r['ID']+'" title="Permanant Link">'+r['DIR']+r['FILETEMPLATE']+'</a></h2>'+
+                             '<h1>'+r['ST']+' - <a href="/dc/visit/'+visit+'/id/'+r['ID']+'">Permalink</a></h1>'+
+                             '<h2>'+r['DIR']+r['FILETEMPLATE']+'</h2>'+
 
                              '<ul>'+
-                                 (r['SAN'] != null ? ('<li>Sample: ' + r['SAN'] + ' (m' + r['SCON'] + 'p' + r['SPOS']+')') : '')+
+                                 //(r['SAN'] != null ? ('<li class="sample">Sample: ' + r['SAN'] + ' (m' + r['SCON'] + 'p' + r['SPOS']+')') : '')+
                                  '<li>&Omega; Start: '+r['AXISSTART']+'&deg;</li>'+
                                  '<li>&Omega; Osc: '+r['AXISRANGE']+'&deg;</li>'+
                                  '<li>&Omega; Overlap: '+r['OVERLAP']+'&deg;</li>'+
@@ -116,7 +116,7 @@ $(function() {
                                  '<li>Resolution: '+r['RESOLUTION']+'&#197;</li>'+
                                  '<li>Wavelength: '+r['WAVELENGTH']+'&#197;</li>'+
                                  '<li>Exposure: '+r['EXPOSURETIME']+'s</li>'+
-                                 '<li>Measured Flux: '+r['FLUX']+'</li>'+
+                                 //'<li>Measured Flux: '+r['FLUX']+'</li>'+
                                  '<li>Transmission: '+r['TRANSMISSION']+'%</li>'+
                                  '<li class="comment">Comment: '+r['COMMENTS']+'</li>'+
                              '</ul>'+
@@ -196,7 +196,7 @@ $(function() {
                        // Robot loads
                        } else if (r['TYPE'] == 'load') {
                          $('<div class="data_collection" dcid="'+r['ID']+'">' +
-                           '<h1>'+r['ST']+' - Robot '+r['SCON'].toLowerCase()+'ing puck ' + r['EXPOSURETIME'] +' pin ' + r['RESOLUTION'] + ' (Barcode: '+r['DIR']+') Status: '+r['SPOS']+' - '+r['SAN']+'</h1>' +
+                           '<h1>'+r['ST']+' - Robot '+r['IMP'].toLowerCase()+'ing puck ' + r['EXPOSURETIME'] +' pin ' + r['RESOLUTION'] + ' (Barcode: '+r['DIR']+') Status: '+r['SPOS']+' - '+r['SAN']+'</h1>' +
                            '</div>').data('apr', r['AP']).hide().prependTo('.data_collections').slideDown()
                        
                          if (!first) log_message('New sample loaded', '<a href="#'+r['ID'] +'">Barcode: ' +r['DIR'] + '</a>')
@@ -250,12 +250,13 @@ $(function() {
         type: 'POST',
         data: { ids: $('.data_collection[type=data]').map(function(i,e) { return $(e).attr('dcid') }).get() },
         dataType: 'json',
-        timeout: 5000,
+        timeout: 10000,
         success: function(list) {
          $.each(list, function(i, r) {
            var id = r[0]
            var res = r[1]
            var img = r[2]
+           var dcv = r[3]
                 
            var md = $('div[dcid='+id+']')
            var div = $(md).children('.holder')
@@ -302,16 +303,30 @@ $(function() {
              for (var i = 1; i < img[1].length; i++) sns += ('<a href="/image/id/'+id+'/f/1/n/'+(i+1)+'" rel="lightbox-'+id+'" title="Crystal Snapshot '+(i+1)+'"></a>')
              if ($('div[dcid='+id+'] .snapshots a').length == 1) $('div[dcid='+id+'] .snapshots').append(sns)
            }
+            
+                
+           // Update sample details
+           if (dcv['SAN'] && !$(md).find('.sample').length) {
+             $('<li class="sample">Sample: ' + dcv['SAN'] + ' (m' + dcv['SCON'] + 'p' + dcv['SPOS']+')</li>').hide().prependTo($(md).children('ul')).fadeIn()
+           }
+                
+           // Add flux and sample details if available
+           if (!$(md).find('.flux').length) {
+              $('<li class="flux">Measured Flux: '+dcv['FLUX']+'</li>').hide().prependTo($(md).children('ul')).fadeIn()
+           }
           })
            
            
           // Fade in images
-          $('.data_collection .diffraction img, .data_collection .snapshots img').each(function() {
-            if (!$(this).attr('src') && $(this).attr('dsrc')) {
-                $(this).attr('src', $(this).attr('dsrc')).load(function() {
-                    $(this).fadeIn()
+          $('.data_collection .diffraction img, .data_collection .snapshots img').each(function(i) {
+            var im = $(this)
+            setTimeout(function() {
+              if (!$(im).attr('src') && $(im).attr('dsrc')) {
+                $(im).attr('src', $(im).attr('dsrc')).load(function() {
+                    $(im).fadeIn()
                 })
-            }
+              }
+            }, i*100)
           })           
         }
     })
@@ -406,7 +421,7 @@ $(function() {
   
   
   // Plot image quality indicators
-  function plot(div) {
+  function plot(div, success) {
       var id = $(div).parent('div').attr('dcid')
   
       $.ajax({
@@ -470,6 +485,8 @@ $(function() {
                        plot(div)
                    }, 10000)
                }
+             
+               if (success) success()
              }
         })
   }
@@ -534,14 +551,18 @@ $(function() {
       })
   
       // Load IQI's
-      $('.data_collection .distl').each(function() {
+      $('.data_collection .distl').each(function(i) {
           if (!$(this).data('plotted')) {
               var w = 0.15*$('.data_collection').width()
               $(this).height($(window).width() > 600 ? w : (w*2))
               $('.diffraction,.snapshots').height($(this).height())
-                                        
-              plot($(this))
-              $(this).data('plotted', true)
+            
+            var pl = $(this)
+            setTimeout(function() {
+              plot(pl, function() {
+                $(pl).data('plotted', true)
+              })
+            }, i*100+100)
           }
       })
   }

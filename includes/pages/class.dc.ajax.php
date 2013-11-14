@@ -15,7 +15,7 @@
         
         var $def = 'dc';
         var $profile = True;
-        //var $debug = True;
+        #var $debug = True;
         
         # ------------------------------------------------------------------------
         # Data Collection AJAX Requests
@@ -95,7 +95,7 @@
                                 
                 UNION SELECT count(xrf.xfefluorescencespectrumid) as tot from ispyb4a_db.xfefluorescencespectrum xrf WHERE xrf.sessionid=:3'.$where4.'
                                 
-                UNION SELECT count(r.robotactionid) as tot FROM ispyb4a_db.robotaction r WHERE r.status=\'SUCCESS\' AND r.actiontype=\'LOAD\' AND r.blsessionid=:4'.$where3.')', $args)[0]['T'];
+                UNION SELECT count(r.robotactionid) as tot FROM ispyb4a_db.robotaction r WHERE r.blsessionid=:4'.$where3.')', $args)[0]['T'];
     
             $this->profile('after page count');
             
@@ -105,23 +105,22 @@
             $st = sizeof($args) + 1;
             array_push($args, $start);
             array_push($args, $end);
-            
+
             $q = 'SELECT outer.*
              FROM (SELECT ROWNUM rn, inner.*
              FROM (
-             SELECT dc.overlap, im.measuredintensity as flux, c.samplechangerlocation as scon, bls.location as spos, bls.name as san, \'data\' as type, dc.imageprefix as imp, dc.datacollectionnumber as run, dc.filetemplate, dc.datacollectionid as id, dc.numberofimages as ni, dc.imagedirectory as dir, dc.resolution, dc.exposuretime, dc.axisstart, dc.numberofimages as numimg, TO_CHAR(dc.starttime, \'DD-MM-YYYY HH24:MI:SS\') as st, dc.transmission, dc.axisrange, dc.wavelength, dc.comments, 1 as epk, 1 as ein, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4, dc.starttime as sta FROM ispyb4a_db.datacollection dc
-             LEFT OUTER JOIN ispyb4a_db.blsample bls ON bls.blsampleid = dc.blsampleid
-             LEFT OUTER JOIN ispyb4a_db.container c ON bls.containerid = c.containerid
-             LEFT OUTER JOIN ispyb4a_db.image im ON im.datacollectionid = dc.datacollectionid AND im.imagenumber = 1
+             SELECT dc.overlap, 1 as flux, 1 as scon, \'a\' as spos, \'a\' as san, \'data\' as type, dc.imageprefix as imp, dc.datacollectionnumber as run, dc.filetemplate, dc.datacollectionid as id, dc.numberofimages as ni, dc.imagedirectory as dir, dc.resolution, dc.exposuretime, dc.axisstart, dc.numberofimages as numimg, TO_CHAR(dc.starttime, \'DD-MM-YYYY HH24:MI:SS\') as st, dc.transmission, dc.axisrange, dc.wavelength, dc.comments, 1 as epk, 1 as ein, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4, dc.starttime as sta FROM ispyb4a_db.datacollection dc
+             
+
              WHERE dc.sessionid=:1'.$where.'
              UNION
-             SELECT 1, 1, \'A\' as scon, \'A\' as spos, \'A\' as sn, \'edge\' as type, es.jpegchoochfilefullpath, 1, \'A\', es.energyscanid, 1, es.element, es.peakfprime, es.exposuretime, es.peakfdoubleprime, 1, TO_CHAR(es.starttime, \'DD-MM-YYYY HH24:MI:SS\') as st, es.transmissionfactor, es.inflectionfprime, es.inflectionfdoubleprime, es.comments, es.peakenergy, es.inflectionenergy, \'A\', \'A\', \'A\', \'A\', es.starttime as sta FROM ispyb4a_db.energyscan es WHERE es.sessionid=:2'.$where2.'
+             SELECT 1, 1, 1 as scon, \'A\' as spos, \'A\' as sn, \'edge\' as type, es.jpegchoochfilefullpath, 1, \'A\', es.energyscanid, 1, es.element, es.peakfprime, es.exposuretime, es.peakfdoubleprime, 1, TO_CHAR(es.starttime, \'DD-MM-YYYY HH24:MI:SS\') as st, es.transmissionfactor, es.inflectionfprime, es.inflectionfdoubleprime, es.comments, es.peakenergy, es.inflectionenergy, \'A\', \'A\', \'A\', \'A\', es.starttime as sta FROM ispyb4a_db.energyscan es WHERE es.sessionid=:2'.$where2.'
 
             UNION
-            SELECT 1, 1, \'A\', \'A\', \'A\', \'mca\' as type, \'A\', 1, \'A\', xrf.xfefluorescencespectrumid, 1, xrf.filename, 1, xrf.exposuretime, 1, 1, TO_CHAR(xrf.starttime, \'DD-MM-YYYY HH24:MI:SS\') as st, xrf.beamtransmission, 1, xrf.energy, xrf.comments, 1, 1, \'A\', \'A\', \'A\', \'A\', xrf.starttime as sta FROM ispyb4a_db.xfefluorescencespectrum xrf WHERE xrf.sessionid=:3'.$where4.'
+            SELECT 1, 1, 1, \'A\', \'A\', \'mca\' as type, \'A\', 1, \'A\', xrf.xfefluorescencespectrumid, 1, xrf.filename, 1, xrf.exposuretime, 1, 1, TO_CHAR(xrf.starttime, \'DD-MM-YYYY HH24:MI:SS\') as st, xrf.beamtransmission, 1, xrf.energy, xrf.comments, 1, 1, \'A\', \'A\', \'A\', \'A\', xrf.starttime as sta FROM ispyb4a_db.xfefluorescencespectrum xrf WHERE xrf.sessionid=:3'.$where4.'
                    
              UNION
-             SELECT 1, 1, r.actiontype, r.status, r.message, \'load\' as type, \'A\', 1, \'A\', r.robotactionid, 1,  r.samplebarcode, r.containerlocation, r.dewarlocation, 1, 1, TO_CHAR(r.starttimestamp, \'DD-MM-YYYY HH24:MI:SS\') as st, 1, 1, 1, \'A\', 1, 1, \'A\', \'A\', \'A\', \'A\', r.starttimestamp as sta FROM ispyb4a_db.robotaction r WHERE r.blsessionid=:4'.$where3.'
+             SELECT 1, 1, 1, r.status, r.message, \'load\' as type, r.actiontype, 1, \'A\', r.robotactionid, 1,  r.samplebarcode, r.containerlocation, r.dewarlocation, 1, 1, TO_CHAR(r.starttimestamp, \'DD-MM-YYYY HH24:MI:SS\') as st, 1, 1, 1, \'A\', 1, 1, \'A\', \'A\', \'A\', \'A\', r.starttimestamp as sta FROM ispyb4a_db.robotaction r WHERE r.blsessionid=:4'.$where3.'
              
              
              ORDER BY sta DESC
@@ -145,7 +144,7 @@
                     $dc['DIR'] = substr($dc['DIR'], strpos($dc['DIR'], $this->arg('visit'))+strlen($this->arg('visit'))+1);
                     //$this->profile('dc');
                     
-                    $dc['FLUX'] = $dc['FLUX'] ? sprintf('%.2e', $dc['FLUX']) : 'N/A';
+                    //$dc['FLUX'] = $dc['FLUX'] ? sprintf('%.2e', $dc['FLUX']) : 'N/A';
                     
                 // Edge Scans
                 } else if ($dc['TYPE'] == 'edge') {
@@ -220,8 +219,8 @@
             $out = array();
             
             foreach ($ids as $i) {
-                $dc = $this->db->pq("SELECT dc.filetemplate, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4,dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE dc.datacollectionid=:1 AND p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :2", array($i,$this->arg('visit')))[0];
-            
+                $dc = $this->db->pq("SELECT c.samplechangerlocation as scon, bls.location as spos, bls.name as san, im.measuredintensity as flux, dc.filetemplate, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4,dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) LEFT OUTER JOIN ispyb4a_db.blsample bls ON bls.blsampleid = dc.blsampleid LEFT OUTER JOIN ispyb4a_db.container c ON bls.containerid = c.containerid LEFT OUTER JOIN ispyb4a_db.image im ON (im.datacollectionid = dc.datacollectionid AND im.imagenumber = 1) WHERE dc.datacollectionid=:1 AND p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :2", array($i,$this->arg('visit')))[0];
+                
                 $dc['DIR'] = $this->ads($dc['DIR']);
                 $root = str_replace($dc['VIS'], $dc['VIS'].'/processed', $dc['DIR']).$dc['IMP'].'_'.$dc['RUN'].'_'.'/';
             
@@ -272,7 +271,7 @@
                 $die = 0;
                 if (file_exists($di)) $die = 1;
                 
-                array_push($out, array($i, $apr, array($die,$images,$sn)));
+                array_push($out, array($i, $apr, array($die,$images,$sn), array('FLUX' => $dc['FLUX'] ? sprintf('%.2e', $dc['FLUX']) : 'N/A', 'SCON' => $dc['SCON'], 'SPOS' => $dc['SPOS'], 'SAN' => $dc['SAN'])));
                 
             }
             
@@ -364,9 +363,8 @@
                 $this->_error('No data collection id specified');
                 return;
             }
-
-        
-            $rows = $this->db->pq('SELECT dc.transmission as dctrn, dc.wavelength as lam, bls.name as sn, c.samplechangerlocation as scon, bls.location as spos, dc.imagedirectory imd, dc.imageprefix as imp, dc.comments as dcc, dc.blsampleid as sid, sl.spacegroup as sg, sl.unitcell_a as a, sl.unitcell_b as b, sl.unitcell_c as c, sl.unitcell_alpha as al, sl.unitcell_beta as be, sl.unitcell_gamma as ga, s.shortcomments as com, sssw.axisstart as st, sssw.exposuretime as time, sssw.transmission as tran, sssw.oscillationrange as oscran, sssw.resolution as res, sssw.numberofimages as nimg FROM ispyb4a_db.screeningstrategy st INNER JOIN ispyb4a_db.screeningoutput so on st.screeningoutputid = so.screeningoutputid INNER JOIN ispyb4a_db.screening s on so.screeningid = s.screeningid INNER JOIN ispyb4a_db.screeningstrategywedge ssw ON ssw.screeningstrategyid = st.screeningstrategyid INNER JOIN ispyb4a_db.screeningstrategysubwedge sssw ON sssw.screeningstrategywedgeid = ssw.screeningstrategywedgeid INNER JOIN ispyb4a_db.screeningoutputlattice sl ON sl.screeningoutputid = st.screeningoutputid INNER JOIN ispyb4a_db.datacollection dc on s.datacollectionid = dc.datacollectionid LEFT JOIN blsample bls ON bls.blsampleid = dc.blsampleid LEFT JOIN container c ON bls.containerid = c.containerid WHERE s.datacollectionid = :1', array($this->arg('id')));
+            
+            $rows = $this->db->pq('SELECT dc.transmission as dctrn, dc.wavelength as lam, dc.imagedirectory imd, dc.imageprefix as imp, dc.comments as dcc, dc.blsampleid as sid, sl.spacegroup as sg, sl.unitcell_a as a, sl.unitcell_b as b, sl.unitcell_c as c, sl.unitcell_alpha as al, sl.unitcell_beta as be, sl.unitcell_gamma as ga, s.shortcomments as com, sssw.axisstart as st, sssw.exposuretime as time, sssw.transmission as tran, sssw.oscillationrange as oscran, sssw.resolution as res, sssw.numberofimages as nimg FROM ispyb4a_db.screeningstrategy st INNER JOIN ispyb4a_db.screeningoutput so on st.screeningoutputid = so.screeningoutputid INNER JOIN ispyb4a_db.screening s on so.screeningid = s.screeningid INNER JOIN ispyb4a_db.screeningstrategywedge ssw ON ssw.screeningstrategyid = st.screeningstrategyid INNER JOIN ispyb4a_db.screeningstrategysubwedge sssw ON sssw.screeningstrategywedgeid = ssw.screeningstrategywedgeid INNER JOIN ispyb4a_db.screeningoutputlattice sl ON sl.screeningoutputid = st.screeningoutputid INNER JOIN ispyb4a_db.datacollection dc on s.datacollectionid = dc.datacollectionid WHERE s.datacollectionid = :1', array($this->arg('id')));
         
             $nf = array('A', 'B', 'C', 'AL', 'BE', 'GA');
             foreach ($rows as &$r) {

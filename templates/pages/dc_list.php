@@ -41,7 +41,7 @@
         <div class="clear"></div>
     </div>
 
-    <?php if ($id): ?>
+    <?php if ($dcid): ?>
     <h1 class="message"><a href="/dc/visit/<?php echo $vis ?>">View All Data Collections</a></h1>
     <?php endif; ?>
 
