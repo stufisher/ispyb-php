@@ -10,6 +10,83 @@
         var $profile = False;
         var $profiles = [];
         var $base;
+        var $sidebar = false;
+        
+        var $sgs = array('', 'P1',
+                         'P2',
+                         'P21',
+                         'C2',
+                         
+                         'P23',
+                         'F23',
+                         'I23',
+                         'P213',
+                         'I213',
+                         
+                         'P222',
+                         'P2221',
+                         'P21212',
+                         'P212121',
+                         'C222',
+                         'C2221',
+                         'F222',
+                         'I222',
+                         'I212121',
+                         
+                         
+                         'P4',
+                         'P41',
+                         'P42',
+                         'P43',
+                         'P422',
+                         'P4212',
+                         'P4122',
+                         'P41212',
+                         'P4222',
+                         'P42212',
+                         'P4322',
+                         'P43212',
+                         'I4',
+                         'I41',
+                         'I422',
+                         'I4122',
+                         
+                         'P3',
+                         'P31',
+                         'P32',
+                         'R3',
+                         'P312',
+                         'P321',
+                         'P3112',
+                         'P3121',
+                         'P3212',
+                         'P3221',
+                         'R32',
+                         
+                         'P432',
+                         'P4232',
+                         'F432',
+                         'F4132',
+                         'I432',
+                         'P4332',
+                         'P4132',
+                         'I4132',
+                         
+                         'P6',
+                         'P61',
+                         'P65',
+                         'P62',
+                         'P64',
+                         'P63',
+                         'P622',
+                         'P6122',
+                         'P6522',
+                         'P6222',
+                         'P6422',
+                         'P6322');
+                         
+
+        
         
         function _base() {
             $rc = new ReflectionClass(get_class($this));
@@ -52,6 +129,17 @@
             $fn = $this->dispatch[$page];
             $this->$fn();
         }
+        
+        
+        function sg_opts() {
+            $ops = '';
+            foreach ($this->sgs as $s) {
+                $ops .= '<option value="'.$s.'">'.$s.'</option>';
+            }
+            
+            return $ops;
+        }
+        
         
         
         function profile($msg) {
@@ -107,17 +195,46 @@
                         array_push($this->visits, strtolower($row['VIS']));
                     }
                     
-                    if ($this->has_arg('id') || $this->has_arg('visit')) {
+                    if ($this->has_arg('id') || $this->has_arg('visit') || $this->has_arg('prop')) {
                     
                         // Check user is in this visit
                         if ($this->has_arg('id')) {
-                            $vis = strtoupper($this->db->pq('SELECT p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.datacollection dc ON s.sessionid = dc.sessionid WHERE dc.datacollectionid = :1', array($this->arg('id')))[0]['VIS']);
+                            $types = array('data' => ['datacollection', 'datacollectionid'],
+                                           'edge' => ['energyscan', 'energyscanid'],
+                                           'mca' => ['xfefluorescencespectrum', 'xfefluorescencespectrumid'],
+                                           );
+                            
+                            $table = 'datacollection';
+                            $col = 'datacollectionid';
+                            if ($this->has_arg('t')) {
+                                if (array_key_exists($this->arg('t'), $types)) {
+                                    $table = $types[$this->arg('t')][0];
+                                    $col = $types[$this->arg('t')][1];
+                                }
+                            }
+                        
+                            $vis = $this->db->pq('SELECT p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.'.$table.' dc ON s.sessionid = dc.sessionid WHERE dc.'.$col.' = :1', array($this->arg('id')));
+                            
+                            $vis = sizeof($vis) ? $vis[0]['VIS'] : '';
+                        
                             
                         } else if ($this->has_arg('visit')) {
                             $vis = $this->arg('visit');
+                            
+                        // Check user is in this proposal
+                        } else if ($this->has_arg('prop')) {
+                            $viss = $this->db->pq('SELECT p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE p.proposalcode || p.proposalnumber LIKE :1', array($this->arg('prop')));
+                            
+                            $vis = array();
+                            foreach ($viss as $v) array_push($vis, $v['VIS']);
+                            
                         }
                         
-                        if (in_array($vis, $this->visits)) $auth = True;
+                        if ($this->has_arg('id') || $this->has_arg('visit')) {
+                            if (in_array($vis, $this->visits)) $auth = True;
+                        } else {
+                            if (sizeof(array_intersect($vis, $this->visits))) $auth = True;
+                        }
                         
                     // No id or visit, anyone ok to view
                     } else {
@@ -171,6 +288,9 @@
                 }
             }
             
+            # Retrieve cookie args
+            if (array_key_exists('isb_php_proposal', $_COOKIE) && !array_key_exists('prop', $parsed)) $parsed['prop'] = $_COOKIE['isb_php_proposal'];
+            
             #$this->args = json_decode(json_encode($parsed), FALSE);
             $this->args = $parsed;
         }
@@ -195,6 +315,7 @@
         }
         
         
+        # Templating
         function template($title, $p=array(), $l=array(), $hf = 1) {
             $new = array();
             foreach ($l as $a) {
@@ -202,6 +323,8 @@
             }
             
             $this->t = new Template($title, $this->nav($p, $new), $hf);
+            if ($this->sidebar) $this->t->side();
+            $this->t->prop = $this->has_arg('prop') ? $this->arg('prop') : '';
             $this->t->staff = $this->staff;
         }
         
@@ -232,7 +355,8 @@
         # Get a PV
         function pv($pvid) {
             $ret = exec('caget ' . $pvid);
-            return preg_split('/\s+/', $ret)[1];
+            $lis = preg_split('/\s+/', $ret);
+            return sizeof($lis) > 1 ? $lis[1] : '';
         }
         
         
