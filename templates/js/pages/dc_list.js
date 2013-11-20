@@ -96,6 +96,8 @@ $(function() {
                            sns = ''
                            for (var i = 1; i < r['X'].length; i++) sns += ('<a href="/image/id/'+r['ID']+'/f/1/n/'+(i+1)+'" rel="lightbox-'+r['ID']+'" title="Crystal Snapshot '+(i+1)+'"></a>')*/
                        
+                           var f = r['COMMENTS'] ? (r['COMMENTS'].indexOf('_FLAG_') > -1 ? 'ui-state-highlight' : '') : ''
+                       
                            $('<div class="data_collection" dcid="'+r['ID']+'" type="data">' +
                              '<div class="distl"></div>'+
                              '<div class="snapshots">'+
@@ -104,7 +106,7 @@ $(function() {
                              '<div class="diffraction">'+
                                 '<a href="/dc/view/id/'+r['ID']+'"><img dsrc="" alt="Diffraction Image 1" /></a>' +
                              '</div>'+
-                             '<h1>'+r['ST']+' - <a href="/dc/visit/'+visit+'/id/'+r['ID']+'">Permalink</a></h1>'+
+                             '<h1><button class="small flag '+f+'"></button> '+r['ST']+' - <a href="/dc/visit/'+visit+'/id/'+r['ID']+'">Permalink</a></h1>'+
                              '<h2>'+r['DIR']+r['FILETEMPLATE']+'</h2>'+
 
                              '<ul>'+
@@ -118,7 +120,7 @@ $(function() {
                                  '<li>Exposure: '+r['EXPOSURETIME']+'s</li>'+
                                  //'<li>Measured Flux: '+r['FLUX']+'</li>'+
                                  '<li>Transmission: '+r['TRANSMISSION']+'%</li>'+
-                                 '<li class="comment">Comment: '+r['COMMENTS']+'</li>'+
+                                 '<li class="comment">Comment: <span class="comment_edit">'+(r['COMMENTS']?r['COMMENTS']:'')+'</span></li>'+
                              '</ul>'+
                              '<div class="holder">'+
                              (r['NI'] < 10 ?
@@ -140,10 +142,11 @@ $(function() {
                        
                        // Edge Scan
                        } else if (r['TYPE'] == 'edge') {
+                           var f = r['COMMENTS'] ? (r['COMMENTS'].indexOf('_FLAG_') > -1 ? 'ui-state-highlight' : '') : ''
                            ev = 12398.4193
-                           d = $('<div class="data_collection" dcid="'+r['ID']+'">' +
+                           d = $('<div class="data_collection" dcid="'+r['ID']+'" type="edge">' +
                              '<div class="edge"></div>'+
-                             '<h1>'+r['ST']+'</h1>'+
+                             '<h1><button class="small flag '+f+'"></button> '+r['ST']+' - <a href="/dc/visit/'+visit+'/t/edge/id/'+r['ID']+'">Permalink</a></h1>'+
                              '<h2>'+r['DIR']+' Edge Scan</h2>'+
 
                              '<ul>'+
@@ -153,7 +156,7 @@ $(function() {
                                  '<li>f&rsquo;&rsquo;: '+r['WAVELENGTH']+' / f&rsquo;: '+r['AXISRANGE']+'e</li>'+
                                  '<li>Exposure: '+r['EXPOSURETIME']+'s</li>'+
                                  '<li>Transmission: '+r['TRANSMISSION']+'%</li>'+
-                                 //'<li>Comment: '+r['COMMENTS']+'</li>'+
+                                 '<li>Comment: <span class="comment_edit">'+(r['COMMENTS'] ? r['COMMENTS'] : '')+'</span></li>'+
                              '</ul>'+
                              '<!--<img src="/image/id/'+r['ID']+'" alt="" />-->'+
                              '<div class="clear"></div>'+
@@ -165,6 +168,7 @@ $(function() {
                        
                        // MCA Scans
                        } else if (r['TYPE'] == 'mca') {
+                           var f = r['COMMENTS'] ? (r['COMMENTS'].indexOf('_FLAG_') > -1 ? 'ui-state-highlight' : '') : ''
                            el = ''
                            for (var i = 0; i < r['ELEMENTS'].length;i++) {
                               el += '<tr><td>' + r['ELEMENTS'][i].split(' ').join('</td><td>') + '</td></tr>'
@@ -174,16 +178,17 @@ $(function() {
                            if (r['ELEMENTS'].length == 0) el = '<p>PyMCA didnt run for this spectrum</p>'
                        
                        
-                           d = $('<div class="data_collection" dcid="'+r['ID']+'">' +
+                           d = $('<div class="data_collection" dcid="'+r['ID']+'" type="mca">' +
                              '<div class="mca"></div>'+
                              '<div class="elements">'+el+'</div>'+
-                             '<h1>'+r['ST']+'</h1>'+
+                             '<h1><button class="small flag '+f+'"></button> '+r['ST']+' - <a href="/dc/visit/'+visit+'/t/mca/id/'+r['ID']+'">Permalink</a></h1>'+
                              '<h2>MCA Fluorescence Scan</h2>'+
 
                              '<ul>'+
                                  '<li>Energy: '+r['WAVELENGTH']+'eV</li>'+
                                  '<li>Exposure: '+r['EXPOSURETIME']+'s</li>'+
                                  '<li>Transmission: '+r['TRANSMISSION']+'%</li>'+
+                                 '<li>Comment: <span class="comment_edit">'+(r['COMMENTS']?r['COMMENTS']:'')+'</span></li>'+
                              '</ul>'+
                              '<div class="clear"></div>'+
                              '</div>').data('apr', r['AP']).hide().prependTo('.data_collections').slideDown()
@@ -564,6 +569,36 @@ $(function() {
               })
             }, i*100+100)
           }
+      })
+  
+  
+      // Make flagable data collections iconified
+      $('.data_collection .flag').button({ icons: { primary: 'ui-icon-flag' } }).click(function() {
+          var id = $(this).parent().parent('div').attr('dcid')
+          var t = $(this).parent().parent('div').attr('type')
+          var i = $(this)
+          $.ajax({
+                 url: '/dc/ajax/flag/t/'+t+'/id/' + id,
+                 type: 'GET',
+                 dataType: 'json',
+                 timeout: 5000,
+                 success: function(j){
+                    j == 1 ? i.addClass('ui-state-highlight') : i.removeClass('ui-state-highlight')
+                 }
+          })
+      })
+  
+    
+      $('.data_collection .comment_edit').each(function(i,e) {
+        var id = $(this).parent().parent().parent('div').attr('dcid')
+        var t = $(this).parent().parent().parent('div').attr('type')
+        $(this).editable('/dc/ajax/comment/t/'+t+'/id/'+id, {
+                                                width: '100px',
+                                                height: '20px',
+                                                type: 'text',
+                                                submit: 'Ok',
+                                                style: 'display: inline',
+                                                }).addClass('editable');
       })
   }
   

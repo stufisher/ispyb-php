@@ -2,7 +2,7 @@
 
     class Ajax extends AjaxBase {
         
-        var $arg_list = array('id' => '\d+', 'visit' => '\w\w\d\d\d\d-\d+', 'page' => '\d+', 's' => '\w+', 'pp' => '\d+', 't' => '\w+', 'bl' => '\w\d\d(-\d)?');
+        var $arg_list = array('id' => '\d+', 'visit' => '\w\w\d\d\d\d-\d+', 'page' => '\d+', 's' => '\w+', 'pp' => '\d+', 't' => '\w+', 'bl' => '\w\d\d(-\d)?', 'value' => '.*');
         var $dispatch = array('strat' => '_dc_strategies',
                               'ap' => '_dc_auto_processing',
                               'dp' => '_dc_downstream',
@@ -11,6 +11,8 @@
                               'mca' => '_mca',
                               'aps' => '_ap_status',
                               'imq' => '_image_qi',
+                              'flag' => '_flag',
+                              'comment' => '_set_comment',
                               );
         
         var $def = 'dc';
@@ -52,6 +54,12 @@
                     $where .= ' AND dc.datacollectionid < 0';
                     $where2 .= ' AND es.energyscanid < 0';
                     $where4 .= ' AND xrf.xfefluorescencespectrumid < 0';
+                    
+                } else if ($this->arg('t') == 'flag') {
+                    $where .= " AND dc.comments LIKE '%_FLAG_%'";
+                    $where2 .= " AND es.comments LIKE '%_FLAG_%'";
+                    $where3 .= " AND r.robotactionid < 0";
+                    $where4 .= " AND xrf.comments LIKE '%_FLAG_%'";
                 }
             }
             
@@ -81,10 +89,10 @@
             
             if ($this->has_arg('s')) {
                 $st = sizeof($args) + 1;
-                $where = " AND (lower(dc.filetemplate) LIKE lower('%'||:$st||'%') OR lower(dc.imagedirectory) LIKE lower('%'||:".($st+1)."||'%'))";
-                $where2 = " AND (lower(es.comments) LIKE lower('%'||:".($st+2)."||'%') OR lower(es.element) LIKE lower('%'||:".($st+3)."||'%'))";
-                $where3 = ' AND r.robotactionid < 0';
-                $where4 = " AND lower(xrf.filename) LIKE lower('%'||:".($st+4)."||'%')";
+                $where .= " AND (lower(dc.filetemplate) LIKE lower('%'||:$st||'%') OR lower(dc.imagedirectory) LIKE lower('%'||:".($st+1)."||'%'))";
+                $where2 .= " AND (lower(es.comments) LIKE lower('%'||:".($st+2)."||'%') OR lower(es.element) LIKE lower('%'||:".($st+3)."||'%'))";
+                $where3 .= ' AND r.robotactionid < 0';
+                $where4 .= " AND lower(xrf.filename) LIKE lower('%'||:".($st+4)."||'%')";
                 
                 for ($i = 0; $i < 5; $i++) array_push($args, $this->arg('s'));
             }
@@ -641,6 +649,63 @@
             $this->_output($iqs);
         }
 
+                
+        # ------------------------------------------------------------------------
+        # Flag a data collection
+        function _flag() {
+            if (!$this->has_arg('t')) $this->_error('No data type specified');
+            if (!$this->arg('id')) $this->_error('No data collection id specified');
+            
+            $types = array('data' => ['datacollection', 'datacollectionid'],
+                           'edge' => ['energyscan', 'energyscanid'],
+                           'mca' => ['xfefluorescencespectrum', 'xfefluorescencespectrumid'],
+                           );
+            
+            if (!array_key_exists($this->arg('t'), $types)) $this->_error('No such data type');
+            $t = $types[$this->arg('t')];
+            
+            $com = $this->db->pq('SELECT comments from ispyb4a_db.'.$t[0].' WHERE '.$t[1].'=:1', array($this->arg('id')));
+            
+            if (!sizeof($com)) $this->_error('No such data collection');
+            else $com = $com[0]['COMMENTS'];
+            
+            if (strpos($com, '_FLAG_') === false) {
+                $this->db->pq("UPDATE ispyb4a_db.$t[0] set comments=comments||' _FLAG_' where $t[1]=:1", array($this->arg('id')));
+                $this->_output(1);
+            } else {
+                $com = str_replace(' _FLAG_', '', $com);
+                $this->db->pq("UPDATE ispyb4a_db.$t[0] set comments=:1 where $t[1]=:2", array($com, $this->arg('id')));
+                
+                $this->_output(0);
+            }
+        }
+        
+        
+        # ------------------------------------------------------------------------
+        # Update comment for a data collection
+        function _set_comment() {
+            if (!$this->has_arg('t')) $this->_error('No data type specified');
+            if (!$this->arg('id')) $this->_error('No data collection id specified');
+            if (!$this->arg('value')) $this->_error('No comment specified');
+            
+            $types = array('data' => ['datacollection', 'datacollectionid'],
+                           'edge' => ['energyscan', 'energyscanid'],
+                           'mca' => ['xfefluorescencespectrum', 'xfefluorescencespectrumid'],
+                           );
+            
+            if (!array_key_exists($this->arg('t'), $types)) $this->_error('No such data type');
+            $t = $types[$this->arg('t')];
+            
+            $com = $this->db->pq('SELECT comments from ispyb4a_db.'.$t[0].' WHERE '.$t[1].'=:1', array($this->arg('id')));
+            
+            if (!sizeof($com)) $this->_error('No such data collection');
+            
+            $this->db->pq("UPDATE ispyb4a_db.$t[0] set comments=:1 where $t[1]=:2", array($this->arg('value'), $this->arg('id')));
+            
+            print $this->arg('value');
+        }
+        
+        
     }
 
 ?>
