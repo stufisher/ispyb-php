@@ -72,7 +72,7 @@
                 <label>Description
                     <span class="small">Full description of the fault.<br /><a href="http://daringfireball.net/projects/markdown/">Markdown Supported</a></span>
                 </label>
-                <textarea name="desc" required /></textarea>
+                <textarea name="desc" required></textarea>
             </li>
 
             <li>
