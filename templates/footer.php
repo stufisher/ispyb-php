@@ -1,6 +1,6 @@
 <?php if (!$mobile): ?>
     </div>
-
+</div>
 </div>
 
 <?php endif; ?>

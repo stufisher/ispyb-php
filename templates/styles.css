@@ -26,17 +26,66 @@ a:hover {
 }
 
 #wrapper {
-	background: #f4f4f4;
+	background: #adadad;
 }
 
 /* Main Contaner
 ---------------------------------------------------------*/
 
+.cont_wrap {
+    background: #f4f4f4;
+}
+
+.cont_wrap.sidebar {
+    margin-left: 13%;
+}
+
 #container {
     width: 80%;
-    /*margin: 2% auto;*/
     margin: 0 auto;
     padding-top: 20px;
+}
+
+#container.sidebar {
+    width: 90%;
+}
+
+#sidebar {
+    float: left;
+    padding: 0.5%;
+    width: 11%;
+    margin-top: 6px;
+}
+
+#sidebar ul {
+    list-style: none;
+    margin-bottom: 5%;
+}
+
+#sidebar ul li {
+    display: block;
+    margin-bottom: 5%;
+}
+
+#sidebar li a {
+    display: block;
+    padding: 2%;
+    background: #dcdcdc;
+    margin: 2%;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+#sidebar ul li ul {
+    list-style: none;
+    margin-left: 4%;
+    margin-bottom: 1%;
+}
+
+#sidebar ul li ul li {
+    display: block
+    padding: 2%;
+    margin-bottom: 1%;
 }
 
 
@@ -231,7 +280,7 @@ div.table {
 
 table.robot_actions {
     width: 100%;
-    clear: both;
+    /*clear: both;*/
     box-shadow: 2px 2px 15px #bfbfbf;
     border-radius: 6px;    
 }
@@ -355,9 +404,10 @@ div.dataTables_info {
     padding: 6px;
 }
 
+/*
 table.robot_actions {
     clear: both;
-}
+}*/
  
 /* Self clearing - */
 div.dataTables_wrapper:after {
@@ -480,7 +530,7 @@ div.form {
 }
 
 div.form li {
-    clear: both
+    /*clear: both*/
 }
 
 div.form label {
@@ -523,6 +573,7 @@ div.form .clear {
     clear: both;
 }
 
+form button.submit,
 div.form button.submit {
     width: 150px;
     height: 30px;
@@ -536,9 +587,11 @@ div.form label.ferror {
     display: none !important;
 }
 
+table.form .ferror,
 div.form .ferror {
     border: 1px solid red;
 }
+
 
 .editable {
     padding: 1%;
@@ -841,33 +894,6 @@ div.form .ferror {
     padding: 5px;
     text-align: center;
 }
-
-/*
-.data_collection .distl .yAxis .tickLabel:first-child,
-.data_collection .distl .yAxis .tickLabel:last-child { display: none;
-}
-
-
-.data_collection .distl .plot {
-    height: 135px;
-    width: 250px;
-    
-}
-
-.data_collection .distl ul.legend li {
-    float: left;
-    font-size: 10px;
-    width: 25%;
-}
-
-.data_collection .distl ul.legend li:before {
-        position: absolute;
-        display: block;
-        content: '';
-        width: 8px;
-        height: 8px;
-        border-radius: 5px;
-}*/
 
 
 .data_collection .edge,
@@ -1278,6 +1304,7 @@ div.status.oavs {
     background: #cccccc;
 }
 
+/*
 .invalid {
     background: red;
 }
@@ -1285,6 +1312,7 @@ div.status.oavs {
 .valid {
     background: green;
 }
+*/
 
 .bl_puck_drag {
     background: #bcbcbc;
@@ -1445,10 +1473,15 @@ button.editor {
     text-align: left !important;
 }
 
+.ra {
+    text-align: right !important;
+}
+
 .tw {
     overflow-x: auto;
 }
 
+button.small,
 button.logv,
 button.mtz,
 button.save,
@@ -1459,6 +1492,7 @@ button.delete {
     height: 20px;
 }
 
+button.small span,
 button.logv span,
 button.mtz span,
 button.save span,
@@ -1728,6 +1762,51 @@ div.pdbs {
 #pdbs,
 #pdbs2 {
     height: 200px;
+}
+
+
+
+/* Shipments / Containers */
+.containers {
+    list-style: none;
+}
+
+.containers li {
+    padding: 2%;
+    margin: 1%;
+    border-radius: 6px;
+    background: #cdcdcd;
+    height: 20px;
+}
+
+.invalid {
+    box-shadow: 0 0 8px red;
+}
+
+.valid {
+    box-shadow: 0 0 8px green;
+}
+
+
+table.dewars tr:hover td {
+    cursor: pointer;
+    background: #dddddd;
+}
+
+.current {
+    padding: 4%;
+    background: #dedede;
+    margin-bottom: 4%;
+}
+
+.current input {
+    width: 60px !important;
+}
+
+.ui-autocomplete {
+    max-height: 100px;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /* Responsive Styling

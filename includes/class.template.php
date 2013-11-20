@@ -8,6 +8,7 @@
         function __construct($title, $nav, $hf=1) {
             $this->mobile = false;
             $this->hf = $hf;
+            $this->sb = false;
             
             $this->template_url = '/templates/';
             $this->template_path = 'templates/';
@@ -31,6 +32,10 @@
             $this->title = $title;
         }
         
+        
+        public function side() {
+            $this->sb = true;
+        }
         
         
         public function __get($name) {

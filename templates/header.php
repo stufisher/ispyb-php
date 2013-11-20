@@ -19,6 +19,10 @@
     <script type="text/javascript" src="<?php echo $j ?>"></script>
     <?php endforeach; ?>
 
+    <?php if ($sb): ?>
+    <script type="text/javascript" src="<?php echo $template_url ?>js/pages/sidebar.js"></script>
+    <?php endif; ?>
+
     <script type="text/javascript">
         $(function() {
             $('.debug').click(function() {
@@ -66,9 +70,14 @@
 </div>
 <?php endif; ?>
 
+<?php if ($sb): ?>
+    <?php include($template_path.'sidebar.php'); ?>
+<?php endif; ?>
+
 
 <?php if (!$mobile): ?>
-<div id="container">
+<div class="cont_wrap  <?php echo $sb ? 'sidebar' : '' ?>">
+<div id="container" <?php echo $sb ? 'class="sidebar"' : '' ?>>
 
     <div class="content">
 
