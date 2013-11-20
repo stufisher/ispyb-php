@@ -266,8 +266,8 @@
             // Beam status
             $bs = $this->_get_archive('SR-DI-DCCT-01:SIGNAL', strtotime($info['ST'])+3600, strtotime($info['EN'])+3600, 200);
             #$bs = $this->_get_archive('CS-CS-MSTAT-01:MODE', strtotime($info['ST'])+3600, strtotime($info['EN'])+3600, 200);
-            
-            #print_r($bs);
+                                    
+            if (!sizeof($bs)) $bs = array();
             
             $lastv = 0;
             $ex = 3600*1000;
