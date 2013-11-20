@@ -51,7 +51,11 @@
             
             foreach (array('a', 'b', 'c', 'al', 'be', 'ga') as $p) array_push($args, $this->arg($p));
             
-            array_push($args, $this->arg('year'));
+            if ($this->has_arg('year')) {
+                array_push($args, $this->arg('year'));
+            } else {
+                array_push($args, strftime('%Y-%m-%d'));
+            }
             
             if ($this->has_arg('res')) {
                 $res = 'AND apss.resolutionlimithigh <= :'.(sizeof($args)+1);
@@ -70,7 +74,7 @@
                 array_push($args, phpCAS::getUser());
             } else $nostaff = '';
             
-            $rows = $this->db->pq("SELECT sqrt(power(ap.refinedcell_a-:13,2)+power(ap.refinedcell_b-:14,2)+power(ap.refinedcell_c-:15,2)+power(ap.refinedcell_alpha-:16,2)+power(ap.refinedcell_beta-:17,2)+power(ap.refinedcell_gamma-:18,2)) as dist, s.beamlinename as bl, app.processingcommandline as type, apss.ntotalobservations as ntobs, apss.ntotaluniqueobservations as nuobs, apss.resolutionlimitlow as rlow, apss.resolutionlimithigh as rhigh, apss.scalingstatisticstype as shell, apss.rmerge, apss.completeness, apss.multiplicity, apss.meanioversigi as isigi, ap.spacegroup as sg, ap.refinedcell_a as cell_a, ap.refinedcell_b as cell_b, ap.refinedcell_c as cell_c, ap.refinedcell_alpha as cell_al, ap.refinedcell_beta as cell_be, ap.refinedcell_gamma as cell_ga, dc.datacollectionid as id, TO_CHAR(dc.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, dc.imagedirectory as dir, dc.filetemplate, p.proposalcode || p.proposalnumber || '-' || s.visit_number as visit, dc.numberofimages as numimg, dc.axisrange, dc.axisstart, dc.wavelength, dc.transmission, dc.exposuretime FROM ispyb4a_db.autoprocintegration api INNER JOIN ispyb4a_db.autoprocscaling_has_int aph ON api.autoprocintegrationid = aph.autoprocintegrationid INNER JOIN ispyb4a_db.autoprocscaling aps ON aph.autoprocscalingid = aps.autoprocscalingid INNER JOIN ispyb4a_db.autoproc ap ON aps.autoprocid = ap.autoprocid INNER JOIN ispyb4a_db.autoprocscalingstatistics apss ON apss.autoprocscalingid = aph.autoprocscalingid INNER JOIN ispyb4a_db.autoprocprogram app ON api.autoprocprogramid = app.autoprocprogramid INNER JOIN ispyb4a_db.datacollection dc ON api.datacollectionid = dc.datacollectionid INNER JOIN ispyb4a_db.blsession s ON s.sessionid = dc.sessionid INNER JOIN ispyb4a_db.proposal p ON s.proposalid = p.proposalid $nostaff WHERE p.proposalcode != 'in' AND p.proposalcode != 'cm' AND apss.scalingstatisticstype LIKE 'overall' AND (ap.refinedcell_a BETWEEN :1 AND :2) AND (ap.refinedcell_b BETWEEN :3 AND :4) AND (ap.refinedcell_c BETWEEN :5 AND :6) AND (ap.refinedcell_alpha BETWEEN :7 AND :8) AND (ap.refinedcell_beta BETWEEN :9 AND :10) AND (ap.refinedcell_gamma BETWEEN :11 AND :12) AND to_date(:19, 'YYYY-MM-DD') > dc.starttime $res $sg ORDER BY dist", $args);
+            $rows = $this->db->pq("SELECT sqrt(power(ap.refinedcell_a-:13,2)+power(ap.refinedcell_b-:14,2)+power(ap.refinedcell_c-:15,2)+power(ap.refinedcell_alpha-:16,2)+power(ap.refinedcell_beta-:17,2)+power(ap.refinedcell_gamma-:18,2)) as dist, s.beamlinename as bl, app.processingcommandline as type, apss.ntotalobservations as ntobs, apss.ntotaluniqueobservations as nuobs, apss.resolutionlimitlow as rlow, apss.resolutionlimithigh as rhigh, apss.scalingstatisticstype as shell, apss.rmerge, apss.completeness, apss.multiplicity, apss.meanioversigi as isigi, ap.spacegroup as sg, ap.refinedcell_a as cell_a, ap.refinedcell_b as cell_b, ap.refinedcell_c as cell_c, ap.refinedcell_alpha as cell_al, ap.refinedcell_beta as cell_be, ap.refinedcell_gamma as cell_ga, dc.datacollectionid as id, TO_CHAR(dc.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, dc.imagedirectory as dir, dc.filetemplate, p.proposalcode || p.proposalnumber || '-' || s.visit_number as visit, dc.numberofimages as numimg, dc.axisrange, dc.axisstart, dc.wavelength, dc.transmission, dc.exposuretime FROM ispyb4a_db.autoprocintegration api INNER JOIN ispyb4a_db.autoprocscaling_has_int aph ON api.autoprocintegrationid = aph.autoprocintegrationid INNER JOIN ispyb4a_db.autoprocscaling aps ON aph.autoprocscalingid = aps.autoprocscalingid INNER JOIN ispyb4a_db.autoproc ap ON aps.autoprocid = ap.autoprocid INNER JOIN ispyb4a_db.autoprocscalingstatistics apss ON apss.autoprocscalingid = aph.autoprocscalingid INNER JOIN ispyb4a_db.autoprocprogram app ON api.autoprocprogramid = app.autoprocprogramid INNER JOIN ispyb4a_db.datacollection dc ON api.datacollectionid = dc.datacollectionid INNER JOIN ispyb4a_db.blsession s ON s.sessionid = dc.sessionid INNER JOIN ispyb4a_db.proposal p ON s.proposalid = p.proposalid $nostaff WHERE p.proposalcode != 'in' AND p.proposalcode != 'cm' AND apss.scalingstatisticstype LIKE 'overall' AND (ap.refinedcell_a BETWEEN :1 AND :2) AND (ap.refinedcell_b BETWEEN :3 AND :4) AND (ap.refinedcell_c BETWEEN :5 AND :6) AND (ap.refinedcell_alpha BETWEEN :7 AND :8) AND (ap.refinedcell_beta BETWEEN :9 AND :10) AND (ap.refinedcell_gamma BETWEEN :11 AND :12) AND to_date(:19, 'YYYY-MM-DD') >= dc.starttime $res $sg ORDER BY dist", $args);
                         
             $types = array('fast_dp' => 'Fast DP', '-3d' => 'XIA2 3d', '-3dii' => 'XIA2 3dii', '-3da ' => 'XIA2 3da', '-2da ' => 'XIA2 2da', '-2d' => 'XIA2 2d', '-2dr' => 'XIA2 2dr', '-3daii ' => 'XIA2 3daii', '-blend' => 'MultiXIA2');
                                   
@@ -162,6 +166,7 @@
             
             if (file_exists('pdbs.json')) {
                 $pdbs = json_decode(file_get_contents('pdbs.json'));
+                $tot = sizeof(get_object_vars($pdbs));
                 
                 foreach ($pdbs as $pdb => $d) {
                     $s = '';
@@ -206,7 +211,7 @@
                         }
                     }
                 }
-            }
+            } else $tot = 0;
             
             if ($this->has_arg('iSortCol_0')) {
                 usort($rows, function($a, $b) {
@@ -218,7 +223,7 @@
                 });
             }
             
-            $this->_output(array('iTotalRecords' => sizeof($rows),
+            $this->_output(array('iTotalRecords' => $tot,
                                  'iTotalDisplayRecords' => sizeof($rows),
                                  'stats' => $stats,
                                  'perbl' => $perbl,
