@@ -120,6 +120,7 @@ $(function() {
                                  '<li>Exposure: '+r['EXPOSURETIME']+'s</li>'+
                                  //'<li>Measured Flux: '+r['FLUX']+'</li>'+
                                  '<li>Transmission: '+r['TRANSMISSION']+'%</li>'+
+                                 '<li>Beamsize: '+(r['BSX']*1000)+'x'+(r['BSY']*1000)+'&mu;m</li>'+
                                  '<li class="comment">Comment: <span class="comment_edit">'+(r['COMMENTS']?r['COMMENTS']:'')+'</span></li>'+
                              '</ul>'+
                              '<div class="holder">'+
@@ -200,11 +201,32 @@ $(function() {
                        
                        // Robot loads
                        } else if (r['TYPE'] == 'load') {
-                         $('<div class="data_collection" dcid="'+r['ID']+'">' +
-                           '<h1>'+r['ST']+' - Robot '+r['IMP'].toLowerCase()+'ing puck ' + r['EXPOSURETIME'] +' pin ' + r['RESOLUTION'] + ' (Barcode: '+r['DIR']+') Status: '+r['SPOS']+' - '+r['SAN']+'</h1>' +
-                           '</div>').data('apr', r['AP']).hide().prependTo('.data_collections').slideDown()
+                         if (r['IMP'] == 'ANNEAL' || r['IMP'] == 'WASH') {
+                           $('<div class="data_collection" dcid="'+r['ID']+'">' +
+                               '<div class="snapshots">'+
+                                  '<a href="/image/ai/visit/'+visit+'/aid/'+r['ID']+'/f/1" rel="lightbox-'+r['ID']+'" title="Crystal Snapshot Before"><img dsrc="/image/ai/visit/'+visit+'/aid/'+r['ID']+'" alt="Crystal Snapshot Before" /></a>'+
+                               '</div>'+
+                               '<div class="snapshots">'+
+                                  '<a href="/image/ai/visit/'+visit+'/aid/'+r['ID']+'/f/1" rel="lightbox-'+r['ID']+'" title="Crystal Snapshot After"><img dsrc="/image/ai/visit/'+visit+'/aid/'+r['ID']+'" alt="Crystal Snapshot After" /></a>'+
+                               '</div>'+
+                               '<h1>'+r['ST']+'</h1>'+
+                               '<h2>Sample '+r['IMP'].toLowerCase()+'</h2>'+
+                                 '<ul>'+
+                                   '<li>Time: '+r['BSX']+'s</li>'+
+                                 '</ul>'+
+                               '<div class="clear"></div>'+
+                             '</div>').hide().prependTo('.data_collections').slideDown()
                        
-                         if (!first) log_message('New sample loaded', '<a href="#'+r['ID'] +'">Barcode: ' +r['DIR'] + '</a>')
+                       
+                           if (!first) log_message('Sample '+r['IMP'].toLowerCase(), '<a href="#'+r['ID'] +'">View</a>')
+                       
+                         } else {
+                           $('<div class="data_collection" dcid="'+r['ID']+'">' +
+                             '<h1>'+r['ST']+' - Robot '+r['IMP'].toLowerCase()+'ing puck ' + r['EXPOSURETIME'] +' pin ' + r['RESOLUTION'] + ' (Barcode: '+r['DIR']+') Status: '+r['SPOS']+' - '+r['SAN']+' (Took '+r['BSX']+'s)</h1>' +
+                             '</div>').data('apr', r['AP']).hide().prependTo('.data_collections').slideDown()
+                       
+                           if (!first) log_message('New sample loaded', '<a href="#'+r['ID'] +'">Barcode: ' +r['DIR'] + '</a>')
+                         }
                        
                        }
 
