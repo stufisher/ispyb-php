@@ -102,7 +102,7 @@ $(function() {
         }
                       
         data['res'] = $('input[name=res]').val()
-        data['sg'] = $('input[name=sg]').val()
+        data['sg'] = $('input[name=sg]').val().replace(/\s/g, '')
                                    
         $.ajax({
             url: '/mc/ajax/integrate/visit/' + visit,
