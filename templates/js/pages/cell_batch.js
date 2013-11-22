@@ -190,8 +190,7 @@ $(function() {
     for (var y in perbl) yk.push(y)
     yk.sort()
   
-  for (var i = 0; i < yk.length; i++) {
-        var y = yk[i]
+    $.each(yk, function(i,y) {
         var data = []
         for (d in perbl[y]) data.push([d, perbl[y][d]])
   
@@ -200,10 +199,10 @@ $(function() {
         var data = []
         for (d in perbl_old[y]) data.push([d, perbl_old[y][d]])
         pery2.push({label:y, data: data})
-    }
+    })
   
     var ticks = []
-    for (var i = 0; i < blns.length; i++) ticks.push([i,blns[i]])
+    $.each(blns, function(i,e) { ticks.push([i,e]) })
   
     var ops = {
         series: {
