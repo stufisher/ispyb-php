@@ -70,8 +70,10 @@ $(function() {
      yaxes: [{}, { position: 'right' }],
   }
   
-  $.plot('#dc_hist', dewar[0], opts)
-  $.plot('#dc_hist2', dewar[1], opts)
+  if (typeof dewar !== 'undefined') {
+    $.plot('#dc_hist', dewar[0], opts)
+    $.plot('#dc_hist2', dewar[1], opts)
+  }
   
   
   if ($(window).width() <= 600) {
