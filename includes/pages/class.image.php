@@ -2,7 +2,7 @@
 
     class Image extends Page {
         
-        var $arg_list = array('id' => '\d+', 'n' => '\d+', 'f' => '\d', 'bl' => '\w\d\d(-\d)?', 'w' => '\d+', 'fid' => '\d+');
+        var $arg_list = array('id' => '\d+', 'n' => '\d+', 'f' => '\d', 'bl' => '\w\d\d(-\d)?', 'w' => '\d+', 'fid' => '\d+', 'aid' => '\d+', 'visit' => '\w\w\d+-\d+');
         var $dispatch = array('xtal' => '_xtal_image',
                               'diff' => '_diffraction_image',
                               'dimp' => '_dimple_images',
@@ -10,6 +10,7 @@
                               'cam' => '_forward_webcam',
                               'oav' => '_forward_oav',
                               'fa' => '_fault_attachment',
+                              'ai' => '_action_image',
                               );
         var $def = 'xtal';
 
@@ -32,6 +33,29 @@
             }
             else return;
         
+            
+        }
+        
+        
+        function _action_image() {
+            if (!$this->has_arg('visit')) return;
+            if (!$this->has_arg('aid')) return;
+            
+            $image = $this->db->pq("SELECT r.xtalsnapshotbefore,r.xtalsnapshotafter FROM ispyb4a_db.robotaction r INNER JOIN ispyb4a_db.blsession s ON r.blsessionid = s.sessionid INNER JOIN ispyb4a_db.proposal p ON s.proposalid = p.proposalid WHERE r.robotactionid=:1 AND p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :2", array($this->arg('aid'), $this->arg('visit')));
+            
+            if (!sizeof($image)) return;
+            else $image = $image[0];
+            
+            $images = array();
+            foreach (array('XTALSNAPSHOTBEFORE', 'XTALSNAPSHOTAFTER') as $i) {
+                if (file_exists($image[$i])) array_push($images, $image[$i]);
+            }
+            
+            $n = $this->has_arg('n') ? ($this->arg('n')-1) : 0;
+            if ($n < sizeof($images)) {
+                header('Content-Type:image/png');
+                readfile($this->has_arg('f') ? $images[$n] : str_replace('.png', 't.png', $images[$n]));
+            }
             
         }
         
