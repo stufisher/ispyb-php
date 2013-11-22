@@ -15,6 +15,7 @@
             <li id="ed">Edge Scans</li>
             <li id="fl">Fluorescence Spectra</li>
             <li id="rb">Robot Actions</li>
+            <li id="ac">Sample Actions</li>
             <li id="flag">Flagged</li>
         </ul>
     </div>
