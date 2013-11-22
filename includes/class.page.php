@@ -140,6 +140,13 @@
             return $ops;
         }
         
+        function sg_hash() {
+            $hash = array();
+            foreach ($this->sgs as $s) $hash[$s] = $s;
+            
+            return $hash;
+        }
+        
         
         
         function profile($msg) {
