@@ -222,6 +222,7 @@ $(function() {
         $('.contents').dialog('option', 'title', 'Container: ' + $('.container[cid="'+cid+'"] h1').html())
         $('.contents .samples table tbody').html(tab.join())
            
+        /*
         $('.name_edit,.comment_edit').editable(function(v,s) {
             console.log(v,s,this)
             return v
@@ -231,7 +232,7 @@ $(function() {
             console.log(v,s,this)
             return v
         }, { type: 'select', 'submit': 'Ok',  loadurl: '/samples/ajax/pro/array/1/visit/'+visit+'/' });
-           
+        */
            
         $('.contents').dialog('open')
       }
