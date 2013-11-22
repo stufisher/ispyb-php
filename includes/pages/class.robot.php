@@ -16,14 +16,14 @@
         # Internal dispatcher based on passed arguments
         function _index() {
             if ($this->has_arg('visit')) $this->_get_visit();
-            elseif (sizeof($this->args) > 0) $this->_get_list();
+            else if ($this->has_arg('bl') || $this->has_arg('run')) $this->_get_list();
             else $this->_get_root();
         }
         
         
         # Show list of beamlines & runs
         function _get_root() {
-            $rows = $this->db->q("SELECT vr.run || '-' || s.beamlinename as rbl, min(vr.run) as run, min(vr.runid) as runid, min(s.beamlinename) as bl, count(r.robotactionid) as num, AVG(CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as avgt FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = s.sessionid) WHERE r.robotactionid > 1 AND p.proposalcode <> 'cm' AND r.status='SUCCESS' GROUP BY vr.run || '-' || s.beamlinename ORDER BY min(s.beamlinename), min(vr.runid)");
+            $rows = $this->db->q("SELECT vr.run || '-' || s.beamlinename as rbl, min(vr.run) as run, min(vr.runid) as runid, min(s.beamlinename) as bl, count(r.robotactionid) as num, AVG(CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as avgt FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = s.sessionid) WHERE r.robotactionid > 1 AND p.proposalcode <> 'cm' AND r.status='SUCCESS' AND (r.actiontype = 'LOAD' OR r.actiontype='UNLOAD') GROUP BY vr.run || '-' || s.beamlinename ORDER BY min(s.beamlinename), min(vr.runid)");
             
             $tvs = $this->db->q("SELECT distinct vr.run,vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession bl ON (bl.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = bl.sessionid) WHERE robotactionid != 1 ORDER BY vr.runid");
             
@@ -81,7 +81,7 @@
             }
             $where = implode(' AND ', $where);
             
-            $q = "SELECT TO_CHAR(min(r.starttimestamp), 'DD-MM-YYYY HH24:MI:SS') as st, p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis, s.beamlinename as bl, r.status, count(r.robotactionid) as num, AVG(CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as avgt FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = s.sessionid) WHERE p.proposalcode <> 'cm' AND $where GROUP BY p.proposalcode || p.proposalnumber || '-' || s.visit_number, r.status, s.beamlinename ORDER BY min(r.starttimestamp)";
+            $q = "SELECT TO_CHAR(min(r.starttimestamp), 'DD-MM-YYYY HH24:MI:SS') as st, p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis, s.beamlinename as bl, r.status, count(r.robotactionid) as num, AVG(CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as avgt FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = s.sessionid) WHERE p.proposalcode <> 'cm' AND $where AND (r.actiontype = 'LOAD' OR r.actiontype='UNLOAD') GROUP BY p.proposalcode || p.proposalnumber || '-' || s.visit_number, r.status, s.beamlinename ORDER BY min(r.starttimestamp)";
             
             $ticks = array();
             $avts = array();
@@ -134,7 +134,7 @@
 
             
             # Get breakdown of dewar usage for last 7 / 30 days
-            $seven = $this->db->pq("SELECT count(case when r.status='CRITICAL' then 1 end) as ccount, count(case when r.status!='SUCCESS' then 1 end) as ecount, count(case when r.status!='SUCCESS' then 1 end)/count(r.status)*100 as epc, count(case when r.status='CRITICAL' then 1 end)/count(r.status)*100 as cpc, count(r.status) as total, r.dewarlocation from robotaction r  inner join blsession s on r.blsessionid=s.sessionid WHERE  $where AND r.actiontype LIKE 'LOAD' AND r.dewarlocation != 99 AND r.starttimestamp > SYSDATE-7 GROUP BY r.dewarlocation ORDER BY r.dewarlocation", $args);
+            $seven = $this->db->pq("SELECT count(case when r.status='CRITICAL' then 1 end) as ccount, count(case when r.status!='SUCCESS' then 1 end) as ecount, count(case when r.status!='SUCCESS' then 1 end)/count(r.status)*100 as epc, count(case when r.status='CRITICAL' then 1 end)/count(r.status)*100 as cpc, count(r.status) as total, r.dewarlocation from robotaction r INNER JOIN blsession s on r.blsessionid=s.sessionid INNER JOIN ispyb4a_db.v_run vr ON (s.startdate BETWEEN vr.startdate AND vr.enddate) WHERE  $where AND r.actiontype LIKE 'LOAD' AND r.dewarlocation != 99 AND r.starttimestamp > SYSDATE-7 GROUP BY r.dewarlocation ORDER BY r.dewarlocation", $args);
 
             
             $profile = array(array(
@@ -153,7 +153,7 @@
                 array_push($profile[0][1]['data'], array($e['DEWARLOCATION'], $e['EPC']));
             }
             
-            $thirty = $this->db->pq("SELECT count(case when r.status='CRITICAL' then 1 end) as ccount, count(case when r.status!='SUCCESS' then 1 end) as ecount, count(case when r.status!='SUCCESS' then 1 end)/count(r.status)*100 as epc, count(case when r.status='CRITICAL' then 1 end)/count(r.status)*100 as cpc, count(r.status) as total, r.dewarlocation from robotaction r  inner join blsession s on r.blsessionid=s.sessionid WHERE $where AND r.actiontype LIKE 'LOAD' AND r.dewarlocation != 99 AND r.starttimestamp > SYSDATE-30 GROUP BY r.dewarlocation ORDER BY r.dewarlocation", $args);
+            $thirty = $this->db->pq("SELECT count(case when r.status='CRITICAL' then 1 end) as ccount, count(case when r.status!='SUCCESS' then 1 end) as ecount, count(case when r.status!='SUCCESS' then 1 end)/count(r.status)*100 as epc, count(case when r.status='CRITICAL' then 1 end)/count(r.status)*100 as cpc, count(r.status) as total, r.dewarlocation from robotaction r  inner join blsession s on r.blsessionid=s.sessionid INNER JOIN ispyb4a_db.v_run vr ON (s.startdate BETWEEN vr.startdate AND vr.enddate) WHERE $where AND r.actiontype LIKE 'LOAD' AND r.dewarlocation != 99 AND r.starttimestamp > SYSDATE-30 GROUP BY r.dewarlocation ORDER BY r.dewarlocation", $args);
                            
             foreach ($thirty as $e) {
                 array_push($profile[1][0]['data'], array($e['DEWARLOCATION'], $e['TOTAL']));
@@ -162,7 +162,7 @@
             }
             
             # Get latest errors for run / beamline
-            $errors = $this->db->pq("SELECT * FROM (SELECT ROWNUM,r.samplebarcode, r.actiontype, r.dewarlocation, r.containerlocation, r.message, TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis, s.beamlinename as bl, r.status, (CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as time FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = s.sessionid) WHERE r.status != 'SUCCESS' AND $where ORDER BY r.starttimestamp DESC) WHERE rownum <= 100", $args);
+            $errors = $this->db->pq("SELECT * FROM (SELECT ROWNUM,r.samplebarcode, r.actiontype, r.dewarlocation, r.containerlocation, r.message, TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis, s.beamlinename as bl, r.status, (CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as time FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = s.sessionid) WHERE r.status != 'SUCCESS' AND $where AND (r.actiontype = 'LOAD' OR r.actiontype='UNLOAD') ORDER BY r.starttimestamp DESC) WHERE rownum <= 100", $args);
             
             $p = array();
             $l = array();
@@ -194,7 +194,7 @@
         
         # Show list of actions for visit
         function _get_visit() {
-            $rows = $this->db->pq("SELECT TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, r.status, r.actiontype, r.containerlocation, r.dewarlocation, r.samplebarcode, r.message, (CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as time FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = s.sessionid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1 ORDER BY r.starttimestamp DESC", array($this->arg('visit')));
+            $rows = $this->db->pq("SELECT TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, r.status, r.actiontype, r.containerlocation, r.dewarlocation, r.samplebarcode, r.message, (CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as time FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = s.sessionid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1 AND (r.actiontype = 'LOAD' OR r.actiontype='UNLOAD') ORDER BY r.starttimestamp DESC", array($this->arg('visit')));
             
             if (!$rows) {
                 $this->_no_data();
