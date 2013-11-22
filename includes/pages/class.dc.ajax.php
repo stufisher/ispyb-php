@@ -2,7 +2,7 @@
 
     class Ajax extends AjaxBase {
         
-        var $arg_list = array('id' => '\d+', 'visit' => '\w\w\d\d\d\d-\d+', 'page' => '\d+', 's' => '\w+', 'pp' => '\d+', 't' => '\w+', 'bl' => '\w\d\d(-\d)?', 'value' => '.*');
+        var $arg_list = array('id' => '\d+', 'visit' => '\w\w\d\d\d\d-\d+', 'page' => '\d+', 's' => '\w+', 'pp' => '\d+', 't' => '\w+', 'bl' => '\w\d\d(-\d)?', 'value' => '.*', 'sid' => '\d+');
         var $dispatch = array('strat' => '_dc_strategies',
                               'ap' => '_dc_auto_processing',
                               'dp' => '_dc_downstream',
@@ -25,7 +25,7 @@
             session_write_close();
             
             $this->profile('starting dc page');
-            if (!$this->has_arg('visit')) $this->_error('No visit specified');
+            if (!$this->has_arg('visit') && !($this->has_arg('sid') && $this->arg('prop'))) $this->_error('No visit or sample specified');
             
             $args = array();
             
@@ -33,6 +33,21 @@
             $where2 = '';
             $where3 = '';
             $where4 = '';
+            
+            $inner = '';
+            $tables = array('dc.sessionid', 'es.sessionid', 'r.blsessionid', 'xrf.sessionid');
+            $sess = array();
+            foreach ($tables as $i => $t) array_push($sess, $t.'=:'.($i+1));
+            $vis = array('','','','');
+            $visq = '';
+            
+            if ($this->has_arg('sid')) {
+                $inner = ' INNER JOIN blsample_has_energyscan be ON be.energyscanid = es.energyscanid';
+                $tables2 = array('dc', 'be', 'r', 'xrf');
+                foreach ($tables2 as $i => $t) $sess[$i] = $t.'.blsampleid=:'.($i+1);
+                foreach ($tables as $i => $t) $vis[$i] = ' INNER JOIN ispyb4a_db.blsession ses ON ses.sessionid = '.$t;
+                $visq = 'ses.visit_number as vn,';
+            }
             
             if ($this->has_arg('t')) {
                 if ($this->arg('t') == 'dc') {
@@ -53,6 +68,13 @@
                 } else if ($this->arg('t') == 'rb') {
                     $where .= ' AND dc.datacollectionid < 0';
                     $where2 .= ' AND es.energyscanid < 0';
+                    $where3 .= " AND (r.actiontype LIKE 'LOAD' OR r.actiontype LIKE 'UNLOAD')";
+                    $where4 .= ' AND xrf.xfefluorescencespectrumid < 0';
+                    
+                } else if ($this->arg('t') == 'ac') {
+                    $where .= ' AND dc.datacollectionid < 0';
+                    $where2 .= ' AND es.energyscanid < 0';
+                    $where3 .= " AND (r.actiontype NOT LIKE 'LOAD' AND r.actiontype NOT LIKE 'UNLOAD')";
                     $where4 .= ' AND xrf.xfefluorescencespectrumid < 0';
                     
                 } else if ($this->arg('t') == 'flag') {
@@ -73,9 +95,18 @@
                 $end = $pg*$pp+$pp;
             }
             
-            $info = $this->db->pq("SELECT s.sessionid, s.beamlinename as bl, vr.run, vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')))[0];
+            $info = array();
+            if ($this->has_arg('visit')) {
+                $info = $this->db->pq("SELECT s.sessionid, s.beamlinename as bl, vr.run, vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')))[0];
             
-            for ($i = 0; $i < 4; $i++) array_push($args, $info['SESSIONID']);
+                for ($i = 0; $i < 4; $i++) array_push($args, $info['SESSIONID']);
+                
+            } else if ($this->has_arg('sid') && $this->has_arg('prop')) {
+                $info = $this->db->pq("SELECT s.blsampleid FROM ispyb4a_db.blsample s INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = s.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = pr.proposalid WHERE s.blsampleid=:1 AND p.proposalcode || p.proposalnumber LIKE :2", array($this->arg('sid'), $this->arg('prop')));
+                for ($i = 0; $i < 4; $i++) array_push($args, $this->arg('sid'));
+            }
+            
+            if (!sizeof($info)) $this->_error('The specified visit or sample doesnt exist');
         
             if ($this->has_arg('id')) {
                 $st = sizeof($args)+1;
@@ -97,13 +128,13 @@
                 for ($i = 0; $i < 5; $i++) array_push($args, $this->arg('s'));
             }
             
-            $tot = $this->db->pq('SELECT sum(tot) as t FROM (SELECT count(dc.datacollectionid) as tot FROM ispyb4a_db.datacollection dc  WHERE dc.sessionid=:1'.$where.'
+            $tot = $this->db->pq("SELECT sum(tot) as t FROM (SELECT count(dc.datacollectionid) as tot FROM ispyb4a_db.datacollection dc  WHERE $sess[0] $where
                 
-                UNION SELECT count(es.energyscanid) as tot FROM ispyb4a_db.energyscan es WHERE es.sessionid=:2'.$where2.'
+                UNION SELECT count(es.energyscanid) as tot FROM ispyb4a_db.energyscan es $inner WHERE $sess[1] $where2
                                 
-                UNION SELECT count(xrf.xfefluorescencespectrumid) as tot from ispyb4a_db.xfefluorescencespectrum xrf WHERE xrf.sessionid=:3'.$where4.'
+                UNION SELECT count(xrf.xfefluorescencespectrumid) as tot from ispyb4a_db.xfefluorescencespectrum xrf WHERE $sess[3] $where4
                                 
-                UNION SELECT count(r.robotactionid) as tot FROM ispyb4a_db.robotaction r WHERE r.blsessionid=:4'.$where3.')', $args)[0]['T'];
+                UNION SELECT count(r.robotactionid) as tot FROM ispyb4a_db.robotaction r WHERE $sess[2]  $where3)", $args)[0]['T'];
     
             $this->profile('after page count');
             
@@ -114,27 +145,33 @@
             array_push($args, $start);
             array_push($args, $end);
 
-            $q = 'SELECT outer.*
+            $q = "SELECT outer.*
              FROM (SELECT ROWNUM rn, inner.*
              FROM (
-             SELECT dc.overlap, 1 as flux, 1 as scon, \'a\' as spos, \'a\' as san, \'data\' as type, dc.imageprefix as imp, dc.datacollectionnumber as run, dc.filetemplate, dc.datacollectionid as id, dc.numberofimages as ni, dc.imagedirectory as dir, dc.resolution, dc.exposuretime, dc.axisstart, dc.numberofimages as numimg, TO_CHAR(dc.starttime, \'DD-MM-YYYY HH24:MI:SS\') as st, dc.transmission, dc.axisrange, dc.wavelength, dc.comments, 1 as epk, 1 as ein, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4, dc.starttime as sta FROM ispyb4a_db.datacollection dc
-             
-
-             WHERE dc.sessionid=:1'.$where.'
-             UNION
-             SELECT 1, 1, 1 as scon, \'A\' as spos, \'A\' as sn, \'edge\' as type, es.jpegchoochfilefullpath, 1, \'A\', es.energyscanid, 1, es.element, es.peakfprime, es.exposuretime, es.peakfdoubleprime, 1, TO_CHAR(es.starttime, \'DD-MM-YYYY HH24:MI:SS\') as st, es.transmissionfactor, es.inflectionfprime, es.inflectionfdoubleprime, es.comments, es.peakenergy, es.inflectionenergy, \'A\', \'A\', \'A\', \'A\', es.starttime as sta FROM ispyb4a_db.energyscan es WHERE es.sessionid=:2'.$where2.'
-
-            UNION
-            SELECT 1, 1, 1, \'A\', \'A\', \'mca\' as type, \'A\', 1, \'A\', xrf.xfefluorescencespectrumid, 1, xrf.filename, 1, xrf.exposuretime, 1, 1, TO_CHAR(xrf.starttime, \'DD-MM-YYYY HH24:MI:SS\') as st, xrf.beamtransmission, 1, xrf.energy, xrf.comments, 1, 1, \'A\', \'A\', \'A\', \'A\', xrf.starttime as sta FROM ispyb4a_db.xfefluorescencespectrum xrf WHERE xrf.sessionid=:3'.$where4.'
+             SELECT $visq dc.beamsizeatsamplex as bsx, dc.beamsizeatsampley as bsy, dc.overlap, 1 as flux, 1 as scon, 'a' as spos, 'a' as san, 'data' as type, dc.imageprefix as imp, dc.datacollectionnumber as run, dc.filetemplate, dc.datacollectionid as id, dc.numberofimages as ni, dc.imagedirectory as dir, dc.resolution, dc.exposuretime, dc.axisstart, dc.numberofimages as numimg, TO_CHAR(dc.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, dc.transmission, dc.axisrange, dc.wavelength, dc.comments, 1 as epk, 1 as ein, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4, dc.starttime as sta FROM ispyb4a_db.datacollection dc
+                 $vis[0]
+             WHERE $sess[0] $where
                    
              UNION
-             SELECT 1, 1, 1, r.status, r.message, \'load\' as type, r.actiontype, 1, \'A\', r.robotactionid, 1,  r.samplebarcode, r.containerlocation, r.dewarlocation, 1, 1, TO_CHAR(r.starttimestamp, \'DD-MM-YYYY HH24:MI:SS\') as st, 1, 1, 1, \'A\', 1, 1, \'A\', \'A\', \'A\', \'A\', r.starttimestamp as sta FROM ispyb4a_db.robotaction r WHERE r.blsessionid=:4'.$where3.'
+             SELECT $visq 1,1,1, 1, 1 as scon, 'A' as spos, 'A' as sn, 'edge' as type, es.jpegchoochfilefullpath, 1, 'A', es.energyscanid, 1, es.element, es.peakfprime, es.exposuretime, es.peakfdoubleprime, 1, TO_CHAR(es.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, es.transmissionfactor, es.inflectionfprime, es.inflectionfdoubleprime, es.comments, es.peakenergy, es.inflectionenergy, 'A', 'A', 'A', 'A', es.starttime as sta FROM ispyb4a_db.energyscan es $inner
+                 $vis[1]
+            WHERE $sess[1] $where2
+                   
+            UNION
+            SELECT $visq 1,1,1, 1, 1, 'A', 'A', 'mca' as type, 'A', 1, 'A', xrf.xfefluorescencespectrumid, 1, xrf.filename, 1, xrf.exposuretime, 1, 1, TO_CHAR(xrf.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, xrf.beamtransmission, 1, xrf.energy, xrf.comments, 1, 1, 'A', 'A', 'A', 'A', xrf.starttime as sta FROM ispyb4a_db.xfefluorescencespectrum xrf
+                $vis[3]
+            WHERE $sess[3] $where4
+                   
+            UNION
+            SELECT $visq ROUND((CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400, 1),1,1, 1, 1, r.status, r.message, 'load' as type, r.actiontype, 1, 'A', r.robotactionid, 1,  r.samplebarcode, r.containerlocation, r.dewarlocation, 1, 1, TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, 1, 1, 1, 'A', 1, 1, 'A', 'A', 'A', 'A', r.starttimestamp as sta FROM ispyb4a_db.robotaction r
+                $vis[2]
+            WHERE $sess[2] $where3
+                 
+                   
+            ORDER BY sta DESC
              
-             
-             ORDER BY sta DESC
-             
-             ) inner) outer
-             WHERE outer.rn > :'.$st.' AND outer.rn <= :'.($st+1);
+            ) inner) outer
+            WHERE outer.rn > :$st AND outer.rn <= :".($st+1);
             
             $dcs = $this->db->pq($q, $args);
             $this->profile('main query');            
@@ -143,13 +180,17 @@
                 $dc['SN'] = 0;
                 $dc['DI'] = 0;
                 
+                if ($this->has_arg('sid')) $dc['VIS'] = $this->arg('prop').'-'.$dc['VN'];
+                
                 
                 // Data collections
                 if ($dc['TYPE'] == 'data') {
                     $nf = array(1 => array('AXISSTART', 'AXISRANGE'), 2 => array('RESOLUTION', 'TRANSMISSION'), 3 => array('EXPOSURETIME'), 4 => array('WAVELENGTH'));
  
-                    $dc['DIR'] = $this->ads($dc['DIR']);
-                    $dc['DIR'] = substr($dc['DIR'], strpos($dc['DIR'], $this->arg('visit'))+strlen($this->arg('visit'))+1);
+                    #$dc['DIR'] = $this->ads($dc['DIR']);
+                    #$dc['DIR'] = substr($dc['DIR'], strpos($dc['DIR'], $this->arg('visit'))+strlen($this->arg('visit'))+1);
+                    
+                    $dc['DIR'] = preg_replace('/.*\/\d\d\d\d\/\w\w\d+-\d+\//', '', $dc['DIR']);
                     //$this->profile('dc');
                     
                     //$dc['FLUX'] = $dc['FLUX'] ? sprintf('%.2e', $dc['FLUX']) : 'N/A';
@@ -164,7 +205,9 @@
                 
                 // MCA Scans
                 } else if ($dc['TYPE'] == 'mca') {
-                    $results = str_replace('.mca', '.results.dat', str_replace($this->arg('visit'), $this->arg('visit').'/processed/pymca', $dc['DIR']));
+                    #$results = str_replace('.mca', '.results.dat', str_replace($this->arg('visit'), $this->arg('visit').'/processed/pymca', $dc['DIR']));
+                    
+                    $results = str_replace('.mca', '.results.dat', preg_replace('/(data\/\d\d\d\d\/\w\w\d+-\d+)/', '\1/processed/pymca', $dc['DIR']));
                     
                     $elements = array();
                     if (file_exists($results)) {
@@ -201,7 +244,7 @@
         function _ap_status() {
             session_write_close();
             
-            if (!$this->has_arg('visit')) $this->_error('No visit specified');
+            if (!($this->has_arg('visit') || $this->has_arg('prop'))) $this->_error('No visit or proposal specified');
             
             $ids = array();
             if (array_key_exists('ids', $_POST)) {
@@ -226,8 +269,16 @@
             
             $out = array();
             
+            if ($this->has_arg('visit')) {
+                $where = "p.proposalcode || p.proposalnumber || '-' || s.visit_number";
+                $arg = $this->arg('visit');
+            } else {
+                $where = 'p.proposalcode || p.proposalnumber';
+                $arg = $this->arg('prop');
+            }
+            
             foreach ($ids as $i) {
-                $dc = $this->db->pq("SELECT c.samplechangerlocation as scon, bls.location as spos, bls.name as san, im.measuredintensity as flux, dc.filetemplate, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4,dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) LEFT OUTER JOIN ispyb4a_db.blsample bls ON bls.blsampleid = dc.blsampleid LEFT OUTER JOIN ispyb4a_db.container c ON bls.containerid = c.containerid LEFT OUTER JOIN ispyb4a_db.image im ON (im.datacollectionid = dc.datacollectionid AND im.imagenumber = 1) WHERE dc.datacollectionid=:1 AND p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :2", array($i,$this->arg('visit')))[0];
+                $dc = $this->db->pq("SELECT c.samplechangerlocation as scon, bls.location as spos, bls.name as san, im.measuredintensity as flux, dc.filetemplate, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4,dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) LEFT OUTER JOIN ispyb4a_db.blsample bls ON bls.blsampleid = dc.blsampleid LEFT OUTER JOIN ispyb4a_db.container c ON bls.containerid = c.containerid LEFT OUTER JOIN ispyb4a_db.image im ON (im.datacollectionid = dc.datacollectionid AND im.imagenumber = 1) WHERE dc.datacollectionid=:1 AND $where LIKE :2", array($i,$arg))[0];
                 
                 $dc['DIR'] = $this->ads($dc['DIR']);
                 $root = str_replace($dc['VIS'], $dc['VIS'].'/processed', $dc['DIR']).$dc['IMP'].'_'.$dc['RUN'].'_'.'/';
@@ -274,7 +325,7 @@
                 $dc['DIR'] = $this->ads($dc['DIR']);
                 $dc['X'] = $images;
                 
-                $di = str_replace($this->arg('visit'), $this->arg('visit') . '/jpegs', $dc['DIR']).str_replace('.cbf', '.jpeg',preg_replace('/#+/', sprintf('%0'.substr_count($dc['FILETEMPLATE'], '#').'d', 1),$dc['FILETEMPLATE']));
+                $di = str_replace($dc['VIS'], $dc['VIS'].'/jpegs', $dc['DIR']).str_replace('.cbf', '.jpeg',preg_replace('/#+/', sprintf('%0'.substr_count($dc['FILETEMPLATE'], '#').'d', 1),$dc['FILETEMPLATE']));
                 
                 $die = 0;
                 if (file_exists($di)) $die = 1;
