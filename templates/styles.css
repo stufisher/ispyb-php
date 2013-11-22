@@ -1481,6 +1481,7 @@ button.editor {
     overflow-x: auto;
 }
 
+a.small,
 button.small,
 button.logv,
 button.mtz,
@@ -1492,6 +1493,7 @@ button.delete {
     height: 20px;
 }
 
+a.small span,
 button.small span,
 button.logv span,
 button.mtz span,
@@ -1799,6 +1801,7 @@ table.dewars tr:hover td {
     margin-bottom: 4%;
 }
 
+
 .current input {
     width: 60px !important;
 }
@@ -1807,6 +1810,11 @@ table.dewars tr:hover td {
     max-height: 100px;
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+
+table.samples .img {
+    width: 45%;
 }
 
 /* Responsive Styling
@@ -2043,7 +2051,7 @@ table.dewars tr:hover td {
 .ui-combobox-button { position: absolute; width: 1.8em !important; margin: 0; margin-left: -1px; top: 0; bottom: 0; }
 .ui-combobox-button .ui-button-text { padding: 0em; }
 .ui-combobox .ui-autocomplete { max-height: 10em; overflow-y: auto; overflow-x: hidden; }
-.ui-widget.ui-widget-content.ui-corner-left.ui-combobox-input.ui-autocomplete-input { width: 100%; }
+/*.ui-widget.ui-widget-content.ui-corner-left.ui-combobox-input.ui-autocomplete-input { width: 100%; }*/
 .ui-dialog .ui-dialog-content { padding: 0.5em; }
 
 .ui-autocomplete-loading {
