@@ -394,9 +394,12 @@
         
         function dirs($root) {
             $d = array();
-            foreach (scandir($root) as $f) {
-                if ($f === '.' or $f === '..') continue;
-                if (is_dir($root.'/'.$f)) array_push($d,$f);
+            
+            if (file_exists($root)) {
+                foreach (scandir($root) as $f) {
+                    if ($f === '.' or $f === '..') continue;
+                    if (is_dir($root.'/'.$f)) array_push($d,$f);
+                }
             }
             
             return $d;
