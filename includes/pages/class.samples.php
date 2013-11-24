@@ -3,13 +3,23 @@
     class Samples extends Page {
         
         var $arg_list = array('visit' => '\w\w\d\d\d\d-\d+', 'page' => '\d+', 'mon' => '\w+', 'year' => '\d\d\d\d', 'id' => '\d+', 't' => '\w+');
-        var $dispatch = array('samp' => '_samples', 'bl' => '_beamline');
+        var $dispatch = array('samp' => '_samples', 'bl' => '_beamline', 'proposal' => '_prop_samples');
         var $def = 'samp';
         
-        var $root = 'Sample Creation';
+        var $root = 'Container Allocation';
         var $root_link = '/samples';
-
+        var $sidebar = True;
         
+        
+        function _prop_samples() {
+            if (!$this->has_arg('prop')) $this->error('No proposal selected', 'You must select a proposal before viewing this page');
+            
+            $visits = $this->db->pq("SELECT s.beamlinename as bl, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st, p.proposalcode||p.proposalnumber||'-'||s.visit_number as vis FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON s.proposalid = p.proposalid WHERE p.proposalcode||p.proposalnumber LIKE :1 ORDER BY s.startdate DESC", array($this->arg('prop')));
+            
+            $this->template('Container Allocation: ' . $this->arg('prop'), array($this->arg('prop')), array(''));
+            $this->t->visits = $visits;
+            $this->t->render('samp_select');
+        }
         
         # Sample Creation & Allocation
         function _samples() {            
@@ -27,7 +37,8 @@
             
             $p = array($info['BL'], $this->arg('visit'), 'Sample Creation');
             $l = array('', '/dc/visit/'.$this->arg('visit'), '');
-            $this->template('Sample Creation: ' . $this->arg('visit'), $p, $l);
+            $this->template('Container Allocation: ' . $this->arg('visit'), $p, $l);
+            $this->t->vis = $this->arg('visit');
             $this->t->bl = $info['BL'];
             $this->t->js_var('bl', $info['BL']);
             $this->t->js_var('visit', $this->arg('visit'));
