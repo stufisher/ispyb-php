@@ -7,7 +7,7 @@
     class Visit extends Page {
         
         var $arg_list = array('bag' => '\w\w\d+', 'visit' => '\d+');
-        var $dispatch = array('index' => '_index');
+        var $dispatch = array('index' => '_index', 'proposal' => '_show_proposal');
         var $def = 'index';
         
         var $root = 'Visit Statistics';
@@ -22,6 +22,14 @@
             if ($this->has_arg('bag') && $this->has_arg('visit')) $this->_get_visit();
             else if ($this->has_arg('bag')) $this->_get_bag();
             else $this->_get_root();
+        }
+        
+        
+        
+        function _show_proposal() {
+            if (!$this->has_arg('prop')) $this->error('No proposal', 'No proposal specified');
+            $this->args['bag'] = $this->arg('prop');
+            $this->_get_bag();
         }
         
         
