@@ -1,0 +1,91 @@
+
+    <h1>Add New Shipment</h1>
+
+    <form method="post" id="add_shipment">
+
+    <div class="form">
+        <ul>
+
+            <li>
+                <label>Name
+                    <span class="small">Name for the shipment</span>
+                </label>
+                <input type="text" name="shippingname" required />
+            </li>
+
+            <li>
+                <label>Safety Level
+                    <span class="small">The safety level of the shipment</span>
+                </label>
+                <select name="type" required>
+                    <option value="green">Green</select>
+                    <option value="yellow">Yellow</select>
+                    <option value="red">Red</select>
+                </select>
+            </li>
+
+            <li>
+                <label>Beamline / Experiment
+                    <span class="small">The experiment the visit is for</span>
+                </label>
+                <select name="visit"><?php echo $visits ?></select>
+            </li>
+
+            <li>
+                <label>Comments
+                    <span class="small">Comment for the shipment</span>
+                </label>
+                <textarea name="comment"></textarea>
+            </li>
+
+            <li>
+                <label>Outgoing Lab Contact
+                    <span class="small">Lab contact for outgoing transport</span>
+                </label>
+                <select name="lcout" required><?php echo $cards ?></select>
+            </li>
+
+            <li>
+                <label>Return Lab Contact
+                    <span class="small">Lab contact for return transport</span>
+                </label>
+                <select name="lcret" required><?php echo $cards ?></select>
+            </li>
+
+            <li>
+                <label>Shipping Date
+                    <span class="small">Date shipment left lab</span>
+                </label>
+                <input class="half date" type="text" name="shippingdate" />
+            </li>
+
+
+            <li>
+                <label>Delivery Date
+                    <span class="small">Estimated date of delivery at facility</span>
+                </label>
+                <input class="half date" type="text" name="deliverydate" />
+            </li>
+
+            <li>
+                <label>Courier Name
+                    <span class="small">Courier name for the return shipment</span>
+                </label>
+                <input type="text" name="couriername" required />
+            </li>
+
+            <li>
+                <label>Courier Account Number
+                <span class="small">Courier account number for return shipment</span>
+                </label>
+                <input type="text" name="courierno" required />
+            </li>
+
+            <button name="submit" value="1" type="submit" class="submit">Add Shipment</button>
+
+
+        </ul>
+    </div>
+
+    </form>
+
