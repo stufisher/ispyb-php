@@ -41,6 +41,10 @@
                    'log' => array('Log', 'Visit Summary'),
                    'status' => array('Status', 'Beamline Status'),
                    'cell' => array('Cell', 'Data Collection Finder'),
+                   'proposal' => array('Proposal', 'Proposals'),
+                   'shipment' => array('Shipment', 'Shipments'),
+                   'sample' => array('Sample', 'Samples'),
+                   'contact' => array('Contact', 'Lab Contacts'),
                    );
     
     if (array_key_exists($parts[0], $pages)) {
