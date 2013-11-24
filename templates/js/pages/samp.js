@@ -245,7 +245,7 @@ $(function() {
     var tab = ''
     for (var i = 1; i <= 16; i++) tab += '<tr><td>'+i+'</td><td><select class="protein" name="p'+i+'"></select></td><td><input type="text" class="sname" name="n'+i+'" /></td><td><input type="text" class="comment" name="c'+i+'" /></td><td><button class="clone" /></tr>'
   
-    $('.add input[name="title"]').val(visit +'-')
+    //$('.add input[name="title"]').val(visit +'-')
     $('.add .samples table tbody').html(tab)
     $('select.protein').combobox({invalid: _add_protein, change: _validate_container, select: _validate_container})
   
