@@ -11,19 +11,14 @@ $(function() {
     type: 'autocomplete',
     autocomplete: { source: '/proposal/ajax/p/' },
     name: 'prop',
+    width: '100%',
     submit: 'Ok',
     style: 'display: inline',
     callback: function() { location.reload() },
   }).addClass('editable');
 
+  $('#sidebar a.pull').click(function() {
+    $('#sidebar ul').slideToggle()
+  })
   
-  /*
-  $('.current').editable('/proposal/ajax/set/', {
-                       loadurl: '/proposal/ajax/p/',
-                       type: 'select',
-                       name: 'prop',
-                       submit: 'Ok',
-                       style: 'display: inline',
-                       }).addClass('editable');
-  */
 })
