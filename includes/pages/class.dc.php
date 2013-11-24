@@ -3,7 +3,7 @@
     class DC extends Page {
         
         var $arg_list = array('visit' => '\w\w\d\d\d\d-\d+', 'page' => '\d+', 'mon' => '\w+', 'year' => '\d\d\d\d', 'id' => '\d+', 't' => '\w+', 'iframe' => '\d+', 'id' => '\d+');
-        var $dispatch = array('dc' => '_dispatch', 'view' => '_viewer');
+        var $dispatch = array('dc' => '_dispatch', 'view' => '_viewer', 'proposal' => '_show_proposal');
         var $def = 'dc';
         
         var $root = 'Data Collections';
@@ -16,6 +16,11 @@
             else $this->_index();
         }
         
+        
+        function _show_proposal() {
+            if (!$this->has_arg('prop')) $this->error('No proposal', 'No proposal specified');
+            $this->_index(1);
+        }
         
         # Diffraction image viewer
         function _viewer() {
@@ -50,7 +55,7 @@
         
         
         # List of visits by date / beamline
-        function _index() {
+        function _index($prop=False) {
             $this->template('Visits');            
             
             $c_year = date('Y');
@@ -76,12 +81,14 @@
             $day = mktime(0,0,0,$c_month,1,$c_year);
             $den = mktime(23,59,59,$c_month,$this->t->dim+1,$c_year);
             
-            $visits = $this->db->pq("SELECT p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis, s.beamlinename as bl, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE s.startdate BETWEEN TO_DATE(:1,'dd-mm-yyyy') AND TO_DATE(:2,'dd-mm-yyyy') AND (s.beamlinename LIKE 'i02' OR s.beamlinename LIKE 'i03' OR s.beamlinename LIKE 'i04' OR s.beamlinename LIKE 'i04-1' OR s.beamlinename LIKE 'i24') ORDER BY s.startdate, s.beamlinename", array(strtoupper(date('d-m-Y', $day)), strtoupper(date('d-m-Y', $den))));
+            $visits = $this->db->pq("SELECT p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis, p.proposalcode || p.proposalnumber as prop, s.beamlinename as bl, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE s.startdate BETWEEN TO_DATE(:1,'dd-mm-yyyy') AND TO_DATE(:2,'dd-mm-yyyy') AND (s.beamlinename LIKE 'i02' OR s.beamlinename LIKE 'i03' OR s.beamlinename LIKE 'i04' OR s.beamlinename LIKE 'i04-1' OR s.beamlinename LIKE 'i24') ORDER BY s.startdate, s.beamlinename", array(strtoupper(date('d-m-Y', $day)), strtoupper(date('d-m-Y', $den))));
             
             $vbd = array();
             foreach ($visits as $v) {
                 if (!$this->staff)
                     if (!in_array($v['VIS'], $this->visits)) continue;
+                
+                if ($prop) if ($this->arg('prop') != $v['PROP']) continue;
                 
                 $t = strtotime($v['ST']);
                 $k = date('j', $t);
@@ -107,6 +114,8 @@
             $this->t->c_day = $c_day;
             $this->t->c_month = $c_month;
             $this->t->c_year = $c_year;
+            $this->t->prop = $prop;
+            $this->t->pr = $this->has_arg('prop') ? $this->arg('prop') : '';
             
             $this->render('dc');
         }
