@@ -324,7 +324,8 @@ $(function() {
             var ticks = []
             for (var i = 0; i < t.length; i++) {
                 var tr = $('.integrated tbody tr[dcid='+(ids[t[i]-1])+']')
-                ticks.push([i,$(tr.children('td')[0]).html()+$(tr.children('td')[1]).html().replace(/####\.cbf/, '')])
+                if (tr.length)
+                    ticks.push([i,$(tr.children('td')[0]).html()+$(tr.children('td')[1]).html().replace(/####\.cbf/, '')])
             }
           
             var data = []
