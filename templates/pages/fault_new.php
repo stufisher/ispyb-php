@@ -3,7 +3,7 @@
 
     <form method="post" id="add_fault" enctype="multipart/form-data">
 
-    <div class="form border">
+    <div class="form">
         <ul>
 
             <li>

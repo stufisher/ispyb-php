@@ -51,7 +51,7 @@
         <button name="integrate">Integrate</button>
     </div>
 
-    <div class="dc_wrap">
+    <div class="dc_wrap border">
         <div class="data_collections int"></div>
     </div>
 

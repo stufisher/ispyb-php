@@ -1,3 +1,5 @@
+    <h1>Unit Cell Search</h1>
+
     <div class="cell_param data_collection">
         <label>PDB Code: <input type="text" name="pdb" /></label>
 

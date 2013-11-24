@@ -15,6 +15,8 @@
     <link href="<?php echo $s ?>" type="text/css" rel="stylesheet" >
     <?php endforeach; ?>
 
+    <link rel="stylesheet" id="google-webfonts-css"  href="http://fonts.googleapis.com/css?family=Maven+Pro%7CDroid+Serif%3A400italic%7CDroid+Sans%3A400%2C700&#038;ver=3.6.1" type="text/css" media="all" />
+
     <?php foreach($js as $j): ?>
     <script type="text/javascript" src="<?php echo $j ?>"></script>
     <?php endforeach; ?>
@@ -76,8 +78,8 @@
 
 
 <?php if (!$mobile): ?>
-<div class="cont_wrap  <?php echo $sb ? 'sidebar' : '' ?>">
-<div id="container" <?php echo $sb ? 'class="sidebar"' : '' ?>>
+<div class="cont_wrap">
+<div id="container">
 
     <div class="content">
 

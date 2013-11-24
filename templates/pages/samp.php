@@ -1,4 +1,4 @@
-        <h1>Sample Creation &amp; Allocation</h1>
+        <h1>Container Allocation for <?php echo $vis ?> on <?php echo $bl ?></h1>
 
         <div class="error" title="Error in container definition"></div>
 
@@ -47,14 +47,14 @@
 
         <div class="drag_container">
 
-        <div class="data_collection">
+        <div class="c_holder">
             <h1>Assigned Containers: <?php echo $bl ?> Sample Changer</h1>
             <div id="assigned"></div>
             <div class="clear"></div>
         </div>
 
 
-        <div class="data_collection">
+        <div class="c_holder">
             <span class="r"><button id="add">Add New Container</button></span>
             <h1>Unassigned Containers</h1>
             <div id="unassigned"></div>

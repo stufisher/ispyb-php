@@ -1,6 +1,6 @@
     <h1><span class="title"><?php echo $f['TITLE'] ?></span></h1>
 
-    <div class="form border">
+    <div class="form">
         <ul>
 
             <li>

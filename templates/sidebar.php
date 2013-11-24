@@ -1,47 +1,36 @@
     <div id="sidebar">
 
-        <ul>
+        <ul class="clearfix">
             <li><a href="/">Upcoming Visits</a></li>
             <li><a href="/cell">Unit Cell Search</a></li>
 
             <li><a href="/proposal">Proposals</a></li>
-        </ul>
 
-        <div class="current"><?php echo $prop ?></div>
-
-        <ul>
             <li>
-                <a href="/proposal/visits">Visits</a>
+                <span class="current"><?php echo $prop ?></span>
+                <?php if ($prop): ?>
                 <ul>
+                    <li><a href="/proposal/visits">Visits</a></li>
+
                     <li><a href="/dc/proposal">Calendar</a></li>
-                </ul>
 
-            </li>
+                    <li><a href="/samples/proposal">Prepare Experiment</a></li>
 
-            <li><a href="/samples/proposal">Prepare Experiment</a></li>
+                    <li><a href="/shipment">Shipments</a></li>
 
-            <li>
-                <a href="/shipment">Shipments</a>
-                <ul>
-                    <li><a href="/shipment/add">Add Shipment</a></li>
-                </ul>
-            </li>
+                    <li><a href="/sample">Samples</a></li>
 
-            <li><a href="/sample">Samples</a>
-                <ul>
                     <li><a href="/sample/proteins">Proteins</a></li>
+
+                    <li><a href="/contact">Lab Contacts</a></li>
+
+                    <li><a href="/vstat/proposal">Statistics</a></li>
                 </ul>
+                <?php endif; ?>
             </li>
 
-            <li>
-                <a href="/contact">Lab Contacts</a>
-                <ul>
-                    <li><a href="/contact/add">Add Contact</a></li>
-                </ul>
-            </li>
-
-            <li><a href="/vstat">Statistics</a></li>
         </ul>
 
+        <a class="pull">Menu</a>
 
     </div>
