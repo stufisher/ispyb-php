@@ -56,7 +56,7 @@ $(function() {
             first = true
             search = $this.val()
             load_datacollection();
-      }, 500);
+      }, 800);
   });
   
   
@@ -334,10 +334,10 @@ $(function() {
                 
            // Update sample details
            if (dcv['SAN'] && !$(md).find('.sample').length) {
-             $('<li class="sample">Sample: ' + dcv['SAN'] + ' (m' + dcv['SCON'] + 'p' + dcv['SPOS']+')</li>').hide().prependTo($(md).children('ul')).fadeIn()
+             $('<li class="sample">Sample: <a href="/sample/sid/'+dcv['SID']+'">' + dcv['SAN'] + ' (m' + dcv['SCON'] + 'p' + dcv['SPOS']+')</a></li>').hide().prependTo($(md).children('ul')).fadeIn()
            }
                 
-           // Add flux and sample details if available
+           // Add flux if available
            if (!$(md).find('.flux').length) {
               $('<li class="flux">Measured Flux: '+dcv['FLUX']+'</li>').hide().prependTo($(md).children('ul')).fadeIn()
            }
