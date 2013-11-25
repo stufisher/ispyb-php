@@ -64,12 +64,12 @@ a:hover {
     list-style: none;
     border: 1px solid #E2E2E2;
 	background: rgb(247,247,247);
-	background: -moz-linear-gradient(top, rgba(247,247,247,1) 0%, rgba(244,244,244,1) 100%);
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(247,247,247,1)), color-stop(100%,rgba(244,244,244,1)));
-	background: -webkit-linear-gradient(top, rgba(247,247,247,1) 0%,rgba(244,244,244,1) 100%);
-	background: -o-linear-gradient(top, rgba(247,247,247,1) 0%,rgba(244,244,244,1) 100%);
-	background: -ms-linear-gradient(top, rgba(247,247,247,1) 0%,rgba(244,244,244,1) 100%);
-	background: linear-gradient(top, rgba(247,247,247,1) 0%,rgba(244,244,244,1) 100%);
+	background: -moz-linear-gradient(top, rgba(247,247,247,1) 0%, rgba(240,240,240,1) 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(247,247,247,1)), color-stop(100%,rgba(240,240,240,1)));
+	background: -webkit-linear-gradient(top, rgba(247,247,247,1) 0%,rgba(240,240,240,1) 100%);
+	background: -o-linear-gradient(top, rgba(247,247,247,1) 0%,rgba(240,240,240,1) 100%);
+	background: -ms-linear-gradient(top, rgba(247,247,247,1) 0%,rgba(240,240,240,1) 100%);
+	background: linear-gradient(top, rgba(247,247,247,1) 0%,rgba(240,240,240,1) 100%);
 }
 
 #sidebar ul li {
@@ -79,6 +79,11 @@ a:hover {
     font-size: 11px;
     width: 16%;
     position: relative;
+    
+    -webkit-transition: all 300ms ease-in-out;
+    -moz-transition: all 300ms ease-in-out;
+    -o-transition: all 300ms ease-in-out;
+    transition: all 300ms ease-in-out;
 }
 
 #sidebar ul li span.editable {
@@ -87,7 +92,7 @@ a:hover {
 }
 
 #sidebar ul li:hover {
-    background: #F9F9F9;
+    background: #f9f9f9;
 }
 
 #sidebar ul li span,
@@ -114,11 +119,13 @@ a:hover {
 #sidebar ul li ul li {
     float: none;
     width: 100%;
+    border-bottom: 1px solid #e2e2e2;
 }
 
 #sidebar ul li ul li a {
     text-align: left;
-    padding-left: 5px;
+    padding-left: 10%;
+    width: 90%;
 }
 
 .clearfix:before,
@@ -1858,10 +1865,18 @@ table.dewars tr:hover td {
     background: #dddddd;
 }
 
+/*
 .current {
     padding: 4%;
-    /*background: #efefef;*/
+    background: #efefef;
     margin-bottom: 4%;
+}*/
+
+.current {
+    -webkit-transition: all 300ms ease-in-out;
+    -moz-transition: all 300ms ease-in-out;
+    -o-transition: all 300ms ease-in-out;
+    transition: all 300ms ease-in-out;
 }
 
 .current:hover {
@@ -1892,6 +1907,10 @@ div.table.dewars {
 
 span.snapshots.sample img {
     width: 25%;
+}
+
+.seq {
+    word-break: break-all;
 }
 
 /* Responsive Styling
