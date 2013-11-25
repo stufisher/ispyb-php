@@ -24,5 +24,7 @@ $(function() {
   function _map_callbacks() {
     $('a.view').button({ icons: { primary: 'ui-icon-search' } })
   }
+  
+  $('a.add').button({ icons: { primary: 'ui-icon-plus' } })
 
 })
