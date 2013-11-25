@@ -16,7 +16,7 @@ $(function() {
   
   $.validator.addMethod("datetime", function(value, element) {
     return this.optional(element) || /^\d\d-\d\d-\d\d\d\d \d\d:\d\d$/.test(value);
-  }, "Please specify the correct domain for your documents");
+  }, "Please specify a valid date and time");
   
   function _get_beamlines() {
       $.ajax({
@@ -37,10 +37,17 @@ $(function() {
 
   $('select[name=beamtime_lost]').change(function() {
     $(this).val() == 1 ? $('.beamtime_lost').slideDown() : $('.beamtime_lost').slideUp()
+    if ($(this).val()) {
+        $('input[name=blstart]').val($('input[name=start]').val())
+        $('input[name=blend]').val($('input[name=start]').val())
+    }
   })
 
   $('select[name=resolved]').change(function() {
     $(this).val() > 0 ? $('.resolution').slideDown() : $('.resolution').slideUp()
+    if ($(this).val()) {
+        $('input[name=end]').val($('input[name=start]').val())
+    }
   })
   
   
