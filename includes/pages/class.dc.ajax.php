@@ -68,13 +68,13 @@
                 } else if ($this->arg('t') == 'rb') {
                     $where .= ' AND dc.datacollectionid < 0';
                     $where2 .= ' AND es.energyscanid < 0';
-                    $where3 .= " AND (r.actiontype LIKE 'LOAD' OR r.actiontype LIKE 'UNLOAD')";
+                    $where3 .= " AND (r.actiontype LIKE 'LOAD' OR r.actiontype LIKE 'UNLOAD' OR r.actiontype LIKE 'DISPOSE')";
                     $where4 .= ' AND xrf.xfefluorescencespectrumid < 0';
                     
                 } else if ($this->arg('t') == 'ac') {
                     $where .= ' AND dc.datacollectionid < 0';
                     $where2 .= ' AND es.energyscanid < 0';
-                    $where3 .= " AND (r.actiontype NOT LIKE 'LOAD' AND r.actiontype NOT LIKE 'UNLOAD')";
+                    $where3 .= " AND (r.actiontype NOT LIKE 'LOAD' AND r.actiontype NOT LIKE 'UNLOAD' AND r.actiontype NOT LIKE 'DISPOSE')";
                     $where4 .= ' AND xrf.xfefluorescencespectrumid < 0';
                     
                 } else if ($this->arg('t') == 'flag') {
