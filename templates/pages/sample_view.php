@@ -27,9 +27,9 @@
                 <span class="snapshots sample">
                     <?php foreach ($sn as $i => $s): ?>
                         <?php if ($i < 2): ?>
-                        <a href="/image/id/<?php echo $s ?>/f/1" rel="lightbox-sn" title="Crystal Snapshot <?php echo $i ?>"><img src="/image/id/<?php echo $s ?>" alt="Crystal Snapshot <?php echo $i ?>" /></a>
+                        <a href="/image/id/<?php echo $s ?>/f/1" rel="lightbox-sn" title="Crystal Snapshot <?php echo ($i+1) ?>"><img src="/image/id/<?php echo $s ?>" alt="Crystal Snapshot <?php echo ($i+1) ?>" /></a>
                         <?php else: ?>
-                        <a href="/image/id/<?php echo $s ?>/f/1" rel="lightbox-sn" title="Crystal Snapshot <?php echo $i ?>"></a>
+                        <a href="/image/id/<?php echo $s ?>/f/1" rel="lightbox-sn" title="Crystal Snapshot <?php echo ($i+1) ?>"></a>
                         <?php endif; ?>
                     <?php endforeach; ?>
                     <?php if (!sizeof($sn)): ?>
