@@ -43,7 +43,7 @@
 
 
 
-            <li>
+            <li class="clearfix">
                 <div class="description text">
                     <?php echo $f['DESCRIPTION'] ?>
                 </div>
@@ -91,7 +91,7 @@
                 <span class="endtime"><?php echo $f['ENDTIME'] ?></span>
             </li>
 
-            <li class="fresolved">
+            <li class="fresolved clearfix">
                 <div class="resolution text"><?php echo $f['RESOLUTION'] ?></div>
                 <span class="label">Resolution</span>
             </li>
