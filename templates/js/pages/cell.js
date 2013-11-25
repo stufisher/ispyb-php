@@ -66,6 +66,8 @@ $(function() {
     uc['tol'] = $('input[name=tol]').val()
                   
     if ($('.pdb_details .date').html()) uc['year'] = $('.pdb_details .date').html()
+                     
+    $('.count').html('Searching...')
                                  
     $.ajax({
         url: '/cell/ajax/',
