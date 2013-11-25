@@ -218,7 +218,7 @@
                     $res = $this->arg('res') ? "-resolution ".$this->arg('res') : '';
                     $sg = $this->arg('sg') ? "-spacegroup ".$this->arg('sg') : '';
                     
-                    $remote = "module load xia2\nxia2 -failover -3daii $sg $cell $res -xinfo xia.xinfo";
+                    $remote = "module load xia2/4479\necho 'xds.colspot.minimum_pixels_per_spot=3' > spot.phil\nxia2 -failover -3daii $sg $cell $res -xinfo xia.xinfo -phil spot.phil";
                     file_put_contents($root.'/x2'.$r['ID'].'.sh', $remote);
                     
                     $ret = exec('module load global/cluster;qsub x2'.$r['ID'].'.sh');
