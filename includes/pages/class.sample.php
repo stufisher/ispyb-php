@@ -6,9 +6,15 @@
                               'pid' => '\d+',
                               'sid' => '\d+',
                               'page' => '\d+',
+                              'name' => '.*',
+                              'acronym' => '\w+',
+                              'seq' => '\w+',
+                              'mass' => '\d+(.\d+)',
+                              'submit' => '\d',
                               );
         var $dispatch = array('samples' => '_sample_dispatch',
                               'proteins' => '_protein_dispatch',
+                              'addp' => '_add_protein',
                               );
         var $def = 'samples';
         
@@ -85,6 +91,37 @@
             $this->t->js_var('pid', $this->arg('pid'));
             $this->t->render('protein_view');
         }
+        
+        
+        
+        
+        
+        function _add_protein() {
+            if (!$this->has_arg('prop')) $this->error('No proposal selected', 'No proposal selected. Select a proposal before viewing this page');
+            
+            if ($this->has_arg('submit')) {
+                $pids = $this->db->pq("SELECT p.proposalid FROM blsession bl INNER JOIN proposal p ON bl.proposalid = p.proposalid WHERE p.proposalcode || p.proposalnumber LIKE :1", array($this->arg('prop')));
+                                 
+                if (!sizeof($pids) > 0) $this->error('No such proposal', 'The specified proposal doesnt exist');
+                else $pid = $pids[0]['PROPOSALID'];
+                
+                if (!$this->has_arg('acronym')) $this->error('No protein acronym', 'You must supply at least a protein acronym');
+                
+                $name = $this->has_arg('name') ? $this->arg('name') : '';
+                $seq = $this->has_arg('seq') ? $this->arg('seq') : '';
+                $mass = $this->has_arg('mass') ? $this->arg('mass') : '';
+                
+                $this->db->pq('INSERT INTO ispyb4a_db.protein (proteinid,proposalid,name,acronym,sequence,molecularmass,bltimestamp) VALUES (s_protein.nextval,:1,:2,:3,:4,:5,CURRENT_TIMESTAMP) RETURNING proteinid INTO :id',array($pid, $name, $this->arg('acronym'), $seq, $mass));
+                
+                $this->msg('New Protein Added', 'You protein was successfully added, click <a href="/sample/protein/pid/'.$this->db->id().'">here</a> to view it');
+                
+                
+            } else {
+                $this->template('Add Protein');
+                $this->t->render('protein_add');
+            }
+        }
+
     }
 
 ?>
