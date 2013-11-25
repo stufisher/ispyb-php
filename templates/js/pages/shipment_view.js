@@ -53,7 +53,7 @@ $(function() {
         success: function(json){
           var d_out = ''
           $.each(json, function(i,d) {
-            d_out += '<tr did="'+d['DEWARID']+'">'+
+            d_out += '<tr did="'+d['DEWARID']+'" name="'+d['CODE']+'">'+
                     '<td><span class="code">'+d['CODE']+'</span></td>'+
                     '<td>'+d['BARCODE']+'</td>'+
                     '<td><span class="trackto">'+(d['TRACKINGNUMBERTOSYNCHROTRON'] ? d['TRACKINGNUMBERTOSYNCHROTRON'] : '')+'</span></td>'+
@@ -90,8 +90,8 @@ $(function() {
   
   // Load dewar details
   function _load_dewar(did) {
-    var name = $('[did='+did+']').children('td').eq(0).children('span').html()
-    $('.dewar_name').html(name)
+   // var name = $('[did='+did+']').children('td').eq(0).children('span').html()
+    $('.dewar_name').html($('[did='+did+']').attr('name'))
   
     $.ajax({
         url: '/shipment/ajax/did/'+did,
