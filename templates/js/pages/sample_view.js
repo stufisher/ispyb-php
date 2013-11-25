@@ -50,10 +50,10 @@ $(function() {
              r = [e['ST'], 'Fluorescence Scan', desc, st, el.join(', '), '<a href="/dc/visit/'+e['VIS']+'/id/'+e['ID']+'" class="small view"></a>']
                
           } else if (e['TYPE'] == 'load') {
-             if (r['IMP'] == 'LOAD' || r['IMP'] == 'UNLOAD')
-               r = [e['ST'], 'Robot '+r['IMP']+'ed Sample','', '', '', '']
+             if (e['IMP'] == 'LOAD' || e['IMP'] == 'UNLOAD' || e['IMP'] == 'DISPOSE')
+               r = [e['ST'], 'Robot '+e['IMP'].toLowerCase()+'ed sample','', '', '', '']
              else
-               r = [e['ST'], 'Sample '+r['IMP'],'', '', '', '']
+               r = [e['ST'], 'Sample '+e['IMP'].toLowerCase(),'', '', '', '']
                
           }
                
