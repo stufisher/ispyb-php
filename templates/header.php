@@ -55,7 +55,7 @@
         <li><a href="/vstat">Visit Stats</a></li>
         <li><a href="/fault">Fault Report</a></li>
         <?php endif; ?>
-        <li class="selected"><a href="/dc">Data</a></li>
+        <li><a href="/dc">Data</a></li>
     </ul>
 
     <h1><a href="/">MX</a></h1>
