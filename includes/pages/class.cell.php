@@ -10,6 +10,8 @@
         
         var $root = 'Nearest Cell';
         var $root_link = '/cell';
+        
+        var $sidebar = True;
     
         #var $debug = True;
         
