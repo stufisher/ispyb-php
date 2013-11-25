@@ -39,10 +39,11 @@ $(function() {
   
   
   $('.seq').editable('/sample/ajax/updatep/pid/'+pid+'/ty/seq/', {
-    type: 'text',
-    height: '100%',
-    width: '50%',
+    type: 'textarea',
+    rows: 5,
+    width: '100%',
     submit: 'Ok',
     style: 'display: inline',
+    
   }).addClass('editable');
 })
