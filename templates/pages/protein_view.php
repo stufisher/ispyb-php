@@ -13,9 +13,9 @@
                 <span class="acronym"><?php echo $prot['ACRONYM'] ?></span>
             </li>
 
-            <li>
+            <li class="clearfix">
+                <div class="seq text"><?php echo $prot['SEQUENCE'] ?></div>
                 <span class="label">Sequence</span>
-                <span class="seq"><?php echo $prot['SEQUENCE'] ?></span>
             </li>
 
             <li>
