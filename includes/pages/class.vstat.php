@@ -13,7 +13,7 @@
         var $root = 'Visit Statistics';
         var $root_link = '/vstat';
         
-        var $require_staff = True;
+        //var $require_staff = True;
         //var $debug = True;
         
         
@@ -35,6 +35,8 @@
         
         # Show averages for bag
         function _get_root() {
+            if (!$this->staff) $this->error('Access Denied', 'You dont have access to view that page');
+            
             $where = "(s.enddate - s.startdate) > 0 AND p.proposalcode NOT LIKE 'cm' AND  p.proposalcode NOT LIKE 'nt' AND p.proposalnumber > 0 AND s.startdate > to_date('2012-10-01','YYYY-MM-DD')";
             #$where = "(s.enddate - s.startdate) > 0 AND p.proposalnumber > 0 AND s.startdate > to_date('2012-10-01','YYYY-MM-DD') AND s.enddate < SYSDATE";
             
@@ -139,6 +141,10 @@
             $args = array($this->arg('bag'));
             $where = "WHERE p.proposalcode || p.proposalnumber LIKE :1";
             
+            if (!$this->staff) {
+                if ($this->arg('bag') != $this->arg('prop')) $this->error('Access Denied', 'You dont have access to that page');
+            }
+            
             $dc = $this->db->pq("SELECT max(p.title) as title, TO_CHAR(MAX(dc.endtime), 'DD-MM-YYYY HH24:MI') as last, SUM(dc.endtime - dc.starttime)*24 as dctime, GREATEST((min(dc.starttime)-min(s.startdate))*24,0) as sup, GREATEST((max(s.enddate)-max(dc.endtime))*24,0) as rem, s.visit_number as visit, TO_CHAR(min(s.startdate), 'DD-MM-YYYY HH24:MI') as st, TO_CHAR(max(s.enddate), 'DD-MM-YYYY HH24:MI') as en, (max(s.enddate) - min(s.startdate))*24 as len FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.datacollection dc ON (dc.sessionid = s.sessionid) $where GROUP BY s.visit_number ORDER BY min(s.startdate) DESC", $args);
             
             $robot = $this->db->pq("SELECT SUM(CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*24 as dctime, s.visit_number as visit FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = s.sessionid) $where GROUP BY s.visit_number", $args);
@@ -211,6 +217,13 @@
         function _get_visit() {
             $args = array($this->arg('bag'), $this->arg('visit'));
             $where = "WHERE p.proposalcode || p.proposalnumber LIKE :1 AND s.visit_number=:2";
+            
+            if (!$this->staff) {
+                if (!$this->has_arg('prop')) $this->error('No proposal selected', 'You need to select a proposal before viewing this page');
+                
+                $where .= ' AND p.proposalcode || p.proposalnumber LIKE :3';
+                array_push($args, $this->arg('prop'));
+            }
             
             $info = $this->db->pq("SELECT s.beamlinename as bl, s.sessionid as sid, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st, TO_CHAR(s.enddate, 'DD-MM-YYYY HH24:MI') as en, (s.enddate - s.startdate)*24 as len FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) $where", $args);
             
