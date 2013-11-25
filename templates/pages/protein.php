@@ -1,5 +1,7 @@
         <h1>Proteins</h1>
 
+        <div class="ra"><a class="add" href="/sample/addp">Add Protein</a></div>
+
         <div class="table">
             <table class="robot_actions samples">
                 <thead>
