@@ -39,14 +39,17 @@
                 <span class="deliverydate"><?php echo $ship['DELIVERYAGENT_DELIVERYDATE'] ?></span>
             </li>
 
-            <li>
+            <li class="clearfix">
+                <div class="comment text"><?php echo $ship['COMMENTS'] ?></div>
                 <span class="label">Comments</span>
-                <span class="comment text"><?php echo $ship['COMMENTS'] ?></span>
             </li>
 
         </ul>
         <div class="clear"></div>
     </div>
+
+
+    <h1>Shipment Contents</h1>
 
     <div class="ra"><button id="add_dewar">Add Dewar</button></div>
 
@@ -70,7 +73,7 @@
     </div>
 
 
-    <h1>Details: <span class="dewar_name"></span></h1>
+    <h1>Dewar Details: <span class="dewar_name"></span></h1>
 
     <div class="border left">
         <ul class="containers"></ul>

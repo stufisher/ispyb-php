@@ -1,4 +1,4 @@
-    <h1>Sample Details &amp; History</h1>
+    <h1>Sample Details</h1>
     <div class="form">
         <ul>
 
@@ -41,6 +41,7 @@
         </ul>
     </div>
 
+    <h1>Sample History</h1>
 
     <div class="page_wrap">
         <div class="pages"></div>

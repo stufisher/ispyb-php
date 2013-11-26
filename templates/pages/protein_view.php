@@ -19,7 +19,7 @@
             </li>
 
             <li>
-                <span class="label">Moecular Mass</span>
+                <span class="label">Molecular Mass</span>
                 <span class="mass"><?php echo $prot['MOLECULARMASS'] ?></span>
             </li>
 
