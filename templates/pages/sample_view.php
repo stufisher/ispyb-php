@@ -26,6 +26,21 @@
             </li>
 
             <li>
+                <span class="label">Container</span>
+                <span class="cont"><a href="/shipment/cid/<?php echo $samp['CONTAINERID'] ?>"><?php echo $samp['CONTAINER'] ?></a></span>
+            </li>
+
+            <li>
+                <span class="label">Dewar</span>
+                <span class="dew"><?php echo $samp['DEWAR'] ? $samp['DEWAR'] : 'Unassigned' ?></a></span>
+            </li>
+
+            <li>
+                <span class="label">Shipment</span>
+                <span class="ship"><a href="/shipment/sid/<?php echo $samp['SHIPPINGID'] ?>"><?php echo $samp['SHIPMENT'] ?></a></span>
+            </li>
+
+            <li>
                 <span class="label">Snapshots</span>
                 <span class="snapshots sample">
                     <?php foreach ($sn as $i => $s): ?>
