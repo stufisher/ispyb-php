@@ -28,7 +28,7 @@ $(function() {
         $('.history tbody').empty()
         $.each(json[1], function(i,e) {
           if (e['TYPE'] == 'data') {
-             if (e['COMMENTS'].indexOf('Diffraction grid scan of') > 1) e['TYPE'] = 'grid'
+             if (e['COMMENTS'].indexOf('Diffraction grid scan of') > -1) e['TYPE'] = 'grid'
                
              var desc = '&Omega; St: '+e['AXISSTART']+'&deg;, &Omega; Osc: '+e['AXISRANGE']+'&deg;, No: '+e['NUMIMG']+', Res: '+e['RESOLUTION']+'&#197;, &lambda;: '+e['WAVELENGTH']+'&#197;, Exp: '+e['EXPOSURETIME']+'s, Trn: '+e['TRANSMISSION']+'%'
                
