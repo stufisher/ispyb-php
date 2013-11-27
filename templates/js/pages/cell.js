@@ -1,6 +1,10 @@
 $(function() {
 
-  $('button[name=get_pdb]').click(function() {
+  $('button[name=get_pdb]').button({ icons: { primary: 'ui-icon-arrowthick-1-s' } }).click(function() {
+                               
+    $('.data_collections').empty()
+    $('.pdb_details_not_found').hide()
+    $('.pdb_details').hide()
                                   
     if ($('input[name=pdb]').val()) {
       $.ajax({
@@ -9,7 +13,9 @@ $(function() {
         dataType: 'xml',
         timeout: 5000,
         success: function(xml){
+            var found = false;
             $(xml).find('record').each(function(i,r) {
+                found = true;
                 $.each({ a: 'lengthOfUnitCellLatticeA',
                         b: 'lengthOfUnitCellLatticeB',
                         c: 'lengthOfUnitCellLatticeC',
@@ -45,6 +51,7 @@ $(function() {
                 $('button[name=lookup]').trigger('click')
                     
             })
+            if (!found) $('.pdb_details_not_found').slideDown()
         }
            
       })
@@ -53,7 +60,7 @@ $(function() {
   
   
   // Get data collections for a particular cell
-  $('button[name=lookup]').click(function() {
+  $('button[name=lookup]').button({ icons: { primary: 'ui-icon-search' } }).click(function() {
     var uc = {}
     $.each(['a', 'b', 'c', 'al', 'be', 'ga'], function(i,e) {
         uc[e] = $('input[name='+e+']').val()
@@ -68,7 +75,8 @@ $(function() {
     if ($('.pdb_details .date').html()) uc['year'] = $('.pdb_details .date').html()
                      
     $('.count').html('Searching...')
-                                 
+    $('.data_collections').empty()
+                                                                                  
     $.ajax({
         url: '/cell/ajax/',
         type: 'GET',
@@ -88,12 +96,12 @@ $(function() {
                   })
                    
                   $('<div class="cells data_collection" dcid="'+r['ID']+'">'+
-                        '<h1><a href="/dc/visit/'+r['VISIT']+'/id/'+r['ID']+'">'+r['VISIT']+': '+r['BL']+' - '+r['ST']+'</a> (Distance: '+parseFloat(r['DIST']).toFixed(2)+', '+r['TYPE']+')</h1>'+
+                        '<h1><a href="/dc/visit/'+r['VISIT']+'/id/'+r['ID']+'" title="Click to view full details for this data collection">'+r['VISIT']+': '+r['BL']+' - '+r['ST']+'</a> (<span title="Distance between search unit cell parameters and those for this data set. A smaller number means the data set is close to the searched parameters">Distance: '+parseFloat(r['DIST']).toFixed(2)+', '+r['TYPE']+')</span></h1>'+
                         '<h2>'+r['DIR']+r['FILETEMPLATE']+'</h2>'+
                     
                         '<div class="users">'+
                             '<h3>Users</h3>'+
-                            '<p class="ulist">'+us.join(', ')+'</p>'+
+                            '<p class="ulist" title="Users that match the user list for the designated PDB file are highlighted in green">'+us.join(', ')+'</p>'+
                         '</div>'+
                     
                         '<div class="cell">'+
