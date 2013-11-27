@@ -925,8 +925,8 @@ $(function() {
                    
                    console.log(0.97*($(pl_div).parent().parent().parent().width()-14))
                    if ($(window).width() <= 400) $(pl_div).width(0.93*($(pl_div).parent().parent().parent().width()-14))
-                   else { $(pl_div).width(0.68*($(pl_div).parent().parent().parent().width()-14))
-                      $(pl_div).height($(pl_div).width()*0.44-80)
+                   else { $(pl_div).width(0.67*($(pl_div).parent().parent().parent().width()-14))
+                      $(pl_div).height($(pl_div).width()*0.41-80)
                    }
                    
                    
