@@ -236,7 +236,7 @@
             if (!$this->has_arg('prop')) $this->_error('No proposal specified');
             if (!$this->has_arg('cid')) $this->_error('No container id specified');
             
-            $rows = $this->db->pq("SELECT sp.blsampleid, pr.proteinid, sp.comments, sp.name, to_number(sp.location) as location, pr.acronym, cr.spacegroup FROM blsample sp  INNER JOIN crystal cr ON sp.crystalid = cr.crystalid INNER JOIN protein pr ON cr.proteinid = pr.proteinid INNER JOIN container c ON sp.containerid = c.containerid INNER JOIN dewar d ON d.dewarid = c.dewarid INNER JOIN shipping s ON s.shippingid = d.shippingid INNER JOIN proposal p ON s.proposalid = p.proposalid WHERE p.proposalcode || p.proposalnumber LIKE :1 AND c.containerid = :2 ORDER BY to_number(sp.location)", array($this->arg('prop'),$this->arg('cid')));
+            $rows = $this->db->pq("SELECT sp.blsampleid, pr.proteinid, sp.comments, sp.name, to_number(sp.location) as location, pr.acronym, cr.spacegroup, count(dc.datacollectionid) as dcount FROM blsample sp  INNER JOIN crystal cr ON sp.crystalid = cr.crystalid INNER JOIN protein pr ON cr.proteinid = pr.proteinid INNER JOIN container c ON sp.containerid = c.containerid INNER JOIN dewar d ON d.dewarid = c.dewarid INNER JOIN shipping s ON s.shippingid = d.shippingid INNER JOIN proposal p ON s.proposalid = p.proposalid LEFT OUTER JOIN ispyb4a_db.datacollection dc ON dc.blsampleid = sp.blsampleid WHERE p.proposalcode || p.proposalnumber LIKE :1 AND c.containerid = :2 GROUP BY sp.blsampleid, pr.proteinid, sp.comments, sp.name, sp.location, pr.acronym, cr.spacegroup ORDER BY to_number(sp.location)", array($this->arg('prop'),$this->arg('cid')));
 
             $used = array();
             foreach($rows as $r) array_push($used, $r['LOCATION']);
@@ -244,7 +244,7 @@
             for ($i = 1; $i < 17; $i++) array_push($tot, $i);
             
             foreach (array_diff($tot, $used) as $i => $d) {
-                array_splice($rows, $d-1, 0, array(array('BLSAMPLEID' => '', 'COMMENTS' => '', 'NAME' => '', 'LOCATION' => $d, 'ACRONYM' => '', 'SPACEGROUP' => '')));
+                array_splice($rows, $d-1, 0, array(array('BLSAMPLEID' => '', 'COMMENTS' => '', 'NAME' => '', 'LOCATION' => $d, 'ACRONYM' => '', 'SPACEGROUP' => '', 'DCOUNT' => 0)));
             }
             
             $this->_output($rows);

@@ -28,7 +28,7 @@ $(function() {
                                                                                               
         r.children('td').eq(4).html('<input type="text" name="c" value="'+r.children('td').eq(4).html()+'" />')
 
-        r.children('td').eq(5).html('<button class="save"></button>')
+        r.children('td').eq(6).html('<button class="save"></button>')
                                                                                               
         $('button.save', r).button({ icons: { primary: 'ui-icon-check' } }).click(function() {
             var r = $(this).parent('td').parent('tr')
@@ -96,7 +96,8 @@ $(function() {
             '<td>'+s['NAME']+'</td>'+
             '<td>'+(s['SPACEGROUP']?s['SPACEGROUP']:'')+'</td>'+
             '<td>'+(s['COMMENTS']?s['COMMENTS']:'')+'</td>'+
-            '<td><button class="edit" title="Edit sample details"></button> <button class="delete"></button> &nbsp; <button class="view small" title="View sample details"></button></td>'+
+            '<td>'+(s['BLSAMPLEID'] ? (s['DCOUNT'] > 0 ? 'Yes' : 'No') : '')+'</td>'+
+            '<td><button class="edit" title="Edit sample details"></button> '+(s['BLSAMPLEID'] ? '<button class="delete"></button> &nbsp; <button class="view small" title="View sample details"></button>' : '')+'</td>'+
             '</tr>').appendTo($('.samples tbody'))
         })
         _map_callbacks()
