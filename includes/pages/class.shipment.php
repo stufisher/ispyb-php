@@ -124,7 +124,7 @@
             if (!sizeof($cont)) $this->error('No such container', 'A container with that id doesnt exist');
             else $cont = $cont[0];
             
-            $this->template('View Container', array($cont['SHIPMENT'], $cont['NAME']), array('/sid/'.$dewar['SHIPPINGID'], ''));
+            $this->template('View Container', array($cont['SHIPMENT'], $cont['NAME']), array('/sid/'.$cont['SHIPPINGID'], ''));
             $this->t->cont = $cont;
             $this->t->js_var('cid', $this->arg('cid'));
             $this->t->js_var('sg_ops', $this->sg_opts());
