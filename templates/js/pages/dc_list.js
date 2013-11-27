@@ -127,9 +127,9 @@ $(function() {
                              (r['NI'] < 10 ?
                                 ('<span></span><h1 title="Click to show EDNA/mosflm strategies">Strategies</h1>'+
                                  '<div class="strategies"></div>'):
-                                ('<span></span><h1>Auto Processing</h1>'+
+                                ('<span></span><h1 title="Click to show autoprocessing results such as Fast_DP and XIA2">Auto Processing</h1>'+
                                  '<div class="autoproc"></div>'+
-                                 '<span></span><h1>Downstream Processing</h1>'+
+                                 '<span></span><h1 title="Click to show downstream processing results such as Dimple and Fast_EP">Downstream Processing</h1>'+
                                  '<div class="downstream"></div>'))+
                              '</div>'+
                              '</div>').data('apr', r['AP']).data('nimg', r['NUMIMG']).hide().data('first', true).prependTo('.data_collections').slideDown()
