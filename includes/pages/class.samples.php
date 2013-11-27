@@ -14,7 +14,7 @@
         function _prop_samples() {
             if (!$this->has_arg('prop')) $this->error('No proposal selected', 'You must select a proposal before viewing this page');
             
-            $visits = $this->db->pq("SELECT s.beamlinename as bl, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st, p.proposalcode||p.proposalnumber||'-'||s.visit_number as vis FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON s.proposalid = p.proposalid WHERE p.proposalcode||p.proposalnumber LIKE :1 ORDER BY s.startdate DESC", array($this->arg('prop')));
+            $visits = $this->db->pq("SELECT rownum,inner.* FROM (SELECT s.beamlinename as bl, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st, p.proposalcode||p.proposalnumber||'-'||s.visit_number as vis FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON s.proposalid = p.proposalid WHERE p.proposalcode||p.proposalnumber LIKE :1 AND startdate < SYSDATE+56 ORDER BY s.startdate DESC) inner WHERE rownum < 10", array($this->arg('prop')));
             
             $this->template('Container Allocation: ' . $this->arg('prop'), array($this->arg('prop')), array(''));
             $this->t->visits = $visits;
