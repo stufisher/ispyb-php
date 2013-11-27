@@ -32,6 +32,7 @@
     
     $pages = array(
                    'image' => array('Image', ''),
+                   'download' => array('Download', ''),
                    'robot' => array('Robot', 'Robot Statistics'),
                    'dc' => array('DC', 'Data Collections'),
                    'mc' => array('MC', 'Multicrystal Integration'),
