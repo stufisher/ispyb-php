@@ -118,7 +118,7 @@ $(function() {
   function _validate_container(show_msg) {
     var ret = true, msg
   
-    if (!$('input[name=container]').val().match(/^[a-zA-Z0-9_-]+$/)) {
+    if (!$('input[name=container]').val().match(/^(\w|\-)+$/)) {
         $('input[name=container]').removeClass('fvalid').addClass('ferror')
         ret = false
         msg = 'Your container name is blank, contains special characters and/or spaces'
