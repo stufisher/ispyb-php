@@ -39,7 +39,7 @@
         function _view_sample() {
             if (!$this->has_arg('sid')) $this->error('No sample id', 'No sample id specified');
             
-            $samp = $this->db->pq("SELECT s.blsampleid, s.name, s.code,s.comments,cr.spacegroup,pr.acronym,pr.proteinid FROM ispyb4a_db.blsample s INNER JOIN ispyb4a_db.crystal cr ON s.crystalid = cr.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = pr.proposalid WHERE p.proposalcode || p.proposalnumber LIKE :1 and s.blsampleid=:2", array($this->arg('prop'), $this->arg('sid')));
+            $samp = $this->db->pq("SELECT d.code as dewar,sh.shippingname as shipment,sh.shippingid,c.code as container,c.containerid, s.blsampleid, s.name, s.code,s.comments,cr.spacegroup,pr.acronym,pr.proteinid FROM ispyb4a_db.blsample s INNER JOIN ispyb4a_db.crystal cr ON s.crystalid = cr.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = pr.proposalid LEFT OUTER JOIN ispyb4a_db.container c ON c.containerid = s.containerid LEFT OUTER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid INNER JOIN ispyb4a_db.shipping sh ON sh.shippingid = d.shippingid WHERE p.proposalcode || p.proposalnumber LIKE :1 and s.blsampleid=:2", array($this->arg('prop'), $this->arg('sid')));
 
             if (!sizeof($samp)) $this->error('No such sample', 'The specified sample id doesnt exist');
             else $samp = $samp[0];
