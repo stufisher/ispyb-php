@@ -169,6 +169,8 @@
                 $tot = sizeof(get_object_vars($pdbs));
                 
                 foreach ($pdbs as $pdb => $d) {
+                    if (strtotime($d->YEAR) < strtotime('2010-05-01')) continue;
+                    
                     $s = '';
                     if ($d->RESULTS == 0) $s = 'No Results';
                     if ($d->RESULTS > 0 && !$d->BLMATCH) $s = 'No Match';
