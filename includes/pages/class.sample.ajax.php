@@ -147,7 +147,7 @@
             
             $data = array();
             foreach ($rows as $r) {
-                array_push($data, array($r['NAME'], $r['ACRONYM'], $r['MOLECULARMASS'], $r['SEQUENCE'], $r['SCOUNT'], $r['DCOUNT'], '<a class="small view" title="View Protein" href="/sample/proteins/pid/'.$r['PROTEINID'].'"></a>'));
+                array_push($data, array($r['NAME'], $r['ACRONYM'], $r['MOLECULARMASS'], $r['SEQUENCE'] ? 'Yes' : 'No', $r['SCOUNT'], $r['DCOUNT'], '<a class="small view" title="View Protein Details" href="/sample/proteins/pid/'.$r['PROTEINID'].'"></a>'));
             }
             
             $this->_output(array('iTotalRecords' => $tot,
