@@ -25,6 +25,7 @@
                     <th>Name</th>
                     <th>Spacegroup</th>
                     <th>Comment</th>
+                    <th>Data</th>
                     <th>&nbsp;</th>
                 </tr>
             </thead>
