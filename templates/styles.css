@@ -822,7 +822,7 @@ div.form .ferror {
     clear:both;
 }
 
-.data_collection .holder span {
+.data_collection .holder > span {
     float: right;
     padding: 7px;
     
