@@ -3,11 +3,11 @@
     class Shipment extends Page {
         
         var $arg_list = array('sid' => '\d+', 'did' => '\d+', 'cid' => '\d+', 'submit' => '\d',
-                              'container' => '\w+',
+                              'container' => '([\w-])+',
                               'lcout' => '\d+',
                               'lcret' => '\d+',
                               'comment' => '.*',
-                              'shippingname' => '\w+',
+                              'shippingname' => '([\w-])+',
                               'type' => '\w+',
                               'visit' => '\d+',
                               'shippingdate' => '\d+-\d+-\d+',
@@ -71,6 +71,8 @@
             if (!$this->has_arg('prop')) $this->error('No proposal specified', 'Please select a proposal first');
             
             if ($this->has_arg('submit')) {
+                
+                if (!$this->arg('shippingname')) $this->error('No shipment name specified', 'Please specify a shipment name');
                 
                 $pid = $this->db->pq('SELECT proposalid FROM ispyb4a_db.proposal WHERE proposalcode || proposalnumber LIKE :1', array($this->arg('prop')));
                 
