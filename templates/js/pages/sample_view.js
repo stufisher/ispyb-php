@@ -35,8 +35,8 @@ $(function() {
              r = [e['ST'], e['TYPE'] == 'data' ? 'Data Collection' : 'Grid Scan', desc, e['NUMIMG'] < 10 ? '<span class="indexing">' : '<span class="ap">', '', '<a href="/dc/visit/'+e['VIS']+'/id/'+e['ID']+'" class="small view" title="View full details for the selected data collection"></a>']
                
           } else if (e['TYPE'] == 'edge') {
-             r = [e['ST'], 'Edge Scan','', '', '', '<a href="/dc/visit/'+e['VIS']+'/id/'+e['ID']+'" class="small view" title="View full details for the selected data collection"></a>']
-               
+             r = [e['ST'], 'Edge Scan', e['DIR'] + ' Edge, Exp: '+e['EXPOSURETIME']+'s, Trn: '+e['TRANSMISSION']+'%', '', 'E(pk): '+e['EPK']+'eV, E(in): '+e['EIN']+'eV <br />f&rsquo;&rsquo;: '+e['AXISSTART']+' / f&rsquo;: '+e['RESOLUTION']+'e', '<a href="/dc/visit/'+e['VIS']+'/id/'+e['ID']+'" class="small view" title="View full details for the selected data collection"></a>']
+
           } else if (e['TYPE'] == 'mca') {
              
              var st = 'AutoPyMCA ' + (e['ELEMENTS'].length ? val[2] : val[3])
