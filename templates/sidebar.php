@@ -1,13 +1,14 @@
     <div id="sidebar">
 
         <ul class="clearfix">
+            <li class="help"><a href="#">Help</a></li>
             <li><a href="/">Upcoming Visits</a></li>
             <li><a href="/cell">Unit Cell Search</a></li>
 
             <li><a href="/proposal">Proposals</a></li>
 
             <li>
-                <span class="current"><?php echo $prop ?></span>
+                <span class="current" title="Click to change the currently selected proposal"><?php echo $prop ?></span>
                 <?php if ($prop): ?>
                 <ul>
                     <li><a href="/proposal/visits">Visits</a></li>
