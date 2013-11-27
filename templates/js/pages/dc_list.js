@@ -199,8 +199,9 @@ $(function() {
                        
                        
                        
-                       // Robot loads
+                       
                        } else if (r['TYPE'] == 'load') {
+                         // Sample Actions
                          if (r['IMP'] == 'ANNEAL' || r['IMP'] == 'WASH') {
                            $('<div class="data_collection" dcid="'+r['ID']+'">' +
                                '<div class="snapshots">'+
@@ -220,6 +221,7 @@ $(function() {
                        
                            if (!first) log_message('Sample '+r['IMP'].toLowerCase(), '<a href="#'+r['ID'] +'">View</a>')
                        
+                         // Robot loads
                          } else {
                            $('<div class="data_collection" dcid="'+r['ID']+'">' +
                              '<h1>'+r['ST']+' - Robot '+r['IMP'].toLowerCase()+'ing puck ' + r['EXPOSURETIME'] +' pin ' + r['RESOLUTION'] + ' (Barcode: '+r['DIR']+') Status: '+r['SPOS']+' - '+r['SAN']+' (Took '+r['BSX']+'s)</h1>' +
