@@ -16,6 +16,11 @@ $(function() {
                             
     // Add a new dewar
     $('button.save').button({ icons: { primary: 'ui-icon-check' } }).click(function() {
+        if (!/^(\w|\-)+$/.test($('.new input[name=code]').val())) {
+           $('.new input[name=code]').addClass('ferror')
+           return
+        } else $('.new input[name=code]').removeClass('ferror')
+                                                                           
         $.ajax({
             url: '/shipment/ajax/addd/sid/'+sid,
             type: 'POST',
@@ -54,14 +59,14 @@ $(function() {
           var d_out = ''
           $.each(json, function(i,d) {
             d_out += '<tr did="'+d['DEWARID']+'" name="'+d['CODE']+'">'+
-                    '<td><span class="code">'+d['CODE']+'</span></td>'+
+                    '<td title="Click to edit the dewar name"><span class="code">'+d['CODE']+'</span></td>'+
                     '<td>'+d['BARCODE']+'</td>'+
                     '<td><span class="trackto">'+(d['TRACKINGNUMBERTOSYNCHROTRON'] ? d['TRACKINGNUMBERTOSYNCHROTRON'] : '')+'</span></td>'+
                     '<td><span class="trackfrom">'+(d['TRACKINGNUMBERFROMSYNCHROTRON'] ? d['TRACKINGNUMBERFROMSYNCHROTRON'] : '')+'</span></td>'+
                     '<td>'+d['DEWARSTATUS']+'</td>'+
                     '<td>'+(d['STORAGELOCATION'] ? d['STORAGELOCATION'] : '')+'</td>'+
                     '<td>'+d['CCOUNT']+'</td>'+
-                    '<td><a class="small add" title="Add Container" href="/shipment/addc/did/'+d['DEWARID']+'"></a></td>'+
+                    '<td><a class="small add" title="Click to add a container" href="/shipment/addc/did/'+d['DEWARID']+'"></a></td>'+
                 '</tr>'
           })
            
@@ -101,7 +106,7 @@ $(function() {
         success: function(json){
           var c_out = ''
           $.each(json, function(i,c) {
-            c_out += '<li cid="'+c['CONTAINERID']+'">'+c['CODE']+' ('+c['SCOUNT']+' samples) <span class="r"><a class="small view" title="View Container" href="/shipment/cid/'+c['CONTAINERID']+'"></a> <button class="small delete"></button></span></li>'
+            c_out += '<li cid="'+c['CONTAINERID']+'">'+c['CODE']+' ('+c['SCOUNT']+' samples) <span class="r"><a class="small view" title="Click to View Container" href="/shipment/cid/'+c['CONTAINERID']+'"></a> <button class="small delete"></button></span></li>'
                  
           })
            
@@ -187,9 +192,8 @@ $(function() {
                        }).addClass('editable');
   
   $('.comment').editable('/shipment/ajax/update/sid/'+sid+'/ty/com/', {
-        style: 'display: inline',
-        width: '40%',
-        height: '100%',
+        type: 'textarea',
+        rows: 5,
         submit: 'Ok',
         onblur: 'ignore',
   }).addClass('editable');
@@ -208,7 +212,7 @@ $(function() {
         var did = $(this).parent('td').parent('tr').attr('did')
         $(e).editable('/shipment/ajax/updated/did/'+did+'/ty/code/', {
                            width: '100px',
-                           height: '20px',
+                           height: '100%',
                            type: 'text',
                            submit: 'Ok',
                            style: 'display: inline',
@@ -219,7 +223,7 @@ $(function() {
         var did = $(this).parent('td').parent('tr').attr('did')
         $(e).editable('/shipment/ajax/updated/did/'+did+'/ty/tt/', {
                            width: '100px',
-                           height: '20px',
+                           height: '100%',
                            type: 'text',
                            submit: 'Ok',
                            style: 'display: inline',
@@ -230,7 +234,7 @@ $(function() {
         var did = $(this).parent('td').parent('tr').attr('did')
         $(e).editable('/shipment/ajax/updated/did/'+did+'/ty/tf/', {
                            width: '100px',
-                           height: '20px',
+                           height: '100%',
                            type: 'text',
                            submit: 'Ok',
                            style: 'display: inline',

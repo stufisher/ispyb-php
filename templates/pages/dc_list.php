@@ -1,4 +1,6 @@
 
+    <p class="help">This page shows all data collections for the selected visit. If the visit is ongoing the page will automatically update as new data is collected. Auto processing results will be displayed</p>
+
     <?php if ($active): ?>
     <h1 class="status">Beamline Status</h1>
     <div class="status">
@@ -9,7 +11,7 @@
     </div>
     <?php endif ?>
 
-    <div class="filter">
+    <div class="filter" title="Click to filter the current list to specified data collection types">
         <ul>
             <li id="dc">Data Collections</li>
             <li id="ed">Edge Scans</li>
@@ -34,11 +36,11 @@
         <ul></ul>
     </div>
 
-    <div class="search">
+    <div class="search" title="Search the current data collections">
         <label>Search: </label><input type="text" name="search" />
     </div>
 
-    <div class="page_wrap">
+    <div class="page_wrap" title="Click to change pages">
         <div class="pages"></div>
         <div class="clear"></div>
     </div>
@@ -49,7 +51,7 @@
 
     <div class="data_collections"></div>
 
-    <div class="page_wrap">
+    <div class="page_wrap" title="Click to change pages">
         <div class="pages"></div>
         <div class="clear"></div>
     </div>

@@ -1,5 +1,7 @@
         <h1><?php echo $bag ?>: <?php echo $data[0]['TITLE'] ?></h1>
 
+        <p class="help">This page shows statistics for the currently selected proposal. Click on a particular visit to see statistics for that visit.</p>
+
         <!--
         <div class="plot_container border right">
             <div id="visit_pie"></div>

@@ -99,14 +99,14 @@ $(function() {
                            var f = r['COMMENTS'] ? (r['COMMENTS'].indexOf('_FLAG_') > -1 ? 'ui-state-highlight' : '') : ''
                        
                            $('<div class="data_collection" dcid="'+r['ID']+'" type="data">' +
-                             '<div class="distl"></div>'+
-                             '<div class="snapshots">'+
+                             '<div class="distl" title="DISTL plot showing number of spots (yellow and blue points), and estimated resolution (red points) for each image in the data collection"></div>'+
+                             '<div class="snapshots" title="View crystal snapshots for the current data collection">'+
                                 '<a href="/image/id/'+r['ID']+'/f/1" rel="lightbox-'+r['ID']+'" title="Crystal Snapshot 1"><img dsrc="" alt="Crystal Snapshot 1" /></a>'+
                              '</div>'+
-                             '<div class="diffraction">'+
+                             '<div class="diffraction" title="Click to view diffraction images">'+
                                 '<a href="/dc/view/id/'+r['ID']+'"><img dsrc="" alt="Diffraction Image 1" /></a>' +
                              '</div>'+
-                             '<h1><button class="small flag '+f+'"></button> '+r['ST']+' - <a href="/dc/visit/'+visit+'/id/'+r['ID']+'">Permalink</a></h1>'+
+                             '<h1><button class="small flag '+f+'" title="Click to add this data collection to the list of flagged data collections"></button> '+r['ST']+' - <a href="/dc/visit/'+visit+'/id/'+r['ID']+'">Permalink</a></h1>'+
                              '<h2>'+r['DIR']+r['FILETEMPLATE']+'</h2>'+
 
                              '<ul>'+
@@ -121,11 +121,11 @@ $(function() {
                                  //'<li>Measured Flux: '+r['FLUX']+'</li>'+
                                  '<li>Transmission: '+r['TRANSMISSION']+'%</li>'+
                                  '<li>Beamsize: '+(r['BSX']*1000)+'x'+(r['BSY']*1000)+'&mu;m</li>'+
-                                 '<li class="comment">Comment: <span class="comment_edit">'+(r['COMMENTS']?r['COMMENTS']:'')+'</span></li>'+
+                                 '<li class="comment" title="Click to edit the comment for this data collection">Comment: <span class="comment_edit">'+(r['COMMENTS']?r['COMMENTS']:'')+'</span></li>'+
                              '</ul>'+
                              '<div class="holder">'+
                              (r['NI'] < 10 ?
-                                ('<span></span><h1>Strategies</h1>'+
+                                ('<span></span><h1 title="Click to show EDNA/mosflm strategies">Strategies</h1>'+
                                  '<div class="strategies"></div>'):
                                 ('<span></span><h1>Auto Processing</h1>'+
                                  '<div class="autoproc"></div>'+
@@ -925,8 +925,8 @@ $(function() {
                    
                    console.log(0.97*($(pl_div).parent().parent().parent().width()-14))
                    if ($(window).width() <= 400) $(pl_div).width(0.93*($(pl_div).parent().parent().parent().width()-14))
-                   else { $(pl_div).width(0.47*($(pl_div).parent().parent().parent().width()-14))
-                      $(pl_div).height($(pl_div).width()-80)
+                   else { $(pl_div).width(0.68*($(pl_div).parent().parent().parent().width()-14))
+                      $(pl_div).height($(pl_div).width()*0.44-80)
                    }
                    
                    

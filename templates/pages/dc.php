@@ -1,6 +1,8 @@
 
     <h1>Visits for <?php echo $months[$c_month] ?> <?php echo $c_year ?> <?php echo $prop ? ('for '.$pr) : '' ?></h1>
 
+    <p class="help">Schedule of visits for the currently selected proposal</p>
+
     <div class="calendar">
     <ul class="links">
         <li><a href="/dc/<?php echo $prop ? 'proposal/' : '' ?>mon/<?php echo $months[$c_month] ?>/year/<?php echo ($c_year-1) ?>"><?php echo ($c_year-1) ?></a></li>

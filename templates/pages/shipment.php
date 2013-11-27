@@ -1,6 +1,10 @@
         <h1>Shipments for <?php echo $prop ?></h1>
 
-        <div class="ra"><a class="add" href="/shipment/add">Add Shipment</a></div>
+        <p class="help">This page shows a list of shipments associated with the currently selected proposal</p>
+
+        <p class="help">In order to register your samples you need to create a shipment. Shipments contain dewars, dewar contain containers, and containers individual samples. These can be created sequentially by viewing a particular shipment</p>
+
+        <div class="ra"><a class="add" href="/shipment/add" title="Create a new shipment">Add Shipment</a></div>
 
         <div class="table">
             <table class="robot_actions">
@@ -27,7 +31,7 @@
                         <td><?php echo $r['SHIPPINGSTATUS'] ?></td>
                         <td><?php echo $r['DCOUNT'] ?></td>
                         <td><?php echo $r['COMMENTS'] ?></td>
-                        <td><a class="view small" href="/shipment/sid/<?php echo $r['SHIPPINGID'] ?>"></a>
+                        <td><a class="view small" href="/shipment/sid/<?php echo $r['SHIPPINGID'] ?>" title="View Shipment"></a>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>

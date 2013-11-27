@@ -5,7 +5,11 @@ $(function() {
                                                                                                         
       })
 
-      
+
+      $('button.view').button({ icons: { primary: 'ui-icon-search' } }).unbind('click').click(function() {
+        window.location.href = '/sample/sid/'+$(this).parent('td').parent('tr').attr('sid')
+      })
+  
       $('button.edit').button({ icons: { primary: 'ui-icon-pencil' } }).unbind('click').click(function() {
         var r = $(this).parent('td').parent('tr')
         var sid = r.attr('sid')
@@ -92,7 +96,7 @@ $(function() {
             '<td>'+s['NAME']+'</td>'+
             '<td>'+(s['SPACEGROUP']?s['SPACEGROUP']:'')+'</td>'+
             '<td>'+(s['COMMENTS']?s['COMMENTS']:'')+'</td>'+
-            '<td><button class="edit"></button> <button class="delete"></button></td>'+
+            '<td><button class="edit" title="Edit sample details"></button> <button class="delete"></button> &nbsp; <button class="view small" title="View sample details"></button></td>'+
             '</tr>').appendTo($('.samples tbody'))
         })
         _map_callbacks()
@@ -101,7 +105,5 @@ $(function() {
   }
            
   _get_samples()
-  
-  //$('.samples tbody').sortable()
   
 })

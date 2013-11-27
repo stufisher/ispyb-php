@@ -1,5 +1,6 @@
     <h1>Container: <?php echo $cont['NAME'] ?></h1>
 
+    <p class="help">This page shows the contents of the selected container. Samples can be added and edited by clicking the pencil icon, and removed by clicking the x</p>
 
     <div class="form">
         <ul>

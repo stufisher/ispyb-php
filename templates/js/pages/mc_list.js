@@ -79,7 +79,7 @@ $(function() {
   })  
   
   
-  $('button[name=integrate]').click(function() {
+  $('button[name=integrate]').button({ icons: { primary: 'ui-icon-gear' } }).click(function() {
      if (!$('.dc.selected').length) {
         alert('You need to select some data sets to integrate')
         return
@@ -127,6 +127,7 @@ $(function() {
   })
                                  
   function _load_cell(id) {
+    console.log(id, cells)
     if (id in cells) {
         e = cells[id]
         $('input[name=sg]').val(e['SG'])
@@ -235,9 +236,9 @@ $(function() {
                           '<div class="state">'+state+'</div>'+                      
                           '<h1>'+r['PREFIX']+'</h1>'+
                           '<h2>'+r['DIR']+'</h2>'+
-                          '<div class="distl"></div>'+
-                          '<span>&Omega; Start: '+r['OST']+'&deg; &Omega; Osc: '+r['OOS']+'&deg; | <a class="images" href="/dc/view/id/'+r['DID']+'" target="_blank">Images</a></span>'+
-                          '<div class="cells">AP Cells</div>'+
+                          '<div class="distl" title="DISTL: Number of spots plotted for each image. Select which images to integrate by dragging across the graph"></div>'+
+                          '<span>&Omega; Start: '+r['OST']+'&deg; &Omega; Osc: '+r['OOS']+'&deg; | <a title="Click to view diffraction images for this data collection" class="images" href="/dc/view/id/'+r['DID']+'" target="_blank">Images</a></span>'+
+                          '<div class="cells" title="Autoprocessing results, click to use these cell parameters for reintegration">AP Cells</div>'+
                           '</div>').data('ni', parseInt(r['NI'])).hide().prependTo('.data_collections').fadeIn()
                            
                     }

@@ -1,6 +1,8 @@
 
     <h1><?php echo $d['VIS']?>: <?php echo $d['DIR'] ?><?php echo $d['FT'] ?></h1>
 
+    <p class="help">This page is a full scale diffraction image viewer. Mousehweel zooms in and out, drag click to pan around the image. Press &gt; to go to the next image and &lt; the previous.</p>
+
     <div class="data_collection">
         <ul class="full_width">
             <li>Exposure: <?php echo number_format($d['EXPOSURETIME'],3) ?>s</li>
@@ -34,9 +36,9 @@
         </div>
 
         <div class="im_num">
-            <button name="prev">&lt;</button>
-            <input type="text" name="num" value="1" />/<?php echo $d['NUM'] ?>
-            <button name="next">&gt;</button>
+            <button name="prev" title="Load previous image">&lt;</button>
+            <input type="text" name="num" value="1" title="Load the image with this number" />/<?php echo $d['NUM'] ?>
+            <button name="next" title="Load next image">&gt;</button>
         </div>
 
         <div class="clear"></div>
@@ -47,10 +49,10 @@
         <div class="im_highlight"></div>
         <div class="im_progress"></div>
 
-        <div class="im_cur">
+        <div class="im_cur" title="Zoomed region, click on the main image to select the region to zoom">
             <!--<p>X: <span id="x">0</span>px, <span id="x_mm">0</span>mm</p>
             <p>Y: <span id="y">0</span>px, <span id="y_mm">0</span>mm</p>-->
-            <p>Resolution: <span id="res">0</span>&#197;</p>
+            <p title="Diffraction resolution at cursor position">Resolution: <span id="res">0</span>&#197;</p>
         </div>
 
         <div class="yprofile"></div>

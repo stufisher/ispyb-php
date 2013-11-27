@@ -177,7 +177,7 @@ $(function() {
             if (!(c['CONTAINERID'] in containers)) {
               sc = $('div[sid='+c['SHIPPINGID']+']').children('div[did='+c['DEWARID']+']').children('div.containers')
                
-               $('<div cid="'+c['CONTAINERID']+'" sid='+c['SHIPPINGID']+' did="'+c['DEWARID']+'" loc="'+c['SAMPLECHANGERLOCATION']+'" class="container"><span class="r"><button /></span><h1>'+c['CODE']+'</h1></div>').appendTo(assigned ? ($('#blp'+a).children('div')) : sc).addClass(assigned ? 'assigned' : '').draggable(drag)
+               $('<div cid="'+c['CONTAINERID']+'" sid='+c['SHIPPINGID']+' did="'+c['DEWARID']+'" loc="'+c['SAMPLECHANGERLOCATION']+'" class="container"><span class="r"><button title="Click to view container contents" /></span><h1>'+c['CODE']+'</h1></div>').appendTo(assigned ? ($('#blp'+a).children('div')) : sc).addClass(assigned ? 'assigned' : '').draggable(drag)
               containers[c['CONTAINERID']] = a
                
                

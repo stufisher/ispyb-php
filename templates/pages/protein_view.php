@@ -1,8 +1,9 @@
     <h1>View Protein</h1>
 
+    <p class="help">This page shows details for the selected protein and a list of samples which make use of it</p>
+
     <div class="form">
         <ul>
-
             <li>
                 <span class="label">Name</span>
                 <span class="name"><?php echo $prot['NAME'] ?></span>
@@ -26,6 +27,8 @@
         </ul>
 
     </div>
+
+    <h1>Samples using this Protein</h1>
 
     <div class="table">
         <table class="robot_actions samples">

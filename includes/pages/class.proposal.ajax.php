@@ -66,7 +66,7 @@
             
             $data = array();
             foreach ($rows as $r) {
-                array_push($data, array($r['ST'], $r['PROPOSALCODE'], $r['PROPOSALNUMBER'], $r['VCOUNT'], $r['TITLE'], '<button class="small activate"></button>'));
+                array_push($data, array($r['ST'], $r['PROPOSALCODE'], $r['PROPOSALNUMBER'], $r['VCOUNT'], $r['TITLE'], '<button title="Activate Proposal" class="small activate"></button>'));
             }
             
             $this->_output(array('iTotalRecords' => $tot,
@@ -134,7 +134,7 @@
                 if ($this->arg('iSortCol_0') < sizeof($cols)) $order = $cols[$this->arg('iSortCol_0')].' '.$dir;
             }
             
-            $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (SELECT TO_CHAR(s.startdate, 'DD-MM-YYYY') as st, TO_CHAR(s.enddate, 'DD-MM-YYYY') as en, s.visit_number as vis, s.beamlinename as bl, s.beamlineoperator as lc, s.comments, count(dc.datacollectionid) as dcount FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid LEFT OUTER JOIN ispyb4a_db.datacollection dc ON s.sessionid = dc.sessionid $where GROUP BY TO_CHAR(s.startdate, 'DD-MM-YYYY'),TO_CHAR(s.enddate, 'DD-MM-YYYY'),s.visit_number,s.beamlinename,s.beamlineoperator,s.comments,s.startdate ORDER BY $order) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
+            $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (SELECT TO_CHAR(s.startdate, 'HH24:MI DD-MM-YYYY') as st, TO_CHAR(s.enddate, 'HH24:MI DD-MM-YYYY') as en, s.visit_number as vis, s.beamlinename as bl, s.beamlineoperator as lc, s.comments, count(dc.datacollectionid) as dcount FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid LEFT OUTER JOIN ispyb4a_db.datacollection dc ON s.sessionid = dc.sessionid $where GROUP BY TO_CHAR(s.startdate, 'HH24:MI DD-MM-YYYY'),TO_CHAR(s.enddate, 'HH24:MI DD-MM-YYYY'),s.visit_number,s.beamlinename,s.beamlineoperator,s.comments,s.startdate ORDER BY $order) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
             
             $data = array();
             foreach ($rows as $r) {

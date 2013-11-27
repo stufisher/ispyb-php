@@ -1,5 +1,7 @@
         <h1>Samples</h1>
 
+        <p class="help">This page shows sample associated with the currently selected proposal</p>
+
         <div class="table">
             <table class="robot_actions samples">
                 <thead>

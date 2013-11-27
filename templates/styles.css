@@ -109,7 +109,16 @@ a:hover {
     left: -1px;
     width: 100%;
     display: none;
+}
 
+#sidebar ul li.help {
+    float: right;
+    border-right: 0;
+    border-left: 1px solid #e2e2e2;
+}
+
+#sidebar ul li.help.active {
+    background: #f9f9f9 !important;
 }
 
 #sidebar ul li:hover ul {
@@ -138,6 +147,15 @@ a:hover {
 }
 .clearfix {
     *zoom: 1;
+}
+
+p.help {
+    display: none;
+    padding: 1%;
+    margin-bottom: 1%;
+    border-radius: 5px;
+    background: black;
+    color: #e2e2e2;
 }
 
 
@@ -649,6 +667,7 @@ div.form label.ferror {
     display: none !important;
 }
 
+.ferror,
 table.form .ferror,
 div.form .ferror {
     border: 1px solid red;
@@ -917,7 +936,8 @@ div.form .ferror {
 }
 
 .data_collection .holder > div > div > table.rstats {
-    width: 48%;
+    /*width: 48%;*/
+    width: 68%;
     margin-top: 5px;
 }
 
@@ -934,14 +954,16 @@ div.form .ferror {
 }
 
 .data_collection .holder .plot_dimple {
-    width: 50%;
+    /*width: 50%;*/
+    width: 70%;
     float: right;
 }
 
 .data_collection .holder .blobs {
     float: right;
     padding-left: 10px;
-    width: 50%;    
+    /*width: 50%;*/
+    width: 30%;
 }
 
 .data_collection .holder .blobs img {
@@ -1471,6 +1493,19 @@ ul.latest li ul li {
     width: 100%;
 }
 
+ul.visits {
+    list-style: none;
+}
+
+ul.visits li {
+    padding: 1%;
+    width: 30%;
+    float: left;
+    border-radius: 5px;
+    background: #e2e2e2;
+    margin: 0.5%;
+}
+
 
 /* Fault Reporting
  ---------------------------------------------------------*/
@@ -1657,7 +1692,7 @@ table input[type=text] {
 
 .blended_table tr.selected td,
 .integrated tr.selected td {
-    background: #cdcdcd;
+    background: #cdcdcd !important;
 }
 
 .robot_actions.half {
@@ -1806,6 +1841,7 @@ span.run_state {
     width: 6%;
 }
 
+.pdb_details_not_found,
 .pdb_details {
     display: none
 }
@@ -1862,7 +1898,7 @@ div.pdbs {
 
 table.dewars tr:hover td {
     cursor: pointer;
-    background: #dddddd;
+    background: #dddddd !important;
 }
 
 /*
@@ -2054,6 +2090,35 @@ span.snapshots.sample img {
 }
 
 @media (max-width: 400px) {
+    
+    ul.visits li {
+        width: 97%;
+    }
+    
+    div.text {
+        width: 100%;
+        float: none;
+        
+        -webkit-box-ordinal-group: 2;
+        -moz-box-ordinal-group: 2;
+        -ms-flex-order: 1;
+        -webkit-order: 1;
+        order: 1;
+    }
+    
+    .clearfix {
+        display: -webkit-box;
+        display: -moz-box;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-orient: vertical;
+        -moz-box-orient: vertical;
+        -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+        flex-direction: column;
+    }
+    
     .image_container .image {
         height: 75%;
     }

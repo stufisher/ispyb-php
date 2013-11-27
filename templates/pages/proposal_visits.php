@@ -1,5 +1,7 @@
         <h1>Visits for <?php echo $prop ?></h1>
 
+        <p class="help">This page lists the visits available to the currently selected proposal</p>
+
         <div class="table">
             <table class="robot_actions">
                 <thead>

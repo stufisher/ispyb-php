@@ -1,6 +1,8 @@
         <h1>Proteins</h1>
 
-        <div class="ra"><a class="add" href="/sample/addp">Add Protein</a></div>
+        <p class="help">This page lists all proteins associated with the currently selected proposal</p>
+
+        <div class="ra"><a class="add" href="/sample/addp" title="Click to add a new protein to this proposal">Add Protein</a></div>
 
         <div class="table">
             <table class="robot_actions samples">

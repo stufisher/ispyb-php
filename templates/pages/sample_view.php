@@ -1,4 +1,7 @@
     <h1>Sample Details</h1>
+
+    <p class="help">This pages shows details and history for the selected sample</p>
+
     <div class="form">
         <ul>
 

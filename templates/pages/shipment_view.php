@@ -1,5 +1,6 @@
     <h1>Shipment: <?php echo $ship['SHIPPINGNAME'] ?></h1>
 
+    <p class="help">This page shows details and contents of the selected shipment. Most parameters can be edited by simply clicking on them</p>
 
     <div class="form">
         <ul>
@@ -51,7 +52,9 @@
 
     <h1>Shipment Contents</h1>
 
-    <div class="ra"><button id="add_dewar">Add Dewar</button></div>
+    <p class="help">Select a dewar by clicking on the row in the table below. Dewar details are then shown below. Click the + icon to add a container to the selected dewar</p>
+
+    <div class="ra"><button id="add_dewar" title="Add a dewar to this shipment">Add Dewar</button></div>
 
     <div class="table dewars">
         <table class="robot_actions dewars">
@@ -74,6 +77,8 @@
 
 
     <h1>Dewar Details: <span class="dewar_name"></span></h1>
+
+    <p class="help">This section shows contents and history for the selected dewar. Click the spyglass icon to view the contents of the container</p>
 
     <div class="border left">
         <ul class="containers"></ul>

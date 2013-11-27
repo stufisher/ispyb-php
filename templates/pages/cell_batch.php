@@ -19,12 +19,12 @@
 
     <h1>Stats</h1>
     
-    <div class="plot_container border left">
+    <div class="plot_container left">
         <div id="visit_pie"></div>
         <p>Breakdown of PDB depositions</p>
     </div>
 
-    <div class="plot_container border right">
+    <div class="plot_container right">
         <div id="pdbs"></div>
         <div id="pdbs2"></div>
         <p>Depositions by beamline / year (Top: ISpyB, Bottom: PDB)</p>

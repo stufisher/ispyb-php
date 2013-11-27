@@ -41,7 +41,7 @@ $(function() {
   });
   
   // Clear selection
-  $('button[name=clear]').click(function() {
+  $('button[name=clear]').button({ icons: { primary: 'ui-icon-close' } }).click(function() {
         $('.integrated tr').removeClass('selected')
         count()
   })
@@ -70,6 +70,9 @@ $(function() {
     load_blended()
   })
   
+  
+  $('button[name=analyse]').button({ icons: { primary: 'ui-icon-image' } })
+  $('button[name=blend]').button({ icons: { primary: 'ui-icon-gear' } })
   
   // Initiate a blend run or analyse all data sets
   $('button[name=analyse],button[name=blend]').click(function() {
@@ -198,7 +201,7 @@ $(function() {
                             '<td>-</td>'+
                             '<td>-</td>'+
                             '<td>-</td>'))+
-                         '<td><button class="logv"></button> <button class="mtz"></button> &nbsp; '+(owner ? '<button class="delete"></button>':'')+'</td>'+
+                         '<td><a class="small logv" title="View scaling statistics for the selected blend run"></a> <a class="mtz small" href="/download/bl/visit/'+visit+'/run/'+r['ID']+'" title="Download ther merged mtz file"></a> <a class="mtz small" href="/download/bl/visit/'+visit+'/run/'+r['ID']+'/s/1" title="Download the scaled mtz file"></a> &nbsp; '+(owner ? '<a class="small delete" title="Delete this blend run"></a>':'')+'</td>'+
                          '</tr>').data('ids', r['IDS']).hide().prependTo($('.blended_table tbody')).fadeIn()
                   }
                        
@@ -221,7 +224,7 @@ $(function() {
                     count()
                 })
              
-                $('button.logv').button({ icons: { primary: 'ui-icon-search' } }).unbind('click').click(function() {
+                $('a.logv').button({ icons: { primary: 'ui-icon-search' } }).unbind('click').click(function() {
                     $('#stats table tbody').html('')
                     var run = $(this).parent('td').parent('tr').attr('run')
                     if (run in blended) {
@@ -240,11 +243,12 @@ $(function() {
                           $('#stats').dialog('open')
                         }
                     }
+                    return false;
                 })
              
-                $('button.mtz').button({ icons: { primary: 'ui-icon-arrowthick-1-s' } })
+                $('a.mtz').button({ icons: { primary: 'ui-icon-arrowthick-1-s' } })
              
-                $('button.delete').button({ icons: { primary: 'ui-icon-closethick' } }).unbind('click').click(function() {
+                $('a.delete').button({ icons: { primary: 'ui-icon-closethick' } }).unbind('click').click(function() {
                         var run = $(this).parent('td').parent('tr').attr('run')
                         $.ajax({
                             url: '/mc/ajax/delete/visit/'+visit+'/run/'+run,
@@ -257,6 +261,7 @@ $(function() {
                               }
                             }
                         })
+                        return false;
                 })
              
              }

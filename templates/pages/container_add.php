@@ -7,6 +7,8 @@
 
     <h1>Add Container</h1>
 
+    <p class="help">This page allows you to add containers to the selected dewar and shipment. If the protein you want to use isnt listed type in a new name and press tab. This will create a new protein</p>
+
     <form method="post" id="add_container">
 
     <div class="form">
@@ -49,7 +51,7 @@
                     <td><input class="sname" type="text" name="n[]" /></td>
                     <td><select name="sg[]"><?php echo $sgs ?></select>
                     <td><input class="comment" type="text" name="c[]" /></td>
-                    <td><button class="small clone"></button> <button class="delete"></button>
+                    <td><button class="small clone" title="Clone this sample"></button> <button class="delete" title="Remove this sample"></button>
                 </tr>
                 <?php endfor; ?>
             </tbody>

@@ -32,10 +32,10 @@ $(function() {
                
              var desc = '&Omega; St: '+e['AXISSTART']+'&deg;, &Omega; Osc: '+e['AXISRANGE']+'&deg;, No: '+e['NUMIMG']+', Res: '+e['RESOLUTION']+'&#197;, &lambda;: '+e['WAVELENGTH']+'&#197;, Exp: '+e['EXPOSURETIME']+'s, Trn: '+e['TRANSMISSION']+'%'
                
-             r = [e['ST'], e['TYPE'] == 'data' ? 'Data Collection' : 'Grid Scan', desc, e['NUMIMG'] < 10 ? '<span class="indexing">' : '<span class="ap">', '', '<a href="/dc/visit/'+e['VIS']+'/id/'+e['ID']+'" class="small view"></a>']
+             r = [e['ST'], e['TYPE'] == 'data' ? 'Data Collection' : 'Grid Scan', desc, e['NUMIMG'] < 10 ? '<span class="indexing">' : '<span class="ap">', '', '<a href="/dc/visit/'+e['VIS']+'/id/'+e['ID']+'" class="small view" title="View full details for the selected data collection"></a>']
                
           } else if (e['TYPE'] == 'edge') {
-             r = [e['ST'], 'Edge Scan','', '', '', '<a href="/dc/visit/'+e['VIS']+'/id/'+e['ID']+'" class="small view"></a>']
+             r = [e['ST'], 'Edge Scan','', '', '', '<a href="/dc/visit/'+e['VIS']+'/id/'+e['ID']+'" class="small view" title="View full details for the selected data collection"></a>']
                
           } else if (e['TYPE'] == 'mca') {
              
@@ -47,7 +47,7 @@ $(function() {
                
              var desc = 'Energy: '+e['WAVELENGTH']+'eV, Exp: '+e['EXPOSURETIME']+'s, Trn: '+e['TRANSMISSION']+'%'
                
-             r = [e['ST'], 'Fluorescence Scan', desc, st, el.join(', '), '<a href="/dc/visit/'+e['VIS']+'/id/'+e['ID']+'" class="small view"></a>']
+             r = [e['ST'], 'Fluorescence Scan', desc, st, el.join(', '), '<a href="/dc/visit/'+e['VIS']+'/id/'+e['ID']+'" class="small view" title="View full details for the selected data collection"></a>']
                
           } else if (e['TYPE'] == 'load') {
              if (e['IMP'] == 'LOAD' || e['IMP'] == 'UNLOAD' || e['IMP'] == 'DISPOSE')

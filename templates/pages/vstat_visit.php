@@ -1,11 +1,13 @@
         <h1>Breakdown for <?php echo $bag ?>-<?php echo $visit ?></h1>
 
+        <p class="help">This page shows statistics for the selected visit. The plots below show each action and when they happened. Drag to zoom in on the plot. Click the refresh icon to reset the zoom level</p>
+
         <div class="plot_container border">
-            <button name="reset"></button>
+            <button name="reset" title="Reset the zoom level back to the full visit"></button>
             <div id="overview"></div>
         </div>
 
-        <div class="plot_container border">
+        <div class="plot_container border" title="Drag to zoom in on a specific area">
             <div id="avg_time"></div>
         </div>
 
@@ -27,17 +29,17 @@
 
         </div>
 
-        <div class="plot_container border left">
+        <div class="plot_container left">
             <div id="visit_pie"></div>
             <p>Breakdown of Total Visit Time</p>
         </div>
 
-        <div class="plot_container border right">
+        <div class="plot_container right">
             <div id="dc_hist"></div>
             <p>Data Collection Times</p>
         </div>
 
-        <div class="plot_container border right">
+        <div class="plot_container right">
             <div id="dc_hist2"></div>
             <p>Data Collection No. of Images</p>
         </div>
