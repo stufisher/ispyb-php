@@ -8,7 +8,7 @@
                               'name' => '\w+',
                               'ty' => '\w+',
                               'value' => '.*',
-                              'code' => '\w+',
+                              'code' => '([\w-])+',
                               'trackto' => '\w+',
                               'trackfrom' => '\w+',
                               'array' => '\d',
