@@ -47,13 +47,13 @@ $(function() {
                
              var desc = 'Energy: '+e['WAVELENGTH']+'eV, Exp: '+e['EXPOSURETIME']+'s, Trn: '+e['TRANSMISSION']+'%'
                
-             r = [e['ST'], 'Fluorescence Scan', desc, st, el.join(', '), '<a href="/dc/visit/'+e['VIS']+'/id/'+e['ID']+'" class="small view" title="View full details for the selected data collection"></a>']
+             r = [e['ST'], 'Fluorescence Spectrum', desc, st, el.join(', '), '<a href="/dc/visit/'+e['VIS']+'/id/'+e['ID']+'" class="small view" title="View full details for the selected data collection"></a>']
                
           } else if (e['TYPE'] == 'load') {
              if (e['IMP'] == 'LOAD' || e['IMP'] == 'UNLOAD' || e['IMP'] == 'DISPOSE')
-               r = [e['ST'], 'Robot '+e['IMP'].toLowerCase()+'ed sample','', '', '', '']
+               r = [e['ST'], 'Robot '+e['IMP'].toLowerCase()+'ed sample','Took '+e['BSX']+'s', '', '', '']
              else
-               r = [e['ST'], 'Sample '+e['IMP'].toLowerCase(),'', '', '', '']
+               r = [e['ST'], 'Sample '+e['IMP'].toLowerCase(),'Time: '+e['BSX']+'s', '', '', '']
                
           }
                
