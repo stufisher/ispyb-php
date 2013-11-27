@@ -708,8 +708,8 @@ div.form .ferror {
 }
 .status,
 .log {
-    box-shadow: 2px 2px 15px #bfbfbf;
-    border-radius: 6px;
+    /*box-shadow: 2px 2px 15px #bfbfbf;*/
+    /*border-radius: 6px;*/
     padding: 5px;
     margin-bottom: 10px;
 }
@@ -992,7 +992,7 @@ div.form .ferror {
 
 .data_collection .elements {
     float: right;
-    margin: 0.5% 1%;
+    margin: 0.5% 1% 2% 0.5%;
 }
     
 .data_collection .elements table tr td {
