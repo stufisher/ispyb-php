@@ -686,10 +686,13 @@ $(function() {
         dataType: 'json',
         timeout: 5000,
         success: function(json){
+           var aids = {}
            var types = new Array()
            for (var k in ty) types[k] = new Array()
            
             $.each(json, function(i,r) {
+                aids[r['TYPE']] = r['AUTOPROCPROGRAMID']
+                   
                 types[r['TYPE']].push('<tr>' +
                     '<td>'+r['SHELL']+'</td>' +
                     '<td>'+r['SG']+'</td>' +
@@ -732,7 +735,7 @@ $(function() {
            for (k in ty) {
                 t = ty[k]
                 if (types[k].length > 0) {
-                    out += '<div id="' + t + '"><table>'+thead+types[k].join(' ')+'</table></div>'
+                    out += '<div id="' + t + '">Download mtz file <a href="/download/id/'+id+'/aid/'+aids[k]+'" class="dlmtz small"></a><table>'+thead+types[k].join(' ')+'</table></div>'
                     tab += '<li><a href="#' + t + '">'+k+'</a></li>'
                 }
            }
@@ -741,6 +744,8 @@ $(function() {
            else out = '<p>No auto processing results found for this data collection</p>'
 
            d.html(out)
+           $('.dlmtz').button({ icons: { primary: 'ui-icon-arrowthick-1-s' } })
+           
            d.tabs('refresh')
            d.tabs('option', 'active', 0)
            d.slideDown();           
