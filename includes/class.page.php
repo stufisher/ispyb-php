@@ -7,10 +7,14 @@
         var $staff = False;
         var $visits = array();
         var $debug = False;
+        var $explain = False;
         var $profile = False;
         var $profiles = [];
         var $base;
         var $sidebar = false;
+        
+        var $sessionid;
+        var $proposalid;
         
         var $sgs = array('', 'P1',
                          'P2',
@@ -98,6 +102,7 @@
             $this->last_profile = microtime(True);
             $this->db = $db;
             $this->db->set_debug($this->debug);
+            $this->db->set_explain($this->explain);
             
             $page = $this->def;
             if (sizeof($args) > 0) {
@@ -194,6 +199,12 @@
                 if ($this->staff) {
                     $auth = True;
                     
+                    if ($this->has_arg('prop')) {
+                        $prop = $this->db->pq('SELECT p.proposalid FROM ispyb4a_db.proposal p WHERE p.proposalcode || p.proposalnumber LIKE :1', array($this->arg('prop')));
+                        
+                        if (sizeof($prop)) $this->proposalid = $prop[0]['PROPOSALID'];
+                    }
+                    
                 // Normal users
                 } else {
                     $rows = $this->db->pq("SELECT lower(i.visit_id) as vis from investigation@DICAT_RO i inner join investigationuser@DICAT_RO iu on i.id = iu.investigation_id inner join user_@DICAT_RO u on u.id = iu.user_id where u.name=:1", array($u));
@@ -230,11 +241,11 @@
                             
                         // Check user is in this proposal
                         } else if ($this->has_arg('prop')) {
-                            $viss = $this->db->pq('SELECT p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE p.proposalcode || p.proposalnumber LIKE :1', array($this->arg('prop')));
+                            $viss = $this->db->pq('SELECT p.proposalid, p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE p.proposalcode || p.proposalnumber LIKE :1', array($this->arg('prop')));
                             
                             $vis = array();
                             foreach ($viss as $v) array_push($vis, $v['VIS']);
-                            
+                            $this->proposalid = $viss[0]['PROPOSALID'];
                         }
                         
                         if ($this->has_arg('id') || $this->has_arg('visit')) {
@@ -296,7 +307,8 @@
             }
             
             # Retrieve cookie args
-            if (array_key_exists('isb_php_proposal', $_COOKIE) && !array_key_exists('prop', $parsed)) $parsed['prop'] = $_COOKIE['isb_php_proposal'];
+            $u = phpCAS::getUser();
+            if ($u && array_key_exists('ispyb_prop_'.$u, $_COOKIE) && !array_key_exists('prop', $parsed)) $parsed['prop'] = $_COOKIE['ispyb_prop_'.$u];
             
             #$this->args = json_decode(json_encode($parsed), FALSE);
             $this->args = $parsed;
@@ -451,7 +463,17 @@
                 ldap_close($ds);                                  
             }
             return $ret;
-        }        
+        }
+        
+        
+        
+        
+        function cookie($val) {
+            $u = phpCAS::getUser();
+            if ($u) {
+                setcookie('ispyb_prop_'.$u, $val, time()+31536000, '/');
+            }
+        }
         
     }
 
