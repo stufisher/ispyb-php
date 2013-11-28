@@ -99,7 +99,15 @@
             //$out = '/tmp/'.$this->arg('id').'_'.$n.'.jpg';
             $out = '/tmp/'.$this->arg('id').'_'.$n.'.jpg';
             
-            if (!file_exists($out)) exec('./cbf2jpg.sh '.$info['LOC'].' '.$info['FT'].' '.$n.' '.$out);
+            #if (!file_exists('/tmp/cbf2jpg.sh')) {
+            #    copy('./cbf2jpg.sh', '/tmp/cbf2jpg.sh');
+            #    chmod('/tmp/cbf2jpg.sh', 0777);
+            #}
+            
+            if (!file_exists($out)) {
+                chdir('/tmp');
+                exec('/tmp/cbf2jpg.sh '.$info['LOC'].' '.$info['FT'].' '.$n.' '.$out);
+            }
             
             if (file_exists($out)) {
                 $this->_browser_cache();
