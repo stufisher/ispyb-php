@@ -151,8 +151,7 @@
         # Cookie selected proposal
         function _set_proposal() {
             if (!$this->has_arg('prop')) $this->_error('No proposal specified');
-            setcookie('isb_php_proposal', $this->arg('prop'), time()+31536000, '/');
-            
+            $this->cookie($this->arg('prop'));          
             print $this->arg('prop');
         }
     
