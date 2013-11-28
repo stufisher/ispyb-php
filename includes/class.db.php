@@ -5,6 +5,8 @@
     class Oracle {
         var $debug = False;
         var $id;
+        var $explain = False;
+        var $plan = '';
         
         # Initialise database connection
         function __construct($user, $pass, $db) {
@@ -17,6 +19,10 @@
                 //trigger_error(, ENT_QUOTES), E_USER_ERROR);
             }
         
+        }
+        
+        function set_explain($exp) {
+            $this->explain = $exp;
         }
         
         function set_debug($debug) {
@@ -96,6 +102,23 @@
             
             // Add a bound variable incase we need it
             if (strpos($query, ':id') !== false) oci_bind_by_name($stid, ":id", $this->id, 8);
+            
+
+            // Add Explain Plan if requested
+            if ($this->explain) {
+                $exp = oci_parse($this->conn, 'EXPLAIN PLAN FOR '.$query);
+                $arg_count = preg_match_all('/:\d+/', $query);
+                $r = oci_execute($exp);
+                oci_free_statement($exp);
+                
+                $plan = oci_parse($this->conn, 'SELECT * FROM TABLE(dbms_xplan.display)');
+                $pl = oci_execute($plan);
+                $this->plan .= "$query\n".implode(', ', $args)."\n";
+                while ($row = oci_fetch_array($plan, OCI_ASSOC+OCI_RETURN_NULLS)) {
+                    $this->plan .= $row['PLAN_TABLE_OUTPUT']."\n";
+                }
+                oci_free_statement($plan);
+            }
             
             // Perform the logic of the query
             $r = oci_execute($stid);
