@@ -18,6 +18,7 @@
 
 
     <h1>Stats</h1>
+    <p>Results prior to 2010-05 are excluded from the calculated statistics</p>
     
     <div class="plot_container left">
         <div id="visit_pie"></div>
