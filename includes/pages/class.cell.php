@@ -30,6 +30,8 @@
         # ------------------------------------------------------------------------
         # Batch cell finder
         function _batch() {
+            if (!$this->staff) $this->error('Access Denied', 'You dont not have access to view this page');
+            
             $this->template('Nearest Cell > Batch Processor', array('Batch Processor'), array(''));
             $this->render('cell_batch');
         }

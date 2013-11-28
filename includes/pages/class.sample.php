@@ -23,6 +23,7 @@
         var $root = 'Samples';
         var $root_link = '/sample';
         #var $debug = true;
+        var $explain = True;
         
         function _sample_dispatch() {
             if ($this->has_arg('sid')) $this->_view_sample();
@@ -39,7 +40,7 @@
         function _view_sample() {
             if (!$this->has_arg('sid')) $this->error('No sample id', 'No sample id specified');
             
-            $samp = $this->db->pq("SELECT d.code as dewar,sh.shippingname as shipment,sh.shippingid,c.code as container,c.containerid, s.blsampleid, s.name, s.code,s.comments,cr.spacegroup,pr.acronym,pr.proteinid FROM ispyb4a_db.blsample s INNER JOIN ispyb4a_db.crystal cr ON s.crystalid = cr.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = pr.proposalid LEFT OUTER JOIN ispyb4a_db.container c ON c.containerid = s.containerid LEFT OUTER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid INNER JOIN ispyb4a_db.shipping sh ON sh.shippingid = d.shippingid WHERE p.proposalcode || p.proposalnumber LIKE :1 and s.blsampleid=:2", array($this->arg('prop'), $this->arg('sid')));
+            $samp = $this->db->pq("SELECT d.code as dewar,sh.shippingname as shipment,sh.shippingid,c.code as container,c.containerid, s.blsampleid, s.name, s.code,s.comments,cr.spacegroup,pr.acronym,pr.proteinid FROM ispyb4a_db.blsample s INNER JOIN ispyb4a_db.crystal cr ON s.crystalid = cr.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid LEFT OUTER JOIN ispyb4a_db.container c ON c.containerid = s.containerid LEFT OUTER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid INNER JOIN ispyb4a_db.shipping sh ON sh.shippingid = d.shippingid WHERE pr.proposalid=:1 and s.blsampleid=:2", array($this->proposalid, $this->arg('sid')));
 
             if (!sizeof($samp)) $this->error('No such sample', 'The specified sample id doesnt exist');
             else $samp = $samp[0];
@@ -81,7 +82,7 @@
         function _view_protein() {
             if (!$this->has_arg('pid')) $this->error('No protein id', 'No protein id was specified');
             
-            $prot = $this->db->pq('SELECT pr.acronym, pr.name, pr.sequence, pr.molecularmass FROM ispyb4a_db.protein pr INNER JOIN ispyb4a_db.proposal p ON p.proposalid = pr.proposalid  WHERE pr.proteinid=:1 AND p.proposalcode || p.proposalnumber LIKE :2', array($this->arg('pid'), $this->arg('prop')));
+            $prot = $this->db->pq('SELECT pr.acronym, pr.name, pr.sequence, pr.molecularmass FROM ispyb4a_db.protein pr WHERE pr.proteinid=:1 AND pr.proposalid=:2', array($this->arg('pid'), $this->proposalid));
             
             if (!sizeof($prot)) $this->error('No such protein', 'The specified protein id doesnt exist');
             else $prot = $prot[0];

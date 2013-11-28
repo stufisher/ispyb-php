@@ -24,13 +24,12 @@
         var $def = 'samples';
         var $profile = True;
         #var $debug = True;
-        
-        
+        #var $explain = True;
         
         function _samples() {
             if (!$this->has_arg('prop')) $this->_error('No proposal specified');
             
-            $args = array($this->arg('prop'));
+            $args = array($this->proposalid);
             $where = '';
             
             if ($this->has_arg('pid')) {
@@ -41,7 +40,7 @@
             $sta = $this->has_arg('iDisplayStart') ? $this->arg('iDisplayStart') : 0;
             $len = $this->has_arg('iDisplayLength') ? $this->arg('iDisplayLength') : 20;
             
-            $tot = $this->db->pq("SELECT count(b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid INNER JOIN ispyb4a_db.container c ON b.containerid = c.containerid INNER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid INNER JOIN ispyb4a_db.shipping s ON s.shippingid = d.shippingid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE p.proposalcode || p.proposalnumber LIKE :1 $where", $args)[0]['TOT'];
+            $tot = $this->db->pq("SELECT count(b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid INNER JOIN ispyb4a_db.container c ON b.containerid = c.containerid INNER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid INNER JOIN ispyb4a_db.shipping s ON s.shippingid = d.shippingid WHERE pr.proposalid=:1 $where", $args)[0]['TOT'];
             
             if ($this->has_arg('sSearch')) {
                 $st = sizeof($args) + 1;
@@ -50,7 +49,7 @@
             }
             
             
-            $flt = $this->db->pq("SELECT count(b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid INNER JOIN ispyb4a_db.container c ON b.containerid = c.containerid INNER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid INNER JOIN ispyb4a_db.shipping s ON s.shippingid = d.shippingid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE p.proposalcode || p.proposalnumber LIKE :1 $where", $args)[0]['TOT'];
+            $flt = $this->db->pq("SELECT count(b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid INNER JOIN ispyb4a_db.container c ON b.containerid = c.containerid INNER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid INNER JOIN ispyb4a_db.shipping s ON s.shippingid = d.shippingid WHERE pr.proposalid=:1 $where", $args)[0]['TOT'];
             
             $st = sizeof($args) + 1;
             array_push($args, $sta);
@@ -78,7 +77,7 @@
                                   LEFT OUTER JOIN ispyb4a_db.xfefluorescencespectrum xfe ON dc.blsampleid = xfe.blsampleid
                                   
                                   
-                                  WHERE p.proposalcode || p.proposalnumber LIKE :1 $where
+                                  WHERE pr.proposalid=:1 $where
                                   GROUP BY b.blsampleid, pr.acronym, pr.proteinid, cr.spacegroup,b.comments,b.name,s.shippingname,s.shippingid,d.dewarid,d.code, c.code, c.containerid
                                   
                                   ORDER BY $order
@@ -103,13 +102,13 @@
         function _proteins() {
             if (!$this->has_arg('prop')) $this->_error('No proposal specified');
             
-            $args = array($this->arg('prop'));
+            $args = array($this->proposalid);
             $where = '';
             
             $sta = $this->has_arg('iDisplayStart') ? $this->arg('iDisplayStart') : 0;
             $len = $this->has_arg('iDisplayLength') ? $this->arg('iDisplayLength') : 20;
             
-            $tot = $this->db->pq("SELECT count(pr.proteinid) as tot FROM ispyb4a_db.protein pr INNER JOIN ispyb4a_db.proposal p ON pr.proposalid = p.proposalid WHERE p.proposalcode || p.proposalnumber LIKE :1 $where", $args)[0]['TOT'];
+            $tot = $this->db->pq("SELECT count(pr.proteinid) as tot FROM ispyb4a_db.protein pr WHERE pr.proposalid=:1 $where", $args)[0]['TOT'];
 
             if ($this->has_arg('sSearch')) {
                 $st = sizeof($args) + 1;
@@ -117,7 +116,7 @@
                 for ($i = 0; $i < 2; $i++) array_push($args, $this->arg('sSearch'));
             }
             
-            $flt = $this->db->pq("SELECT count(pr.proteinid) as tot FROM ispyb4a_db.protein pr INNER JOIN ispyb4a_db.proposal p ON p.proposalid = pr.proposalid WHERE p.proposalcode || p.proposalnumber LIKE :1 $where", $args)[0]['TOT'];
+            $flt = $this->db->pq("SELECT count(pr.proteinid) as tot FROM ispyb4a_db.protein pr WHERE pr.proposalid=:1 $where", $args)[0]['TOT'];
 
             
             $st = sizeof($args) + 1;
@@ -139,8 +138,7 @@
                                   LEFT OUTER JOIN ispyb4a_db.blsample b ON b.crystalid = cr.crystalid
                                   LEFT OUTER JOIN ispyb4a_db.datacollection dc ON b.blsampleid = dc.blsampleid
                                   
-                                  INNER JOIN ispyb4a_db.proposal p ON p.proposalid = pr.proposalid
-                                  WHERE p.proposalcode || p.proposalnumber LIKE :1 $where
+                                  WHERE pr.proposalid=:1 $where
                                   GROUP BY pr.proteinid,pr.name,pr.acronym,pr.molecularmass,pr.sequence
                                   ORDER BY $order
                                   ) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);

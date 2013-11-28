@@ -39,13 +39,14 @@
         var $def = 'containers';
         var $profile = True;
         //var $debug = True;
+        #var $explain = True;
         
         
         
         function _get_containers() {
             if (!$this->has_arg('did')) $this->_error('No dewar id specified');
             
-            $rows = $this->db->pq('SELECT count(s.blsampleid) as scount, c.containerid, c.code FROM ispyb4a_db.container c LEFT OUTER JOIN ispyb4a_db.blsample s ON s.containerid = c.containerid INNER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid INNER JOIN ispyb4a_db.shipping s ON s.shippingid = d.shippingid INNER JOIN ispyb4a_db.proposal p ON s.proposalid = p.proposalid WHERE d.dewarid=:1 AND p.proposalcode || p.proposalnumber LIKE :2 GROUP BY c.containerid, c.code', array($this->arg('did'), $this->arg('prop')));
+            $rows = $this->db->pq('SELECT count(s.blsampleid) as scount, c.containerid, c.code FROM ispyb4a_db.container c LEFT OUTER JOIN ispyb4a_db.blsample s ON s.containerid = c.containerid INNER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid INNER JOIN ispyb4a_db.shipping s ON s.shippingid = d.shippingid WHERE d.dewarid=:1 AND s.proposalid=:2 GROUP BY c.containerid, c.code', array($this->arg('did'), $this->proposalid));
             
             $this->_output($rows);
         }
@@ -54,7 +55,7 @@
         function _get_history() {
             if (!$this->has_arg('did')) $this->_error('No dewar id specified');
             
-            $rows = $this->db->pq("SELECT h.dewarid, h.dewarstatus,h.storagelocation,TO_CHAR(h.arrivaldate, 'HH24:II DD-MM-YYYY') as arrival FROM ispyb4a_db.dewartransporthistory h INNER JOIN ispyb4a_db.dewar d ON d.dewarid = h.dewarid INNER JOIN ispyb4a_db.shipping s ON d.shippingid = s.shippingid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE h.dewarid=:1 AND p.proposalcode || p.proposalnumber LIKE :2 ORDER BY h.arrivaldate", array($this->arg('did'), $this->arg('prop')));
+            $rows = $this->db->pq("SELECT h.dewarid, h.dewarstatus,h.storagelocation,TO_CHAR(h.arrivaldate, 'HH24:II DD-MM-YYYY') as arrival FROM ispyb4a_db.dewartransporthistory h INNER JOIN ispyb4a_db.dewar d ON d.dewarid = h.dewarid INNER JOIN ispyb4a_db.shipping s ON d.shippingid = s.shippingid WHERE h.dewarid=:1 AND p.proposalid=:2 ORDER BY h.arrivaldate", array($this->arg('did'), $this->proposalid));
             
             $this->_output($rows);
         }
@@ -65,7 +66,7 @@
             if (!$this->has_arg('sid')) $this->_error('No shipment id specified');
             
             
-            $dewars = $this->db->pq("SELECT count(c.containerid) as ccount, d.code, d.barcode, d.storagelocation, d.dewarstatus, d.dewarid,  d.trackingnumbertosynchrotron, d.trackingnumberfromsynchrotron FROM ispyb4a_db.dewar d LEFT OUTER JOIN ispyb4a_db.container c ON c.dewarid = d.dewarid INNER JOIN ispyb4a_db.shipping s ON d.shippingid = s.shippingid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE p.proposalcode || p.proposalnumber LIKE :1 AND d.shippingid=:2 GROUP BY d.code, d.barcode, d.storagelocation, d.dewarstatus, d.dewarid,  d.trackingnumbertosynchrotron, d.trackingnumberfromsynchrotron", array($this->arg('prop'), $this->arg('sid')));
+            $dewars = $this->db->pq("SELECT count(c.containerid) as ccount, d.code, d.barcode, d.storagelocation, d.dewarstatus, d.dewarid,  d.trackingnumbertosynchrotron, d.trackingnumberfromsynchrotron FROM ispyb4a_db.dewar d LEFT OUTER JOIN ispyb4a_db.container c ON c.dewarid = d.dewarid INNER JOIN ispyb4a_db.shipping s ON d.shippingid = s.shippingid WHERE s.proposalid=:1 AND d.shippingid=:2 GROUP BY d.code, d.barcode, d.storagelocation, d.dewarstatus, d.dewarid,  d.trackingnumbertosynchrotron, d.trackingnumberfromsynchrotron", array($this->proposalid, $this->arg('sid')));
             
             $this->_output($dewars);
             
@@ -101,7 +102,7 @@
         function _get_proteins() {
             if (!$this->has_arg('prop')) $this->_error('No proposal specified');
             
-            $args = array($this->arg('prop'));
+            $args = array($this->proposalid);
             $where = '';
             
             if ($this->has_arg('term')) {
@@ -109,7 +110,7 @@
                 array_push($args, $this->arg('term'));
             }
             
-            $rows = $this->db->pq("SELECT distinct pr.acronym, max(pr.proteinid) as proteinid FROM protein pr INNER JOIN proposal p ON pr.proposalid = p.proposalid WHERE pr.acronym is not null AND p.proposalcode || p.proposalnumber LIKE :1 $where GROUP BY pr.acronym ORDER BY lower(pr.acronym)", $args);
+            $rows = $this->db->pq("SELECT distinct pr.acronym, max(pr.proteinid) as proteinid FROM protein pr WHERE pr.acronym is not null AND pr.proposalid=:1 $where GROUP BY pr.acronym ORDER BY lower(pr.acronym)", $args);
             
             $proteins = array();
             foreach ($rows as &$r) {
@@ -236,7 +237,7 @@
             if (!$this->has_arg('prop')) $this->_error('No proposal specified');
             if (!$this->has_arg('cid')) $this->_error('No container id specified');
             
-            $rows = $this->db->pq("SELECT sp.blsampleid, pr.proteinid, sp.comments, sp.name, to_number(sp.location) as location, pr.acronym, cr.spacegroup, count(dc.datacollectionid) as dcount FROM blsample sp  INNER JOIN crystal cr ON sp.crystalid = cr.crystalid INNER JOIN protein pr ON cr.proteinid = pr.proteinid INNER JOIN container c ON sp.containerid = c.containerid INNER JOIN dewar d ON d.dewarid = c.dewarid INNER JOIN shipping s ON s.shippingid = d.shippingid INNER JOIN proposal p ON s.proposalid = p.proposalid LEFT OUTER JOIN ispyb4a_db.datacollection dc ON dc.blsampleid = sp.blsampleid WHERE p.proposalcode || p.proposalnumber LIKE :1 AND c.containerid = :2 GROUP BY sp.blsampleid, pr.proteinid, sp.comments, sp.name, sp.location, pr.acronym, cr.spacegroup ORDER BY to_number(sp.location)", array($this->arg('prop'),$this->arg('cid')));
+            $rows = $this->db->pq("SELECT sp.blsampleid, pr.proteinid, sp.comments, sp.name, to_number(sp.location) as location, pr.acronym, cr.spacegroup, count(dc.datacollectionid) as dcount FROM blsample sp  INNER JOIN crystal cr ON sp.crystalid = cr.crystalid INNER JOIN protein pr ON cr.proteinid = pr.proteinid INNER JOIN container c ON sp.containerid = c.containerid INNER JOIN dewar d ON d.dewarid = c.dewarid INNER JOIN shipping s ON s.shippingid = d.shippingid LEFT OUTER JOIN ispyb4a_db.datacollection dc ON dc.blsampleid = sp.blsampleid WHERE pr.proposalid=:1 AND c.containerid = :2 GROUP BY sp.blsampleid, pr.proteinid, sp.comments, sp.name, sp.location, pr.acronym, cr.spacegroup ORDER BY to_number(sp.location)", array($this->proposalid,$this->arg('cid')));
 
             $used = array();
             foreach($rows as $r) array_push($used, $r['LOCATION']);

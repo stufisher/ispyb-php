@@ -16,7 +16,6 @@
         //var $require_staff = True;
         //var $debug = True;
         
-        
         # Internal dispatcher based on passed arguments
         function _index() {
             if ($this->has_arg('bag') && $this->has_arg('visit')) $this->_get_visit();
@@ -138,8 +137,15 @@
         # Show list of visits for a BAG
         function _get_bag() {
             $this->p($this->arg('bag'));
-            $args = array($this->arg('bag'));
-            $where = "WHERE p.proposalcode || p.proposalnumber LIKE :1";
+            
+            $prop = $this->db->pq('SELECT proposalid from proposal WHERE proposalcode||proposalnumber LIKE :1', array($this->arg('bag')));
+            if (sizeof($prop)) $prop = $prop[0];
+            
+            #$args = array($this->arg('bag'));
+            #$where = "WHERE p.proposalcode || p.proposalnumber LIKE :1";
+            
+            $args = array($prop['PROPOSALID']);
+            $where = ' WHERE p.proposalid=:1';
             
             if (!$this->staff) {
                 if ($this->arg('bag') != $this->arg('prop')) $this->error('Access Denied', 'You dont have access to that page');
@@ -209,7 +215,6 @@
             $this->t->js_var('bag', $this->arg('bag'));
             
             $this->render('vstat_list');
-
         }
         
         
@@ -420,8 +425,6 @@
             $this->t->js_var('dc_hist', $dcht);
             $this->t->js_var('dc_hist2', $dcht2);
             $this->t->js_var('pie', $pie);
-            
-
             
             $this->render('vstat_visit');
         }
