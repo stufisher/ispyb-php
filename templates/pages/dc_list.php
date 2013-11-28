@@ -1,4 +1,9 @@
 
+    <div id="rd">
+        <div class="rd_plot"></div>
+        Plot of R_d vs frame difference.<br/>Increasing R_d indicates radiation damage
+    </div>
+
     <p class="help">This page shows all data collections for the selected visit. If the visit is ongoing the page will automatically update as new data is collected. Auto processing results will be displayed</p>
 
     <?php if ($active): ?>

@@ -2,7 +2,7 @@
 
     class Ajax extends AjaxBase {
         
-        var $arg_list = array('id' => '\d+', 'visit' => '\w\w\d\d\d\d-\d+', 'page' => '\d+', 's' => '\w+', 'pp' => '\d+', 't' => '\w+', 'bl' => '\w\d\d(-\d)?', 'value' => '.*', 'sid' => '\d+');
+        var $arg_list = array('id' => '\d+', 'visit' => '\w\w\d\d\d\d-\d+', 'page' => '\d+', 's' => '\w+', 'pp' => '\d+', 't' => '\w+', 'bl' => '\w\d\d(-\d)?', 'value' => '.*', 'sid' => '\d+', 'aid' => '\d+');
         var $dispatch = array('strat' => '_dc_strategies',
                               'ap' => '_dc_auto_processing',
                               'dp' => '_dc_downstream',
@@ -11,6 +11,7 @@
                               'mca' => '_mca',
                               'aps' => '_ap_status',
                               'imq' => '_image_qi',
+                              'rd' => '_rd',
                               'flag' => '_flag',
                               'comment' => '_set_comment',
                               );
@@ -18,6 +19,7 @@
         var $def = 'dc';
         var $profile = True;
         #var $debug = True;
+        #var $explain = True;
         
         # ------------------------------------------------------------------------
         # Data Collection AJAX Requests
@@ -148,22 +150,22 @@
             $q = "SELECT outer.*
              FROM (SELECT ROWNUM rn, inner.*
              FROM (
-             SELECT $visq dc.beamsizeatsamplex as bsx, dc.beamsizeatsampley as bsy, dc.overlap, 1 as flux, 1 as scon, 'a' as spos, 'a' as san, 'data' as type, dc.imageprefix as imp, dc.datacollectionnumber as run, dc.filetemplate, dc.datacollectionid as id, dc.numberofimages as ni, dc.imagedirectory as dir, dc.resolution, dc.exposuretime, dc.axisstart, dc.numberofimages as numimg, TO_CHAR(dc.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, dc.transmission, dc.axisrange, dc.wavelength, dc.comments, 1 as epk, 1 as ein, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4, dc.starttime as sta FROM ispyb4a_db.datacollection dc
+             SELECT $visq dc.runstatus, dc.beamsizeatsamplex as bsx, dc.beamsizeatsampley as bsy, dc.overlap, 1 as flux, 1 as scon, 'a' as spos, 'a' as san, 'data' as type, dc.imageprefix as imp, dc.datacollectionnumber as run, dc.filetemplate, dc.datacollectionid as id, dc.numberofimages as ni, dc.imagedirectory as dir, dc.resolution, dc.exposuretime, dc.axisstart, dc.numberofimages as numimg, TO_CHAR(dc.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, dc.transmission, dc.axisrange, dc.wavelength, dc.comments, 1 as epk, 1 as ein, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4, dc.starttime as sta FROM ispyb4a_db.datacollection dc
                  $vis[0]
              WHERE $sess[0] $where
                    
              UNION
-             SELECT $visq 1,1,1, 1, 1 as scon, 'A' as spos, 'A' as sn, 'edge' as type, es.jpegchoochfilefullpath, 1, 'A', es.energyscanid, 1, es.element, es.peakfprime, es.exposuretime, es.peakfdoubleprime, 1, TO_CHAR(es.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, es.transmissionfactor, es.inflectionfprime, es.inflectionfdoubleprime, es.comments, es.peakenergy, es.inflectionenergy, 'A', 'A', 'A', 'A', es.starttime as sta FROM ispyb4a_db.energyscan es $inner
+             SELECT $visq 'A',1,1,1, 1, 1 as scon, 'A' as spos, 'A' as sn, 'edge' as type, es.jpegchoochfilefullpath, 1, 'A', es.energyscanid, 1, es.element, es.peakfprime, es.exposuretime, es.peakfdoubleprime, 1, TO_CHAR(es.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, es.transmissionfactor, es.inflectionfprime, es.inflectionfdoubleprime, es.comments, es.peakenergy, es.inflectionenergy, 'A', 'A', 'A', 'A', es.starttime as sta FROM ispyb4a_db.energyscan es $inner
                  $vis[1]
             WHERE $sess[1] $where2
                    
             UNION
-            SELECT $visq 1,1,1, 1, 1, 'A', 'A', 'mca' as type, 'A', 1, 'A', xrf.xfefluorescencespectrumid, 1, xrf.filename, 1, xrf.exposuretime, 1, 1, TO_CHAR(xrf.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, xrf.beamtransmission, 1, xrf.energy, xrf.comments, 1, 1, 'A', 'A', 'A', 'A', xrf.starttime as sta FROM ispyb4a_db.xfefluorescencespectrum xrf
+            SELECT $visq 'A',1,1,1, 1, 1, 'A', 'A', 'mca' as type, 'A', 1, 'A', xrf.xfefluorescencespectrumid, 1, xrf.filename, 1, xrf.exposuretime, 1, 1, TO_CHAR(xrf.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, xrf.beamtransmission, 1, xrf.energy, xrf.comments, 1, 1, 'A', 'A', 'A', 'A', xrf.starttime as sta FROM ispyb4a_db.xfefluorescencespectrum xrf
                 $vis[3]
             WHERE $sess[3] $where4
                    
             UNION
-            SELECT $visq ROUND((CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400, 1),1,1, 1, 1, r.status, r.message, 'load' as type, r.actiontype, 1, 'A', r.robotactionid, 1,  r.samplebarcode, r.containerlocation, r.dewarlocation, 1, 1, TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, 1, 1, 1, 'A', 1, 1, 'A', 'A', 'A', 'A', r.starttimestamp as sta FROM ispyb4a_db.robotaction r
+            SELECT $visq 'A',ROUND((CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400, 1),1,1, 1, 1, r.status, r.message, 'load' as type, r.actiontype, 1, 'A', r.robotactionid, 1,  r.samplebarcode, r.containerlocation, r.dewarlocation, 1, 1, TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, 1, 1, 1, 'A', 1, 1, 'A', 'A', 'A', 'A', r.starttimestamp as sta FROM ispyb4a_db.robotaction r
                 $vis[2]
             WHERE $sess[2] $where3
                  
@@ -756,6 +758,50 @@
             print $this->arg('value');
         }
         
+        
+        # Plot R_d for fast_dp
+        function _rd() {
+            if (!$this->has_arg('id')) $this->_error('No data collection id specified');
+            if (!$this->has_arg('aid')) $this->_error('No auto processing id specified');
+            
+            $info = $this->db->pq("SELECT appa.filename,appa.filepath,appa.filetype FROM ispyb4a_db.autoprocintegration api INNER JOIN ispyb4a_db.autoprocscaling_has_int aph ON api.autoprocintegrationid = aph.autoprocintegrationid INNER JOIN ispyb4a_db.autoprocscaling aps ON aph.autoprocscalingid = aps.autoprocscalingid INNER JOIN ispyb4a_db.autoproc ap ON aps.autoprocid = ap.autoprocid INNER JOIN ispyb4a_db.autoprocprogram app ON api.autoprocprogramid = app.autoprocprogramid INNER JOIN ispyb4a_db.autoprocprogramattachment appa ON appa.autoprocprogramid = app.autoprocprogramid WHERE api.datacollectionid = :1 AND api.autoprocprogramid=:2 AND appa.filetype LIKE 'Log'", array($this->arg('id'), $this->arg('aid')));
+            
+            if (!sizeof($info)) $this->_error('The specified auto processing doesnt exist');
+            else $info = $info[0];
+                
+            $file = $info['FILEPATH'].'/'.str_replace('fast_dp.log', 'xdsstat.log', $info['FILENAME']);
+            
+            if (file_exists($file)) {
+                $log = file_get_contents($file);
+                
+                $start = 0;
+                $rows = array();
+                
+                foreach (explode("\n", $log) as $l) {
+                    if (strpos(trim($l), 'Framediff #refs R_d n-notfriedel Rd-notfriedel n-friedel Rd-friedel dummy $$') !== False) {
+                        $start = 1;
+                    }
+                    
+                    if ($start) $start++;
+                    
+                    if (strpos(trim($l), '$$') !== False && $start > 4) {
+                        $start = 0;
+                    }
+                    
+                    if ($start > 3) {
+                        $start++;
+                        if (trim($l)) {
+                            $f = preg_split('/\s+/', trim($l));
+                            array_push($rows, array(intval($f[0]), floatval($f[2])));
+                        }
+                    }
+                    
+                }
+            }
+            
+            $this->_output($rows);
+            
+        }
         
     }
 

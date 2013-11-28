@@ -8,6 +8,8 @@ $(function() {
   //var type = ''
   
   
+  $('#rd').dialog({ title: 'Radiation Damage Analysis', autoOpen: false, buttons: { 'Close': function() { $(this).dialog('close') } } });
+  
   if (active == 0) $('div.log').hide()
   
   
@@ -98,14 +100,17 @@ $(function() {
                        
                            var f = r['COMMENTS'] ? (r['COMMENTS'].indexOf('_FLAG_') > -1 ? 'ui-state-highlight' : '') : ''
                        
+                           var state = r['RUNSTATUS'] == null ? 1 : (r['RUNSTATUS'].indexOf('Successful') > -1)
+                       
                            $('<div class="data_collection" dcid="'+r['ID']+'" type="data">' +
-                             '<div class="distl" title="DISTL plot showing number of spots (yellow and blue points), and estimated resolution (red points) for each image in the data collection"></div>'+
+                             (state ?
+                             ('<div class="distl" title="DISTL plot showing number of spots (yellow and blue points), and estimated resolution (red points) for each image in the data collection"></div>'+
                              '<div class="snapshots" title="View crystal snapshots for the current data collection">'+
                                 '<a href="/image/id/'+r['ID']+'/f/1" rel="lightbox-'+r['ID']+'" title="Crystal Snapshot 1"><img dsrc="" alt="Crystal Snapshot 1" /></a>'+
                              '</div>'+
                              '<div class="diffraction" title="Click to view diffraction images">'+
                                 '<a href="/dc/view/id/'+r['ID']+'"><img dsrc="" alt="Diffraction Image 1" /></a>' +
-                             '</div>'+
+                             '</div>') : '<div class="r">Data Collection Stopped</div>')+
                              '<h1><button class="small flag '+f+'" title="Click to add this data collection to the list of flagged data collections"></button> '+r['ST']+' - <a href="/dc/visit/'+visit+'/id/'+r['ID']+'">Permalink</a></h1>'+
                              '<h2>'+r['DIR']+r['FILETEMPLATE']+'</h2>'+
 
@@ -124,13 +129,13 @@ $(function() {
                                  '<li class="comment" title="Click to edit the comment for this data collection">Comment: <span class="comment_edit">'+(r['COMMENTS']?r['COMMENTS']:'')+'</span></li>'+
                              '</ul>'+
                              '<div class="holder">'+
-                             (r['NI'] < 10 ?
+                             (state ? (r['NI'] < 10 ?
                                 ('<span></span><h1 title="Click to show EDNA/mosflm strategies">Strategies</h1>'+
                                  '<div class="strategies"></div>'):
                                 ('<span></span><h1 title="Click to show autoprocessing results such as Fast_DP and XIA2">Auto Processing</h1>'+
                                  '<div class="autoproc"></div>'+
                                  '<span></span><h1 title="Click to show downstream processing results such as Dimple and Fast_EP">Downstream Processing</h1>'+
-                                 '<div class="downstream"></div>'))+
+                                 '<div class="downstream"></div>')) : '')+
                              '</div>'+
                              '</div>').data('apr', r['AP']).data('nimg', r['NUMIMG']).hide().data('first', true).prependTo('.data_collections').slideDown()
                        
@@ -735,7 +740,7 @@ $(function() {
            for (k in ty) {
                 t = ty[k]
                 if (types[k].length > 0) {
-                    out += '<div id="' + t + '">Download mtz file <a href="/download/id/'+id+'/aid/'+aids[k]+'" class="dlmtz small"></a><table>'+thead+types[k].join(' ')+'</table></div>'
+                    out += '<div id="' + t + '" aid="'+aids[k]+'" did="'+id+'"><p><a href="/download/id/'+id+'/aid/'+aids[k]+'">Download mtz file</a>'+(t=='fast_dp' ? ' | <a href="#" class="rd_link">Radiation Damage Analysis</a>':'')+'</p><table>'+thead+types[k].join(' ')+'</table></div>'
                     tab += '<li><a href="#' + t + '">'+k+'</a></li>'
                 }
            }
@@ -744,7 +749,33 @@ $(function() {
            else out = '<p>No auto processing results found for this data collection</p>'
 
            d.html(out)
-           $('.dlmtz').button({ icons: { primary: 'ui-icon-arrowthick-1-s' } })
+           //$('.dlmtz').button({ icons: { primary: 'ui-icon-arrowthick-1-s' } })
+           
+           $('a.rd_link').unbind('click').click(function() {
+             var div = $(this).parent().parent('div')
+             $.ajax({
+               url: '/dc/ajax/rd/id/'+$(div).attr('did')+'/aid/'+$(div).attr('aid'),
+               type: 'GET',
+               dataType: 'json',
+               timeout: 5000,
+               success: function(rd){
+                 $('#rd').dialog('open')
+                 var opts = {
+                    grid: { borderWidth: 0 },
+                    series: {
+                        lines: { show: false },
+                        points: {
+                            show: true,
+                            radius: 1,
+                        }
+                    },
+                 }
+                    
+                 $.plot($('.rd_plot'), [rd], opts)
+               }
+             })
+             return false
+           })
            
            d.tabs('refresh')
            d.tabs('option', 'active', 0)

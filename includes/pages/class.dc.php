@@ -138,7 +138,8 @@
                 $this->msg('No such visit', 'That visit doesnt appear to exist');
             } else $info = $info[0];
             
-            setcookie('isb_php_proposal', $info['PROP'], time()+31536000, '/');
+            $this->cookie($info['PROP']);
+            #setcookie('isb_php_proposal', $info['PROP'], time()+31536000, '/');
             
             $p = array($info['BL'], $this->arg('visit'));
             $l = array('', '');
