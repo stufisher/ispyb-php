@@ -109,6 +109,7 @@ a:hover {
     left: -1px;
     width: 100%;
     display: none;
+    border-bottom: 0;
 }
 
 #sidebar ul li.help {
@@ -1948,6 +1949,11 @@ span.snapshots.sample img {
 .seq {
     word-break: break-all;
 }
+
+.rd_plot {
+    height: 200px;
+}
+
 
 /* Responsive Styling
  ---------------------------------------------------------*/
