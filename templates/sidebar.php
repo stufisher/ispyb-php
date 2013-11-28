@@ -3,7 +3,13 @@
         <ul class="clearfix">
             <li class="help"><a href="#">Help</a></li>
             <li><a href="/">Upcoming Visits</a></li>
-            <li><a href="/cell">Unit Cell Search</a></li>
+            <li><a href="/cell">Unit Cell Search</a>
+                <?php if ($this->staff): ?>
+                <ul>
+                    <li><a href="/cell/batch">PDB vs Unit Cell</a>
+                </ul>
+                <?php endif; ?>
+            </li>
 
             <li><a href="/proposal">Proposals</a></li>
 
