@@ -79,6 +79,9 @@ $(function() {
     })
   }  
   
+  // Cache counter
+  var ci = 2
+  
   // Load image from remote source
   function load(n) {
     img.src = '/image/di/id/'+id+'/n/'+n
@@ -93,11 +96,35 @@ $(function() {
   
         // Precache next image
         if (n < ni) cache.src = '/image/di/id/'+id+'/n/'+(n+1)
+  
+        // Set cache point
+        ci = n+2
     }
   }
   
   // Load the first image
   load(1)
+  
+  // Start precaching images
+  function precache() {
+    var pro = function() {
+        console.log('loaded', ci)
+        setTimeout(function() {
+          if (ci < ni) precache(++ci)
+        }, 500)
+        $('.precache').html('Precached '+ci+' of '+ni)
+    }
+  
+    $.ajax({
+        url: '/image/di/id/'+id+'/n/'+ci,
+        type: 'GET',
+        timeout: 5000,
+        success: pro,
+        error: pro
+    })
+  }
+  
+  precache()
   
   
   // Draw image at correct scale / position
@@ -512,7 +539,7 @@ $(function() {
   $('input[name="num"]').keypress(function(e) {
     if(e.which == 13) {
         if ($(this).val() < ni) {
-            change($(this).val())
+            change(parseInt($(this).val()))
         } else $(this).val(ni)
         
     }
