@@ -767,8 +767,11 @@ $(function() {
                         points: {
                             show: true,
                             radius: 1,
-                        }
+                        },
                     },
+                    yaxis: {
+                        max: 2,
+                    }
                  }
                     
                  $.plot($('.rd_plot'), [rd], opts)
@@ -805,7 +808,7 @@ $(function() {
                 }
                                          
                 out += '<tr draggable="true" sid="'+i+'">' +
-                    '<td>'+r['COM']+'</td>' +
+                    '<td title="'+r['COMMENTS']+'">'+r['COM']+'</td>' +
 
                     '<td>'+r['SG']+'</td>' +
                     '<td>'+r['A']+'</td>' +
