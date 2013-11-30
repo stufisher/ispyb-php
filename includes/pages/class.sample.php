@@ -23,7 +23,7 @@
         var $root = 'Samples';
         var $root_link = '/sample';
         #var $debug = true;
-        var $explain = True;
+        #var $explain = True;
         
         function _sample_dispatch() {
             if ($this->has_arg('sid')) $this->_view_sample();
@@ -114,7 +114,7 @@
                 
                 $this->db->pq('INSERT INTO ispyb4a_db.protein (proteinid,proposalid,name,acronym,sequence,molecularmass,bltimestamp) VALUES (s_protein.nextval,:1,:2,:3,:4,:5,CURRENT_TIMESTAMP) RETURNING proteinid INTO :id',array($pid, $name, $this->arg('acronym'), $seq, $mass));
                 
-                $this->msg('New Protein Added', 'You protein was successfully added, click <a href="/sample/protein/pid/'.$this->db->id().'">here</a> to view it');
+                $this->msg('New Protein Added', 'You protein was successfully added, click <a href="/sample/proteins/pid/'.$this->db->id().'">here</a> to view it');
                 
                 
             } else {
