@@ -46,7 +46,8 @@ $(function() {
   
   var blocks = 0
   
-  if (!isiPhone()) var c = Caman('#img')
+  //if (!isiPhone())
+  var c = Caman('#img')
   
   // Set canvas size to parent element
   function resize() {
@@ -127,11 +128,64 @@ $(function() {
   precache()
   
   
+  // Polyfill for devices without bind
+  if (!Function.prototype.bind) {
+    Function.prototype.bind = function (oThis) {
+      if (typeof this !== "function") {
+        throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
+      }
+
+      var aArgs = Array.prototype.slice.call(arguments, 1),
+        fToBind = this, 
+        fNOP = function () {},
+        fBound = function () {
+          return fToBind.apply(this instanceof fNOP && oThis
+                                 ? this
+                                 : oThis,
+                               aArgs.concat(Array.prototype.slice.call(arguments)));
+        };
+
+      fNOP.prototype = this.prototype;
+      fBound.prototype = new fNOP();
+
+      return fBound;
+    };
+  }
+  
+  
+  // iOS Bug with large images, detect squished image and rescale it
+  function detectVerticalSquash(img) {
+    var iw = img.naturalWidth, ih = img.naturalHeight;
+    var canvas = document.createElement('canvas');
+    canvas.width = 1;
+    canvas.height = ih;
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    var data = ctx.getImageData(0, 0, 1, ih).data;
+    // search image edge pixel position in case it is squashed vertically.
+    var sy = 0;
+    var ey = ih;
+    var py = ih;
+    while (py > sy) {
+        var alpha = data[(py - 1) * 4 + 3];
+        if (alpha === 0) {
+            ey = py;
+        } else {
+            sy = py;
+        }
+        py = (ey + sy) >> 1;
+    }
+    var ratio = (py / ih);
+    return (ratio===0)?1:ratio;
+  }
+  
+  
   // Draw image at correct scale / position
   function draw(adjust) {
     //ctx.clearRect(0, 0, canvas.width, canvas.height)
     ctx.setTransform(scalef,0,0,scalef,offsetx,offsety)
-    ctx.drawImage(img, 0, 0)
+    var r = detectVerticalSquash(img)
+    ctx.drawImage(img, 0, 0, width, height/r)
   
     if ($('input[name=res]').is(':checked')) _draw_res_rings()
     if ($('input[name=ice]').is(':checked')) _draw_ice_rings()
@@ -139,7 +193,7 @@ $(function() {
   
   // Apply image adjustments
   function adjust() {
-    if (isiPhone()) return
+    //if (isiPhone()) return
     c.revert()
     if ($('input[name=invert]').is(':checked')) {
       c.invert()
@@ -162,7 +216,7 @@ $(function() {
   
   // Recache canvas to caman
   function _recache() {
-    if (isiPhone()) return
+    //if (isiPhone()) return
     c.reloadCanvasData()
     c.resetOriginalPixelData()
   }
@@ -590,7 +644,7 @@ $(function() {
   
   
   // Bind CamanJS Status
-  if (!isiPhone()) {
+  //if (!isiPhone()) {
     Caman.Event.listen(c, 'blockFinished', function (info) {
         blocks++
         tot = $('input[name=invert]').is(':checked') ? 12 : 8
@@ -602,6 +656,6 @@ $(function() {
         $('.im_progress').progressbar('value', 0)
         $('.im_progress').fadeIn(100)
     })
-  }
+  //}
   
 });
