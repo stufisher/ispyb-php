@@ -10,9 +10,13 @@
         
         # Initialise database connection
         function __construct($user, $pass, $db) {
+            ini_set('oci8.persistent_timeout', 60);
+            ini_set('oci8.max_persistent', 20);
+            
             $this->tz = new DateTimeZone('UTC');
 
-            $this->conn = @oci_connect($user, $pass, $db);
+            #$this->conn = @oci_connect($user, $pass, $db);
+            $this->conn = @oci_pconnect($user, $pass, $db);
             if (!$this->conn) {
                 $e = oci_error();
                 $this->error('There was an error connecting to Oracle', htmlentities($e['message']));
@@ -90,6 +94,7 @@
                 $this->error('There was an error with Oracle', htmlentities($e['message']));
             }
             
+            oci_set_prefetch($stid, 20);
             
             // Get variables for prepared query
             $arg_count = preg_match_all('/:\d+/', $query);
