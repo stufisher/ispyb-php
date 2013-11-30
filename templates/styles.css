@@ -10,11 +10,15 @@ Stu Fisher <stuart.fisher@diamond.ac.uk>
     
 }
 
+html {
+    height: 100%;
+}
+
 body {
     background: #000000;
 	font-family: "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
 	font-size: 12px;
-	-webkit-text-size-adjust: none;
+    min-height: 100%;
 }
 
 a {
@@ -2226,7 +2230,12 @@ span.snapshots.sample img {
     
     .filter ul li {
         width: 48.0%;
-        margin: 0.5%
+        margin: 0.5%;
+        padding: 1.5% 0.5%;
+    }
+    
+    .pages ul li a {
+        padding: 20% 3px;
     }
     
     .calendar > ul > li {
