@@ -2,7 +2,7 @@
 
     class Robot extends Page {
         
-        var $arg_list = array('bl' => '\w\d\d(-\d)?', 'run' => '\d+', 'visit' => '\w\w\d\d\d\d-\d+');
+        var $arg_list = array('bl' => '\w\d\d(-\d)?', 'run' => '\d+', 'visit' => '\w+\d+-\d+');
         var $dispatch = array('index' => '_index');
         var $def = 'index';
         

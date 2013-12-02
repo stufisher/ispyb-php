@@ -2,7 +2,7 @@
 
     class Image extends Page {
         
-        var $arg_list = array('id' => '\d+', 'n' => '\d+', 'f' => '\d', 'bl' => '\w\d\d(-\d)?', 'w' => '\d+', 'fid' => '\d+', 'aid' => '\d+', 'visit' => '\w\w\d+-\d+');
+        var $arg_list = array('id' => '\d+', 'n' => '\d+', 'f' => '\d', 'bl' => '\w\d\d(-\d)?', 'w' => '\d+', 'fid' => '\d+', 'aid' => '\d+', 'visit' => '\w+\d+-\d+');
         var $dispatch = array('xtal' => '_xtal_image',
                               'diff' => '_diffraction_image',
                               'dimp' => '_dimple_images',
@@ -37,6 +37,8 @@
         }
         
         
+        # ------------------------------------------------------------------------
+        # Return images for crystal wash / anneal
         function _action_image() {
             if (!$this->has_arg('visit')) return;
             if (!$this->has_arg('aid')) return;
@@ -96,13 +98,8 @@
             if ($n > $info['NUM']) return;
             
             $im = $info['LOC'] . '/' . $info['FT'];
-            //$out = '/tmp/'.$this->arg('id').'_'.$n.'.jpg';
             $out = '/tmp/'.$this->arg('id').'_'.$n.'.jpg';
-            
-            #if (!file_exists('/tmp/cbf2jpg.sh')) {
-            #    copy('./cbf2jpg.sh', '/tmp/cbf2jpg.sh');
-            #    chmod('/tmp/cbf2jpg.sh', 0777);
-            #}
+
             
             if (!file_exists($out)) {
                 chdir('/tmp');
@@ -115,6 +112,7 @@
                 readfile($out);
             }
         }
+        
         
         # Small diffraction image viewer
         function _diffraction_image() {
@@ -161,6 +159,9 @@
             }
         }
         
+
+        # ------------------------------------------------------------------------
+        # Forward OAV to browser
         function _forward_oav() {
             if (!$this->has_arg('bl')) return;
             
@@ -192,6 +193,8 @@
             echo $im;
         }
         
+        
+        # ------------------------------------------------------------------------
         # Forward beamline webcams
         function _forward_webcam() {
             if (!$this->has_arg('bl')) return;
@@ -219,10 +222,8 @@
             # Close session for this page as to not block the rest of the php process
             session_write_close();
             
-            #header('Content-Type:image/jpeg');
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, 'http://'.$img.'/axis-cgi/mjpg/video.cgi?fps=15&resolution=CIF');
-            #curl_setopt($ch, CURLOPT_URL, 'http://'.$img.'/axis-cgi/jpg/image.cgi');
             curl_setopt($ch, CURLOPT_HEADER, 0);
             $im = curl_exec($ch);
             curl_close($ch);
@@ -230,30 +231,7 @@
         }
         
         
-        # Cache a thumbnail
-        function _cache($im, $ty='png', $pc=0.17) {
-            $new = str_replace('/dls', '/home/vxn01537/webservices/cache', $im);
-            $base = dirname($new);
-
-            if (!file_exists($new) ) {
-                if (!file_exists($base)) mkdir($base, 0755, True);
-                
-                list($width, $height) = getimagesize($im);
-                $newwidth = $width * $pc;
-                $newheight = $height * $pc;
-                
-                $thumb = imagecreatetruecolor($newwidth, $newheight);
-                $source = $ty == 'png' ? imagecreatefrompng($im) : imagecreatefromjpeg($im);
-                
-                imagecopyresized($thumb, $source, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
-                $ty == 'png' ? imagepng($thumb, $new) : imagejpeg($thumb, $new);
-                
-            }
-            
-            return $new;
-        }
-        
-        
+        # ------------------------------------------------------------------------
         # Enable browser cache for static images
         function _browser_cache() {
             $expires = 60*60*24*14;

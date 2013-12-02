@@ -2,7 +2,7 @@
 
     class Ajax extends AjaxBase {
         
-        var $arg_list = array('visit' => '\w\w\d\d\d\d-\d+', 'cid' => '\d+', 'sid' => '\d+', 'pos' => '\d+', 'name' => '\w+', 'array'=>'\d+', 't' => '\w+', 'container' => '[a-zA-Z0-9_\-: ]+', 'dewar' => '\d+','shipment'=> '\d+');
+        var $arg_list = array('visit' => '\w+\d+-\d+', 'cid' => '\d+', 'sid' => '\d+', 'pos' => '\d+', 'name' => '\w+', 'array'=>'\d+', 't' => '\w+', 'container' => '[a-zA-Z0-9_\-: ]+', 'dewar' => '\d+','shipment'=> '\d+');
         var $dispatch = array('smp' => '_samples',
                               'dwr' => '_dewars',
                               'cnt' => '_containers',

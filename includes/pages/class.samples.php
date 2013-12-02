@@ -2,7 +2,7 @@
 
     class Samples extends Page {
         
-        var $arg_list = array('visit' => '\w\w\d\d\d\d-\d+', 'page' => '\d+', 'mon' => '\w+', 'year' => '\d\d\d\d', 'id' => '\d+', 't' => '\w+');
+        var $arg_list = array('visit' => '\w+\d+-\d+', 'page' => '\d+', 'mon' => '\w+', 'year' => '\d\d\d\d', 'id' => '\d+', 't' => '\w+');
         var $dispatch = array('samp' => '_samples', 'bl' => '_beamline', 'proposal' => '_prop_samples');
         var $def = 'samp';
         

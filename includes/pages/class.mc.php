@@ -2,7 +2,7 @@
 
     class MC extends Page {
         
-        var $arg_list = array('visit' => '\w\w\d\d\d\d-\d+', 'user' => '\d+');
+        var $arg_list = array('visit' => '\w+\d+-\d+', 'user' => '\d+');
         var $dispatch = array('mc' => '_data_collections',
                               'blend' => '_blend');
         var $def = 'mc';
