@@ -803,7 +803,11 @@ div.form .ferror {
 }
 
 
-.data_collection h1.center {
+h1.nou {
+    border-bottom: 0;
+}
+
+h1.center {
     text-align: center;
 }
 
