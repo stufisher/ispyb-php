@@ -9,7 +9,6 @@
                               'comment' => '.*',
                               'shippingname' => '([\w-])+',
                               'type' => '\w+',
-                              'visit' => '\d+',
                               'shippingdate' => '\d+-\d+-\d+',
                               'deliverydate' => '\d+-\d+-\d+',
                               'couriername' => '\w+',
@@ -52,7 +51,7 @@
             if (!$this->has_arg('prop')) $this->error('No proposal specified', 'Please select a proposal first');
             if (!$this->has_arg('sid')) $this->error('No shippingid specified', 'Please specify a shipping id');
             
-            $ship = $this->db->pq("SELECT deliveryagent_agentname, deliveryagent_agentcode,  TO_CHAR(deliveryagent_shippingdate, 'DD-MM-YYYY') as deliveryagent_shippingdate, TO_CHAR(deliveryagent_deliverydate, 'DD-MM-YYYY') as deliveryagent_deliverydate, shippingname,comments,TO_CHAR(s.creationdate, 'DD-MM-YYYY') as created, c.cardname as lcout, c2.cardname as lcret FROM ispyb4a_db.shipping s INNER JOIN ispyb4a_db.proposal p ON s.proposalid = p.proposalid LEFT OUTER JOIN ispyb4a_db.labcontact c ON s.sendinglabcontactid = c.labcontactid LEFT OUTER JOIN ispyb4a_db.labcontact c2 ON s.returnlabcontactid = c2.labcontactid WHERE p.proposalcode || p.proposalnumber LIKE :1 AND s.shippingid = :2", array($this->arg('prop'),$this->arg('sid')));
+            $ship = $this->db->pq("SELECT shippingid, deliveryagent_agentname, deliveryagent_agentcode,  TO_CHAR(deliveryagent_shippingdate, 'DD-MM-YYYY') as deliveryagent_shippingdate, TO_CHAR(deliveryagent_deliverydate, 'DD-MM-YYYY') as deliveryagent_deliverydate, shippingname,comments,TO_CHAR(s.creationdate, 'DD-MM-YYYY') as created, c.cardname as lcout, c2.cardname as lcret FROM ispyb4a_db.shipping s INNER JOIN ispyb4a_db.proposal p ON s.proposalid = p.proposalid LEFT OUTER JOIN ispyb4a_db.labcontact c ON s.sendinglabcontactid = c.labcontactid LEFT OUTER JOIN ispyb4a_db.labcontact c2 ON s.returnlabcontactid = c2.labcontactid WHERE p.proposalcode || p.proposalnumber LIKE :1 AND s.shippingid = :2", array($this->arg('prop'),$this->arg('sid')));
             
             if (!sizeof($ship)) $this->error('No such shipment', 'The specified shipment does not exists');
             else $ship = $ship[0];

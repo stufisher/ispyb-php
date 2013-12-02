@@ -31,7 +31,7 @@
                         <td><?php echo $r['SHIPPINGSTATUS'] ?></td>
                         <td><?php echo $r['DCOUNT'] ?></td>
                         <td><?php echo $r['COMMENTS'] ?></td>
-                        <td><a class="view small" href="/shipment/sid/<?php echo $r['SHIPPINGID'] ?>" title="View Shipment"></a>
+                        <td><a class="view small" href="/shipment/sid/<?php echo $r['SHIPPINGID'] ?>" title="View Shipment"></a> <a class="label small" href="/pdf/sid/<?php echo $r['SHIPPINGID'] ?>" title="Print Shipment Labels"></a></td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>

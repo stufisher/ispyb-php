@@ -13,4 +13,5 @@ $(function() {
   
   $('a.add').button({ icons: { primary: 'ui-icon-plus' } })
   $('a.view').button({ icons: { primary: 'ui-icon-search' } })
+  $('a.label').button({ icons: { primary: 'ui-icon-print' } })
 })

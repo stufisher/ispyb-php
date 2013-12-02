@@ -1,6 +1,8 @@
 $(function() {
   
-    // Bind links / buttons
+  $('a.label').button({ icons: { primary: 'ui-icon-print' } })
+  
+  // Bind links / buttons
   $('#add_dewar').button({ icons: { primary: 'ui-icon-plusthick' } }).click(function() {
     if ($('table.dewars tbody tr.new').length) return
                                                                             

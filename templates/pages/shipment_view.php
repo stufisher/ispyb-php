@@ -2,6 +2,8 @@
 
     <p class="help">This page shows details and contents of the selected shipment. Most parameters can be edited by simply clicking on them</p>
 
+    <div class="im_profile"><a href="/pdf/sid/<?php echo $ship['SHIPPINGID'] ?>" class="label" title="Print Shipment Labels">Print Shipment Labels</a></div>
+
     <div class="form">
         <ul>
 
