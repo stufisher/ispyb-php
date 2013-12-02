@@ -57,6 +57,7 @@
         }
         
         public function mobile() {
+            $this->sb = false;
             $this->hf = false;
             $this->mobile = true;
 
