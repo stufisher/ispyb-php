@@ -2,9 +2,13 @@
     
     require_once('config.php');
     
+    # Url is parsed into a series of arguments, arguments take the form /name/value
     $parts = explode('/', $_SERVER['REQUEST_URI']);
     array_shift($parts);
     
+    
+    # Work around to allow beamline sample registration without CAS authentication
+    # For use on the touchscreen computers in the hutch
     if (sizeof($parts) >= 2) {
         if (($parts[0] == 'samples' && ($parts[1] == 'bl' || $parts[1] == 'ajax') && in_array($_SERVER["REMOTE_ADDR"], $blsr))) {
             
@@ -30,26 +34,31 @@
     
     $db = new Oracle($isb['user'], $isb['pass'], $isb['db']);
     
+    
+    # New pages need to be added to this array in order for them to be
+    # parsed
     $pages = array(
-                   'image' => array('Image', ''),
-                   'download' => array('Download', ''),
-                   'pdf' => array('PDF', ''),
-                   'robot' => array('Robot', 'Robot Statistics'),
-                   'dc' => array('DC', 'Data Collections'),
-                   'mc' => array('MC', 'Multicrystal Integration'),
-                   'samples' => array('Samples', 'Sample Creation'),
-                   'fault' => array('Fault', 'Fault Logging'),
-                   'vstat' => array('Visit', 'Visit Statistics'),
-                   'log' => array('Log', 'Visit Summary'),
-                   'status' => array('Status', 'Beamline Status'),
-                   'cell' => array('Cell', 'Data Collection Finder'),
-                   'proposal' => array('Proposal', 'Proposals'),
-                   'shipment' => array('Shipment', 'Shipments'),
-                   'sample' => array('Sample', 'Samples'),
-                   'contact' => array('Contact', 'Lab Contacts'),
+                   'image',
+                   'download',
+                   'pdf',
+                   'robot',
+                   'dc',
+                   'mc',
+                   'samples',
+                   'fault',
+                   'vstat',
+                   'log',
+                   'status',
+                   'cell',
+                   'proposal',
+                   'shipment',
+                   'sample',
+                   'contact',
                    );
     
-    if (array_key_exists($parts[0], $pages)) {
+    # Classes for each page, file is all lower case, the actual class
+    # name is the same with the first character capitialised.
+    if (in_array($parts[0], $pages)) {
         $page = $parts[0];
         array_shift($parts);
     } else {
@@ -57,10 +66,11 @@
     }
     
     $class = 'includes/pages/class.'.$page.'.php';
-    if (array_key_exists($page, $pages) && file_exists($class)) {
+    if (in_array($page, $pages) && file_exists($class)) {
         include_once($class);
-        $pg = new $pages[$page][0]($db, $parts);
-        
+        $cn = ucfirst($page);
+        $pg = new $cn($db, $parts);
+
     } else {
         # 404 here
         

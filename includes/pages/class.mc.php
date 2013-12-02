@@ -1,6 +1,6 @@
 <?php
 
-    class MC extends Page {
+    class Mc extends Page {
         
         var $arg_list = array('visit' => '\w+\d+-\d+', 'user' => '\d+');
         var $dispatch = array('mc' => '_data_collections',

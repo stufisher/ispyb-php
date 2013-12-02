@@ -1,6 +1,6 @@
 <?php
 
-    class DC extends Page {
+    class Dc extends Page {
         
         var $arg_list = array('visit' => '\w+\d+-\d+', 'page' => '\d+', 'mon' => '\w+', 'year' => '\d\d\d\d', 'id' => '\d+', 't' => '\w+', 'iframe' => '\d+', 'id' => '\d+');
         var $dispatch = array('dc' => '_dispatch', 'view' => '_viewer', 'proposal' => '_show_proposal');

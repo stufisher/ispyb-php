@@ -4,7 +4,7 @@
     require_once('xmlrpc/xmlrpc_wrappers.inc');
     
     
-    class Visit extends Page {
+    class Vstat extends Page {
         
         var $arg_list = array('bag' => '\w\w\d+', 'visit' => '\d+');
         var $dispatch = array('index' => '_index', 'proposal' => '_show_proposal');
