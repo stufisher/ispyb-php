@@ -21,7 +21,10 @@
                 <span class="label">Return Lab Contact</span>
                 <span class="lcret"><?php echo $ship['LCRET'] ?></span>
             </li>
-
+            <li>
+                <span class="label">Safety Level</span>
+                <span class="safety"><?php echo $ship['SAFETYLEVEL'] ?></span>
+            </li>
             <li>
                 <span class="label">Courier</span>
                 <span class="courier"><?php echo $ship['DELIVERYAGENT_AGENTNAME'] ?></span>
@@ -64,6 +67,7 @@
                 <tr>
                     <th>Name</th>
                     <th>Barcode</th>
+                    <th>First Experiment</th>
                     <th>Tracking # to synchrotron</th>
                     <th>Tracking # from synchrotron</th>
                     <th>Status</th>

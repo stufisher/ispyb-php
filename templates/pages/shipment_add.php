@@ -17,19 +17,21 @@
                 <label>Safety Level
                     <span class="small">The safety level of the shipment</span>
                 </label>
-                <select name="type" required>
+                <select name="safety" required>
                     <option value="green">Green</select>
                     <option value="yellow">Yellow</select>
                     <option value="red">Red</select>
                 </select>
             </li>
 
+            <!-- This should be per dewar as thats where the column really lives...
             <li>
                 <label>Beamline / Experiment
                     <span class="small">The experiment the visit is for</span>
                 </label>
                 <select name="visit"><?php echo $visits ?></select>
             </li>
+            -->
 
             <li>
                 <label>Comments

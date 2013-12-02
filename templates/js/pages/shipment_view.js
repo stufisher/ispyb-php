@@ -5,42 +5,60 @@ $(function() {
   // Bind links / buttons
   $('#add_dewar').button({ icons: { primary: 'ui-icon-plusthick' } }).click(function() {
     if ($('table.dewars tbody tr.new').length) return
+    
+    var vals = '';
+    $.ajax({
+        url: '/shipment/ajax/vis',
+        type: 'GET',
+        dataType: 'json',
+        timeout: 5000,
+        success: function(json){
+           
+            var vals = '<option value=""></option>'
+            $.each(json, function(k,e) {
+               vals += '<option value="'+k+'">'+e+'</option>'
+            })
                                                                             
-    $('<tr class="new">'+
-      '<td><input name="code" /></td>'+
-      '<td>&nbsp;</td>'+
-      '<td><input name="trackto" /></td>'+
-      '<td><input name="trackfrom" /></td>'+
-      '<td colspan="3">&nbsp;</td>'+
-      '<td><button class="save"></button> <button class="cancel"></button></td>'+
-      '</tr>').appendTo('table.dewars tbody')
-                 
-                            
-    // Add a new dewar
-    $('button.save').button({ icons: { primary: 'ui-icon-check' } }).click(function() {
-        if (!/^(\w|\-)+$/.test($('.new input[name=code]').val())) {
-           $('.new input[name=code]').addClass('ferror')
-           return
-        } else $('.new input[name=code]').removeClass('ferror')
-                                                                           
-        $.ajax({
-            url: '/shipment/ajax/addd/sid/'+sid,
-            type: 'POST',
-            data: { code: $('.new input[name=code]').val(),
-                    trackto: $('.new input[name=trackto]').val(),
-                    trackfrom: $('.new input[name=trackfrom]').val(),
-            },
-            dataType: 'json',
-            timeout: 5000,
-            success: function(json){
-               _get_dewars()
-            }
-        })
-    })
-                                                                            
-    // Cancel adding a dewar
-    $('button.cancel').button({ icons: { primary: 'ui-icon-closethick' } }).unbind('click').click(function() {
-        $(this).parent('td').parent('tr').remove()
+            $('<tr class="new">'+
+              '<td><input name="code" /></td>'+
+              '<td>&nbsp;</td>'+
+              '<td><select name="exp">'+vals+'</select></td>'+
+              '<td><input name="trackto" /></td>'+
+              '<td><input name="trackfrom" /></td>'+
+              '<td colspan="3">&nbsp;</td>'+
+              '<td><button class="save"></button> <button class="cancel"></button></td>'+
+              '</tr>').appendTo('table.dewars tbody')
+                         
+                                    
+            // Add a new dewar
+            $('button.save').button({ icons: { primary: 'ui-icon-check' } }).click(function() {
+                if (!/^(\w|\-)+$/.test($('.new input[name=code]').val())) {
+                   $('.new input[name=code]').addClass('ferror')
+                   return
+                } else $('.new input[name=code]').removeClass('ferror')
+                                                                                   
+                $.ajax({
+                    url: '/shipment/ajax/addd/sid/'+sid,
+                    type: 'POST',
+                    data: { code: $('.new input[name=code]').val(),
+                            trackto: $('.new input[name=trackto]').val(),
+                            trackfrom: $('.new input[name=trackfrom]').val(),
+                            exp: $('.new select[name=exp]').val(),
+                    },
+                    dataType: 'json',
+                    timeout: 5000,
+                    success: function(json){
+                       _get_dewars()
+                    }
+                })
+            })
+                                                                                    
+            // Cancel adding a dewar
+            $('button.cancel').button({ icons: { primary: 'ui-icon-closethick' } }).unbind('click').click(function() {
+                $(this).parent('td').parent('tr').remove()
+            })
+        }
+           
     })
   })
   
@@ -63,6 +81,7 @@ $(function() {
             d_out += '<tr did="'+d['DEWARID']+'" name="'+d['CODE']+'">'+
                     '<td title="Click to edit the dewar name"><span class="code">'+d['CODE']+'</span></td>'+
                     '<td>'+d['BARCODE']+'</td>'+
+                    '<td><span class="exp">'+(d['EXP'] ? d['EXP'] : '')+'</span></td>'+
                     '<td><span class="trackto">'+(d['TRACKINGNUMBERTOSYNCHROTRON'] ? d['TRACKINGNUMBERTOSYNCHROTRON'] : '')+'</span></td>'+
                     '<td><span class="trackfrom">'+(d['TRACKINGNUMBERFROMSYNCHROTRON'] ? d['TRACKINGNUMBERFROMSYNCHROTRON'] : '')+'</span></td>'+
                     '<td>'+d['DEWARSTATUS']+'</td>'+
@@ -161,6 +180,13 @@ $(function() {
                        style: 'display: inline',
                        }).addClass('editable');
 
+  $('.safety').editable('/shipment/ajax/update/sid/'+sid+'/ty/safety/', {
+                       data: {'Green': 'Green', 'Yellow':'Yellow', 'Red': 'Red'},
+                       type: 'select',
+                       submit: 'Ok',
+                       style: 'display: inline',
+                       }).addClass('editable');
+  
   $('.courier').editable('/shipment/ajax/update/sid/'+sid+'/ty/cour/', {
                        width: '100px',
                        height: '20px',
@@ -221,6 +247,16 @@ $(function() {
                            }).addClass('editable');
       })
 
+      $('.exp').each(function(i,e) {
+        var did = $(this).parent('td').parent('tr').attr('did')
+        $(e).editable('/shipment/ajax/updated/did/'+did+'/ty/exp/', {
+                           loadurl: '/shipment/ajax/vis/',
+                           type: 'select',
+                           submit: 'Ok',
+                           style: 'display: inline',
+                           }).addClass('editable');
+      })
+  
       $('.trackto').each(function(i,e) {
         var did = $(this).parent('td').parent('tr').attr('did')
         $(e).editable('/shipment/ajax/updated/did/'+did+'/ty/tt/', {

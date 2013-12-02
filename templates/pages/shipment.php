@@ -14,6 +14,7 @@
                         <th>Creation Date</th>
                         <th>Outgoing Contact</th>
                         <th>Return Contact</th>
+                        <th>Safety Level</th>
                         <th>Status</th>
                         <th>Components</th>
                         <th>Comment</th>
@@ -28,6 +29,7 @@
                         <td><?php echo $r['CREATED'] ?></td>
                         <td><?php echo $r['LCOUT'] ?></td>
                         <td><?php echo $r['LCRET'] ?></td>
+                        <td><?php echo $r['SAFETYLEVEL'] ?></td>
                         <td><?php echo $r['SHIPPINGSTATUS'] ?></td>
                         <td><?php echo $r['DCOUNT'] ?></td>
                         <td><?php echo $r['COMMENTS'] ?></td>

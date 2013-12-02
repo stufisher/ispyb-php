@@ -13,6 +13,7 @@
                               'deliverydate' => '\d+-\d+-\d+',
                               'couriername' => '\w+',
                               'courierno' => '\w+',
+                              'safety' => '\w+',
                               
                               );
         
@@ -38,7 +39,7 @@
         function _index() {
             if (!$this->has_arg('prop')) $this->error('No proposal specified', 'Please select a proposal first');
             
-            $rows = $this->db->pq("SELECT count(d.dewarid) as dcount,c.cardname as lcout, c2.cardname as lcret, s.shippingid, s.shippingname, s.shippingstatus,TO_CHAR(s.creationdate, 'DD-MM-YYYY') as created, s.isstorageshipping, s.shippingtype, s.comments FROM ispyb4a_db.proposal p INNER JOIN ispyb4a_db.shipping s ON p.proposalid = s.proposalid LEFT OUTER JOIN ispyb4a_db.labcontact c ON s.sendinglabcontactid = c.labcontactid LEFT OUTER JOIN ispyb4a_db.labcontact c2 ON s.returnlabcontactid = c2.labcontactid LEFT OUTER JOIN ispyb4a_db.dewar d ON d.shippingid = s.shippingid WHERE p.proposalcode || p.proposalnumber = :1 GROUP BY c.cardname, c2.cardname, s.shippingid, s.shippingname, s.shippingstatus,TO_CHAR(s.creationdate, 'DD-MM-YYYY'), s.isstorageshipping, s.shippingtype, s.comments", array($this->arg('prop')));
+            $rows = $this->db->pq("SELECT s.safetylevel, count(d.dewarid) as dcount,c.cardname as lcout, c2.cardname as lcret, s.shippingid, s.shippingname, s.shippingstatus,TO_CHAR(s.creationdate, 'DD-MM-YYYY') as created, s.isstorageshipping, s.shippingtype, s.comments FROM ispyb4a_db.proposal p INNER JOIN ispyb4a_db.shipping s ON p.proposalid = s.proposalid LEFT OUTER JOIN ispyb4a_db.labcontact c ON s.sendinglabcontactid = c.labcontactid LEFT OUTER JOIN ispyb4a_db.labcontact c2 ON s.returnlabcontactid = c2.labcontactid LEFT OUTER JOIN ispyb4a_db.dewar d ON d.shippingid = s.shippingid WHERE p.proposalcode || p.proposalnumber = :1 GROUP BY s.safetylevel, c.cardname, c2.cardname, s.shippingid, s.shippingname, s.shippingstatus,TO_CHAR(s.creationdate, 'DD-MM-YYYY'), s.isstorageshipping, s.shippingtype, s.comments", array($this->arg('prop')));
             
             
             $this->template('Shipments');
@@ -51,7 +52,7 @@
             if (!$this->has_arg('prop')) $this->error('No proposal specified', 'Please select a proposal first');
             if (!$this->has_arg('sid')) $this->error('No shippingid specified', 'Please specify a shipping id');
             
-            $ship = $this->db->pq("SELECT shippingid, deliveryagent_agentname, deliveryagent_agentcode,  TO_CHAR(deliveryagent_shippingdate, 'DD-MM-YYYY') as deliveryagent_shippingdate, TO_CHAR(deliveryagent_deliverydate, 'DD-MM-YYYY') as deliveryagent_deliverydate, shippingname,comments,TO_CHAR(s.creationdate, 'DD-MM-YYYY') as created, c.cardname as lcout, c2.cardname as lcret FROM ispyb4a_db.shipping s INNER JOIN ispyb4a_db.proposal p ON s.proposalid = p.proposalid LEFT OUTER JOIN ispyb4a_db.labcontact c ON s.sendinglabcontactid = c.labcontactid LEFT OUTER JOIN ispyb4a_db.labcontact c2 ON s.returnlabcontactid = c2.labcontactid WHERE p.proposalcode || p.proposalnumber LIKE :1 AND s.shippingid = :2", array($this->arg('prop'),$this->arg('sid')));
+            $ship = $this->db->pq("SELECT safetylevel, shippingid, deliveryagent_agentname, deliveryagent_agentcode,  TO_CHAR(deliveryagent_shippingdate, 'DD-MM-YYYY') as deliveryagent_shippingdate, TO_CHAR(deliveryagent_deliverydate, 'DD-MM-YYYY') as deliveryagent_deliverydate, shippingname,comments,TO_CHAR(s.creationdate, 'DD-MM-YYYY') as created, c.cardname as lcout, c2.cardname as lcret FROM ispyb4a_db.shipping s INNER JOIN ispyb4a_db.proposal p ON s.proposalid = p.proposalid LEFT OUTER JOIN ispyb4a_db.labcontact c ON s.sendinglabcontactid = c.labcontactid LEFT OUTER JOIN ispyb4a_db.labcontact c2 ON s.returnlabcontactid = c2.labcontactid WHERE p.proposalcode || p.proposalnumber LIKE :1 AND s.shippingid = :2", array($this->arg('prop'),$this->arg('sid')));
             
             if (!sizeof($ship)) $this->error('No such shipment', 'The specified shipment does not exists');
             else $ship = $ship[0];
@@ -83,7 +84,7 @@
                 $dd = $this->has_arg('delverydate') ? $this->arg('deliverydate') : '';
                 $com = $this->has_arg('comment') ? $this->arg('comment') : '';
                 
-                $this->db->pq("INSERT INTO ispyb4a_db.shipping (shippingid, proposalid, shippingname, deliveryagent_agentname, deliveryagent_agentcode, deliveryagent_shippingdate, deliveryagent_deliverydate, bltimestamp, creationdate, comments, sendinglabcontactid, returnlabcontactid, shippingstatus) VALUES (s_shipping.nextval,:1,:2,:3,:4,:5,:6,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,:7,:8,:9,'opened') RETURNING shippingid INTO :id", array($pid, $this->arg('shippingname'), $this->arg('couriername'), $this->arg('courierno'), $sd, $dd, $com, $this->arg('lcout'), $this->arg('lcret')));
+                $this->db->pq("INSERT INTO ispyb4a_db.shipping (shippingid, proposalid, shippingname, deliveryagent_agentname, deliveryagent_agentcode, deliveryagent_shippingdate, deliveryagent_deliverydate, bltimestamp, creationdate, comments, sendinglabcontactid, returnlabcontactid, shippingstatus, safetylevel) VALUES (s_shipping.nextval,:1,:2,:3,:4,:5,:6,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,:7,:8,:9,'opened',:10) RETURNING shippingid INTO :id", array($pid, $this->arg('shippingname'), $this->arg('couriername'), $this->arg('courierno'), $sd, $dd, $com, $this->arg('lcout'), $this->arg('lcret'), $this->arg('safety')));
                 
                 $this->msg('New Shipment Added', 'Your shipment was sucessfully added. Click <a href="/shipment/sid/'.$this->db->id().'">here</a> to see to the shipment or <a href="/shipment/">here</a> to view the list of shipments');
                 
@@ -94,13 +95,6 @@
                 
                 foreach ($cards as $c) {
                     $lc .= '<option value="'.$c['LABCONTACTID'].'">'.$c['CARDNAME'].'</option>';
-                }
-                
-                $visits = $this->db->pq("SELECT b.sessionid, b.beamlinename, TO_CHAR(b.startdate, 'DD-MM-YYYY') as st FROM ispyb4a_db.blsession b INNER JOIN ispyb4a_db.proposal p ON p.proposalid = b.proposalid WHERE p.proposalcode || p.proposalnumber LIKE :1 AND b.startdate > SYSDATE-1", array($this->arg('prop')));
-                
-                $vl = '';
-                foreach ($visits as $v) {
-                    $vl .= '<option value="'.$v['SESSIONID'].'">'.$v['ST'].' - '.$v['BEAMLINENAME'].'</option>';
                 }
                 
                 

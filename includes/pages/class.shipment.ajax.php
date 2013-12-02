@@ -13,6 +13,7 @@
                               'trackfrom' => '\w+',
                               'array' => '\d',
                               'term' => '\w+',
+                              'exp' => '\d+',
                               
                               'n' => '\w+',
                               'c' => '.*',
@@ -28,6 +29,7 @@
                               'history' => '_get_history',
                               'pro' => '_get_proteins',
                               'addp' => '_add_protein',
+                              'vis' => '_get_visits',
                               
                               'lc' => '_get_contacts',
                               
@@ -65,8 +67,8 @@
             if (!$this->has_arg('prop')) $this->_error('No proposal id specified');
             if (!$this->has_arg('sid')) $this->_error('No shipment id specified');
             
-            
-            $dewars = $this->db->pq("SELECT count(c.containerid) as ccount, d.code, d.barcode, d.storagelocation, d.dewarstatus, d.dewarid,  d.trackingnumbertosynchrotron, d.trackingnumberfromsynchrotron FROM ispyb4a_db.dewar d LEFT OUTER JOIN ispyb4a_db.container c ON c.dewarid = d.dewarid INNER JOIN ispyb4a_db.shipping s ON d.shippingid = s.shippingid WHERE s.proposalid=:1 AND d.shippingid=:2 GROUP BY d.code, d.barcode, d.storagelocation, d.dewarstatus, d.dewarid,  d.trackingnumbertosynchrotron, d.trackingnumberfromsynchrotron", array($this->proposalid, $this->arg('sid')));
+            #case when sysdate between s.startdate and s.enddate then 1 else 0
+            $dewars = $this->db->pq("SELECT count(c.containerid) as ccount, (case when se.visit_number > 0 then (p.proposalcode||p.proposalnumber||'-'||se.visit_number) else '' end) as exp, d.code, d.barcode, d.storagelocation, d.dewarstatus, d.dewarid,  d.trackingnumbertosynchrotron, d.trackingnumberfromsynchrotron FROM ispyb4a_db.dewar d LEFT OUTER JOIN ispyb4a_db.container c ON c.dewarid = d.dewarid INNER JOIN ispyb4a_db.shipping s ON d.shippingid = s.shippingid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid LEFT OUTER JOIN ispyb4a_db.blsession se ON d.firstexperimentid = se.sessionid WHERE s.proposalid=:1 AND d.shippingid=:2 GROUP BY (case when se.visit_number > 0 then (p.proposalcode||p.proposalnumber||'-'||se.visit_number) else '' end), d.code, d.barcode, d.storagelocation, d.dewarstatus, d.dewarid,  d.trackingnumbertosynchrotron, d.trackingnumberfromsynchrotron", array($this->proposalid, $this->arg('sid')));
             
             $this->_output($dewars);
             
@@ -86,12 +88,13 @@
             $to = $this->has_arg('trackto') ? $this->arg('trackto') : '';
             $from = $this->has_arg('trackfrom') ? $this->arg('trackfrom') : '';
             
-            # Need to generate barcode!
+            $exp = $this->has_arg('exp') ? $this->arg('exp') : '';
             
-            $this->db->pq("INSERT INTO ispyb4a_db.dewar (dewarid,code,trackingnumbertosynchrotron,trackingnumberfromsynchrotron,shippingid,bltimestamp,dewarstatus) VALUES (s_dewar.nextval,:1,:2,:3,:4,CURRENT_TIMESTAMP,'opened') RETURNING dewarid INTO :id", array($this->arg('code'), $to, $from, $this->arg('sid')));
+            $this->db->pq("INSERT INTO ispyb4a_db.dewar (dewarid,code,trackingnumbertosynchrotron,trackingnumberfromsynchrotron,shippingid,bltimestamp,dewarstatus,firstexperimentid) VALUES (s_dewar.nextval,:1,:2,:3,:4,CURRENT_TIMESTAMP,'opened',:5) RETURNING dewarid INTO :id", array($this->arg('code'), $to, $from, $this->arg('sid'), $exp));
             
             $id = $this->db->id();
             
+            # Need to generate barcode
             $this->db->pq("UPDATE ispyb4a_db.dewar set barcode=:1 WHERE dewarid=:2", array($this->arg('prop').'-'.str_pad($id,7,'0',STR_PAD_LEFT), $id));
             
             $this->_output($id);
@@ -121,6 +124,20 @@
                                  
             $this->_output($this->has_arg('array') ? $proteins : $rows);
         }
+        
+        
+        # Return available visits
+        function _get_visits() {
+            $visits = $this->db->pq("SELECT p.proposalcode || p.proposalnumber||'-'||b.visit_number as visit, b.sessionid, b.beamlinename, TO_CHAR(b.startdate, 'DD-MM-YYYY') as st FROM ispyb4a_db.blsession b INNER JOIN ispyb4a_db.proposal p ON p.proposalid = b.proposalid WHERE p.proposalcode || p.proposalnumber LIKE :1 AND b.startdate > SYSDATE-60", array($this->arg('prop')));
+            
+            $vl = array();
+            foreach ($visits as $v) {
+                $vl[$v['SESSIONID']] = $v['VISIT'] .' ('.$v['BEAMLINENAME'].': '.$v['ST'].')';
+            }
+            
+            $this->_output($vl);
+        }
+        
         
         
         # Add a new protein
@@ -172,6 +189,7 @@
                            'sd' => array('\d+-\d+-\d+', 'deliveryagent_shippingdate', '', 1),
                            'dd' => array('\d+-\d+-\d+', 'deliveryagent_deliverydate', '', 1),
                            'com' => array('.*', 'comments', '', 0),
+                           'safety' => array('\w+', 'safetylevel', '', 0),
                            );
             
             if (array_key_exists($this->arg('ty'), $types)) {
@@ -213,9 +231,10 @@
             
             if (!sizeof($dewar)) $this->_error('No such dewar');
             
-            $types = array('code' => array('\w+', 'code'),
-                           'tt' => array('\w+', 'trackingnumbertosynchrotron'),
-                           'tf' => array('\w+', 'trackingnumberfromsynchrotron'),
+            $types = array('code' => array('\w+', 'code', ''),
+                           'tt' => array('\w+', 'trackingnumbertosynchrotron', ''),
+                           'tf' => array('\w+', 'trackingnumberfromsynchrotron', ''),
+                           'exp' => array('\d+', 'firstexperimentid', "SELECT p.proposalcode||p.proposalnumber||'-'||s.visit_number as value FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE s.sessionid=:1"),
                            );
             
             if (array_key_exists($this->arg('ty'), $types)) {
@@ -226,7 +245,13 @@
                 if (preg_match('/^'.$t[0].'$/m', $v)) {
                     $this->db->pq('UPDATE ispyb4a_db.dewar SET '.$t[1].'=:1 WHERE dewarid=:2', array($v, $this->arg('did')));
                     
-                    print $v;
+                    $ret = $v;
+                    if ($t[2]) {
+                        $rets = $this->db->pq($t[2], array($v));
+                        if (sizeof($rets)) $ret = $rets[0]['VALUE'];
+                    }
+                    
+                    print $ret;
                 }
                 
             } 
