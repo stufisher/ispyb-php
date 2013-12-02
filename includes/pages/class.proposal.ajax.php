@@ -138,7 +138,8 @@
             
             $data = array();
             foreach ($rows as $r) {
-                array_push($data, array($r['ST'], $r['EN'], $r['VIS'], $r['BL'], $r['LC'], $r['COMMENTS'], $r['DCOUNT'],'<a class="small view" title="View Data Collections" href="/dc/visit/'.$this->arg('prop').'-'.$r['VIS'].'"></a> <a class="small stats" title="View Statistics" href="/vstat/bag/'.$this->arg('prop').'/visit/'.$r['VIS'].'"></a> <a class="small report" title="Download PDF Report" href="/pdf/report/visit/'.$this->arg('prop').'-'.$r['VIS'].'"></a> <a class="small export" title="Export Data Collections to CSV" href="/download/csv/visit/'.$this->arg('prop').'-'.$r['VIS'].'"></a> <a class="small process" title="Reprocess Data Collections" href="/mc/visit/'.$this->arg('prop').'-'.$r['VIS'].'"></a>'));
+                array_push($data, array($r['ST'], $r['EN'], $r['VIS'], $r['BL'], $r['LC'], $r['COMMENTS'], $r['DCOUNT'],'<a class="small view" title="View Data Collections" href="/dc/visit/'.$this->arg('prop').'-'.$r['VIS'].'"></a> <a class="small stats" title="View Statistics" href="/vstat/bag/'.$this->arg('prop').'/visit/'.$r['VIS'].'"></a> <a class="small report" title="Download PDF Report" href="/pdf/report/visit/'.$this->arg('prop').'-'.$r['VIS'].'"></a> <a class="small export" title="Export Data Collections to CSV" href="/download/csv/visit/'.$this->arg('prop').'-'.$r['VIS'].'"></a>'));
+                #<a class="small process" title="Reprocess Data Collections" href="/mc/visit/'.$this->arg('prop').'-'.$r['VIS'].'"></a>
             }
             
             $this->_output(array('iTotalRecords' => $tot,
