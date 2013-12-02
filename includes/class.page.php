@@ -307,8 +307,10 @@
             }
             
             # Retrieve cookie args
-            $u = phpCAS::getUser();
-            if ($u && array_key_exists('ispyb_prop_'.$u, $_COOKIE) && !array_key_exists('prop', $parsed)) $parsed['prop'] = $_COOKIE['ispyb_prop_'.$u];
+            if (!$this->blsr()) {
+                $u = phpCAS::getUser();
+                if ($u && array_key_exists('ispyb_prop_'.$u, $_COOKIE) && !array_key_exists('prop', $parsed)) $parsed['prop'] = $_COOKIE['ispyb_prop_'.$u];
+            }
             
             #$this->args = json_decode(json_encode($parsed), FALSE);
             $this->args = $parsed;
