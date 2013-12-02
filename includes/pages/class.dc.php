@@ -2,7 +2,7 @@
 
     class DC extends Page {
         
-        var $arg_list = array('visit' => '\w\w\d\d\d\d-\d+', 'page' => '\d+', 'mon' => '\w+', 'year' => '\d\d\d\d', 'id' => '\d+', 't' => '\w+', 'iframe' => '\d+', 'id' => '\d+');
+        var $arg_list = array('visit' => '\w+\d+-\d+', 'page' => '\d+', 'mon' => '\w+', 'year' => '\d\d\d\d', 'id' => '\d+', 't' => '\w+', 'iframe' => '\d+', 'id' => '\d+');
         var $dispatch = array('dc' => '_dispatch', 'view' => '_viewer', 'proposal' => '_show_proposal');
         var $def = 'dc';
         
@@ -75,6 +75,9 @@
             }
             
             $this->t->first = (date('w',mktime(0,0,0,$c_month,1,$c_year)) - 1) % 7;
+            if ($this->t->first < 0) $this->t->first += 7;
+            
+            print $this->t->first;
             $this->t->dim = date('t', mktime (0,0,0,$c_month,1,$c_year));
             $this->t->rem = 7 - (($this->t->first+$this->t->dim) % 7);
             
