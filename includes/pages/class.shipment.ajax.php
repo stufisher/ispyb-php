@@ -67,7 +67,6 @@
             if (!$this->has_arg('prop')) $this->_error('No proposal id specified');
             if (!$this->has_arg('sid')) $this->_error('No shipment id specified');
             
-            #case when sysdate between s.startdate and s.enddate then 1 else 0
             $dewars = $this->db->pq("SELECT count(c.containerid) as ccount, (case when se.visit_number > 0 then (p.proposalcode||p.proposalnumber||'-'||se.visit_number) else '' end) as exp, d.code, d.barcode, d.storagelocation, d.dewarstatus, d.dewarid,  d.trackingnumbertosynchrotron, d.trackingnumberfromsynchrotron FROM ispyb4a_db.dewar d LEFT OUTER JOIN ispyb4a_db.container c ON c.dewarid = d.dewarid INNER JOIN ispyb4a_db.shipping s ON d.shippingid = s.shippingid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid LEFT OUTER JOIN ispyb4a_db.blsession se ON d.firstexperimentid = se.sessionid WHERE s.proposalid=:1 AND d.shippingid=:2 GROUP BY (case when se.visit_number > 0 then (p.proposalcode||p.proposalnumber||'-'||se.visit_number) else '' end), d.code, d.barcode, d.storagelocation, d.dewarstatus, d.dewarid,  d.trackingnumbertosynchrotron, d.trackingnumberfromsynchrotron", array($this->proposalid, $this->arg('sid')));
             
             $this->_output($dewars);
