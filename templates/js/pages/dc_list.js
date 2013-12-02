@@ -770,7 +770,7 @@ $(function() {
                         },
                     },
                     yaxis: {
-                        max: 2,
+                        max: 1,
                     }
                  }
                     
