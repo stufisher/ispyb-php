@@ -32,6 +32,7 @@ $(function() {
     $('a.view').button({ icons: { primary: 'ui-icon-search' } })
     $('a.stats').button({ icons: { primary: 'ui-icon-image' } })
     $('a.report').button({ icons: { primary: 'ui-icon-document' } })
+    $('a.export').button({ icons: { primary: 'ui-icon-extlink' } })
     $('a.process').button({ icons: { primary: 'ui-icon-gear' } })
   }
   
