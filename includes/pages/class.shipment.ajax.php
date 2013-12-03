@@ -94,7 +94,13 @@
             $id = $this->db->id();
             
             # Need to generate barcode
-            $this->db->pq("UPDATE ispyb4a_db.dewar set barcode=:1 WHERE dewarid=:2", array($this->arg('prop').'-'.str_pad($id,7,'0',STR_PAD_LEFT), $id));
+            $vis = '';
+            if ($exp) {
+                $vr = $this->db->pq("SELECT s.beamlinename as bl,s.vist_number as vis FROM isbyp4a_db.blsession s WHERE s.sessionid=:1", array($exp));
+                if (sizeof($vr)) $vis = '-'.$vr[0]['VIS'].'-'.$vr[0]['BL'];
+            }
+            
+            $this->db->pq("UPDATE ispyb4a_db.dewar set barcode=:1 WHERE dewarid=:2", array($this->arg('prop').$vis.'-'.str_pad($id,7,'0',STR_PAD_LEFT), $id));
             
             $this->_output($id);
         }
