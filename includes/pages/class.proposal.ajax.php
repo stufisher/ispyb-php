@@ -22,7 +22,7 @@
         var $def = 'proposals';
         var $profile = True;
         //var $debug = True;
-        
+        #var $explain = True;
         
         
         # ------------------------------------------------------------------------
@@ -129,16 +129,17 @@
             $order = 's.startdate DESC';
             
             if ($this->has_arg('iSortCol_0')) {
-                $cols = array('s.startdate', 's.enddate', 's.visit_number', 's.beamlinename', 's.beamlineoperator', 's.comments', 'dccount');
+                $cols = array('s.startdate', 's.enddate', 's.visit_number', 's.beamlinename', 's.beamlineoperator', 's.comments');
                 $dir = $this->has_arg('sSortDir_0') ? ($this->arg('sSortDir_0') == 'asc' ? 'ASC' : 'DESC') : 'ASC';
                 if ($this->arg('iSortCol_0') < sizeof($cols)) $order = $cols[$this->arg('iSortCol_0')].' '.$dir;
             }
             
-            $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (SELECT TO_CHAR(s.startdate, 'HH24:MI DD-MM-YYYY') as st, TO_CHAR(s.enddate, 'HH24:MI DD-MM-YYYY') as en, s.visit_number as vis, s.beamlinename as bl, s.beamlineoperator as lc, s.comments, count(dc.datacollectionid) as dcount FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid LEFT OUTER JOIN ispyb4a_db.datacollection dc ON s.sessionid = dc.sessionid $where GROUP BY TO_CHAR(s.startdate, 'HH24:MI DD-MM-YYYY'),TO_CHAR(s.enddate, 'HH24:MI DD-MM-YYYY'),s.visit_number,s.beamlinename,s.beamlineoperator,s.comments,s.startdate ORDER BY $order) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
+            $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (SELECT TO_CHAR(s.startdate, 'HH24:MI DD-MM-YYYY') as st, TO_CHAR(s.enddate, 'HH24:MI DD-MM-YYYY') as en, s.visit_number as vis, s.beamlinename as bl, s.beamlineoperator as lc, s.comments/*, count(dc.datacollectionid) as dcount*/ FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid /*LEFT OUTER JOIN ispyb4a_db.datacollection dc ON s.sessionid = dc.sessionid*/ $where /*GROUP BY TO_CHAR(s.startdate, 'HH24:MI DD-MM-YYYY'),TO_CHAR(s.enddate, 'HH24:MI DD-MM-YYYY'),s.visit_number,s.beamlinename,s.beamlineoperator,s.comments,s.startdate*/ ORDER BY $order) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
             
             $data = array();
             foreach ($rows as $r) {
-                array_push($data, array($r['ST'], $r['EN'], $r['VIS'], $r['BL'], $r['LC'], $r['COMMENTS'], $r['DCOUNT'],'<a class="small view" title="View Data Collections" href="/dc/visit/'.$this->arg('prop').'-'.$r['VIS'].'"></a> <a class="small stats" title="View Statistics" href="/vstat/bag/'.$this->arg('prop').'/visit/'.$r['VIS'].'"></a> <a class="small report" title="Download PDF Report" href="/pdf/report/visit/'.$this->arg('prop').'-'.$r['VIS'].'"></a> <a class="small export" title="Export Data Collections to CSV" href="/download/csv/visit/'.$this->arg('prop').'-'.$r['VIS'].'"></a>'));
+                array_push($data, array($r['ST'], $r['EN'], $r['VIS'], $r['BL'], $r['LC'], $r['COMMENTS'],'<a class="small view" title="View Data Collections" href="/dc/visit/'.$this->arg('prop').'-'.$r['VIS'].'"></a> <a class="small stats" title="View Statistics" href="/vstat/bag/'.$this->arg('prop').'/visit/'.$r['VIS'].'"></a> <a class="small report" title="Download PDF Report" href="/pdf/report/visit/'.$this->arg('prop').'-'.$r['VIS'].'"></a> <a class="small export" title="Export Data Collections to CSV" href="/download/csv/visit/'.$this->arg('prop').'-'.$r['VIS'].'"></a>'));
+                
                 #<a class="small process" title="Reprocess Data Collections" href="/mc/visit/'.$this->arg('prop').'-'.$r['VIS'].'"></a>
             }
             

@@ -25,6 +25,7 @@
         var $profile = True;
         #var $debug = True;
         #var $explain = True;
+        #var $stats = True;
         
         function _samples() {
             if (!$this->has_arg('prop')) $this->_error('No proposal specified');
@@ -40,7 +41,7 @@
             $sta = $this->has_arg('iDisplayStart') ? $this->arg('iDisplayStart') : 0;
             $len = $this->has_arg('iDisplayLength') ? $this->arg('iDisplayLength') : 20;
             
-            $tot = $this->db->pq("SELECT count(b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid INNER JOIN ispyb4a_db.container c ON b.containerid = c.containerid INNER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid INNER JOIN ispyb4a_db.shipping s ON s.shippingid = d.shippingid WHERE pr.proposalid=:1 $where", $args)[0]['TOT'];
+            $tot = $this->db->pq("SELECT count(b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid WHERE pr.proposalid=:1 $where", $args)[0]['TOT'];
             
             if ($this->has_arg('sSearch')) {
                 $st = sizeof($args) + 1;
@@ -49,7 +50,7 @@
             }
             
             
-            $flt = $this->db->pq("SELECT count(b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid INNER JOIN ispyb4a_db.container c ON b.containerid = c.containerid INNER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid INNER JOIN ispyb4a_db.shipping s ON s.shippingid = d.shippingid WHERE pr.proposalid=:1 $where", $args)[0]['TOT'];
+            $flt = $this->db->pq("SELECT count(b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid WHERE pr.proposalid=:1 $where", $args)[0]['TOT'];
             
             $st = sizeof($args) + 1;
             array_push($args, $sta);
@@ -59,36 +60,47 @@
             
             
             if ($this->has_arg('iSortCol_0')) {
-                $cols = array('b.blsampleid', 'b.name', 'pr.acronym', 'cr.spacegroup', 'b.comments', 'shipment', 'dewar', 'container', 'x1', 'dcount');
+                $cols = array('b.blsampleid', 'b.name', 'pr.acronym', 'cr.spacegroup', 'b.comments', 'shipment', 'dewar', 'container');
                 $dir = $this->has_arg('sSortDir_0') ? ($this->arg('sSortDir_0') == 'asc' ? 'ASC' : 'DESC') : 'ASC';
                 if ($this->arg('iSortCol_0') < sizeof($cols)) $order = $cols[$this->arg('iSortCol_0')].' '.$dir;
             }
             
             $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (
-                                  SELECT max(dc.xtalsnapshotfullpath1) as x1, max(dc.datacollectionid) as dcid, count(dc.datacollectionid) as dcount, count(es.energyscanid) as ecount, count(xfe.xfefluorescencespectrumid) as xcount, b.blsampleid, pr.acronym, pr.proteinid, cr.spacegroup,b.comments,b.name,s.shippingname as shipment,s.shippingid,d.dewarid,d.code as dewar, c.code as container, c.containerid FROM ispyb4a_db.blsample b
+                                  SELECT b.blsampleid, pr.acronym, pr.proteinid, cr.spacegroup,b.comments,b.name,s.shippingname as shipment,s.shippingid,d.dewarid,d.code as dewar, c.code as container, c.containerid FROM ispyb4a_db.blsample b
                                   INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid
                                   INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid
                                   INNER JOIN ispyb4a_db.container c ON b.containerid = c.containerid
                                   INNER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid
                                   INNER JOIN ispyb4a_db.shipping s ON s.shippingid = d.shippingid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid
-                                  
-                                  LEFT OUTER JOIN ispyb4a_db.datacollection dc ON dc.blsampleid = b.blsampleid
-                                  LEFT OUTER JOIN ispyb4a_db.blsample_has_energyscan es ON dc.blsampleid = es.blsampleid
-                                  LEFT OUTER JOIN ispyb4a_db.xfefluorescencespectrum xfe ON dc.blsampleid = xfe.blsampleid
-                                  
-                                  
                                   WHERE pr.proposalid=:1 $where
-                                  GROUP BY b.blsampleid, pr.acronym, pr.proteinid, cr.spacegroup,b.comments,b.name,s.shippingname,s.shippingid,d.dewarid,d.code, c.code, c.containerid
                                   
                                   ORDER BY $order
                                   ) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
             
             $data = array();
+            
+            $ids = array();
+            $wcs = array();
+            foreach ($rows as $r) {
+                array_push($ids, $r['BLSAMPLEID']);
+                array_push($wcs, 'blsampleid=:'.sizeof($ids));
+            }
+            
+            $dcs = array();
+            if (sizeof($ids)) {
+                $dcst = $this->db->pq('SELECT blsampleid, count(datacollectionid) as dcount,max(datacollectionid) as dcid FROM datacollection WHERE '.implode(' OR ', $wcs).' GROUP BY blsampleid', $ids);
+                foreach ($dcst as $d) {
+                    $dcs[$d['BLSAMPLEID']] = $d;
+                }
+            }
+                
             foreach ($rows as $r) {
                 $snap = '';
-                if (file_exists($r['X1'])) $snap = '<image class="img" src="/image/id/'.$r['DCID'].'" title="Crystal Snapshot 1" />';
+                if (array_key_exists($r['BLSAMPLEID'], $dcs)) $snap = '<image class="img" src="/image/id/'.$dcs[$r['BLSAMPLEID']]['DCID'].'" title="Crystal Snapshot 1" />';
                 
-                array_push($data, array($r['BLSAMPLEID'], $r['NAME'], '<a href="/sample/proteins/pid/'.$r['PROTEINID'].'">'.$r['ACRONYM'].'</a>', $r['SPACEGROUP'], $r['COMMENTS'], '<a href="/shipment/sid/'.$r['SHIPPINGID'].'">'.$r['SHIPMENT'].'</a>', $r['DEWAR'], '<a href="/shipment/cid/'.$r['CONTAINERID'].'">'.$r['CONTAINER'].'</a>', $snap, $r['DCOUNT']+$r['ECOUNT']+$r['XCOUNT'], '<a class="small view" title="View Sample" href="/sample/sid/'.$r['BLSAMPLEID'].'"></a>'));
+                $dcount = array_key_exists($r['BLSAMPLEID'], $dcs) ? $dcs[$r['BLSAMPLEID']]['DCOUNT'] : 0;
+                
+                array_push($data, array($r['BLSAMPLEID'], $r['NAME'], '<a href="/sample/proteins/pid/'.$r['PROTEINID'].'">'.$r['ACRONYM'].'</a>', $r['SPACEGROUP'], $r['COMMENTS'], '<a href="/shipment/sid/'.$r['SHIPPINGID'].'">'.$r['SHIPMENT'].'</a>', $r['DEWAR'], '<a href="/shipment/cid/'.$r['CONTAINERID'].'">'.$r['CONTAINER'].'</a>', $snap, $dcount, '<a class="small view" title="View Sample" href="/sample/sid/'.$r['BLSAMPLEID'].'"></a>'));
             }
             
             $this->_output(array('iTotalRecords' => $tot,
@@ -127,25 +139,52 @@
             
             
             if ($this->has_arg('iSortCol_0')) {
-                $cols = array('pr.name', 'pr.acronym', 'pr.molecularmass', 'pr.sequence', 'scount', 'dcount');
+                $cols = array('pr.name', 'pr.acronym', 'pr.molecularmass', 'DBMS_LOB.SUBSTR(pr.sequence,255,1)');
                 $dir = $this->has_arg('sSortDir_0') ? ($this->arg('sSortDir_0') == 'asc' ? 'ASC' : 'DESC') : 'ASC';
                 if ($this->arg('iSortCol_0') < sizeof($cols)) $order = $cols[$this->arg('iSortCol_0')].' '.$dir;
             }
             
             $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (
-                                  SELECT pr.proteinid,pr.name,pr.acronym,pr.molecularmass,pr.sequence, count(distinct b.blsampleid) as scount, count(distinct dc.datacollectionid) as dcount FROM ispyb4a_db.protein pr
-                                  LEFT OUTER JOIN ispyb4a_db.crystal cr ON cr.proteinid = pr.proteinid
+                                  SELECT DBMS_LOB.SUBSTR(pr.sequence,255,1) as sequence, pr.proteinid,pr.name,pr.acronym,pr.molecularmass/*,  count(distinct b.blsampleid) as scount, count(distinct dc.datacollectionid) as dcount*/ FROM ispyb4a_db.protein pr
+                                  /*LEFT OUTER JOIN ispyb4a_db.crystal cr ON cr.proteinid = pr.proteinid
                                   LEFT OUTER JOIN ispyb4a_db.blsample b ON b.crystalid = cr.crystalid
-                                  LEFT OUTER JOIN ispyb4a_db.datacollection dc ON b.blsampleid = dc.blsampleid
+                                  LEFT OUTER JOIN ispyb4a_db.datacollection dc ON b.blsampleid = dc.blsampleid*/
                                   
                                   WHERE pr.proposalid=:1 $where
-                                  GROUP BY pr.proteinid,pr.name,pr.acronym,pr.molecularmass,pr.sequence
+                                  GROUP BY pr.proteinid,pr.name,pr.acronym,pr.molecularmass, DBMS_LOB.SUBSTR(pr.sequence,255,1)
                                   ORDER BY $order
                                   ) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
             
+            $ids = array();
+            $wcs = array();
+            foreach ($rows as $r) {
+                array_push($ids, $r['PROTEINID']);
+                array_push($wcs, 'pr.proteinid=:'.sizeof($ids));
+            }
+            
+            $dcs = array();
+            $scs = array();
+            
+            if (sizeof($ids)) {
+                $dcst = $this->db->pq('SELECT pr.proteinid, count(dc.datacollectionid) as dcount FROM datacollection dc INNER JOIN ispyb4a_db.blsample s ON s.blsampleid=dc.blsampleid INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = s.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid WHERE '.implode(' OR ', $wcs).' GROUP BY pr.proteinid', $ids);
+
+                
+                foreach ($dcst as $d) {
+                    $dcs[$d['PROTEINID']] = $d['DCOUNT'];
+                }
+
+                $scst = $this->db->pq('SELECT pr.proteinid, count(s.blsampleid) as scount FROM ispyb4a_db.blsample s INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = s.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid WHERE '.implode(' OR ', $wcs).' GROUP BY pr.proteinid', $ids);
+
+                foreach ($scst as $d) {
+                    $scs[$d['PROTEINID']] = $d['SCOUNT'];
+                }
+            }
+            
             $data = array();
             foreach ($rows as $r) {
-                array_push($data, array($r['NAME'], $r['ACRONYM'], $r['MOLECULARMASS'], $r['SEQUENCE'] ? 'Yes' : 'No', $r['SCOUNT'], $r['DCOUNT'], '<a class="small view" title="View Protein Details" href="/sample/proteins/pid/'.$r['PROTEINID'].'"></a>'));
+                $dcount = array_key_exists($r['PROTEINID'], $dcs) ? $dcs[$r['PROTEINID']] : 0;
+                $scount = array_key_exists($r['PROTEINID'], $scs) ? $scs[$r['PROTEINID']] : 0;
+                array_push($data, array($r['NAME'], $r['ACRONYM'], $r['MOLECULARMASS'], $r['SEQUENCE'] ? 'Yes' : 'No', $scount, $dcount, '<a class="small view" title="View Protein Details" href="/sample/proteins/pid/'.$r['PROTEINID'].'"></a>'));
             }
             
             $this->_output(array('iTotalRecords' => $tot,
