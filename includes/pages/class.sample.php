@@ -87,6 +87,10 @@
             if (!sizeof($prot)) $this->error('No such protein', 'The specified protein id doesnt exist');
             else $prot = $prot[0];
             
+            if ($prot['SEQUENCE']) {
+                $prot['SEQUENCE'] = $prot['SEQUENCE']->read($prot['SEQUENCE']->size());
+            }
+            
             $this->template('View Protein', array($prot['NAME'] ? $prot['NAME'] : $prot['ACRONYM']), array(''));
             $this->t->prot = $prot;
             $this->t->js_var('pid', $this->arg('pid'));
