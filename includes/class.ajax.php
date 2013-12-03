@@ -7,6 +7,7 @@
             $this->db = $db;
             $this->db->set_debug($this->debug);
             $this->db->set_explain($this->explain);
+            $this->db->set_stats($this->stats);
             
             $page = $this->def;
             if (sizeof($args) > 0) {
@@ -18,6 +19,9 @@
             
             $this->_parse_args($args);
             $this->_auth();
+            
+            session_write_close();
+            
             $fn = $this->dispatch[$page];
             $this->$fn();
         }
@@ -29,6 +33,7 @@
             #$data['profile'] = $this->pro();
             print json_encode($data);
             if ($this->explain) print "\n".$this->db->plan;
+            if ($this->stats) print "\n".$this->db->stat;
             #if ($this->profile) print_r($this->pro());
         }
         

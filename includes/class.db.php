@@ -7,11 +7,14 @@
         var $id;
         var $explain = False;
         var $plan = '';
+        var $stat = '';
+        var $stats = False;
         
         # Initialise database connection
         function __construct($user, $pass, $db) {
             ini_set('oci8.persistent_timeout', 60);
             ini_set('oci8.max_persistent', 20);
+            ini_set('oci8.statement_cache_size', 150);
             
             $this->tz = new DateTimeZone('UTC');
 
@@ -27,6 +30,10 @@
         
         function set_explain($exp) {
             $this->explain = $exp;
+        }
+        
+        function set_stats($st) {
+            $this->stats = $st;
         }
         
         function set_debug($debug) {
@@ -88,6 +95,10 @@
                 print_r($args);
             }
 
+            if ($this->stats) {
+                $query = preg_replace('/SELECT /', 'SELECT /*+ gather_plan_statistics */ ', $query, 1);
+            }
+            
             $stid = oci_parse($this->conn, $query);
             if (!$stid) {
                 $e = oci_error($conn);
@@ -143,6 +154,16 @@
             }
             
             oci_free_statement($stid);
+            
+            if ($this->stats) {
+                $stat = oci_parse($this->conn, "select * from table(dbms_xplan.display_cursor(null,null,'ALLSTATS LAST'))");
+                $pl = oci_execute($stat);
+                $this->stat .= "$query\n".implode(', ', $args)."\n";
+                while ($row = oci_fetch_array($stat, OCI_ASSOC+OCI_RETURN_NULLS)) {
+                    $this->stat .= $row['PLAN_TABLE_OUTPUT']."\n";
+                }
+                oci_free_statement($stat);
+            }
             
             return sizeof($data) == 0 ? array() : $data;
         }        

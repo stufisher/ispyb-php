@@ -10,6 +10,7 @@
         var $visits = array();
         var $debug = False;
         var $explain = False;
+        var $stats = False;
         var $profile = False;
         var $profiles = [];
         var $base;
@@ -32,6 +33,7 @@
             $this->db = $db;
             $this->db->set_debug($this->debug);
             $this->db->set_explain($this->explain);
+            $this->db->set_stats($this->stats);
             
             $page = $this->def;
             if (sizeof($args) > 0) {
@@ -58,7 +60,7 @@
             $this->_parse_args($args);
             $this->_auth();
             
-            session_write_close();
+            #session_write_close();
             
             $fn = $this->dispatch[$page];
             $this->$fn();
