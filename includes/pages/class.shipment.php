@@ -100,7 +100,6 @@
                 
                 $this->template('Add Shipment', array('Add Shipment'), array(''));
                 $this->t->cards = $lc;
-                $this->t->visits = $vl;
                 $this->t->render('shipment_add');
             }
         }
