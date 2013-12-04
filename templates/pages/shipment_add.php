@@ -42,14 +42,14 @@
 
             <li>
                 <label>Outgoing Lab Contact
-                    <span class="small">Lab contact for outgoing transport</span>
+                    <span class="small">Lab contact for outgoing transport | <a href="/contact">Add/Edit</a></span>
                 </label>
                 <select name="lcout" required><?php echo $cards ?></select>
             </li>
 
             <li>
                 <label>Return Lab Contact
-                    <span class="small">Lab contact for return transport</span>
+                    <span class="small">Lab contact for return transport | <a href="/contact">Add/Edit</a></span>
                 </label>
                 <select name="lcret" required><?php echo $cards ?></select>
             </li>
