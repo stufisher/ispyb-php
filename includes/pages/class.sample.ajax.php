@@ -27,6 +27,9 @@
         #var $explain = True;
         #var $stats = True;
         
+        
+        # ------------------------------------------------------------------------
+        # List of samples for a proposal
         function _samples() {
             if (!$this->has_arg('prop')) $this->_error('No proposal specified');
             
@@ -111,6 +114,8 @@
         
         
         
+        # ------------------------------------------------------------------------
+        # List of proteins for a proposal
         function _proteins() {
             if (!$this->has_arg('prop')) $this->_error('No proposal specified');
             
@@ -195,6 +200,8 @@
 
         
         
+        # ------------------------------------------------------------------------
+        # Update a particular field for a protein
         function _update_protein() {
             if (!$this->has_arg('pid')) $this->_error('No proteinid specified');
             if (!$this->has_arg('value')) $this->_error('No value specified');
@@ -226,6 +233,8 @@
         }
         
 
+        # ------------------------------------------------------------------------
+        # Update a particular field for a sample
         function _update_sample() {
             if (!$this->has_arg('sid')) $this->_error('No sampleid specified');
             if (!$this->has_arg('value')) $this->_error('No value specified');

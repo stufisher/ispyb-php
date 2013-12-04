@@ -25,18 +25,25 @@
         #var $debug = true;
         #var $explain = True;
         
+        
+        # ------------------------------------------------------------------------
+        # View sample or list of samples based on passed args
         function _sample_dispatch() {
             if ($this->has_arg('sid')) $this->_view_sample();
             else $this->_samples();
         }
         
 
+        # ------------------------------------------------------------------------
+        # List of samples for a proposal
         function _samples() {
             $this->template('Samples');
             $this->t->render('sample');
         }
         
         
+        # ------------------------------------------------------------------------
+        # View a particular samples
         function _view_sample() {
             if (!$this->has_arg('sid')) $this->error('No sample id', 'No sample id specified');
             
@@ -52,7 +59,7 @@
                 if (file_exists($s['SN'])) array_push($sn, $s['ID']);
             }
             
-            $this->template('View Sample', array($samp['NAME']), array(''));
+            $this->template('View Sample', array($samp['ACRONYM'], $samp['NAME']), array('/proteins/pid/'.$samp['PROTEINID'],''));
             
             $this->t->samp = $samp;
             $this->t->sn = $sn;
@@ -65,20 +72,24 @@
         }
         
         
-        
+        # ------------------------------------------------------------------------
+        # View protein or list of proteins based on passed args
         function _protein_dispatch() {
             if ($this->has_arg('pid')) $this->_view_protein();
             else $this->_proteins();
         }
 
         
+        # ------------------------------------------------------------------------
+        # View list of proteins
         function _proteins() {
-            $this->template('Proteins');
+            $this->template('Proteins', array('Proteins'), array('/proteins'));
             $this->t->render('protein');
         }
         
         
-        
+        # ------------------------------------------------------------------------
+        # View a particular protein
         function _view_protein() {
             if (!$this->has_arg('pid')) $this->error('No protein id', 'No protein id was specified');
             
@@ -91,7 +102,7 @@
                 $prot['SEQUENCE'] = $prot['SEQUENCE']->read($prot['SEQUENCE']->size());
             }
             
-            $this->template('View Protein', array($prot['NAME'] ? $prot['NAME'] : $prot['ACRONYM']), array(''));
+            $this->template('View Protein', array('Proteins', $prot['NAME'] ? $prot['NAME'] : $prot['ACRONYM']), array('/proteins', ''));
             $this->t->prot = $prot;
             $this->t->js_var('pid', $this->arg('pid'));
             $this->t->render('protein_view');
@@ -100,7 +111,8 @@
         
         
         
-        
+        # ------------------------------------------------------------------------
+        # Add a new protein
         function _add_protein() {
             if (!$this->has_arg('prop')) $this->error('No proposal selected', 'No proposal selected. Select a proposal before viewing this page');
             
