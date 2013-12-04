@@ -625,6 +625,11 @@ div.form label {
     /*width: 70%;*/
 }
 
+div.form li.head {
+    padding: 1% 0;
+    font-weight: bold;
+}
+
 span.label {
     display: inline-block;
     padding: 1% 0;
@@ -691,7 +696,8 @@ div.form .ferror {
 
 .editable:hover {
     cursor: pointer;
-    background: #cdcdcd;
+    background: #cdcdcd url('/templates/images/edit.png') no-repeat right;
+    padding-right: 2.5%;
 }
 
 .editable:hover span.ui-icon {
@@ -717,6 +723,10 @@ div.form .ferror {
     /*border-radius: 6px;*/
     padding: 5px;
     margin-bottom: 10px;
+}
+
+div.log {
+    margin-top: 5px;
 }
 
 .status,
@@ -752,6 +762,7 @@ div.form .ferror {
     padding: 3px;
     margin-left: 5px;
     background: #cdcdcd;
+    margin-top: 4px;
 }
 
 
@@ -1519,12 +1530,13 @@ ul.visits li {
 /* Fault Reporting
  ---------------------------------------------------------*/
 div.text {
-    width: 69.7%;
+    width: 68.2%;
     margin: 1% 0;
     padding: 1%;
     float: right;
     background: #eeeeee;
     border-radius: 5px;
+    padding-right: 2.5%;
 }
 
 div.text p {
