@@ -96,7 +96,7 @@
             # Need to generate barcode
             $vis = '';
             if ($exp) {
-                $vr = $this->db->pq("SELECT s.beamlinename as bl,s.vist_number as vis FROM isbyp4a_db.blsession s WHERE s.sessionid=:1", array($exp));
+                $vr = $this->db->pq("SELECT s.beamlinename as bl,s.visit_number as vis FROM ispyb4a_db.blsession s WHERE s.sessionid=:1", array($exp));
                 if (sizeof($vr)) $vis = '-'.$vr[0]['VIS'].'-'.$vr[0]['BL'];
             }
             
