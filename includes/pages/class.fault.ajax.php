@@ -275,7 +275,7 @@
                                   
             } else $where = '';
             
-            $rows = $this->db->pq("SELECT s.systemid, s.name, s.description, string_agg(hs.beamlinename) as beamlines FROM ispyb4a_db.bf_system s INNER JOIN ispyb4a_db.bf_system_beamline hs ON s.systemid = hs.systemid ".$where." GROUP BY s.systemid, s.name, s.description ORDER BY s.name", $args);
+            $rows = $this->db->pq("SELECT /*+ index(hs BF_SYSTEM_BEAMLINEIDX1) */ s.systemid, s.name, s.description, string_agg(hs.beamlinename) as beamlines FROM ispyb4a_db.bf_system s INNER JOIN ispyb4a_db.bf_system_beamline hs ON s.systemid = hs.systemid ".$where." GROUP BY s.systemid, s.name, s.description ORDER BY s.name", $args);
                                  
             $sys = array();
             foreach ($rows as $s) $sys[$s['SYSTEMID']] = $s['NAME'];
