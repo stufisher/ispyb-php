@@ -195,6 +195,7 @@
                            'dd' => array('\d+-\d+-\d+', 'deliveryagent_deliverydate', '', 1),
                            'com' => array('.*', 'comments', '', 0),
                            'safety' => array('\w+', 'safetylevel', '', 0),
+                           'title' => array('([\w-])+', 'shippingname', '', 0),
                            );
             
             if (array_key_exists($this->arg('ty'), $types)) {
@@ -236,7 +237,7 @@
             
             if (!sizeof($dewar)) $this->_error('No such dewar');
             
-            $types = array('code' => array('\w+', 'code', ''),
+            $types = array('code' => array('([\w-])+', 'code', ''),
                            'tt' => array('\w+', 'trackingnumbertosynchrotron', ''),
                            'tf' => array('\w+', 'trackingnumberfromsynchrotron', ''),
                            'exp' => array('\d+', 'firstexperimentid', "SELECT p.proposalcode||p.proposalnumber||'-'||s.visit_number as value FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE s.sessionid=:1"),

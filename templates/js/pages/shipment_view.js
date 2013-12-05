@@ -166,6 +166,14 @@ $(function() {
   
   
   // Editables
+  $('.title').editable('/shipment/ajax/update/sid/'+sid+'/ty/title/', {
+                       width: '180px',
+                       height: '25px',
+                       type: 'text',
+                       submit: 'Ok',
+                       style: 'display: inline',
+                       }).addClass('editable');
+  
   $('.lcout').editable('/shipment/ajax/update/sid/'+sid+'/ty/lcout/', {
                        loadurl: '/shipment/ajax/lc/',
                        type: 'select',
