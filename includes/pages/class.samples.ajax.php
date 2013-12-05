@@ -172,7 +172,7 @@
             if (sizeof($sids) > 0) {
                 $shid = $sids[0]['SHIPPINGID'];
             } else {
-                $this->db->pq("INSERT INTO shipping (shippingid,proposalid,shippingname,bltimestamp) VALUES (s_shipping.nextval,:1,:2,CURRENT_TIMESTAMP) RETURNING shippingid INTO :id", array($pid, $visit.'_Shipment1'));
+                $this->db->pq("INSERT INTO shipping (shippingid,proposalid,shippingname,bltimestamp,creationdate,shippingstatus) VALUES (s_shipping.nextval,:1,:2,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,'processing') RETURNING shippingid INTO :id", array($pid, $visit.'_Shipment1'));
                                   
                 $shid = $this->db->id();
                                   
