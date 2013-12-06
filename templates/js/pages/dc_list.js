@@ -111,10 +111,10 @@ $(function() {
                              '<div class="diffraction" title="Click to view diffraction images">'+
                                 '<a href="/dc/view/id/'+r['ID']+'"><img dsrc="" alt="Diffraction Image 1" /></a>' +
                              '</div>') : '<div class="r">Data Collection Stopped</div>')+
-                             '<h1><button class="small flag '+f+'" title="Click to add this data collection to the list of flagged data collections"></button> '+r['ST']+' - <a href="/dc/visit/'+visit+'/id/'+r['ID']+'">Permalink</a></h1>'+
+                             '<h1><button class="small flag '+f+'" title="Click to add this data collection to the list of flagged data collections"></button> <span class="date">'+r['ST']+'</span> - <a href="/dc/visit/'+visit+'/id/'+r['ID']+'">Permalink</a></h1>'+
                              '<h2>'+r['DIR']+r['FILETEMPLATE']+'</h2>'+
 
-                             '<ul>'+
+                             '<ul class="clearfix">'+
                                  //(r['SAN'] != null ? ('<li class="sample">Sample: ' + r['SAN'] + ' (m' + r['SCON'] + 'p' + r['SPOS']+')') : '')+
                                  '<li>&Omega; Start: '+r['AXISSTART']+'&deg;</li>'+
                                  '<li>&Omega; Osc: '+r['AXISRANGE']+'&deg;</li>'+
@@ -155,7 +155,7 @@ $(function() {
                              '<h1><button class="small flag '+f+'"></button> '+r['ST']+' - <a href="/dc/visit/'+visit+'/t/edge/id/'+r['ID']+'">Permalink</a></h1>'+
                              '<h2>'+r['DIR']+' Edge Scan</h2>'+
 
-                             '<ul>'+
+                             '<ul class="clearfix">'+
                                  '<li>E(Peak): '+r['EPK']+'eV (' + (ev/r['EPK']).toFixed(4) + '&#197;)</li>'+
                                  '<li>f&rsquo;&rsquo;: '+r['AXISSTART']+' / f&rsquo;: '+r['RESOLUTION']+'e</li>'+
                                  '<li>E(Inf): '+r['EIN']+'eV (' + (ev/r['EIN']).toFixed(4) + '&#197;)</li>'+
@@ -165,7 +165,6 @@ $(function() {
                                  '<li>Comment: <span class="comment_edit">'+(r['COMMENTS'] ? r['COMMENTS'] : '')+'</span></li>'+
                              '</ul>'+
                              '<!--<img src="/image/id/'+r['ID']+'" alt="" />-->'+
-                             '<div class="clear"></div>'+
                              '</div>').data('apr', r['AP']).hide().prependTo('.data_collections').slideDown()
                        
                            plot_edge($('.data_collection[dcid="'+r['ID']+'"] .edge'), r['ID'])
@@ -190,13 +189,12 @@ $(function() {
                              '<h1><button class="small flag '+f+'"></button> '+r['ST']+' - <a href="/dc/visit/'+visit+'/t/mca/id/'+r['ID']+'">Permalink</a></h1>'+
                              '<h2>MCA Fluorescence Scan</h2>'+
 
-                             '<ul>'+
+                             '<ul class="clearfix">'+
                                  '<li>Energy: '+r['WAVELENGTH']+'eV</li>'+
                                  '<li>Exposure: '+r['EXPOSURETIME']+'s</li>'+
                                  '<li>Transmission: '+r['TRANSMISSION']+'%</li>'+
                                  '<li>Comment: <span class="comment_edit">'+(r['COMMENTS']?r['COMMENTS']:'')+'</span></li>'+
                              '</ul>'+
-                             '<div class="clear"></div>'+
                              '</div>').data('apr', r['AP']).hide().prependTo('.data_collections').slideDown()
                        
                            plot_mca($('.data_collection[dcid="'+r['ID']+'"] .mca'), r['ID'])
@@ -217,10 +215,9 @@ $(function() {
                                '</div>'+
                                '<h1>'+r['ST']+'</h1>'+
                                '<h2>Sample '+r['IMP'].toLowerCase()+'</h2>'+
-                                 '<ul>'+
+                                 '<ul class="clearfix">'+
                                    '<li>Time: '+r['BSX']+'s</li>'+
                                  '</ul>'+
-                               '<div class="clear"></div>'+
                              '</div>').hide().prependTo('.data_collections').slideDown()
                        
                        
@@ -503,15 +500,13 @@ $(function() {
                    var nimg = $('.data_collection[dcid="'+id+'"]').data('nimg')
                    if (nimg == $(j[0]).last()[0][0]) refresh_imq = false
              
-                   var strtime = $('.data_collection[dcid="'+id+'"]').children('h1').html()
+                   var strtime = $('.data_collection[dcid="'+id+'"]').children('h1').children('span.date').html()
                    var dt = strtime.split(' ')
                    var dmy = dt[0].split('-')
                    var hms = dt[1].split(':')
                    var date = new Date(dmy[2], dmy[1]-1, dmy[0], hms[0], hms[1], hms[2], 0)
                    var now = new Date()
-                   if (now - date > 900*1000) refresh_imq = false
-             
-             
+                   if (now - date > 900*1000) refresh_imq = false             
                }
              
                if (refresh_imq) {
@@ -587,8 +582,8 @@ $(function() {
       // Load IQI's
       $('.data_collection .distl').each(function(i) {
           if (!$(this).data('plotted')) {
-              var w = 0.15*$('.data_collection').width()
-              $(this).height($(window).width() > 600 ? w : (w*2))
+              var w = 0.175*$('.data_collection').width()
+              $(this).height($(window).width() > 600 ? w : (w*1.65))
               $('.diffraction,.snapshots').height($(this).height())
             
             var pl = $(this)
@@ -622,7 +617,7 @@ $(function() {
         var id = $(this).parent().parent().parent('div').attr('dcid')
         var t = $(this).parent().parent().parent('div').attr('type')
         $(this).editable('/dc/ajax/comment/t/'+t+'/id/'+id, {
-                                                width: '100px',
+                                                width: '90px',
                                                 height: '20px',
                                                 type: 'text',
                                                 submit: 'Ok',
