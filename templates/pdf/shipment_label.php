@@ -108,8 +108,8 @@
                 </div>
             </div>
 
-            <div class="pad" style="width: 330px; padding-top: 0">
-                <table>
+            <div class="pad" style="padding-top: 0">
+                <table style="width: 450px">
                     <tr>
                         <td class="grey px150">Parcel Label</td>
                         <td><?php echo $d['CODE'] ?></td>
@@ -152,8 +152,6 @@
                         <?php echo ucfirst($ship['GIVENNAME']) ?> <?php echo strtoupper($ship['FAMILYNAME']) ?><br />
                         <?php echo $ship['LABNAME'] ?><br />
                         <?php echo $ship['ADDRESS'] ?><br />
-                        <?php echo $ship['CITY'] ?><br />
-                        <?php echo $ship['COUNTRY'] ?><br />
                         Tel: <?php echo $ship['PHONENUMBER'] ?><br />
                         Fax: <?php echo $ship['FAXNUMBER'] ?><br />
                     </p>
@@ -191,19 +189,17 @@
                 <div class="left large bold" style="width: 70px">TO:</div>
                 <div class="pad-left">
                     <p class="large bold">
-                        <?php echo ucfirst($ship['GIVENNAME']) ?> <?php echo strtoupper($ship['FAMILYNAME']) ?><br />
-                        <?php echo $ship['LABNAME'] ?><br />
-                        <?php echo $ship['ADDRESS'] ?><br />
-                        <?php echo $ship['CITY'] ?><br />
-                        <?php echo $ship['COUNTRY'] ?><br />
-                        <span class="normal">Tel: <?php echo $ship['PHONENUMBER'] ?></span><br />
-                        <span class="normal">Fax: <?php echo $ship['FAXNUMBER'] ?></span><br />
+                        <?php echo ucfirst($ship['GIVENNAME2']) ?> <?php echo strtoupper($ship['FAMILYNAME2']) ?><br />
+                        <?php echo $ship['LABNAME2'] ?><br />
+                        <?php echo $ship['ADDRESS2'] ?><br />
+                        <span class="normal">Tel: <?php echo $ship['PHONENUMBER2'] ?></span><br />
+                        <span class="normal">Fax: <?php echo $ship['FAXNUMBER2'] ?></span><br />
                     </p>
                 </div>
             </div>
 
-            <div class="pad" style="width: 350px; padding-top: 0">
-                <table>
+            <div class="pad" style="padding-top: 0">
+                <table style="width: 450px">
                     <tr>
                         <td class="grey px150">Parcel Label</td>
                         <td><?php echo $d['CODE'] ?></td>
