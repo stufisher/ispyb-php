@@ -33,6 +33,17 @@
             $ship = $this->db->pq("SELECT s.safetylevel, p.proposalcode || p.proposalnumber as prop, s.shippingid, s.shippingname, pe.givenname, pe.familyname, pe.phonenumber,pe.faxnumber, l.name as labname, l.address, l.city, l.country, pe2.givenname as givenname2, pe2.familyname as familyname2, pe2.phonenumber as phonenumber2, pe2.faxnumber as faxnumber2, l2.name as labname2, l2.address as address2, l2.city as city2, l2.country as country2, c2.courieraccount, c2.billingreference, c2.defaultcourriercompany FROM ispyb4a_db.shipping s INNER JOIN ispyb4a_db.labcontact c ON s.sendinglabcontactid = c.labcontactid INNER JOIN ispyb4a_db.person pe ON c.personid = pe.personid INNER JOIN ispyb4a_db.laboratory l ON l.laboratoryid = pe.laboratoryid INNER JOIN ispyb4a_db.labcontact c2 ON s.returnlabcontactid = c2.labcontactid  INNER JOIN ispyb4a_db.person pe2 ON c2.personid = pe2.personid INNER JOIN ispyb4a_db.laboratory l2 ON l2.laboratoryid = pe2.laboratoryid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid  WHERE s.shippingid=:1", array($this->arg('sid')));
             if (!sizeof($ship)) $this->error('No such shipment', 'The specified shipment doesnt exist');
             else $ship = $ship[0];
+            
+            $addr = array($ship['ADDRESS']);
+            if ($ship['CITY']) array_push($addr, $ship['CITY']."\n");
+            if ($ship['COUNTRY']) array_push($addr, $ship['COUNTRY']."\n");
+            $ship['ADDRESS'] = str_replace("\n", '<br/>',  implode(', ', $addr));
+
+            $addr = array($ship['ADDRESS2']);
+            if ($ship['CITY2']) array_push($addr, $ship['CITY2']."\n");
+            if ($ship['COUNTRY2']) array_push($addr, $ship['COUNTRY2']."\n");
+            $ship['ADDRESS2'] = str_replace("\n", '<br/>',  implode(', ', $addr));
+            
             $this->ship = $ship;
             
             $this->dewars = $this->db->pq("SELECT bl.beamlinename, bl.beamlineoperator, TO_CHAR(bl.startdate, 'DD-MM-YYYY') as st, d.transportvalue, d.customsvalue, d.code, d.barcode FROM ispyb4a_db.dewar d LEFT OUTER JOIN ispyb4a_db.blsession bl ON d.firstexperimentid = bl.sessionid WHERE d.shippingid=:1", array($ship['SHIPPINGID']));
