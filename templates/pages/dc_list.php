@@ -16,7 +16,7 @@
     </div>
     <?php endif ?>
 
-    <div class="filter" title="Click to filter the current list to specified data collection types">
+    <div class="filter clearfix" title="Click to filter the current list to specified data collection types">
         <ul>
             <li id="dc">Data Collections</li>
             <li id="ed">Edge Scans</li>
@@ -25,15 +25,13 @@
             <li id="ac">Sample Actions</li>
             <li id="flag">Flagged</li>
         </ul>
-    </div>
 
-    <?php if ($this->staff): ?>
-    <div class="robot">
-        <a href="/robot/visit/<?php echo $vis ?>">Robot Stats</a> | <a href="/vstat/bag/<?php echo $vid ?>/visit/<?php echo $vno ?>">Visit Stats</a> | <a href="/status/bl/<?php echo $bl ?>">Beamline Status</a>
+        <?php if ($this->staff): ?>
+        <div class="robot">
+            <a href="/robot/visit/<?php echo $vis ?>">Robot Stats</a> | <a href="/vstat/bag/<?php echo $vid ?>/visit/<?php echo $vno ?>">Visit Stats</a> | <a href="/status/bl/<?php echo $bl ?>">Beamline Status</a>
+        </div>
+        <?php endif; ?>
     </div>
-    <?php endif; ?>
-
-    <div class="clear"></div>
 
 
     <div class="log border">
@@ -45,9 +43,8 @@
         <label>Search: </label><input type="text" name="search" />
     </div>
 
-    <div class="page_wrap" title="Click to change pages">
+    <div class="page_wrap clearfix" title="Click to change pages">
         <div class="pages"></div>
-        <div class="clear"></div>
     </div>
 
     <?php if ($dcid): ?>
@@ -56,10 +53,7 @@
 
     <div class="data_collections"></div>
 
-    <div class="page_wrap" title="Click to change pages">
+    <div class="page_wrap clearfix" title="Click to change pages">
         <div class="pages"></div>
-        <div class="clear"></div>
     </div>
-
-    <div class="clear"></div>
 
