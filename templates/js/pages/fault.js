@@ -31,7 +31,7 @@ $(function() {
         url: '/fault/ajax' + (search ? '/s/'+search : '') + (bl ? '/bl/'+bl : '') + (sid ? '/sid/'+sid : '') + (cid ? '/cid/'+cid : '') + (scid ? '/scid/'+scid : '') + '/page/'+page,
         type: 'GET',
         dataType: 'json',
-        timeout: 5000,
+        timeout: 15000,
         success: function(json){
             var pgs = []
             for (var i = 0; i < json[0]; i++) pgs.push('<li'+(i+1==page?' class="selected"':'')+'><a href="#'+(i+1)+'">'+(i+1)+'</a></li>')
