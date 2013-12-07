@@ -82,8 +82,8 @@ $(function() {
                     '<td title="Click to edit the dewar name"><span class="code">'+d['CODE']+'</span></td>'+
                     '<td>'+d['BARCODE']+'</td>'+
                     '<td><span class="exp">'+(d['EXP'] ? d['EXP'] : '')+'</span></td>'+
-                    '<td><span class="trackto">'+(d['TRACKINGNUMBERTOSYNCHROTRON'] ? d['TRACKINGNUMBERTOSYNCHROTRON'] : '')+'</span></td>'+
-                    '<td><span class="trackfrom">'+(d['TRACKINGNUMBERFROMSYNCHROTRON'] ? d['TRACKINGNUMBERFROMSYNCHROTRON'] : '')+'</span></td>'+
+                    '<td><span class="trackto">'+(d['TRACKINGNUMBERTOSYNCHROTRON'] ? d['TRACKINGNUMBERTOSYNCHROTRON'] : '')+'</span>'+(courier in tracking && d['TRACKINGNUMBERTOSYNCHROTRON'] ?  (' <a class="track" href="'+tracking[courier]+d['TRACKINGNUMBERTOSYNCHROTRON']+'">Track</a>'): '')+'</td>'+
+                    '<td><span class="trackfrom">'+(d['TRACKINGNUMBERFROMSYNCHROTRON'] ? d['TRACKINGNUMBERFROMSYNCHROTRON'] : '')+'</span>'+(courier in tracking && d['TRACKINGNUMBERFROMSYNCHROTRON'] ?  (' <a class="track" href="'+tracking[courier]+d['TRACKINGNUMBERFROMSYNCHROTRON']+'">Track</a>'): '')+'</td>'+
                     '<td>'+d['DEWARSTATUS']+'</td>'+
                     '<td>'+(d['STORAGELOCATION'] ? d['STORAGELOCATION'] : '')+'</td>'+
                     '<td>'+d['CCOUNT']+'</td>'+
@@ -96,6 +96,7 @@ $(function() {
           $('table.dewars tbody').html(d_out)
           
           $('a.add').button({ icons: { primary: 'ui-icon-plus' }, text: false })
+          $('a.track').button({ icons: { primary: 'ui-icon-extlink' }, text: false })
            
           $('.dewars tbody tr').unbind('click').click(function() {
             _load_dewar($(this).attr('did'))

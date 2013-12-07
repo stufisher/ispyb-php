@@ -29,6 +29,10 @@
         
         #var $debug = True;
         
+        var $tracking = array('dhl' => 'http://www.dhl.co.uk/content/gb/en/express/tracking.shtml?AWB=',
+                              'fedex' => 'https://www.fedex.com/fedextrack/?tracknumbers=',
+                              );
+        
         function _dispatch() {
             if ($this->has_arg('sid')) $this->_view_shipment();
             else if ($this->has_arg('cid')) $this->_view_container();
@@ -61,6 +65,8 @@
             $this->template('View Shipment', array($ship['SHIPPINGNAME']), array(''));
             $this->t->ship = $ship;
             $this->t->js_var('sid', $this->arg('sid'));
+            $this->t->js_var('tracking', $this->tracking);
+            $this->t->js_var('courier', strtolower($ship['DELIVERYAGENT_AGENTNAME']));
             
             $this->t->render('shipment_view');
         }
