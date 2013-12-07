@@ -54,6 +54,9 @@
                    'shipment',
                    'sample',
                    'contact',
+                   'feedback',
+                   'projects',
+                   'tracking',
                    );
     
     # Classes for each page, file is all lower case, the actual class
