@@ -5,7 +5,7 @@
         <div class="ra"><a class="add" href="/sample/addp" title="Click to add a new protein to this proposal">Add Protein</a></div>
 
         <div class="table">
-            <table class="robot_actions samples">
+            <table class="robot_actions proteins">
                 <thead>
                     <tr>
                         <th>Name</th>
