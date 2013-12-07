@@ -32,11 +32,23 @@ $(function() {
             timeout: 5000,
             success: function(json){
                window.location = '/proposal/visits'
-               //location.reload()
+            }
+               
+        })
+      })
+  
+      $('table.proposals tr').unbind('click').click(function() {
+        $.ajax({
+            url: '/proposal/ajax/set/prop/'+$(this).children('td').eq(1).html()+$(this).children('td').eq(2).html(),
+            type: 'GET',
+            dataType: 'text',
+            timeout: 5000,
+            success: function(json){
+               window.location = '/proposal/visits'
             }
                
         })
       })
   }
-
+  
 })
