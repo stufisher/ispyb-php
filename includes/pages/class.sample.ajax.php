@@ -13,6 +13,8 @@
                               'sid' => '\d+',
                               'value' => '.*',
                               'ty' => '\w+',
+                              'pjid' => '\d+',
+                              'imp' => '\d',
                                );
         
         var $dispatch = array('samples' => '_samples',
@@ -35,7 +37,24 @@
             
             $args = array($this->proposalid);
             $where = '';
+            $join = '';
             
+            # For a specific project
+            if ($this->has_arg('pjid')) {
+                array_push($args, $this->arg('pjid'));
+                $where .= ' AND (pj.projectid=:'.sizeof($args).')';
+                $join = ' LEFT OUTER JOIN ispyb4a_db.project_has_blsample pj ON pj.blsampleid=b.blsampleid';
+                
+                if ($this->has_arg('imp')) {
+                    if ($this->arg('imp')) {
+                        array_push($args, $this->arg('pjid'));
+                        $join .= ' LEFT OUTER JOIN ispyb4a_db.project_has_protein pji ON pji.proteinid=pr.proteinid';
+                        $where = preg_replace('/\(pj/', '(pji.projectid=:'.sizeof($args).' OR pj', $where);
+                    }
+                }
+            }
+            
+            # For a specific protein
             if ($this->has_arg('pid')) {
                 $where .= ' AND pr.proteinid=:'.(sizeof($args)+1);
                 array_push($args, $this->arg('pid'));
@@ -44,7 +63,7 @@
             $sta = $this->has_arg('iDisplayStart') ? $this->arg('iDisplayStart') : 0;
             $len = $this->has_arg('iDisplayLength') ? $this->arg('iDisplayLength') : 20;
             
-            $tot = $this->db->pq("SELECT count(b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid WHERE pr.proposalid=:1 $where", $args)[0]['TOT'];
+            $tot = $this->db->pq("SELECT count(b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid $join WHERE pr.proposalid=:1 $where", $args)[0]['TOT'];
             
             if ($this->has_arg('sSearch')) {
                 $st = sizeof($args) + 1;
@@ -53,7 +72,7 @@
             }
             
             
-            $flt = $this->db->pq("SELECT count(b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid WHERE pr.proposalid=:1 $where", $args)[0]['TOT'];
+            $flt = $this->db->pq("SELECT count(b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid $join WHERE pr.proposalid=:1 $where", $args)[0]['TOT'];
             
             $st = sizeof($args) + 1;
             array_push($args, $sta);
@@ -74,7 +93,9 @@
                                   INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid
                                   INNER JOIN ispyb4a_db.container c ON b.containerid = c.containerid
                                   INNER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid
-                                  INNER JOIN ispyb4a_db.shipping s ON s.shippingid = d.shippingid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid
+                                  INNER JOIN ispyb4a_db.shipping s ON s.shippingid = d.shippingid
+                                  INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid
+                                  $join
                                   WHERE pr.proposalid=:1 $where
                                   
                                   ORDER BY $order
@@ -103,7 +124,7 @@
                 
                 $dcount = array_key_exists($r['BLSAMPLEID'], $dcs) ? $dcs[$r['BLSAMPLEID']]['DCOUNT'] : 0;
                 
-                array_push($data, array($r['BLSAMPLEID'], $r['NAME'], '<a href="/sample/proteins/pid/'.$r['PROTEINID'].'">'.$r['ACRONYM'].'</a>', $r['SPACEGROUP'], $r['COMMENTS'], '<a href="/shipment/sid/'.$r['SHIPPINGID'].'">'.$r['SHIPMENT'].'</a>', $r['DEWAR'], '<a href="/shipment/cid/'.$r['CONTAINERID'].'">'.$r['CONTAINER'].'</a>', $snap, $dcount, '<a class="small view" title="View Sample" href="/sample/sid/'.$r['BLSAMPLEID'].'"></a>'));
+                array_push($data, array($r['BLSAMPLEID'], $r['NAME'], '<a href="/sample/proteins/pid/'.$r['PROTEINID'].'">'.$r['ACRONYM'].'</a>', $r['SPACEGROUP'], $r['COMMENTS'], '<a href="/shipment/sid/'.$r['SHIPPINGID'].'">'.$r['SHIPMENT'].'</a>', $r['DEWAR'], '<a href="/shipment/cid/'.$r['CONTAINERID'].'">'.$r['CONTAINER'].'</a>', $snap, $dcount, '<a class="small view" title="View Sample" href="/sample/sid/'.$r['BLSAMPLEID'].'"></a> <button class="atp small" ty="sample" iid="'.$r['BLSAMPLEID'].'" name="'.$r['NAME'].'"></button>'));
             }
             
             $this->_output(array('iTotalRecords' => $tot,
@@ -121,11 +142,18 @@
             
             $args = array($this->proposalid);
             $where = '';
+            $join = '';
+            
+            if ($this->has_arg('pjid')) {
+                array_push($args, $this->arg('pjid'));
+                $where .= ' AND pj.projectid=:'.sizeof($args);
+                $join .= ' INNER JOIN ispyb4a_db.project_has_protein pj ON pj.proteinid=pr.proteinid';
+            }
             
             $sta = $this->has_arg('iDisplayStart') ? $this->arg('iDisplayStart') : 0;
             $len = $this->has_arg('iDisplayLength') ? $this->arg('iDisplayLength') : 20;
             
-            $tot = $this->db->pq("SELECT count(pr.proteinid) as tot FROM ispyb4a_db.protein pr WHERE pr.proposalid=:1 $where", $args)[0]['TOT'];
+            $tot = $this->db->pq("SELECT count(pr.proteinid) as tot FROM ispyb4a_db.protein pr $join WHERE pr.proposalid=:1 $where", $args)[0]['TOT'];
 
             if ($this->has_arg('sSearch')) {
                 $st = sizeof($args) + 1;
@@ -133,7 +161,7 @@
                 for ($i = 0; $i < 2; $i++) array_push($args, $this->arg('sSearch'));
             }
             
-            $flt = $this->db->pq("SELECT count(pr.proteinid) as tot FROM ispyb4a_db.protein pr WHERE pr.proposalid=:1 $where", $args)[0]['TOT'];
+            $flt = $this->db->pq("SELECT count(pr.proteinid) as tot FROM ispyb4a_db.protein pr $join WHERE pr.proposalid=:1 $where", $args)[0]['TOT'];
 
             
             $st = sizeof($args) + 1;
@@ -154,7 +182,7 @@
                                   /*LEFT OUTER JOIN ispyb4a_db.crystal cr ON cr.proteinid = pr.proteinid
                                   LEFT OUTER JOIN ispyb4a_db.blsample b ON b.crystalid = cr.crystalid
                                   LEFT OUTER JOIN ispyb4a_db.datacollection dc ON b.blsampleid = dc.blsampleid*/
-                                  
+                                  $join
                                   WHERE pr.proposalid=:1 $where
                                   GROUP BY pr.proteinid,pr.name,pr.acronym,pr.molecularmass, DBMS_LOB.SUBSTR(pr.sequence,255,1)
                                   ORDER BY $order
@@ -189,7 +217,7 @@
             foreach ($rows as $r) {
                 $dcount = array_key_exists($r['PROTEINID'], $dcs) ? $dcs[$r['PROTEINID']] : 0;
                 $scount = array_key_exists($r['PROTEINID'], $scs) ? $scs[$r['PROTEINID']] : 0;
-                array_push($data, array($r['NAME'], $r['ACRONYM'], $r['MOLECULARMASS'], $r['SEQUENCE'] ? 'Yes' : 'No', $scount, $dcount, '<a class="small view" title="View Protein Details" href="/sample/proteins/pid/'.$r['PROTEINID'].'"></a>'));
+                array_push($data, array($r['NAME'], $r['ACRONYM'], $r['MOLECULARMASS'], $r['SEQUENCE'] ? 'Yes' : 'No', $scount, $dcount, '<a class="small view" title="View Protein Details" href="/sample/proteins/pid/'.$r['PROTEINID'].'"></a> <button class="atp small" ty="protein" iid="'.$r['PROTEINID'].'" name="'.$r['NAME'].'"></button>'));
             }
             
             $this->_output(array('iTotalRecords' => $tot,
