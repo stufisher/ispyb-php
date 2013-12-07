@@ -29,7 +29,7 @@
         # List proposals for current user
         function _get_proposals() {
             $args = array();
-            $where = "WHERE (p.proposalcode LIKE 'mx' OR p.proposalcode LIKE 'nt' or p.proposalcode LIKE 'cm')";
+            $where = "WHERE (p.proposalcode LIKE 'mx' OR p.proposalcode LIKE 'nt' OR p.proposalcode LIKE 'cm' OR p.proposalcode LIKE 'sw' OR p.proposalcode LIKE 'in')";
             
             $sta = $this->has_arg('iDisplayStart') ? $this->arg('iDisplayStart') : 0;
             $len = $this->has_arg('iDisplayLength') ? $this->arg('iDisplayLength') : 20;
@@ -78,7 +78,7 @@
     
         function _proposals() {
             
-            $where = "WHERE (p.proposalcode LIKE 'mx' OR p.proposalcode LIKE 'cm' OR p.proposalcode LIKE 'nt')";
+            $where = "WHERE (p.proposalcode LIKE 'mx' OR p.proposalcode LIKE 'cm' OR p.proposalcode LIKE 'nt' OR p.proposalcode LIKE 'sw' OR p.proposalcode LIKE 'in')";
             $args = array();
             
             if ($this->has_arg('term')) {
