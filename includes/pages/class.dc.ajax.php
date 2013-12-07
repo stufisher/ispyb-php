@@ -2,7 +2,7 @@
 
     class Ajax extends AjaxBase {
         
-        var $arg_list = array('id' => '\d+', 'visit' => '\w+\d+-\d+', 'page' => '\d+', 's' => '\w+', 'pp' => '\d+', 't' => '\w+', 'bl' => '\w\d\d(-\d)?', 'value' => '.*', 'sid' => '\d+', 'aid' => '\d+');
+        var $arg_list = array('id' => '\d+', 'visit' => '\w+\d+-\d+', 'page' => '\d+', 's' => '\w+', 'pp' => '\d+', 't' => '\w+', 'bl' => '\w\d\d(-\d)?', 'value' => '.*', 'sid' => '\d+', 'aid' => '\d+', 'pjid' => '\d+');
         var $dispatch = array('strat' => '_dc_strategies',
                               'ap' => '_dc_auto_processing',
                               'dp' => '_dc_downstream',
@@ -23,11 +23,21 @@
         
         # ------------------------------------------------------------------------
         # Data Collection AJAX Requests
+        #   This is pretty crazy, it will return unioned data collections, energy
+        #   scans, xfe spectra, and robot/sample actions as a single array ordered
+        #   by start time descending for either:
+        #   - a visit /visit/
+        #   - a particular sample id /sid/
+        #   - a project (explicit or implicit) /pjid/(imp/1/)
+        #   Its also searchable and filterable
         function _data_collections() {
             session_write_close();
             
             $this->profile('starting dc page');
-            if (!$this->has_arg('visit') && !($this->has_arg('sid') && $this->arg('prop'))) $this->_error('No visit or sample specified');
+            if (!$this->has_arg('visit') &&
+                !($this->has_arg('sid') && $this->arg('prop')) &&
+                !($this->has_arg('pjid') && $this->arg('prop')))
+                    $this->_error('No visit, sample, or project specified');
             
             $args = array();
             
@@ -49,6 +59,16 @@
                 foreach ($tables2 as $i => $t) $sess[$i] = $t.'.blsampleid=:'.($i+1);
                 foreach ($tables as $i => $t) $vis[$i] = ' INNER JOIN ispyb4a_db.blsession ses ON ses.sessionid = '.$t;
                 $visq = 'ses.visit_number as vn,';
+            }
+            
+            if ($this->has_arg('pjid')) {
+                # Need a linker for data collections
+                $vis[0] = " INNER JOIN ispyb4a_db.project_has_session prj ON dc.sessionid = prj.sessionid";
+                $vis[1] = " INNER JOIN ispyb4a_db.project_has_energyscan prj ON prj.energyscanid = es.energyscanid";
+                # Need a linker for robot actions too...
+                $vis[2] = " INNER JOIN ispyb4a_db.project_has_session prj ON prj.sessionid = r.blsessionid";
+                $vis[3] = " INNER JOIN ispyb4a_db.project_has_xfefspectrum prj ON prj.xfefluorescencespectrumid = xrf.xfefluorescencespectrumid";
+                foreach ($sess as $i => $t) $sess[$i] = 'prj.projectid=:'.($i+1);
             }
             
             if ($this->has_arg('t')) {
@@ -98,17 +118,24 @@
             }
             
             $info = array();
+            # Visits
             if ($this->has_arg('visit')) {
                 $info = $this->db->pq("SELECT s.sessionid, s.beamlinename as bl, vr.run, vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')))[0];
             
                 for ($i = 0; $i < 4; $i++) array_push($args, $info['SESSIONID']);
                 
+            # Samples
             } else if ($this->has_arg('sid') && $this->has_arg('prop')) {
                 $info = $this->db->pq("SELECT s.blsampleid FROM ispyb4a_db.blsample s INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = s.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = pr.proposalid WHERE s.blsampleid=:1 AND p.proposalcode || p.proposalnumber LIKE :2", array($this->arg('sid'), $this->arg('prop')));
                 for ($i = 0; $i < 4; $i++) array_push($args, $this->arg('sid'));
+                 
+            # Projects
+            } else if ($this->has_arg('pjid') && $this->has_arg('prop')) {
+                $info = $this->db->pq('SELECT title FROM ispyb4a_db.project WHERE projectid=:1', array($this->arg('pjid')));
+                for ($i = 0; $i < 4; $i++) array_push($args, $this->arg('pjid'));
             }
             
-            if (!sizeof($info)) $this->_error('The specified visit or sample doesnt exist');
+            if (!sizeof($info)) $this->_error('The specified visit, sample, or project doesnt exist');
         
             if ($this->has_arg('id')) {
                 $st = sizeof($args)+1;
@@ -130,13 +157,13 @@
                 for ($i = 0; $i < 5; $i++) array_push($args, $this->arg('s'));
             }
             
-            $tot = $this->db->pq("SELECT sum(tot) as t FROM (SELECT count(dc.datacollectionid) as tot FROM ispyb4a_db.datacollection dc  WHERE $sess[0] $where
+            $tot = $this->db->pq("SELECT sum(tot) as t FROM (SELECT count(dc.datacollectionid) as tot FROM ispyb4a_db.datacollection dc $vis[0] WHERE $sess[0] $where
                 
-                UNION SELECT count(es.energyscanid) as tot FROM ispyb4a_db.energyscan es $inner WHERE $sess[1] $where2
+                UNION SELECT count(es.energyscanid) as tot FROM ispyb4a_db.energyscan es $inner $vis[1] WHERE $sess[1] $where2
                                 
-                UNION SELECT count(xrf.xfefluorescencespectrumid) as tot from ispyb4a_db.xfefluorescencespectrum xrf WHERE $sess[3] $where4
+                UNION SELECT count(xrf.xfefluorescencespectrumid) as tot from ispyb4a_db.xfefluorescencespectrum xrf $vis[3] WHERE $sess[3] $where4
                                 
-                UNION SELECT count(r.robotactionid) as tot FROM ispyb4a_db.robotaction r WHERE $sess[2]  $where3)", $args)[0]['T'];
+                UNION SELECT count(r.robotactionid) as tot FROM ispyb4a_db.robotaction r $vis[2] WHERE $sess[2]  $where3)", $args)[0]['T'];
     
             $this->profile('after page count');
             
