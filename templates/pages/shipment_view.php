@@ -1,8 +1,11 @@
-    <h1>Shipment: <?php echo $ship['SHIPPINGNAME'] ?></h1>
+    <h1>Shipment: <span class="title"><?php echo $ship['SHIPPINGNAME'] ?></span></h1>
 
-    <p class="help">This page shows details and contents of the selected shipment. Most parameters can be edited by simply clicking on them</p>
+    <p class="help">This page shows details and contents of the selected shipment. Most parameters can be edited by simply clicking on them.</p>
+    <p class="help excl">Shipments need to have an outgoing and return home lab contact before shipment labels can be printed</p>
 
+    <?php if ($ship['LCOUT'] && $ship['LCRET']): ?>
     <div class="im_profile"><a href="/pdf/sid/<?php echo $ship['SHIPPINGID'] ?>" class="label" title="Print Shipment Labels">Print Shipment Labels</a></div>
+    <?php endif; ?>
 
     <div class="form">
         <ul>
