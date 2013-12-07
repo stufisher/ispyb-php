@@ -1,9 +1,9 @@
         <h1>Proposals</h1>
 
-        <p class="help">This page lists all proposals available to you. Click on a tick to activate that proposal</p>
+        <p class="help">This page lists all proposals available to you. Click on a row to select that proposal</p>
 
         <div class="table">
-            <table class="robot_actions">
+            <table class="robot_actions proposals">
                 <thead>
                     <tr>
                         <th>Date</th>
@@ -11,7 +11,7 @@
                         <th>Number</th>
                         <th>Visits</th>
                         <th>Title</th>
-                        <th title="Activate proposal">&nbsp;</th>
+                        <th title="Select proposal">&nbsp;</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
