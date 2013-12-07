@@ -25,20 +25,26 @@
                 <span class="comment"><?php echo $samp['COMMENTS'] ?></span>
             </li>
 
+            <?php if ($samp['CONTAINERID']): ?>
             <li>
                 <span class="label">Container</span>
                 <span class="cont"><a href="/shipment/cid/<?php echo $samp['CONTAINERID'] ?>"><?php echo $samp['CONTAINER'] ?></a></span>
             </li>
+            <?php endif; ?>
 
+            <?php if ($samp['DEWAR']): ?>
             <li>
                 <span class="label">Dewar</span>
-                <span class="dew"><?php echo $samp['DEWAR'] ? $samp['DEWAR'] : 'Unassigned' ?></a></span>
+                <span class="dew"><?php echo $samp['DEWAR'] ?></span>
             </li>
+            <?php endif; ?>
 
+            <?php if ($samp['SHIPPINGID']): ?>
             <li>
                 <span class="label">Shipment</span>
                 <span class="ship"><a href="/shipment/sid/<?php echo $samp['SHIPPINGID'] ?>"><?php echo $samp['SHIPMENT'] ?></a></span>
             </li>
+            <?php endif; ?>
 
             <li>
                 <span class="label">Snapshots</span>
