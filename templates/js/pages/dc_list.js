@@ -103,6 +103,10 @@ $(function() {
                            var state = r['RUNSTATUS'] == null ? 1 : (r['RUNSTATUS'].indexOf('Successful') > -1)
                        
                            $('<div class="data_collection" dcid="'+r['ID']+'" type="data">' +
+                             '<h1>'+
+                                '<button class="flag '+f+'" title="Click to add this data collection to the list of flagged data collections">Flag</button>  <a href="/dc/visit/'+visit+'/id/'+r['ID']+'" class="perm">Permalink</a> '+
+                                '<span class="date">'+r['ST']+'</span> - '+r['DIR']+r['FILETEMPLATE']+
+                             '</h1>'+
                              (state ?
                              ('<div class="distl" title="DISTL plot showing number of spots (yellow and blue points), and estimated resolution (red points) for each image in the data collection"></div>'+
                              '<div class="snapshots" title="View crystal snapshots for the current data collection">'+
@@ -111,8 +115,6 @@ $(function() {
                              '<div class="diffraction" title="Click to view diffraction images">'+
                                 '<a href="/dc/view/id/'+r['ID']+'"><img dsrc="" alt="Diffraction Image 1" /></a>' +
                              '</div>') : '<div class="r">Data Collection Stopped</div>')+
-                             '<h1><button class="small flag '+f+'" title="Click to add this data collection to the list of flagged data collections"></button> <span class="date">'+r['ST']+'</span> - <a href="/dc/visit/'+visit+'/id/'+r['ID']+'">Permalink</a></h1>'+
-                             '<h2>'+r['DIR']+r['FILETEMPLATE']+'</h2>'+
 
                              '<ul class="clearfix">'+
                                  //(r['SAN'] != null ? ('<li class="sample">Sample: ' + r['SAN'] + ' (m' + r['SCON'] + 'p' + r['SPOS']+')') : '')+
@@ -139,7 +141,6 @@ $(function() {
                              '</div>'+
                              '</div>').data('apr', r['AP']).data('nimg', r['NUMIMG']).hide().data('first', true).prependTo('.data_collections').slideDown()
                        
-                            //plot($('.data_collection[dcid="'+r['ID']+'"] .distl'), r['ID'])
                             $('.data_collection[dcid="'+r['ID']+'"] .distl').data('plotted', false)
                        
                             if (!first)
@@ -152,7 +153,7 @@ $(function() {
                            ev = 12398.4193
                            d = $('<div class="data_collection" dcid="'+r['ID']+'" type="edge">' +
                              '<div class="edge"></div>'+
-                             '<h1><button class="small flag '+f+'"></button> '+r['ST']+' - <a href="/dc/visit/'+visit+'/t/edge/id/'+r['ID']+'">Permalink</a></h1>'+
+                             '<h1><!--<button class="atp small" ty="edge" iid="'+r['ID']+'" name="'+r['DIR']+' Edge Scan"></button>--> <button class="small flag '+f+'"></button> '+r['ST']+' - <a href="/dc/visit/'+visit+'/t/edge/id/'+r['ID']+'">Permalink</a></h1>'+
                              '<h2>'+r['DIR']+' Edge Scan</h2>'+
 
                              '<ul class="clearfix">'+
@@ -164,7 +165,6 @@ $(function() {
                                  '<li>Transmission: '+r['TRANSMISSION']+'%</li>'+
                                  '<li>Comment: <span class="comment_edit">'+(r['COMMENTS'] ? r['COMMENTS'] : '')+'</span></li>'+
                              '</ul>'+
-                             '<!--<img src="/image/id/'+r['ID']+'" alt="" />-->'+
                              '</div>').data('apr', r['AP']).hide().prependTo('.data_collections').slideDown()
                        
                            plot_edge($('.data_collection[dcid="'+r['ID']+'"] .edge'), r['ID'])
@@ -186,8 +186,8 @@ $(function() {
                            d = $('<div class="data_collection" dcid="'+r['ID']+'" type="mca">' +
                              '<div class="mca"></div>'+
                              '<div class="elements">'+el+'</div>'+
-                             '<h1><button class="small flag '+f+'"></button> '+r['ST']+' - <a href="/dc/visit/'+visit+'/t/mca/id/'+r['ID']+'">Permalink</a></h1>'+
-                             '<h2>MCA Fluorescence Scan</h2>'+
+                             '<h1><!--<button class="atp small" ty="mca" iid="'+r['ID']+'" name="Fluorescence Spectrum"></button>--> <button class="small flag '+f+'"></button> '+r['ST']+' - <a href="/dc/visit/'+visit+'/t/mca/id/'+r['ID']+'">Permalink</a></h1>'+
+                             '<h2>MCA Fluorescence Spectrum</h2>'+
 
                              '<ul class="clearfix">'+
                                  '<li>Energy: '+r['WAVELENGTH']+'eV</li>'+
@@ -597,7 +597,7 @@ $(function() {
   
   
       // Make flagable data collections iconified
-      $('.data_collection .flag').button({ icons: { primary: 'ui-icon-flag' } }).click(function() {
+      $('.data_collection .flag').button({ icons: { primary: 'ui-icon-flag' }, text: false  }).click(function() {
           var id = $(this).parent().parent('div').attr('dcid')
           var t = $(this).parent().parent('div').attr('type')
           var i = $(this)
@@ -611,6 +611,8 @@ $(function() {
                  }
           })
       })
+  
+      $('.data_collection .perm').button({ icons: { primary: 'ui-icon-link' }, text: false })
   
     
       $('.data_collection .comment_edit').each(function(i,e) {
