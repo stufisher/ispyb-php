@@ -66,7 +66,7 @@
             
             $data = array();
             foreach ($rows as $r) {
-                array_push($data, array($r['ST'], $r['PROPOSALCODE'], $r['PROPOSALNUMBER'], $r['VCOUNT'], $r['TITLE'], '<button title="Activate Proposal" class="activate">View Proposal</button>'));
+                array_push($data, array($r['ST'], $r['PROPOSALCODE'], $r['PROPOSALNUMBER'], $r['VCOUNT'], $r['TITLE'], '<button title="View Proposal" class="activate">View Proposal</button>'));
             }
             
             $this->_output(array('iTotalRecords' => $tot,
