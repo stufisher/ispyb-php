@@ -4,18 +4,16 @@
     <p class="help">This page is a full scale diffraction image viewer. Mousehweel zooms in and out, drag click to pan around the image. Press &gt; to go to the next image and &lt; the previous.</p>
 
     <div class="data_collection">
-        <ul class="full_width">
+        <ul class="full_width clearfix">
             <li>Exposure: <?php echo number_format($d['EXPOSURETIME'],3) ?>s</li>
             <li>Transmission: <?php echo number_format($d['TRANSMISSION'],3) ?>%</li>
             <li>Resolution: <?php echo number_format($d['RES'],2) ?>&#197;</li>
             <li>Wavelength: <?php echo number_format($d['LAM'],2) ?>&#197;</li>
             <li>Oscillation: <?php echo number_format($d['AXISRANGE'],2) ?>&deg;</li>
         </ul>
-
-        <div class="clear"></div>
     </div>
 
-    <div class="image_controls border">
+    <div class="image_controls border clearfix">
 
         <div class="im_col">
             <abbr title="Hotkey: B increases, b decreases">B</abbr>rightness: <span id="bval">0</span> <div id="brightness"></div>
@@ -40,9 +38,6 @@
             <input type="text" name="num" value="1" title="Load the image with this number" />/<?php echo $d['NUM'] ?>
             <button name="next" title="Load next image">&gt;</button>
         </div>
-
-        <div class="clear"></div>
-
     </div>
 
     <div class="image_container border">
