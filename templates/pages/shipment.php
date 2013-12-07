@@ -33,7 +33,12 @@
                         <td><?php echo $r['SHIPPINGSTATUS'] ?></td>
                         <td><?php echo $r['DCOUNT'] ?></td>
                         <td><?php echo $r['COMMENTS'] ?></td>
-                        <td><a class="view small" href="/shipment/sid/<?php echo $r['SHIPPINGID'] ?>" title="View Shipment"></a> <a class="label small" href="/pdf/sid/<?php echo $r['SHIPPINGID'] ?>" title="Print Shipment Labels"></a></td>
+                        <td>
+                            <a class="view small" href="/shipment/sid/<?php echo $r['SHIPPINGID'] ?>" title="View Shipment"></a>
+                            <?php if ($r['LCOUT'] && $r['LCRET']): ?>
+                            <a class="label small" href="/pdf/sid/<?php echo $r['SHIPPINGID'] ?>" title="Print Shipment Labels"></a>
+                            <?php endif; ?>
+                        </td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>
