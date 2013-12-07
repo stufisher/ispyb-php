@@ -81,7 +81,7 @@ $(function() {
   }  
   
   // Cache counter
-  var ci = 2
+  var ci = 1
   
   // Load image from remote source
   function load(n) {
@@ -96,10 +96,11 @@ $(function() {
         _plot_profiles(20,10)
   
         // Precache next image
-        if (n < ni) cache.src = '/image/di/id/'+id+'/n/'+(n+1)
+        //if (n < ni) cache.src = '/image/di/id/'+id+'/n/'+(n+1)
   
         // Set cache point
-        ci = n+2
+        ci = n+1
+        precache()
     }
   }
   
@@ -125,7 +126,7 @@ $(function() {
     })
   }
   
-  precache()
+  //precache()
   
   
   // Polyfill for devices without bind
