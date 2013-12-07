@@ -81,7 +81,7 @@ a:hover {
     border-right: 1px solid #E2E2E2;
     font-weight: bold;
     font-size: 11px;
-    width: 16%;
+    width: 14%;
     position: relative;
     
     -webkit-transition: all 300ms ease-in-out;
@@ -116,11 +116,13 @@ a:hover {
     border-bottom: 0;
 }
 
+#sidebar ul li.feedback,
 #sidebar ul li.help {
     float: right;
     border-right: 0;
     border-left: 1px solid #e2e2e2;
 }
+
 
 #sidebar ul li.help.active {
     background: #f9f9f9 !important;
@@ -516,8 +518,6 @@ html[xmlns] .dataTables_wrapper { display: block; }
 
 .plot_container button[name=reset] {
     float: right;
-    width: 26px;
-    height: 26px;
 }
 
 .legend table tr {
@@ -685,8 +685,8 @@ div.form .ferror {
 
 
 .editable {
-    padding: 1%;
-    border-radius: 5px;
+    padding: 0.7% 1%;
+    border-radius: 4px;
 }
 
 .editable span.ui-icon {
@@ -839,7 +839,7 @@ h1.center {
 }
 
 .data_collection .holder {
-    clear:both;
+    /*clear:both;*/
 }
 
 .data_collection .holder > span {
@@ -893,11 +893,13 @@ h1.center {
 }
 
 .data_collection .snapshots {
-    width: 20%;
+    /*width: 20%;*/
+    width: 23%;
 }
 
 .data_collection .diffraction {
-    width: 15%;
+    /*width: 15%;*/
+    width: 18%;
 }
 
 .data_collection .diffraction img,
@@ -909,7 +911,8 @@ h1.center {
 }
 
 .data_collection .distl {
-    width: 20%;
+    /*width: 20%;*/
+    width: 23%;
     float: right;
     margin: 0.25%;
     padding: 1%;
@@ -1023,7 +1026,8 @@ h1.center {
 
 .data_collection > ul {
     /*width: 425px;*/
-    width: 49%;
+    /*width: 49%;*/
+    width: 39%;
     list-style: none;
 }
 
@@ -1394,15 +1398,6 @@ div.status.oavs {
     font-size: 10px;
 }
 
-.samples table td button.clone {
-    width: 17px;
-    height: 16px;
-}
-
-.samples table td button.clone span {
-    margin-left: -4px;
-}
-
 .samples table thead th {
     font-size: 10px;
     font-weight: bold;
@@ -1475,7 +1470,7 @@ div.status.oavs {
 
 .comment_edit input,
 .name_edit input {
-    width: 100% !important;
+    width: 60% !important;
     height: 15px !important;
 }
 
@@ -1605,29 +1600,6 @@ button.editor {
 
 .tw {
     overflow-x: auto;
-}
-
-a.small,
-button.small,
-button.logv,
-button.mtz,
-button.save,
-button.cancel,
-button.edit,
-button.delete {
-    width: 20px;
-    height: 20px;
-}
-
-a.small span,
-button.small span,
-button.logv span,
-button.mtz span,
-button.save span,
-button.cancel span,
-button.edit span,
-button.delete span {
-    margin-left: -4px;
 }
 
 table.components tr:hover,
@@ -1974,6 +1946,10 @@ span.snapshots.sample img {
     height: 200px;
 }
 
+
+.project p {
+    margin-bottom: 10px;
+}
 
 /* Responsive Styling
  ---------------------------------------------------------*/

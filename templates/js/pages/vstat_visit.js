@@ -68,7 +68,7 @@ $(function() {
   
   
   var overview = $.plot('#overview', visit_info, options);
-  $('.plot_container button[name=reset]').button({ icons: { primary: 'ui-icon-refresh' } }).click(function() { main.setSelection({xaxis: { from: start, to: end } }); overview.clearSelection(); })
+  $('.plot_container button[name=reset]').button({ icons: { primary: 'ui-icon-refresh' }, text: false }).click(function() { main.setSelection({xaxis: { from: start, to: end } }); overview.clearSelection(); })
   
   $('#overview').bind("plotselected", function (event, ranges) {
     main.setSelection(ranges);

@@ -1,16 +1,16 @@
 $(function() {
   
   function _map_callbacks() {
-      $('button.delete').button({ icons: { primary: 'ui-icon-closethick' } }).unbind('click').click(function() {
+      $('button.delete').button({ icons: { primary: 'ui-icon-closethick' }, text: false }).unbind('click').click(function() {
                                                                                                         
       })
 
 
-      $('button.view').button({ icons: { primary: 'ui-icon-search' } }).unbind('click').click(function() {
+      $('button.view').button({ icons: { primary: 'ui-icon-search' }, text: false }).unbind('click').click(function() {
         window.location.href = '/sample/sid/'+$(this).parent('td').parent('tr').attr('sid')
       })
   
-      $('button.edit').button({ icons: { primary: 'ui-icon-pencil' } }).unbind('click').click(function() {
+      $('button.edit').button({ icons: { primary: 'ui-icon-pencil' }, text: false }).unbind('click').click(function() {
         var r = $(this).parent('td').parent('tr')
         var sid = r.attr('sid')
         var p = r.children('td').eq(1).attr('pid')
@@ -28,9 +28,9 @@ $(function() {
                                                                                               
         r.children('td').eq(4).html('<input type="text" name="c" value="'+r.children('td').eq(4).html()+'" />')
 
-        r.children('td').eq(6).html('<button class="save"></button>')
+        r.children('td').eq(6).html('<button class="save">Save Changes</button>')
                                                                                               
-        $('button.save', r).button({ icons: { primary: 'ui-icon-check' } }).click(function() {
+        $('button.save', r).button({ icons: { primary: 'ui-icon-check' }, text: false }).click(function() {
             var r = $(this).parent('td').parent('tr')
             $.ajax({
                 url: '/shipment/ajax/updates/cid/'+cid,
@@ -97,7 +97,7 @@ $(function() {
             '<td>'+(s['SPACEGROUP']?s['SPACEGROUP']:'')+'</td>'+
             '<td>'+(s['COMMENTS']?s['COMMENTS']:'')+'</td>'+
             '<td>'+(s['BLSAMPLEID'] ? (s['DCOUNT'] > 0 ? 'Yes' : 'No') : '')+'</td>'+
-            '<td><button class="edit" title="Edit sample details"></button> '+(s['BLSAMPLEID'] ? '<button class="delete"></button> &nbsp; <button class="view small" title="View sample details"></button>' : '')+'</td>'+
+            '<td><button class="edit" title="Edit sample details">Edit Sample</button> '+(s['BLSAMPLEID'] ? '<button class="delete">Delete Sample</button> &nbsp; <button class="view" title="View sample details">View Sample</button>' : '')+'</td>'+
             '</tr>').appendTo($('.samples tbody'))
         })
         _map_callbacks()

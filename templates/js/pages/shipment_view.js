@@ -26,12 +26,12 @@ $(function() {
               '<td><input name="trackto" /></td>'+
               '<td><input name="trackfrom" /></td>'+
               '<td colspan="3">&nbsp;</td>'+
-              '<td><button class="save"></button> <button class="cancel"></button></td>'+
+              '<td><button class="save">Save Dewar</button> <button class="cancel">Cancel</button></td>'+
               '</tr>').appendTo('table.dewars tbody')
                          
                                     
             // Add a new dewar
-            $('button.save').button({ icons: { primary: 'ui-icon-check' } }).click(function() {
+            $('button.save').button({ icons: { primary: 'ui-icon-check' }, text: false }).click(function() {
                 if (!/^(\w|\-)+$/.test($('.new input[name=code]').val())) {
                    $('.new input[name=code]').addClass('ferror')
                    return
@@ -54,7 +54,7 @@ $(function() {
             })
                                                                                     
             // Cancel adding a dewar
-            $('button.cancel').button({ icons: { primary: 'ui-icon-closethick' } }).unbind('click').click(function() {
+            $('button.cancel').button({ icons: { primary: 'ui-icon-closethick' }, text: false }).unbind('click').click(function() {
                 $(this).parent('td').parent('tr').remove()
             })
         }
@@ -87,7 +87,7 @@ $(function() {
                     '<td>'+d['DEWARSTATUS']+'</td>'+
                     '<td>'+(d['STORAGELOCATION'] ? d['STORAGELOCATION'] : '')+'</td>'+
                     '<td>'+d['CCOUNT']+'</td>'+
-                    '<td><a class="small add" title="Click to add a container" href="/shipment/addc/did/'+d['DEWARID']+'"></a></td>'+
+                    '<td><a class="add" title="Click to add a container" href="/shipment/addc/did/'+d['DEWARID']+'">Add Container</a></td>'+
                 '</tr>'
           })
            
@@ -95,11 +95,7 @@ $(function() {
            
           $('table.dewars tbody').html(d_out)
           
-          $('a.add').button({ icons: { primary: 'ui-icon-plus' } })
-           
-          $('button.add').button({ icons: { primary: 'ui-icon-plus' } }).unbind('click').click(function() {
-            window.location.href='/shipment/addc/did/'+$(this).parent('td').parent('tr').attr('did')
-          })
+          $('a.add').button({ icons: { primary: 'ui-icon-plus' }, text: false })
            
           $('.dewars tbody tr').unbind('click').click(function() {
             _load_dewar($(this).attr('did'))
@@ -127,7 +123,7 @@ $(function() {
         success: function(json){
           var c_out = ''
           $.each(json, function(i,c) {
-            c_out += '<li cid="'+c['CONTAINERID']+'">'+c['CODE']+' ('+c['SCOUNT']+' samples) <span class="r"><a class="small view" title="Click to View Container" href="/shipment/cid/'+c['CONTAINERID']+'"></a> <button class="small delete"></button></span></li>'
+            c_out += '<li cid="'+c['CONTAINERID']+'">'+c['CODE']+' ('+c['SCOUNT']+' samples) <span class="r"><a class="view" title="Click to View Container" href="/shipment/cid/'+c['CONTAINERID']+'">View Container</a> <button class="delete">Delete Container</button></span></li>'
                  
           })
            
@@ -237,10 +233,9 @@ $(function() {
   
   
   function _map_callbacks() {
-      $('a.view').button({ icons: { primary: 'ui-icon-search' } })
-      $('a.delete').button({ icons: { primary: 'ui-icon-closethick' } })
+      $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false })
        
-      $('button.delete').button({ icons: { primary: 'ui-icon-closethick' } }).unbind('click').click(function() {
+      $('button.delete').button({ icons: { primary: 'ui-icon-closethick' }, text: false }).unbind('click').click(function() {
       })
   
   

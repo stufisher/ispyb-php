@@ -153,7 +153,7 @@ $(function() {
                            ev = 12398.4193
                            d = $('<div class="data_collection" dcid="'+r['ID']+'" type="edge">' +
                              '<div class="edge"></div>'+
-                             '<h1><!--<button class="atp small" ty="edge" iid="'+r['ID']+'" name="'+r['DIR']+' Edge Scan"></button>--> <button class="small flag '+f+'"></button> '+r['ST']+' - <a href="/dc/visit/'+visit+'/t/edge/id/'+r['ID']+'">Permalink</a></h1>'+
+                             '<h1><!--<button class="atp" ty="edge" iid="'+r['ID']+'" name="'+r['DIR']+' Edge Scan"></button>--> <button class="flag '+f+'"></button> '+r['ST']+' - <a href="/dc/visit/'+visit+'/t/edge/id/'+r['ID']+'">Permalink</a></h1>'+
                              '<h2>'+r['DIR']+' Edge Scan</h2>'+
 
                              '<ul class="clearfix">'+
@@ -186,7 +186,7 @@ $(function() {
                            d = $('<div class="data_collection" dcid="'+r['ID']+'" type="mca">' +
                              '<div class="mca"></div>'+
                              '<div class="elements">'+el+'</div>'+
-                             '<h1><!--<button class="atp small" ty="mca" iid="'+r['ID']+'" name="Fluorescence Spectrum"></button>--> <button class="small flag '+f+'"></button> '+r['ST']+' - <a href="/dc/visit/'+visit+'/t/mca/id/'+r['ID']+'">Permalink</a></h1>'+
+                             '<h1><!--<button class="atp" ty="mca" iid="'+r['ID']+'" name="Fluorescence Spectrum"></button>--> <button class="flag '+f+'"></button> '+r['ST']+' - <a href="/dc/visit/'+visit+'/t/mca/id/'+r['ID']+'">Permalink</a></h1>'+
                              '<h2>MCA Fluorescence Spectrum</h2>'+
 
                              '<ul class="clearfix">'+

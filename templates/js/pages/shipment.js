@@ -12,6 +12,6 @@ $(function() {
   $('.robot_actions').dataTable(dt)
   
   $('a.add').button({ icons: { primary: 'ui-icon-plus' } })
-  $('a.view').button({ icons: { primary: 'ui-icon-search' } })
-  $('a.label').button({ icons: { primary: 'ui-icon-print' } })
+  $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false })
+  $('a.label').button({ icons: { primary: 'ui-icon-print' }, text: false })
 })

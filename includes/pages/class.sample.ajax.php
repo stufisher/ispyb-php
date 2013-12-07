@@ -124,7 +124,7 @@
                 
                 $dcount = array_key_exists($r['BLSAMPLEID'], $dcs) ? $dcs[$r['BLSAMPLEID']]['DCOUNT'] : 0;
                 
-                array_push($data, array($r['BLSAMPLEID'], $r['NAME'], '<a href="/sample/proteins/pid/'.$r['PROTEINID'].'">'.$r['ACRONYM'].'</a>', $r['SPACEGROUP'], $r['COMMENTS'], '<a href="/shipment/sid/'.$r['SHIPPINGID'].'">'.$r['SHIPMENT'].'</a>', $r['DEWAR'], '<a href="/shipment/cid/'.$r['CONTAINERID'].'">'.$r['CONTAINER'].'</a>', $snap, $dcount, '<a class="small view" title="View Sample" href="/sample/sid/'.$r['BLSAMPLEID'].'"></a> <button class="atp small" ty="sample" iid="'.$r['BLSAMPLEID'].'" name="'.$r['NAME'].'"></button>'));
+                array_push($data, array($r['BLSAMPLEID'], $r['NAME'], '<a href="/sample/proteins/pid/'.$r['PROTEINID'].'">'.$r['ACRONYM'].'</a>', $r['SPACEGROUP'], $r['COMMENTS'], '<a href="/shipment/sid/'.$r['SHIPPINGID'].'">'.$r['SHIPMENT'].'</a>', $r['DEWAR'], '<a href="/shipment/cid/'.$r['CONTAINERID'].'">'.$r['CONTAINER'].'</a>', $snap, $dcount, '<a class="view" title="View Sample" href="/sample/sid/'.$r['BLSAMPLEID'].'">View Sample</a> <button class="atp" ty="sample" iid="'.$r['BLSAMPLEID'].'" name="'.$r['NAME'].'">Add to Project</button>'));
             }
             
             $this->_output(array('iTotalRecords' => $tot,
@@ -217,7 +217,7 @@
             foreach ($rows as $r) {
                 $dcount = array_key_exists($r['PROTEINID'], $dcs) ? $dcs[$r['PROTEINID']] : 0;
                 $scount = array_key_exists($r['PROTEINID'], $scs) ? $scs[$r['PROTEINID']] : 0;
-                array_push($data, array($r['NAME'], $r['ACRONYM'], $r['MOLECULARMASS'], $r['SEQUENCE'] ? 'Yes' : 'No', $scount, $dcount, '<a class="small view" title="View Protein Details" href="/sample/proteins/pid/'.$r['PROTEINID'].'"></a> <button class="atp small" ty="protein" iid="'.$r['PROTEINID'].'" name="'.$r['NAME'].'"></button>'));
+                array_push($data, array($r['NAME'], $r['ACRONYM'], $r['MOLECULARMASS'], $r['SEQUENCE'] ? 'Yes' : 'No', $scount, $dcount, '<a class="view" title="View Protein Details" href="/sample/proteins/pid/'.$r['PROTEINID'].'">View Protein</a> <button class="atp" ty="protein" iid="'.$r['PROTEINID'].'" name="'.$r['NAME'].'">Add to Project</button>'));
             }
             
             $this->_output(array('iTotalRecords' => $tot,

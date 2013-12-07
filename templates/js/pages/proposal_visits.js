@@ -29,11 +29,11 @@ $(function() {
   
   
   function _map_callbacks() {
-    $('a.view').button({ icons: { primary: 'ui-icon-search' } })
-    $('a.stats').button({ icons: { primary: 'ui-icon-image' } })
-    $('a.report').button({ icons: { primary: 'ui-icon-document' } })
-    $('a.export').button({ icons: { primary: 'ui-icon-extlink' } })
-    $('a.process').button({ icons: { primary: 'ui-icon-gear' } })
+    $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false })
+    $('a.stats').button({ icons: { primary: 'ui-icon-image' }, text: false })
+    $('a.report').button({ icons: { primary: 'ui-icon-document' }, text: false })
+    $('a.export').button({ icons: { primary: 'ui-icon-extlink' }, text: false })
+    $('a.process').button({ icons: { primary: 'ui-icon-gear' }, text: false })
   }
   
   

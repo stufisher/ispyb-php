@@ -55,7 +55,7 @@
                 if ($r['CITY']) array_push($addr, $r['CITY']."\n");
                 if ($r['COUNTRY']) array_push($addr, $r['COUNTRY']."\n");
                 
-                array_push($data, array($r['CARDNAME'], $r['GIVENNAME'].' '.$r['FAMILYNAME'], str_replace("\n", '<br/>',  implode(', ', $addr)), $r['PHONENUMBER'], $r['LABNAME'], '<a class="small view" title="View Lab Contact" href="/contact/cid/'.$r['LABCONTACTID'].'"></a>'));
+                array_push($data, array($r['CARDNAME'], $r['GIVENNAME'].' '.$r['FAMILYNAME'], str_replace("\n", '<br/>',  implode(', ', $addr)), $r['PHONENUMBER'], $r['LABNAME'], '<a class="view" title="View Lab Contact" href="/contact/cid/'.$r['LABCONTACTID'].'">View</a>'));
             }
             
             $this->_output(array('iTotalRecords' => $tot,

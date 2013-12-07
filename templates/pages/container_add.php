@@ -51,7 +51,7 @@
                     <td><input class="sname" type="text" name="n[]" /></td>
                     <td><select name="sg[]"><?php echo $sgs ?></select>
                     <td><input class="comment" type="text" name="c[]" /></td>
-                    <td><button class="small clone" title="Clone this sample"></button> <button class="delete" title="Remove this sample"></button>
+                    <td><button class="clone" title="Clone this sample">Clone Sample</button> <button class="delete" title="Remove this sample">Delete Sample</button>
                 </tr>
                 <?php endfor; ?>
             </tbody>

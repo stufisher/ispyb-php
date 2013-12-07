@@ -3,7 +3,7 @@
         <p class="help">This page shows statistics for the selected visit. The plots below show each action and when they happened. Drag to zoom in on the plot. Click the refresh icon to reset the zoom level</p>
 
         <div class="plot_container border">
-            <button name="reset" title="Reset the zoom level back to the full visit"></button>
+            <button name="reset" title="Reset the zoom level back to the full visit">Reset</button>
             <div id="overview"></div>
         </div>
 

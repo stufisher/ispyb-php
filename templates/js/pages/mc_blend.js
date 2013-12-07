@@ -201,7 +201,7 @@ $(function() {
                             '<td>-</td>'+
                             '<td>-</td>'+
                             '<td>-</td>'))+
-                         '<td><a class="small logv" title="View scaling statistics for the selected blend run"></a> <a class="mtz small" href="/download/bl/visit/'+visit+'/run/'+r['ID']+'" title="Download ther merged mtz file"></a> <a class="mtz small" href="/download/bl/visit/'+visit+'/run/'+r['ID']+'/s/1" title="Download the scaled mtz file"></a> &nbsp; '+(owner ? '<a class="small delete" title="Delete this blend run"></a>':'')+'</td>'+
+                         '<td><a class="logv" title="View scaling statistics for the selected blend run">View Log</a> <a class="mtz" href="/download/bl/visit/'+visit+'/run/'+r['ID']+'" title="Download ther merged mtz file">Download Merged MTZ</a> <a class="mtz " href="/download/bl/visit/'+visit+'/run/'+r['ID']+'/s/1" title="Download the scaled mtz file">Download Scaled MTZ</a> &nbsp; '+(owner ? '<a class="delete" title="Delete this blend run">Delete</a>':'')+'</td>'+
                          '</tr>').data('ids', r['IDS']).hide().prependTo($('.blended_table tbody')).fadeIn()
                   }
                        
@@ -224,7 +224,7 @@ $(function() {
                     count()
                 })
              
-                $('a.logv').button({ icons: { primary: 'ui-icon-search' } }).unbind('click').click(function() {
+                $('a.logv').button({ icons: { primary: 'ui-icon-search' }, text: false }).unbind('click').click(function() {
                     $('#stats table tbody').html('')
                     var run = $(this).parent('td').parent('tr').attr('run')
                     if (run in blended) {
@@ -246,9 +246,9 @@ $(function() {
                     return false;
                 })
              
-                $('a.mtz').button({ icons: { primary: 'ui-icon-arrowthick-1-s' } })
+                $('a.mtz').button({ icons: { primary: 'ui-icon-arrowthick-1-s' }, text: false })
              
-                $('a.delete').button({ icons: { primary: 'ui-icon-closethick' } }).unbind('click').click(function() {
+                $('a.delete').button({ icons: { primary: 'ui-icon-closethick' }, text: false }).unbind('click').click(function() {
                         var run = $(this).parent('td').parent('tr').attr('run')
                         $.ajax({
                             url: '/mc/ajax/delete/visit/'+visit+'/run/'+run,

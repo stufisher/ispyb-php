@@ -22,7 +22,7 @@ $(function() {
   $('.robot_actions').dataTable(dt)
   
   function _map_callbacks() {
-    $('a.view').button({ icons: { primary: 'ui-icon-search' } })
+    $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false })
   }
   
   $('a.add').button({ icons: { primary: 'ui-icon-plus' } })

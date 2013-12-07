@@ -23,7 +23,7 @@ $(function() {
   
   
   function _map_callbacks() {
-      $('button.activate').button({ icons: { primary: 'ui-icon-check' } }).unbind('click').click(function() {
+      $('button.activate').button({ icons: { primary: 'ui-icon-check' }, text: false }).unbind('click').click(function() {
         var r = $(this).parent('td').parent('tr')
         $.ajax({
             url: '/proposal/ajax/set/prop/'+r.children('td').eq(1).html()+r.children('td').eq(2).html(),

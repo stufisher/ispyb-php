@@ -9,12 +9,12 @@ $(function() {
     _validate_container()
   })
   
-  $('table.samples tr td button.clone').button({ icons: { primary: 'ui-icon-circle-plus' } }).click(function(e) {
+  $('table.samples tr td button.clone').button({ icons: { primary: 'ui-icon-circle-plus' }, text: false }).click(function(e) {
     e.preventDefault();
     _clone($(this))
   })
 
-  $('table.samples tr td button.delete').button({ icons: { primary: 'ui-icon-close' } }).click(function(e) {
+  $('table.samples tr td button.delete').button({ icons: { primary: 'ui-icon-close' }, text: false }).click(function(e) {
     e.preventDefault();
   })
   
