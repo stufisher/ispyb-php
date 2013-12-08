@@ -19,12 +19,12 @@ $(function() {
             '<td><input type="text" name="system" /></td>'+
             '<td><input type="text" name="systemdesc" /></td>'+
             '<td class="la">'+_beamline_select('system')+'</td>'+
-            '<td><button class="save"></button></td>'+
-            '<td><button class="cancel"></button></td>'+
+            '<td><button class="save">Save</button></td>'+
+            '<td><button class="cancel">Cancel</button></td>'+
         '</tr>')
             
         // Add a system
-        $('table.systems button.save').button({ icons: { primary: 'ui-icon-check' } }).click(function() {
+        $('table.systems button.save').button({ icons: { primary: 'ui-icon-check' }, text: false }).click(function() {
           var row = $(this).parent('td').parent('tr')
           $.ajax({
             url: '/fault/ajax/sysadd',
@@ -55,12 +55,12 @@ $(function() {
             '<td><input type="text" name="component" /></td>'+
             '<td><input type="text" name="componentdesc" /></td>'+
             '<td class="la">'+_beamline_select('component', systembls)+'</td>'+
-            '<td><button class="save"></button></td>'+
-            '<td><button class="cancel"></button></td>'+
+            '<td><button class="save">Save</button></td>'+
+            '<td><button class="cancel">Cancel</button></td>'+
         '</tr>')
             
         // Add a component
-        $('table.components button.save').button({ icons: { primary: 'ui-icon-check' } }).click(function() {
+        $('table.components button.save').button({ icons: { primary: 'ui-icon-check' }, text: false }).click(function() {
           var row = $(this).parent('td').parent('tr')
           $.ajax({
             url: '/fault/ajax/comadd',
@@ -91,12 +91,12 @@ $(function() {
             '<td><input type="text" name="subcomponent" /></td>'+
             '<td><input type="text" name="subcomponentdesc" /></td>'+
             '<td class="la">'+_beamline_select('subcomponent', componentbls)+'</td>'+
-            '<td><button class="save"></button></td>'+
-            '<td><button class="cancel"></button></td>'+
+            '<td><button class="save">Save</button></td>'+
+            '<td><button class="cancel">Cancel</button></td>'+
         '</tr>')
             
         // Add a subcomponent
-        $('table.subcomponents button.save').button({ icons: { primary: 'ui-icon-check' } }).click(function() {
+        $('table.subcomponents button.save').button({ icons: { primary: 'ui-icon-check' }, text: false }).click(function() {
           var row = $(this).parent('td').parent('tr')
           $.ajax({
             url: '/fault/ajax/scomadd',
@@ -180,7 +180,7 @@ $(function() {
          success: function(systems){
             $('table.systems tbody').empty()
             $.each(systems, function(i,s) {
-                $('table.systems tbody').append('<tr><td>'+s['SYSTEMID']+'</td><td class="la">'+s['NAME']+'</td><td class="la">'+s['DESCRIPTION']+'</td><td class="la">'+s['BEAMLINES']+'</td><td><button class="edit"></button></td><td><button class="delete"></button></td></tr>')
+                $('table.systems tbody').append('<tr><td>'+s['SYSTEMID']+'</td><td class="la">'+s['NAME']+'</td><td class="la">'+s['DESCRIPTION']+'</td><td class="la">'+s['BEAMLINES']+'</td><td><button class="edit">Edit</button></td><td><button class="delete">Delete</button></td></tr>')
             })
             map_callbacks()
          }
@@ -198,7 +198,7 @@ $(function() {
             $('table.components tbody').empty()
             $('table.subcomponents tbody').empty().append('<tr><td colspan="5">Select a component to view subcomponents</td></tr>')
             $.each(components, function(i,c) {
-                $('table.components tbody').append('<tr><td>'+c['COMPONENTID']+'</td><td class="la">'+c['NAME']+'</td><td class="la">'+c['DESCRIPTION']+'</td><td class="la">'+c['BEAMLINES']+'</td><td><button class="edit"></button></td><td><button class="delete"></button></td></tr>')
+                $('table.components tbody').append('<tr><td>'+c['COMPONENTID']+'</td><td class="la">'+c['NAME']+'</td><td class="la">'+c['DESCRIPTION']+'</td><td class="la">'+c['BEAMLINES']+'</td><td><button class="edit">Edit</button></td><td><button class="delete">Delete</button></td></tr>')
             })
            
             if (!components.length) $('table.components tbody').append('<tr><td colspan="5">No components available for that system</td></tr>')
@@ -219,7 +219,7 @@ $(function() {
          success: function(subcomponents){
             $('table.subcomponents tbody').empty()
             $.each(subcomponents, function(i,c) {
-                $('table.subcomponents tbody').append('<tr><td>'+c['SUBCOMPONENTID']+'</td><td class="la">'+c['NAME']+'</td><td class="la">'+c['DESCRIPTION']+'</td><td class="la">'+c['BEAMLINES']+'</td><td><button class="edit"></button></td><td><button class="delete"></button></td></tr>')
+                $('table.subcomponents tbody').append('<tr><td>'+c['SUBCOMPONENTID']+'</td><td class="la">'+c['NAME']+'</td><td class="la">'+c['DESCRIPTION']+'</td><td class="la">'+c['BEAMLINES']+'</td><td><button class="edit">Edit</button></td><td><button class="delete">Delete</button></td></tr>')
             })
            
             if (!subcomponents.length) $('table.subcomponents tbody').append('<tr><td colspan="5">No subcomponents available for that component</td></tr>')
@@ -259,12 +259,12 @@ $(function() {
   
   
     // Cancel adding a row
-    $('button.cancel').button({ icons: { primary: 'ui-icon-closethick' } }).unbind('click').click(function() {
+    $('button.cancel').button({ icons: { primary: 'ui-icon-closethick' }, text: false }).unbind('click').click(function() {
         $(this).parent('td').parent('tr').remove()
     })
   
     // Delete an item from a table
-    $('button.delete').button({ icons: { primary: 'ui-icon-closethick' } }).unbind('click').click(function() {
+    $('button.delete').button({ icons: { primary: 'ui-icon-closethick' }, text: false }).unbind('click').click(function() {
         var ty = $(this).parent('td').parent('tr').parent('tbody').parent('table').attr('class').replace('robot_actions ', '')
         var id = $(this).parent('td').siblings('td:first').html()
                                                                                                   
@@ -285,7 +285,7 @@ $(function() {
     })
   
     // Edit an item from a table
-    $('button.edit').button({ icons: { primary: 'ui-icon-pencil' } }).unbind('click').click(function() {
+    $('button.edit').button({ icons: { primary: 'ui-icon-pencil' }, text: false }).unbind('click').click(function() {
         var ty = $(this).parent('td').parent('tr').parent('tbody').parent('table').attr('class').replace('robot_actions ', '')
         var row = $(this).parent('td').parent('tr')
 
@@ -302,9 +302,9 @@ $(function() {
     $(row.children('td')[2]).html('<input type="text" name="'+prefix+'desc" value="'+$(row.children('td')[2]).html()+'" />')
     $(row.children('td').slice(-3,-2)).html(_beamline_select(prefix, $(row.children('td').slice(-3,-2)).html()))
   
-    $(row.children('td').slice(-2,-1)).html('<button class="save"></button>')
+    $(row.children('td').slice(-2,-1)).html('<button class="save">Save</button>')
   
-    $('button.save', row).button({ icons: { primary: 'ui-icon-check' } }).click(function() {
+    $('button.save', row).button({ icons: { primary: 'ui-icon-check' }, text: false }).click(function() {
         var row = $(this).parent('td').parent('tr')
         $.ajax({
             url: '/fault/ajax/ec',
