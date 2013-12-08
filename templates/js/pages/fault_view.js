@@ -46,6 +46,7 @@ $(function() {
   
   if (owner) {
     $('.title').editable('/fault/ajax/update/fid/'+fid+'/ty/title/', {
+        height: '100%',
         type: 'text',
         submit: 'Ok',
         style: 'display: inline',
