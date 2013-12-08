@@ -2,7 +2,7 @@
 
     class Ajax extends AjaxBase {
         
-        var $arg_list = array('id' => '\d+', 'visit' => '\w+\d+-\d+', 'page' => '\d+', 's' => '\w+', 'pp' => '\d+', 't' => '\w+', 'bl' => '\w\d\d(-\d)?', 'value' => '.*', 'sid' => '\d+', 'aid' => '\d+', 'pjid' => '\d+');
+        var $arg_list = array('id' => '\d+', 'visit' => '\w+\d+-\d+', 'page' => '\d+', 's' => '\w+', 'pp' => '\d+', 't' => '\w+', 'bl' => '\w\d\d(-\d)?', 'value' => '.*', 'sid' => '\d+', 'aid' => '\d+', 'pjid' => '\d+', 'imp' => '\d');
         var $dispatch = array('strat' => '_dc_strategies',
                               'ap' => '_dc_auto_processing',
                               'dp' => '_dc_downstream',
@@ -53,6 +53,8 @@
             $vis = array('','','','');
             $visq = '';
             
+            
+            # View a particular sample
             if ($this->has_arg('sid')) {
                 $inner = ' INNER JOIN blsample_has_energyscan be ON be.energyscanid = es.energyscanid';
                 $tables2 = array('dc', 'be', 'r', 'xrf');
@@ -61,18 +63,51 @@
                 $visq = 'ses.visit_number as vn,';
             }
             
+            
+            # View a project
             if ($this->has_arg('pjid')) {
-                # Need a linker for data collections
-                $vis[0] = " INNER JOIN ispyb4a_db.project_has_session prj ON dc.sessionid = prj.sessionid";
-                $vis[1] = " INNER JOIN ispyb4a_db.project_has_energyscan prj ON prj.energyscanid = es.energyscanid";
-                # Need a linker for robot actions too...
-                $vis[2] = " INNER JOIN ispyb4a_db.project_has_session prj ON prj.sessionid = r.blsessionid";
-                $vis[3] = " INNER JOIN ispyb4a_db.project_has_xfefspectrum prj ON prj.xfefluorescencespectrumid = xrf.xfefluorescencespectrumid";
-                foreach ($sess as $i => $t) $sess[$i] = 'prj.projectid=:'.($i+1);
+                //$this->db->set_stats(true);
+                
+                $visq = 'ses.visit_number as vn,bls.name as sample,bls.blsampleid,';
+                $tables = array(array('project_has_session', 'dc', 'sessionid'),
+                                array('project_has_energyscan', 'es', 'energyscanid'),
+                                array('project_has_session', 'r', 'blsessionid', 'sessionid'),
+                                array('project_has_xfefspectrum', 'xrf', 'xfefluorescencespectrumid'),
+                                );
+                
+                foreach ($tables as $i => $t) {
+                    $ct = sizeof($t) == 4 ? $t[3] : $t[2];
+                    $ses = $t[1] == 'r' ? 'blsessionid' : 'sessionid';
+                    
+                    # Fucking inconsistencies!
+                    $smp = $t[1] == 'es' ? " LEFT OUTER JOIN blsample_has_energyscan she ON she.energyscanid = es.energyscanid LEFT OUTER JOIN ispyb4a_db.blsample bls ON bls.blsampleid = she.blsampleid"
+                    : " LEFT OUTER JOIN ispyb4a_db.blsample bls ON bls.blsampleid = $t[1].blsampleid";
+                    
+                    $vis[$i] = "INNER JOIN ispyb4a_db.blsession ses ON ses.sessionid = $t[1].$ses LEFT OUTER JOIN ispyb4a_db.$t[0] prj ON $t[1].$t[2] = prj.$ct $smp";
+                    $sess[$i] = 'prj.projectid=:'.($i+1);
+                    
+                    if ($this->has_arg('imp')) {
+                        if ($this->arg('imp')) {
+                            # Extra linker table needed for energy scans :(
+                            $ij = $t[1] == 'es' ? "LEFT OUTER JOIN ispyb4a_db.blsample_has_energyscan bes ON $t[1].$t[2] = bes.$t[2] LEFT OUTER JOIN ispyb4a_db.blsample smp ON bes.blsampleid = smp.blsampleid"
+                                                : "LEFT OUTER JOIN ispyb4a_db.blsample smp ON $t[1].blsampleid = smp.blsampleid";
+                            
+                            $vis[$i] .= " $ij LEFT OUTER JOIN ispyb4a_db.crystal cr ON cr.crystalid = smp.crystalid LEFT OUTER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid LEFT OUTER JOIN ispyb4a_db.project_has_protein prj2 ON prj2.proteinid = pr.proteinid LEFT OUTER JOIN ispyb4a_db.project_has_blsample prj3 ON prj3.blsampleid = smp.blsampleid";
+                            $sess[$i] = '(prj.projectid=:'.($i*3+1).' OR prj2.projectid=:'.($i*3+2).' OR prj3.projectid=:'.($i*3+3).')';
+                        }
+                    }
+                }
             }
             
+            
+            # Filter by types
             if ($this->has_arg('t')) {
-                if ($this->arg('t') == 'dc') {
+                if ($this->arg('t') == 'dc' || $this->arg('t') == 'sc' || $this->arg('t') == 'fc' || $this->arg('t') == 'gr') {
+                    
+                    if ($this->arg('t') == 'sc') $where .= ' AND dc.overlap != 0';
+                    else if ($this->arg('t') == 'gr') $where .= ' AND dc.axisrange = 0';
+                    else if ($this->arg('t') == 'fc') $where .= ' AND dc.overlap = 0 AND dc.axisrange > 0';
+                    
                     $where2 .= ' AND es.energyscanid < 0';
                     $where3 .= ' AND r.robotactionid < 0';
                     $where4 .= ' AND xrf.xfefluorescencespectrumid < 0';
@@ -107,6 +142,8 @@
                 }
             }
             
+            
+            # Pagination
             $start = 0;
             $end = 10;
             $pp = $this->has_arg('pp') ? $this->arg('pp') : 15;
@@ -117,6 +154,8 @@
                 $end = $pg*$pp+$pp;
             }
             
+            
+            # Check that whatever we are looking for actually exists
             $info = array();
             # Visits
             if ($this->has_arg('visit')) {
@@ -132,11 +171,17 @@
             # Projects
             } else if ($this->has_arg('pjid') && $this->has_arg('prop')) {
                 $info = $this->db->pq('SELECT title FROM ispyb4a_db.project WHERE projectid=:1', array($this->arg('pjid')));
-                for ($i = 0; $i < 4; $i++) array_push($args, $this->arg('pjid'));
+                
+                $n = 4;
+                if ($this->has_arg('imp'))
+                    if ($this->arg('imp')) $n = 12;
+                for ($i = 0; $i < $n; $i++) array_push($args, $this->arg('pjid'));
             }
             
             if (!sizeof($info)) $this->_error('The specified visit, sample, or project doesnt exist');
         
+            
+            # View a single data collection
             if ($this->has_arg('id')) {
                 $st = sizeof($args)+1;
                 $where .= ' AND dc.datacollectionid=:'.$st;
@@ -147,6 +192,7 @@
             }
             
             
+            # Search terms
             if ($this->has_arg('s')) {
                 $st = sizeof($args) + 1;
                 $where .= " AND (lower(dc.filetemplate) LIKE lower('%'||:$st||'%') OR lower(dc.imagedirectory) LIKE lower('%'||:".($st+1)."||'%'))";
@@ -209,20 +255,14 @@
                 $dc['SN'] = 0;
                 $dc['DI'] = 0;
                 
-                if ($this->has_arg('sid')) $dc['VIS'] = $this->arg('prop').'-'.$dc['VN'];
+                if ($this->has_arg('sid') || $this->has_arg('pjid')) $dc['VIS'] = $this->arg('prop').'-'.$dc['VN'];
                 
                 
                 // Data collections
                 if ($dc['TYPE'] == 'data') {
                     $nf = array(1 => array('AXISSTART', 'AXISRANGE'), 2 => array('RESOLUTION', 'TRANSMISSION'), 3 => array('EXPOSURETIME'), 4 => array('WAVELENGTH'));
- 
-                    #$dc['DIR'] = $this->ads($dc['DIR']);
-                    #$dc['DIR'] = substr($dc['DIR'], strpos($dc['DIR'], $this->arg('visit'))+strlen($this->arg('visit'))+1);
-                    
                     $dc['DIR'] = preg_replace('/.*\/\d\d\d\d\/\w\w\d+-\d+\//', '', $dc['DIR']);
                     //$this->profile('dc');
-                    
-                    //$dc['FLUX'] = $dc['FLUX'] ? sprintf('%.2e', $dc['FLUX']) : 'N/A';
                     
                 // Edge Scans
                 } else if ($dc['TYPE'] == 'edge') {
@@ -234,8 +274,7 @@
                 
                 // MCA Scans
                 } else if ($dc['TYPE'] == 'mca') {
-                    #$results = str_replace('.mca', '.results.dat', str_replace($this->arg('visit'), $this->arg('visit').'/processed/pymca', $dc['DIR']));
-                    
+                    # -- Move to ajax
                     $results = str_replace('.mca', '.results.dat', preg_replace('/(data\/\d\d\d\d\/\w\w\d+-\d+)/', '\1/processed/pymca', $dc['DIR']));
                     
                     $elements = array();
