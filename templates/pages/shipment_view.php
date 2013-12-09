@@ -48,7 +48,7 @@
                 <span class="deliverydate"><?php echo $ship['DELIVERYAGENT_DELIVERYDATE'] ?></span>
             </li>
 
-            <li class="clearfix">
+            <li class="clearfix reorder">
                 <div class="comment text"><?php echo $ship['COMMENTS'] ?></div>
                 <span class="label">Comments</span>
             </li>
