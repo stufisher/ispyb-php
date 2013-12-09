@@ -1,0 +1,66 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    background: #f4f4f4;
+	font-family: "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+	font-size: 12px;
+}
+
+div.page {
+    padding: 1%;
+}
+
+div.page p {
+    margin: 0;
+    padding: 1%;
+}
+
+div.page input {
+    width: 97%;
+    padding: 0.5%;
+    margin: 1% 0;
+}
+
+div.page h1 {
+    font-size: 18px;
+    border-bottom: 1px solid black;
+    text-align: left;
+    font-weight: normal;
+    padding: 1% 1% 1% 0;
+    margin-bottom: 2%;
+}
+
+
+div.header {
+    background: #2c2c2c;
+}
+
+div.header h2 {
+    padding: 10px;
+    font-size: 12px;
+    font-weight: normal;
+    text-shadow: 1px 1px #666666;
+    color: #efefef;
+}
+
+div.page div.footer {
+    text-align: center;
+    background: #cdcdcd;
+    margin-top: 2%;
+}
+
+div.page div.footer a {
+    display: block;
+    width: 100%;
+    padding: 3% 1%;
+    text-decoration: none;
+    color: #000000;
+}
+
+div.page button {
+    width: 100%;
+    padding: 3% 1%;
+}

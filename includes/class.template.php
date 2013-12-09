@@ -70,6 +70,15 @@
             $this->header .= '<link href="'. $this->template_url.'mobile/jsKeyboard.css" type="text/css" rel="stylesheet" />' . "\n";
         }
         
+        public function minimal() {
+            $this->mobile = True;
+            $this->sb = false;
+            $this->hf = false;
+
+            $this->header .= '<link href="'. $this->template_url.'mobile/minimal.css" type="text/css" rel="stylesheet" />' . "\n";
+            $this->header .= '    <script type="text/javascript" src="'. $this->template_url.'js/jquery-1.9.1.min.js"></script>' . "\n";
+        }
+        
         public function head($str) {
             $this->header .= $str;
         }
