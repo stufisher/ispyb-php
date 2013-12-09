@@ -120,14 +120,14 @@ $(function() {
     }
   
     if ($(window).width() <= 600) {
-      $($('.robot_actions')[0]).dataTable({
+      $('.robot_actions.robot').dataTable({
         'sPaginationType': 'full_numbers',
         'bScrollCollapse': true,
         'sScrollX': '100%',
         'aaSorting': [[0,'desc']]
       });
     } else {
-      $($('.robot_actions')[0]).dataTable({
+      $('.robot_actions.robot').dataTable({
         'sPaginationType': 'full_numbers',
         'aaSorting': [[0,'desc']]
       });

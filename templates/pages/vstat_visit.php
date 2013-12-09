@@ -51,7 +51,7 @@
         <h1>Robot Errors</h1>
 
         <div class="table">
-            <table class="robot_actions">
+            <table class="robot_actions robot">
                 <thead>
                 <tr>
                     <th>Start</th>
