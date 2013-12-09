@@ -105,7 +105,7 @@ $(function() {
                            $('<div class="data_collection" dcid="'+r['ID']+'" type="data">' +
                              '<h1>'+
                                 '<button class="flag '+f+'" title="Click to add this data collection to the list of flagged data collections">Flag</button>  <a href="/dc/visit/'+visit+'/id/'+r['ID']+'" class="perm">Permalink</a> '+
-                                '<span class="date">'+r['ST']+'</span> - '+r['DIR']+r['FILETEMPLATE']+
+                                '<span class="date">'+r['ST']+'</span> - <span class="temp">'+r['DIR']+r['FILETEMPLATE']+'</span>'+
                              '</h1>'+
                              (state ?
                              ('<div class="distl" title="DISTL plot showing number of spots (yellow and blue points), and estimated resolution (red points) for each image in the data collection"></div>'+
@@ -308,7 +308,7 @@ $(function() {
                          (res[4] == 2 && res[4] != ld[4]) ||
                          (res[5] == 2 && res[5] != ld[5]) )) {
                    setTimeout(function() {
-                      log_message('New auto processing for', '<a href="#'+id+'">' + $('div[dcid="' + id + '"] > h2').text() + '</a>')
+                      log_message('New auto processing for', '<a href="#'+id+'">' + $('div[dcid="' + id + '"] span.temp').text() + '</a>')
                       load_autoproc(div.children('div.autoproc'), id)
                       }, 3000)
                }
@@ -319,7 +319,7 @@ $(function() {
            
                if (!$(md).data('first') && ((res[0] == 2 && res[0] != ld[0]) || (res[1] == 2 && res[1] != ld[1]))) {
                    setTimeout(function() {
-                          log_message('New strategies for', '<a href="#'+id+'">' + $('div[dcid="' + id + '"] > h2').text() + '</a>')
+                          log_message('New strategies for', '<a href="#'+id+'">' + $('div[dcid="' + id + '"] span.temp').text() + '</a>')
                           load_strategy(div.children('div.strategies'), id)
                           }, 3000)
                }
