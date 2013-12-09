@@ -24,7 +24,7 @@ $(function() {
   
   function _map_callbacks() {
     //setTimeout(function() {
-      $('a.view').button({ icons: { primary: 'ui-icon-search' } })
+      $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false })
     //}, 500)
   }
 
