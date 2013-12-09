@@ -19,7 +19,7 @@ $(function() {
         'sScrollX': '100%',
   }, dt)
   
-  $('.robot_actions').dataTable(dt)
+  $('.robot_actions').dataTable(dt).fnSetFilteringDelay()
   
   function _map_callbacks() {
     $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false })
