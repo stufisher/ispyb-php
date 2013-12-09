@@ -23,6 +23,7 @@ $(function() {
   
   
   function _map_callbacks() {
+      /*
       $('button.activate').button({ icons: { primary: 'ui-icon-check' }, text: false }).unbind('click').click(function() {
         var r = $(this).parent('td').parent('tr')
         $.ajax({
@@ -35,7 +36,7 @@ $(function() {
             }
                
         })
-      })
+      })*/
   
       $('table.proposals tr').unbind('click').click(function() {
         $.ajax({

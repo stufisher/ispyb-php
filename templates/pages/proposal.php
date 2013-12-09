@@ -11,7 +11,6 @@
                         <th>Number</th>
                         <th>Visits</th>
                         <th>Title</th>
-                        <th title="Select proposal">&nbsp;</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
