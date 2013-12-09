@@ -217,7 +217,7 @@
             foreach ($rows as $r) {
                 $dcount = array_key_exists($r['PROTEINID'], $dcs) ? $dcs[$r['PROTEINID']] : 0;
                 $scount = array_key_exists($r['PROTEINID'], $scs) ? $scs[$r['PROTEINID']] : 0;
-                array_push($data, array($r['NAME'], $r['ACRONYM'], $r['MOLECULARMASS'], $r['SEQUENCE'] ? 'Yes' : 'No', $scount, $dcount, '<a class="view" title="View Protein Details" href="/sample/proteins/pid/'.$r['PROTEINID'].'">View Protein</a> <button class="atp" ty="protein" iid="'.$r['PROTEINID'].'" name="'.$r['NAME'].'">Add to Project</button>'));
+                array_push($data, array('<span class="id" value="'.$r['PROTEINID'].'"></span>'.$r['NAME'], $r['ACRONYM'], $r['MOLECULARMASS'], $r['SEQUENCE'] ? 'Yes' : 'No', $scount, $dcount, '<a class="view" title="View Protein Details" href="/sample/proteins/pid/'.$r['PROTEINID'].'">View Protein</a> <button class="atp" ty="protein" iid="'.$r['PROTEINID'].'" name="'.$r['NAME'].'">Add to Project</button>'));
             }
             
             $this->_output(array('iTotalRecords' => $tot,
