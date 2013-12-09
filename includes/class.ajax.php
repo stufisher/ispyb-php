@@ -33,7 +33,7 @@
             #$data['profile'] = $this->pro();
             print json_encode($data);
             if ($this->explain) print "\n".$this->db->plan;
-            if ($this->stats) print "\n".$this->db->stat;
+            if ($this->db->stats) print "\n".$this->db->stat;
             #if ($this->profile) print_r($this->pro());
         }
         
