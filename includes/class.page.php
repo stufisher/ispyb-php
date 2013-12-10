@@ -67,31 +67,8 @@
         }
         
         
-        function sg_opts() {
-            $ops = '';
-            foreach ($this->sgs as $s) {
-                $ops .= '<option value="'.$s.'">'.$s.'</option>';
-            }
-            
-            return $ops;
-        }
-        
-        function sg_hash() {
-            $hash = array();
-            foreach ($this->sgs as $s) $hash[$s] = $s;
-            
-            return $hash;
-        }
-        
-        
-        
-        function profile($msg) {
-            if ($this->profile)
-                array_push($this->profiles, $msg.': '.(microtime(True) - $this->last_profile));
-            $this->last_profile = microtime(True);
-        }
-        
-        
+        # ------------------------------------------------------------------------
+        # Check that users have access to the pages they are trying to access
         function _auth() {
             $u = class_exists('phpCAS') ? phpCAS::getUser() : '';
             
@@ -111,10 +88,9 @@
                 $b = $this->ip2bl();
                 $t = strtoupper(date('d-m-Y 08:59'));
                 
+                # Make sure the visit is current (i.e. today)
                 if ($this->has_arg('visit')) {
                     $rows = $this->db->pq("SELECT s.sessionid, s.beamlinename as bl, vr.run, vr.runid, TO_CHAR(s.startdate, 'YYYY') as yr FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1 AND s.startdate > TO_DATE(:2,'dd-mm-yyyy HH24:MI') AND s.enddate < TO_DATE(:3,'dd-mm-yyyy HH24:MI')+2 AND s.beamlinename LIKE :4", array($this->arg('visit'), $t, $t, $b));
-
-                    #$rows = $this->db->pq("SELECT s.sessionid, s.beamlinename as bl, vr.run, vr.runid, TO_CHAR(s.startdate, 'YYYY') as yr FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1 AND s.beamlinename LIKE :2", array($this->arg('visit'), $b));
                     
                     if (sizeof($rows)) $auth = true;
                     
@@ -204,6 +180,7 @@
         }
         
         
+        # ------------------------------------------------------------------------
         # Convert input arg url to key / value pairs once checked against templates
         function _parse_args($args) {
             $temp = array();
@@ -238,7 +215,7 @@
             }
             
             # Retrieve cookie args
-            if (!$this->blsr()) {
+            if (!$this->blsr() && class_exists('phpCAS')) {
                 $u = phpCAS::getUser();
                 if ($u && array_key_exists('ispyb_prop_'.$u, $_COOKIE) && !array_key_exists('prop', $parsed)) $parsed['prop'] = $_COOKIE['ispyb_prop_'.$u];
             }
@@ -247,6 +224,8 @@
             $this->args = $parsed;
         }
         
+        
+        # ------------------------------------------------------------------------
         # Nice interface to args
         function has_arg($key) {
             return array_key_exists($key, $this->args);
@@ -258,16 +237,12 @@
         }
         
         
-        # Create navigation tree / links
-        function nav($pages, $links) {
-            array_unshift($pages, $this->root);
-            array_unshift($links, $this->root_link);
-            
-            return array('p' => $pages, 'l' => $links);
-        }
-        
-        
+        # ------------------------------------------------------------------------
         # Templating
+        
+        # $this->template('page title', breadcrumb names, breadcrum links, header)
+        # $this->t->variable = value; makes a variable available to template
+        # $this->t->js_var('name', value); make variable available as javascript
         function template($title, $p=array(), $l=array(), $hf = 1) {
             $new = array();
             foreach ($l as $a) {
@@ -280,11 +255,41 @@
             $this->t->staff = $this->staff;
         }
         
+        # Shortcut to call template render
+        # $this->render('templatefile')
         function render($template, $js=null) {
             $this->t->render($template, $js);
             
         }
         
+        # Create navigation tree / links
+        function nav($pages, $links) {
+            array_unshift($pages, $this->root);
+            array_unshift($links, $this->root_link);
+            
+            return array('p' => $pages, 'l' => $links);
+        }
+        
+        # Template shortcut: Error page
+        function error($title, $msg) {
+            $this->template('Error');
+            $this->t->title = 'Error: '.$title;
+            $this->t->msg = $msg;
+            $this->render('generic_msg');
+            exit();
+        }
+
+        # Template shortcut: Message page
+        function msg($title, $msg) {
+            $this->template($title);
+            $this->t->title = $title;
+            $this->t->msg = $msg;
+            $this->render('generic_msg');
+            exit();
+        }
+        
+        # ------------------------------------------------------------------------
+        # Misc Helpers
         
         # Pretty-ish printer
         function p($array) {
@@ -300,9 +305,6 @@
             return strtotime($str)*1000;# + ($plus ? (3600*1000) : 0);
         }
         
-        function pro() {
-            return $this->profiles;
-        }
         
         # Get a PV
         function pv($pvid) {
@@ -319,24 +321,6 @@
         }
         
         
-        # Error page
-        function error($title, $msg) {
-            $this->template('Error');
-            $this->t->title = 'Error: '.$title;
-            $this->t->msg = $msg;
-            $this->render('generic_msg');
-            exit();
-        }
-
-        # Message page
-        function msg($title, $msg) {
-            $this->template($title);
-            $this->t->title = $title;
-            $this->t->msg = $msg;
-            $this->render('generic_msg');
-            exit();
-        }
-        
         function dirs($root) {
             $d = array();
             
@@ -351,7 +335,38 @@
         }
         
         
-        # Get Beamline from IP
+        # ------------------------------------------------------------------------
+        # Spacegroup list in various formats
+        function sg_opts() {
+            $ops = '';
+            foreach ($this->sgs as $s) {
+                $ops .= '<option value="'.$s.'">'.$s.'</option>';
+            }
+            return $ops;
+        }
+        
+        function sg_hash() {
+            $hash = array();
+            foreach ($this->sgs as $s) $hash[$s] = $s;
+            return $hash;
+        }
+        
+        
+        # ------------------------------------------------------------------------
+        # Page profiling, call with a message to log the time taken between calls
+        function profile($msg) {
+            if ($this->profile)
+                array_push($this->profiles, $msg.': '.(microtime(True) - $this->last_profile));
+            $this->last_profile = microtime(True);
+        }
+        
+        function pro() {
+            return $this->profiles;
+        }
+        
+        
+        # ------------------------------------------------------------------------
+        # Beamline sample registration: Get Beamline from IP
         function ip2bl() {
             $parts = explode('.', $_SERVER['REMOTE_ADDR']);
             $bls = array(103 => 'i03',
@@ -373,13 +388,14 @@
             return in_array($_SERVER['REMOTE_ADDR'], $blsr);
         }
         
+        
         # ------------------------------------------------------------------------
-        # Return a name for a fedid
+        # LDAP: Return a name for a fedid
         function _get_name($fedid) {
             return $this->_ldap_search('uid='.$fedid)[$fedid];
         }
               
-        # ------------------------------------------------------------------------
+
         # Run an ldap search
         function _ldap_search($search) {
             $ret = array();
@@ -399,8 +415,8 @@
         }
         
         
-        
-        
+        # ------------------------------------------------------------------------
+        # Set cookie for current proposal
         function cookie($val) {
             $u = phpCAS::getUser();
             if ($u) {
