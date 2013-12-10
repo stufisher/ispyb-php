@@ -228,7 +228,7 @@
             if (!$this->has_arg('time')) $this->_error('No time specified');
             if (!$this->has_arg('bl')) $this->_error('No beamline specified');
             
-            #$bls = $this->db->q('SELECT name FROM bf_beamlines WHERE beamlineid=:1', array($this->arg('bl')));
+            #$bls = $this->db->pq('SELECT name FROM bf_beamlines WHERE beamlineid=:1', array($this->arg('bl')));
             #if (sizeof($bls)) $bl = $bls[0]['NAME'];
             #else $this->_error('No beamline with that id');
             
@@ -248,7 +248,7 @@
         # ------------------------------------------------------------------------
         # Return a list of beamlines with ids
         function _get_beamlines() {            
-            #$rows = $this->db->q("SELECT distinct beamlinename as name FROM ispyb4a_db.blsession WHERE beamlinename NOT LIKE 'i04 1' ORDER BY beamlinename");
+            #$rows = $this->db->pq("SELECT distinct beamlinename as name FROM ispyb4a_db.blsession WHERE beamlinename NOT LIKE 'i04 1' ORDER BY beamlinename");
                                   
             $rows = array(array('NAME' => 'i02'), array('NAME' => 'i03'), array('NAME' => 'i04'), array('NAME' => 'i04-1'), array('NAME' => 'i24'));
                                  
@@ -275,7 +275,7 @@
                                   
             } else $where = '';
             
-            $rows = $this->db->pq("SELECT /*+ index(hs BF_SYSTEM_BEAMLINEIDX1) */ s.systemid, s.name, s.description, string_agg(hs.beamlinename) as beamlines FROM ispyb4a_db.bf_system s INNER JOIN ispyb4a_db.bf_system_beamline hs ON s.systemid = hs.systemid ".$where." GROUP BY s.systemid, s.name, s.description ORDER BY s.name", $args);
+            $rows = $this->db->pq("SELECT s.systemid, s.name, s.description, string_agg(hs.beamlinename) as beamlines FROM ispyb4a_db.bf_system s INNER JOIN ispyb4a_db.bf_system_beamline hs ON s.systemid = hs.systemid ".$where." GROUP BY s.systemid, s.name, s.description ORDER BY s.name", $args);
                                  
             $sys = array();
             foreach ($rows as $s) $sys[$s['SYSTEMID']] = $s['NAME'];

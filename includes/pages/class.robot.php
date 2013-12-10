@@ -23,9 +23,9 @@
         
         # Show list of beamlines & runs
         function _get_root() {
-            $rows = $this->db->q("SELECT vr.run || '-' || s.beamlinename as rbl, min(vr.run) as run, min(vr.runid) as runid, min(s.beamlinename) as bl, count(r.robotactionid) as num, AVG(CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as avgt FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = s.sessionid) WHERE r.robotactionid > 1 AND p.proposalcode <> 'cm' AND r.status='SUCCESS' AND (r.actiontype = 'LOAD' OR r.actiontype='UNLOAD') GROUP BY vr.run || '-' || s.beamlinename ORDER BY min(s.beamlinename), min(vr.runid)");
+            $rows = $this->db->pq("SELECT vr.run || '-' || s.beamlinename as rbl, min(vr.run) as run, min(vr.runid) as runid, min(s.beamlinename) as bl, count(r.robotactionid) as num, AVG(CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as avgt FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = s.sessionid) WHERE r.robotactionid > 1 AND p.proposalcode <> 'cm' AND r.status='SUCCESS' AND (r.actiontype = 'LOAD' OR r.actiontype='UNLOAD') GROUP BY vr.run || '-' || s.beamlinename ORDER BY min(s.beamlinename), min(vr.runid)");
             
-            $tvs = $this->db->q("SELECT distinct vr.run,vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession bl ON (bl.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = bl.sessionid) WHERE robotactionid != 1 ORDER BY vr.runid");
+            $tvs = $this->db->pq("SELECT distinct vr.run,vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession bl ON (bl.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = bl.sessionid) WHERE robotactionid != 1 ORDER BY vr.runid");
             
             $rids = array();$rvl = array();
             $ticks = array();
