@@ -20,7 +20,7 @@ $(function() {
   }, dt)
   
   $('.robot_actions').dataTable(dt)
-  
+  $('.table input').focus()
   
   function _map_callbacks() {
       /*

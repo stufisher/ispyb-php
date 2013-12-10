@@ -60,6 +60,7 @@ $(function() {
             load_datacollection();
       }, 800);
   });
+  $('input[name=search]').focus()
   
   
   // Async load of data collections

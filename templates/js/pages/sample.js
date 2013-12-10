@@ -20,7 +20,7 @@ $(function() {
   }, dt)
   
   $('.robot_actions').dataTable(dt).fnSetFilteringDelay()
-  
+  $('.table input').focus()
   
   function _map_callbacks() {
     setTimeout(function() {
