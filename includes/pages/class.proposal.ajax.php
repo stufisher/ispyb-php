@@ -43,7 +43,7 @@
             
             if ($this->has_arg('sSearch')) {
                 $st = sizeof($args) + 1;
-                $where .= " AND (lower(p.title) LIKE lower('%'||:".$st."||'%') OR p.proposalcode || p.proposalnumber LIKE '%'||:".($st+1)."||'%')";
+                $where .= " AND (lower(p.title) LIKE lower('%'||:".$st."||'%') OR lower(p.proposalcode || p.proposalnumber) LIKE lower('%'||:".($st+1)."||'%'))";
                 for ($i = 0; $i < 2; $i++) array_push($args, $this->arg('sSearch'));
             }
             
