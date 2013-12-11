@@ -4,7 +4,10 @@
     </div>
 
     <div class="page">
-    <?php if ($submit): ?>
+    <?php if ($error): ?>
+        <p><?php echo $error ?></p>
+
+    <?php elseif ($submit): ?>
         <p>Dewar Location Recorded</p>
         <meta http-equiv="refresh" content="2;url=/tracking" />
 
