@@ -57,7 +57,7 @@
         function _get_history() {
             if (!$this->has_arg('did')) $this->_error('No dewar id specified');
             
-            $rows = $this->db->pq("SELECT h.dewarid, h.dewarstatus,h.storagelocation,TO_CHAR(h.arrivaldate, 'HH24:II DD-MM-YYYY') as arrival FROM ispyb4a_db.dewartransporthistory h INNER JOIN ispyb4a_db.dewar d ON d.dewarid = h.dewarid INNER JOIN ispyb4a_db.shipping s ON d.shippingid = s.shippingid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE h.dewarid=:1 AND p.proposalid=:2 ORDER BY h.arrivaldate", array($this->arg('did'), $this->proposalid));
+            $rows = $this->db->pq("SELECT h.dewarid, h.dewarstatus,h.storagelocation,TO_CHAR(h.arrivaldate, 'HH24:MI DD-MM-YYYY') as arrival FROM ispyb4a_db.dewartransporthistory h INNER JOIN ispyb4a_db.dewar d ON d.dewarid = h.dewarid INNER JOIN ispyb4a_db.shipping s ON d.shippingid = s.shippingid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE h.dewarid=:1 AND p.proposalid=:2 ORDER BY h.arrivaldate", array($this->arg('did'), $this->proposalid));
             
             $this->_output($rows);
         }

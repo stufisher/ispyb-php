@@ -98,7 +98,7 @@
             if (!sizeof($vis)) $this->error('No such visit', 'The specified visit doesnt exist');
             else $vis = $vis[0];
             
-            $rows = $this->db->pq("SELECT dc.imageprefix,s.beamlinename,dc.datacollectionnumber,TO_CHAR(dc.starttime, 'DD/MM/YYYY HH24:II:SS'), sa.name, p.name as protein, dc.numberofimages, dc.wavelength, dc.detectordistance, dc.exposuretime, dc.axisstart, dc.axisrange, dc.xbeam, dc.ybeam, dc.resolution, dc.comments FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid = dc.sessionid LEFT OUTER JOIN ispyb4a_db.blsample sa ON dc.blsampleid = sa.blsampleid LEFT OUTER JOIN ispyb4a_db.crystal c ON sa.crystalid = c.crystalid LEFT OUTER JOIN ispyb4a_db.protein p ON c.proteinid = p.proteinid WHERE dc.sessionid=:1 ORDER BY dc.starttime", array($vis['SESSIONID']));
+            $rows = $this->db->pq("SELECT dc.imageprefix,s.beamlinename,dc.datacollectionnumber,TO_CHAR(dc.starttime, 'DD/MM/YYYY HH24:MI:SS'), sa.name, p.name as protein, dc.numberofimages, dc.wavelength, dc.detectordistance, dc.exposuretime, dc.axisstart, dc.axisrange, dc.xbeam, dc.ybeam, dc.resolution, dc.comments FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid = dc.sessionid LEFT OUTER JOIN ispyb4a_db.blsample sa ON dc.blsampleid = sa.blsampleid LEFT OUTER JOIN ispyb4a_db.crystal c ON sa.crystalid = c.crystalid LEFT OUTER JOIN ispyb4a_db.protein p ON c.proteinid = p.proteinid WHERE dc.sessionid=:1 ORDER BY dc.starttime", array($vis['SESSIONID']));
             
             header("Content-type: application/vnd.ms-excel");
             header("Content-disposition: attachment; filename=".$vis['ST']."_".$vis['BEAMLINENAME']."_".$this->arg('visit').".csv");
