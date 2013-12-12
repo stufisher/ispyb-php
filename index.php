@@ -19,6 +19,18 @@
             phpCAS::forceAuthentication();
         }
         
+        
+    # Allow barcode reader unauthorised access, same as above, certain IPs only
+    } else if (sizeof($parts) == 1) {
+        if ($parts[0] == 'tracking' && in_array($_SERVER["REMOTE_ADDR"], $bcr)) {
+            
+        } else {
+            require_once 'CAS/CAS.php';
+            phpCAS::client(CAS_VERSION_2_0, 'auth.diamond.ac.uk', 443, '/cas');
+            phpCAS::setNoCasServerValidation();
+            phpCAS::forceAuthentication();
+        }
+        
     } else {
         require_once 'CAS/CAS.php';
         phpCAS::client(CAS_VERSION_2_0, 'auth.diamond.ac.uk', 443, '/cas');
