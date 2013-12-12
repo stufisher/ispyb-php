@@ -142,7 +142,7 @@ $(function() {
   
   function load_cells() {
     $.ajax({
-        url: '/mc/ajax/cells/visit/' + visit + '/d/'+dir,
+        url: '/mc/ajax/cells/visit/' + visit + '/?d='+dir,
         type: 'GET',
         dataType: 'json',
         timeout: 5000,
@@ -194,7 +194,7 @@ $(function() {
          '<img src="/templates/images/cancel.png" alt="Failed"/>']
   
       $.ajax({
-             url: '/mc/ajax/visit/' + visit + (search ? ('/s/'+search) : '') + (dir ? ('/d/'+dir) : ''),
+             url: '/mc/ajax/visit/' + visit + (search ? ('/s/'+search) : '') + (dir ? ('/?d='+dir) : ''),
              type: 'GET',
              dataType: 'json',
              timeout: 5000,
@@ -273,7 +273,8 @@ $(function() {
   function load_imq() {
     $('.dc').each(function(i,d) {
       if (!plots[$(d).attr('dcid')]) {
-        $.ajax({
+        setTimeout(function() {
+          $.ajax({
              url: '/mc/ajax/cells/visit/'+visit+'/id/' + $(d).attr('dcid'),
              type: 'GET',
              dataType: 'json',
@@ -287,10 +288,11 @@ $(function() {
                  $(d).children('div.cells').html('AP: '+opts)
                } else $(d).children('div.cells').html('AP Cells: N/A')
              }
-        })
+          })
+        }, i*150+150)
                   
-                  
-        $.ajax({
+        setTimeout(function() {
+          $.ajax({
              url: '/dc/ajax/imq/id/' + $(d).attr('dcid'),
              type: 'GET',
              dataType: 'json',
@@ -321,7 +323,8 @@ $(function() {
                  $(d).unbind('plotselected').bind('plotselected', set_selected.bind(null,$(d).attr('dcid')))
                  $(d).unbind('plotunselected').bind('plotunselected', set_deselected.bind(null,$(d).attr('dcid')))
             }
-        })
+          })
+        }, i*150+100)
       }
     })
   }
