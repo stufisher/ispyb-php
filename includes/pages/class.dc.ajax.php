@@ -262,6 +262,9 @@
                 if ($dc['TYPE'] == 'data') {
                     $nf = array(1 => array('AXISSTART', 'AXISRANGE'), 2 => array('RESOLUTION', 'TRANSMISSION'), 3 => array('EXPOSURETIME'), 4 => array('WAVELENGTH'));
                     $dc['DIR'] = preg_replace('/.*\/\d\d\d\d\/\w\w\d+-\d+\//', '', $dc['DIR']);
+                    
+                    $dc['BSX'] = round($dc['BSX']*1000);
+                    $dc['BSY'] = round($dc['BSY']*1000);
                     //$this->profile('dc');
                     
                 // Edge Scans
