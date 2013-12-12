@@ -2,7 +2,7 @@
 
     class Ajax extends AjaxBase {
         
-        var $arg_list = array('visit' => '\w+\d+-\d+', 's' => '\w+', 'd' => '\w+', 'id' => '\d+', 'sg' => '\w+', 'a' => '\d+(.\d+)?', 'b' => '\d+(.\d+)?', 'c' => '\d+(.\d+)?', 'alpha' => '\d+(.\d+)?', 'beta' => '\d+(.\d+)?', 'gamma' => '\d+(.\d+)?', 'res' => '\d+(.\d+)?', 'rfrac' => '\d+(.\d+)?', 'isigi' => '\d+(.\d+)?', 'run' => '\d+', 'type' => '\d+', 'local' => '\d+', 'user' => '\d+');
+        var $arg_list = array('visit' => '\w+\d+-\d+', 's' => '\w+', 'd' => '([\w\/])+', 'id' => '\d+', 'sg' => '\w+', 'a' => '\d+(.\d+)?', 'b' => '\d+(.\d+)?', 'c' => '\d+(.\d+)?', 'alpha' => '\d+(.\d+)?', 'beta' => '\d+(.\d+)?', 'gamma' => '\d+(.\d+)?', 'res' => '\d+(.\d+)?', 'rfrac' => '\d+(.\d+)?', 'isigi' => '\d+(.\d+)?', 'run' => '\d+', 'type' => '\d+', 'local' => '\d+', 'user' => '\d+');
         var $dispatch = array('list' => '_data_collections',
                               'dirs' => '_get_dirs',
                               'cells' => '_get_cells',
@@ -26,6 +26,7 @@
         # Get directories for visit
         function _get_dirs() {
             session_write_close();
+            if (!$this->has_arg('visit')) $this->_error('No visit specified');
             
             $info = $this->db->pq("SELECT s.sessionid, s.beamlinename as bl, vr.run, vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')));
 
@@ -38,7 +39,7 @@
             foreach ($rows as &$r) {
                 $r['DIR'] = $this->ads($r['DIR']);
                 $r['DIR'] = substr($r['DIR'], strpos($r['DIR'], $this->arg('visit'))+strlen($this->arg('visit'))+1);                                  
-                array_push($dirs, $r['DIR']);
+                array_push($dirs, preg_replace('/\/$/', '', $r['DIR']));
             }
                                   
             $this->_output($dirs);
@@ -115,6 +116,7 @@
         # ------------------------------------------------------------------------
         # Multicrystal data collection list
         function _data_collections() {
+            if (!$this->has_arg('visit')) $this->_error('No visit specified');
             session_write_close();
             
             $info = $this->db->pq("SELECT s.sessionid, s.beamlinename as bl, TO_CHAR(s.startdate, 'YYYY') as yr, vr.run, vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')));
