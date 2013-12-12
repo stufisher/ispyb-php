@@ -30,14 +30,14 @@
         # Output JSON encoded data
         function _output($data) {
             if (!$this->debug) header('Content-type:application/json');
-            #$data['profile'] = $this->pro();
             print json_encode($data);
             if ($this->explain) print "\n".$this->db->plan;
             if ($this->db->stats) print "\n".$this->db->stat;
             #if ($this->profile) print_r($this->pro());
         }
         
-        # Error messages
+        # Error messages as json object, should probably return a different
+        # http code as well
         function _error($msg) {
             $this->_output($msg);
             exit();
