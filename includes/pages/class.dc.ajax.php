@@ -272,6 +272,9 @@
                     $dc['EPK'] = floatVal($dc['EPK']);
                     $dc['EIN'] = floatVal($dc['EIN']);
                     
+                    # Transmission factor rather than transmission :(
+                    $dc['TRANSMISSION'] *= 100;
+                    
                     $nf = array(2 => array('EXPOSURETIME'), 2 => array('AXISSTART', 'RESOLUTION'), 3 => array('TRANSMISSION'));
                     $this->profile('edge');  
                 
