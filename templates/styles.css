@@ -343,7 +343,7 @@ table.robot_actions tbody tr.log {
 }
 
 table.robot_actions tbody tr.log:hover td {
-    background: #dedede;
+    background: #dedede !important;
 }
 
 table.robot_actions tbody tr.logcontent td {
@@ -1042,7 +1042,7 @@ h1.center {
 .data_collection > ul li {
     float: left;
     width: 42%;
-    padding: 1%;
+    padding: 1.25% 1%;
 }
 
 .data_collection > ul li.comment {
@@ -1521,13 +1521,17 @@ ul.visits li {
     margin: 0.5%;
 }
 
+ul.visits li.active {
+    background: #82d180 !important;
+}
+
 
 /* Fault Reporting
  ---------------------------------------------------------*/
 div.text {
     width: 68.2%;
     margin: 1% 0;
-    padding: 1%;
+    /*padding: 1%;*/
     float: right;
     background: #eeeeee;
     border-radius: 5px;
@@ -1677,12 +1681,18 @@ table input[type=text] {
     
 }
 
+.robot_actions.proteins.flt tr:hover td,
+.robot_actions.samples.flt tr:hover,
 .dc .cells:hover,
 .blended_table tr td:hover,
 .integrated tr td:hover {
     cursor: pointer;
 }
 
+.robot_actions.proteins.flt tr.current td,
+.robot_actions.proteins.flt tr:hover td,
+.robot_actions.samples.flt tr.current td,
+.robot_actions.samples.flt tr:hover td,
 .blended_table tr.selected td,
 .integrated tr.selected td {
     background: #cdcdcd !important;
@@ -1889,6 +1899,7 @@ div.pdbs {
 }
 
 
+table.proposals tr:hover td,
 table.dewars tr:hover td {
     cursor: pointer;
     background: #dddddd !important;
@@ -2108,7 +2119,7 @@ span.snapshots.sample img {
         order: 1;
     }
     
-    .clearfix {
+    .reorder {
         display: -webkit-box;
         display: -moz-box;
         display: -ms-flexbox;
