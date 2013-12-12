@@ -128,7 +128,7 @@ $(function() {
                                  '<li>Exposure: '+r['EXPOSURETIME']+'s</li>'+
                                  //'<li>Measured Flux: '+r['FLUX']+'</li>'+
                                  '<li>Transmission: '+r['TRANSMISSION']+'%</li>'+
-                                 '<li>Beamsize: '+(r['BSX']*1000)+'x'+(r['BSY']*1000)+'&mu;m</li>'+
+                                 '<li>Beamsize: '+r['BSX']+'x'+r['BSY']+'&mu;m</li>'+
                                  '<li class="comment" title="Click to edit the comment for this data collection">Comment: <span class="comment_edit">'+(r['COMMENTS']?r['COMMENTS']:'')+'</span></li>'+
                              '</ul>'+
                              '<div class="holder">'+
