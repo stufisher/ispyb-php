@@ -70,9 +70,10 @@
                 <tr>
                     <th>Name</th>
                     <th>Barcode</th>
+                    <th>Facility Code</th>
                     <th>First Experiment</th>
-                    <th>Tracking # to synchrotron</th>
-                    <th>Tracking # from synchrotron</th>
+                    <th>Tracking # to</th>
+                    <th>Tracking # from</th>
                     <th>Status</th>
                     <th>Location</th>
                     <th>Containers</th>

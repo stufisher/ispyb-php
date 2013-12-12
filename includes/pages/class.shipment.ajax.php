@@ -9,6 +9,7 @@
                               'ty' => '\w+',
                               'value' => '.*',
                               'code' => '([\w-])+',
+                              'fcode' => '([\w-])+',
                               'trackto' => '\w+',
                               'trackfrom' => '\w+',
                               'array' => '\d',
@@ -67,7 +68,7 @@
             if (!$this->has_arg('prop')) $this->_error('No proposal id specified');
             if (!$this->has_arg('sid')) $this->_error('No shipment id specified');
             
-            $dewars = $this->db->pq("SELECT count(c.containerid) as ccount, (case when se.visit_number > 0 then (p.proposalcode||p.proposalnumber||'-'||se.visit_number) else '' end) as exp, d.code, d.barcode, d.storagelocation, d.dewarstatus, d.dewarid,  d.trackingnumbertosynchrotron, d.trackingnumberfromsynchrotron FROM ispyb4a_db.dewar d LEFT OUTER JOIN ispyb4a_db.container c ON c.dewarid = d.dewarid INNER JOIN ispyb4a_db.shipping s ON d.shippingid = s.shippingid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid LEFT OUTER JOIN ispyb4a_db.blsession se ON d.firstexperimentid = se.sessionid WHERE s.proposalid=:1 AND d.shippingid=:2 GROUP BY (case when se.visit_number > 0 then (p.proposalcode||p.proposalnumber||'-'||se.visit_number) else '' end), d.code, d.barcode, d.storagelocation, d.dewarstatus, d.dewarid,  d.trackingnumbertosynchrotron, d.trackingnumberfromsynchrotron", array($this->proposalid, $this->arg('sid')));
+            $dewars = $this->db->pq("SELECT d.facilitycode, count(c.containerid) as ccount, (case when se.visit_number > 0 then (p.proposalcode||p.proposalnumber||'-'||se.visit_number) else '' end) as exp, d.code, d.barcode, d.storagelocation, d.dewarstatus, d.dewarid,  d.trackingnumbertosynchrotron, d.trackingnumberfromsynchrotron FROM ispyb4a_db.dewar d LEFT OUTER JOIN ispyb4a_db.container c ON c.dewarid = d.dewarid INNER JOIN ispyb4a_db.shipping s ON d.shippingid = s.shippingid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid LEFT OUTER JOIN ispyb4a_db.blsession se ON d.firstexperimentid = se.sessionid WHERE s.proposalid=:1 AND d.shippingid=:2 GROUP BY (case when se.visit_number > 0 then (p.proposalcode||p.proposalnumber||'-'||se.visit_number) else '' end), d.code, d.barcode, d.storagelocation, d.dewarstatus, d.dewarid,  d.trackingnumbertosynchrotron, d.trackingnumberfromsynchrotron, d.facilitycode", array($this->proposalid, $this->arg('sid')));
             
             $this->_output($dewars);
             
@@ -86,10 +87,11 @@
             
             $to = $this->has_arg('trackto') ? $this->arg('trackto') : '';
             $from = $this->has_arg('trackfrom') ? $this->arg('trackfrom') : '';
+            $fc = $this->has_arg('fcode') ? $this->arg('fcode') : '';
             
             $exp = $this->has_arg('exp') ? $this->arg('exp') : '';
             
-            $this->db->pq("INSERT INTO ispyb4a_db.dewar (dewarid,code,trackingnumbertosynchrotron,trackingnumberfromsynchrotron,shippingid,bltimestamp,dewarstatus,firstexperimentid) VALUES (s_dewar.nextval,:1,:2,:3,:4,CURRENT_TIMESTAMP,'opened',:5) RETURNING dewarid INTO :id", array($this->arg('code'), $to, $from, $this->arg('sid'), $exp));
+            $this->db->pq("INSERT INTO ispyb4a_db.dewar (dewarid,code,trackingnumbertosynchrotron,trackingnumberfromsynchrotron,shippingid,bltimestamp,dewarstatus,firstexperimentid,facilitycode) VALUES (s_dewar.nextval,:1,:2,:3,:4,CURRENT_TIMESTAMP,'opened',:5,:6) RETURNING dewarid INTO :id", array($this->arg('code'), $to, $from, $this->arg('sid'), $exp, $fc));
             
             $id = $this->db->id();
             
@@ -241,6 +243,7 @@
                            'tt' => array('\w+', 'trackingnumbertosynchrotron', ''),
                            'tf' => array('\w+', 'trackingnumberfromsynchrotron', ''),
                            'exp' => array('\d+', 'firstexperimentid', "SELECT p.proposalcode||p.proposalnumber||'-'||s.visit_number as value FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE s.sessionid=:1"),
+                           'fc' => array('([\w-])+', 'facilitycode', ''),
                            );
             
             if (array_key_exists($this->arg('ty'), $types)) {

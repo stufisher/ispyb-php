@@ -22,6 +22,7 @@ $(function() {
             $('<tr class="new">'+
               '<td><input name="code" /></td>'+
               '<td>&nbsp;</td>'+
+              '<td><input name="fcode" /></td>'+
               '<td><select name="exp">'+vals+'</select></td>'+
               '<td><input name="trackto" /></td>'+
               '<td><input name="trackfrom" /></td>'+
@@ -44,6 +45,7 @@ $(function() {
                             trackto: $('.new input[name=trackto]').val(),
                             trackfrom: $('.new input[name=trackfrom]').val(),
                             exp: $('.new select[name=exp]').val(),
+                            fcode: $('.new select[name=fcode]').val(),
                     },
                     dataType: 'json',
                     timeout: 5000,
@@ -81,6 +83,7 @@ $(function() {
             d_out += '<tr did="'+d['DEWARID']+'" name="'+d['CODE']+'">'+
                     '<td title="Click to edit the dewar name"><span class="code">'+d['CODE']+'</span></td>'+
                     '<td>'+d['BARCODE']+'</td>'+
+                    '<td><span class="facilitycode">'+(d['FACILITYCODE'] ? d['FACILITYCODE'] : '')+'</span></td>'+
                     '<td><span class="exp">'+(d['EXP'] ? d['EXP'] : '')+'</span></td>'+
                     '<td><span class="trackto">'+(d['TRACKINGNUMBERTOSYNCHROTRON'] ? d['TRACKINGNUMBERTOSYNCHROTRON'] : '')+'</span>'+(courier in tracking && d['TRACKINGNUMBERTOSYNCHROTRON'] ?  (' <a class="track" href="'+tracking[courier]+d['TRACKINGNUMBERTOSYNCHROTRON']+'">Track</a>'): '')+'</td>'+
                     '<td><span class="trackfrom">'+(d['TRACKINGNUMBERFROMSYNCHROTRON'] ? d['TRACKINGNUMBERFROMSYNCHROTRON'] : '')+'</span>'+(courier in tracking && d['TRACKINGNUMBERFROMSYNCHROTRON'] ?  (' <a class="track" href="'+tracking[courier]+d['TRACKINGNUMBERFROMSYNCHROTRON']+'">Track</a>'): '')+'</td>'+
@@ -275,6 +278,17 @@ $(function() {
       $('.trackfrom').each(function(i,e) {
         var did = $(this).parent('td').parent('tr').attr('did')
         $(e).editable('/shipment/ajax/updated/did/'+did+'/ty/tf/', {
+                           width: '100px',
+                           height: '100%',
+                           type: 'text',
+                           submit: 'Ok',
+                           style: 'display: inline',
+                           }).addClass('editable');
+      })
+  
+      $('.facilitycode').each(function(i,e) {
+        var did = $(this).parent('td').parent('tr').attr('did')
+        $(e).editable('/shipment/ajax/updated/did/'+did+'/ty/fc/', {
                            width: '100px',
                            height: '100%',
                            type: 'text',
