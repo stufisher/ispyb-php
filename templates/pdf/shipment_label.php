@@ -1,4 +1,4 @@
-    <?php foreach($dewars as $d): ?>
+    <?php foreach($dewars as $i => $d): ?>
 
         <h1 class="ca">ISPyB Dewar Tracking</h1>
 
@@ -262,6 +262,10 @@
                 </div>
             </div>
         </div>
+
+        <?php if (sizeof($dewars) > 1 && $i < sizeof($dewars) - 1): ?>
+        <pagebreak />
+        <?php endif; ?>
 
 
     <?php endforeach; ?>
