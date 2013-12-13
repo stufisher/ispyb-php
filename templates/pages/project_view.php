@@ -73,7 +73,7 @@
             <li id="fc">Data Collections</li>
             <li id="sc">Screening</li>
             <li id="gr">Grid Scans</li>
-            <li id="flag">Flagged</li>
+            <li id="flag">Favourite</li>
         </ul>
     </div>
 

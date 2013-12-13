@@ -105,7 +105,7 @@ $(function() {
                        
                            $('<div class="data_collection" dcid="'+r['ID']+'" type="data">' +
                              '<h1>'+
-                                '<button class="flag '+f+'" title="Click to add this data collection to the list of flagged data collections">Flag</button>  <a href="/dc/visit/'+visit+'/id/'+r['ID']+'" class="perm">Permalink</a> '+
+                                '<button class="flag '+f+'" title="Click to add this data collection to the list of favourite data collections">Favourite</button>  <a href="/dc/visit/'+visit+'/id/'+r['ID']+'" class="perm">Permalink</a> '+
                                 '<span class="date">'+r['ST']+'</span> - <span class="temp">'+r['DIR']+r['FILETEMPLATE']+'</span>'+
                              '</h1>'+
                              (state ?
@@ -154,7 +154,7 @@ $(function() {
                            ev = 12398.4193
                            d = $('<div class="data_collection" dcid="'+r['ID']+'" type="edge">' +
                              '<div class="edge"></div>'+
-                             '<h1><!--<button class="atp" ty="edge" iid="'+r['ID']+'" name="'+r['DIR']+' Edge Scan"></button>--> <button class="flag '+f+'">Flag</button> <a class="perm" href="/dc/visit/'+visit+'/t/edge/id/'+r['ID']+'">Permalink</a> '+r['ST']+'</h1>'+
+                             '<h1><!--<button class="atp" ty="edge" iid="'+r['ID']+'" name="'+r['DIR']+' Edge Scan"></button>--> <button class="flag '+f+'">Favourite</button> <a class="perm" href="/dc/visit/'+visit+'/t/edge/id/'+r['ID']+'">Permalink</a> '+r['ST']+'</h1>'+
                              '<h2>'+r['DIR']+' Edge Scan</h2>'+
 
                              '<ul class="clearfix">'+
@@ -187,7 +187,7 @@ $(function() {
                            d = $('<div class="data_collection" dcid="'+r['ID']+'" type="mca">' +
                              '<div class="mca"></div>'+
                              '<div class="elements">'+el+'</div>'+
-                             '<h1><!--<button class="atp" ty="mca" iid="'+r['ID']+'" name="Fluorescence Spectrum"></button>--> <button class="flag '+f+'">Flag</button> <a class="perm" href="/dc/visit/'+visit+'/t/mca/id/'+r['ID']+'">Permalink</a> '+r['ST']+'</h1>'+
+                             '<h1><!--<button class="atp" ty="mca" iid="'+r['ID']+'" name="Fluorescence Spectrum"></button>--> <button class="flag '+f+'">Favourite</button> <a class="perm" href="/dc/visit/'+visit+'/t/mca/id/'+r['ID']+'">Permalink</a> '+r['ST']+'</h1>'+
                              '<h2>MCA Fluorescence Spectrum</h2>'+
 
                              '<ul class="clearfix">'+
@@ -598,7 +598,7 @@ $(function() {
   
   
       // Make flagable data collections iconified
-      $('.data_collection .flag').button({ icons: { primary: 'ui-icon-flag' }, text: false  }).click(function() {
+      $('.data_collection .flag').button({ icons: { primary: 'ui-icon-star' }, text: false  }).click(function() {
           var id = $(this).parent().parent('div').attr('dcid')
           var t = $(this).parent().parent('div').attr('type')
           var i = $(this)
