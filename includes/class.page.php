@@ -302,7 +302,7 @@
         
         # Unix time to javascript timestamp
         function jst($str, $plus=True) {
-            return strtotime($str)*1000;# + ($plus ? (3600*1000) : 0);
+            return strtotime($str.' GMT')*1000;# + ($plus ? (3600*1000) : 0);
         }
         
         

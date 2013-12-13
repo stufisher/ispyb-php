@@ -290,7 +290,7 @@
             }
             
             // Beam status
-            $bs = $this->_get_archive('SR-DI-DCCT-01:SIGNAL', strtotime($info['ST'])+3600, strtotime($info['EN'])+3600, 200);
+            $bs = $this->_get_archive('SR-DI-DCCT-01:SIGNAL', strtotime($info['ST']), strtotime($info['EN']), 200);
             #$bs = $this->_get_archive('CS-CS-MSTAT-01:MODE', strtotime($info['ST'])+3600, strtotime($info['EN'])+3600, 200);
                                     
             if (!sizeof($bs)) $bs = array();
@@ -455,8 +455,12 @@
                 for ($i = 0; $i < $vals->arraySize(); $i++) {
                     $vs = $vals->arrayMem($i);
                     $v = $vs->structMem('value')->arrayMem(0)->scalarVal();
-                    $t = $vs->structMem('secs')->scalarVal();
-                    
+                    $t = $vs->structMem('secs')->scalarVal()-3600;
+                                    
+                    $inputTZ = new DateTimeZone('Europe/London');
+                    $transitions = $inputTZ->getTransitions($t, $t);
+                    if ($transitions[0]['isdst']) $t += 3600;
+                                    
                     array_push($ret, array($t,$v));
                 }
             
