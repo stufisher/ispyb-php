@@ -392,7 +392,8 @@
         # ------------------------------------------------------------------------
         # LDAP: Return a name for a fedid
         function _get_name($fedid) {
-            return $this->_ldap_search('uid='.$fedid)[$fedid];
+            $src = $this->_ldap_search('uid='.$fedid);
+            return $src[$fedid];
         }
               
 
