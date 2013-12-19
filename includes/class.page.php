@@ -12,7 +12,7 @@
         var $explain = False;
         var $stats = False;
         var $profile = False;
-        var $profiles = [];
+        var $profiles = array();
         var $base;
         var $sidebar = false;
         
