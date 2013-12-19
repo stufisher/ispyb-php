@@ -124,9 +124,9 @@
                     
                         // Check user is in this visit
                         if ($this->has_arg('id')) {
-                            $types = array('data' => ['datacollection', 'datacollectionid'],
-                                           'edge' => ['energyscan', 'energyscanid'],
-                                           'mca' => ['xfefluorescencespectrum', 'xfefluorescencespectrumid'],
+                            $types = array('data' => array('datacollection', 'datacollectionid'),
+                                           'edge' => array('energyscan', 'energyscanid'),
+                                           'mca' => array('xfefluorescencespectrum', 'xfefluorescencespectrumid'),
                                            );
                             
                             $table = 'datacollection';
