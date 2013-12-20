@@ -27,7 +27,7 @@
                 <ul>
                     <li><a href="/proposal/visits">Visits</a></li>
 
-                    <li><a href="/dc/proposal">Calendar</a></li>
+                    <li><a href="/cal/proposal">Calendar</a></li>
 
                     <li><a href="/samples/proposal">Prepare Experiment</a></li>
 

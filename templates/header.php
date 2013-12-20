@@ -52,10 +52,10 @@
     <ul id="menu">
         <?php if ($this->staff): ?>
         <li class="selected"><a href="/robot">Robot Stats</a></li>
-        <li><a href="/vstat">Visit Stats</a></li>
+        <!--<li><a href="/vstat">Visit Stats</a></li>-->
         <li><a href="/fault">Fault Report</a></li>
         <?php endif; ?>
-        <li><a href="/dc">Data</a></li>
+        <!--<li><a href="/dc">Data</a></li>-->
     </ul>
 
     <h1><a href="/">MX</a></h1>
