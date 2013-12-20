@@ -39,7 +39,8 @@
                 array_push($args, phpCAS::getUser());
             }
             
-            $tot = $this->db->pq("SELECT count(distinct p.proposalid) as tot FROM ispyb4a_db.proposal p INNER JOIN ispyb4a_db.blsession s ON p.proposalid = s.proposalid $where")[0]['TOT'];
+            $tot = $this->db->pq("SELECT count(distinct p.proposalid) as tot FROM ispyb4a_db.proposal p INNER JOIN ispyb4a_db.blsession s ON p.proposalid = s.proposalid $where");
+            $tot = $tot[0]['TOT'];
             
             if ($this->has_arg('sSearch')) {
                 $st = sizeof($args) + 1;
@@ -48,7 +49,8 @@
             }
             
             
-            $flt = $this->db->pq("SELECT count(distinct p.proposalid) as tot FROM ispyb4a_db.proposal p INNER JOIN ispyb4a_db.blsession s ON p.proposalid = s.proposalid $where", $args)[0]['TOT'];
+            $flt = $this->db->pq("SELECT count(distinct p.proposalid) as tot FROM ispyb4a_db.proposal p INNER JOIN ispyb4a_db.blsession s ON p.proposalid = s.proposalid $where", $args);
+            $flt = $flt[0]['TOT'];
             
             $st = sizeof($args) + 1;
             array_push($args, $sta);
@@ -120,7 +122,8 @@
                 array_push($args, phpCAS::getUser());
             }
             
-            $tot = $this->db->pq("SELECT count(s.sessionid) as tot FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid $where", $args)[0]['TOT'];
+            $tot = $this->db->pq("SELECT count(s.sessionid) as tot FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid $where", $args);
+            $tot = $tot[0]['TOT'];
 
             $st = sizeof($args) + 1;
             array_push($args, $sta);

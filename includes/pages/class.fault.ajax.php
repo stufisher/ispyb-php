@@ -94,7 +94,8 @@
                 INNER JOIN bf_component c ON sc.componentid = c.componentid
                 INNER JOIN bf_system s ON c.systemid = s.systemid
                 INNER JOIN blsession bl ON f.sessionid = bl.sessionid
-                '.$where, $args)[0]['TOT'];
+                '.$where, $args);
+            $tot = $tot[0]['TOT'];
             
             $pgs = intval($tot/$pp);
             if ($tot % $pp != 0) $pgs++;

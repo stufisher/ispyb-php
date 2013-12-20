@@ -63,7 +63,8 @@
             $sta = $this->has_arg('iDisplayStart') ? $this->arg('iDisplayStart') : 0;
             $len = $this->has_arg('iDisplayLength') ? $this->arg('iDisplayLength') : 20;
             
-            $tot = $this->db->pq("SELECT count(b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid $join WHERE pr.proposalid=:1 $where", $args)[0]['TOT'];
+            $tot = $this->db->pq("SELECT count(b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid $join WHERE pr.proposalid=:1 $where", $args);
+            $tot = $tot[0]['TOT'];
             
             if ($this->has_arg('sSearch')) {
                 $st = sizeof($args) + 1;
@@ -72,7 +73,8 @@
             }
             
             
-            $flt = $this->db->pq("SELECT count(b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid $join WHERE pr.proposalid=:1 $where", $args)[0]['TOT'];
+            $flt = $this->db->pq("SELECT count(b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid $join WHERE pr.proposalid=:1 $where", $args);
+            $flt = $flt[0]['TOT'];
             
             $st = sizeof($args) + 1;
             array_push($args, $sta);
@@ -153,7 +155,8 @@
             $sta = $this->has_arg('iDisplayStart') ? $this->arg('iDisplayStart') : 0;
             $len = $this->has_arg('iDisplayLength') ? $this->arg('iDisplayLength') : 20;
             
-            $tot = $this->db->pq("SELECT count(pr.proteinid) as tot FROM ispyb4a_db.protein pr $join WHERE pr.proposalid=:1 $where", $args)[0]['TOT'];
+            $tot = $this->db->pq("SELECT count(pr.proteinid) as tot FROM ispyb4a_db.protein pr $join WHERE pr.proposalid=:1 $where", $args);
+            $tot = $tot[0]['TOT'];
 
             if ($this->has_arg('sSearch')) {
                 $st = sizeof($args) + 1;
@@ -161,7 +164,8 @@
                 for ($i = 0; $i < 2; $i++) array_push($args, $this->arg('sSearch'));
             }
             
-            $flt = $this->db->pq("SELECT count(pr.proteinid) as tot FROM ispyb4a_db.protein pr $join WHERE pr.proposalid=:1 $where", $args)[0]['TOT'];
+            $flt = $this->db->pq("SELECT count(pr.proteinid) as tot FROM ispyb4a_db.protein pr $join WHERE pr.proposalid=:1 $where", $args);
+            $flt = $flt[0]['TOT'];
 
             
             $st = sizeof($args) + 1;

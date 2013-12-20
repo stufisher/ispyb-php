@@ -66,7 +66,7 @@
         function _xtal_image() {
             if (!$this->has_arg('id')) return;
             
-            $row = $this->db->pq('SELECT dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4 FROM ispyb4a_db.datacollection dc WHERE dc.datacollectionid=:1', array($this->arg('id')))[0];
+            list($row) = $this->db->pq('SELECT dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4 FROM ispyb4a_db.datacollection dc WHERE dc.datacollectionid=:1', array($this->arg('id')));
             
             $images = array();
             foreach (array('X1', 'X2', 'X3', 'X4') as $i) {
@@ -93,7 +93,7 @@
             if (!$this->has_arg('id')) return;
             $n = $this->has_arg('n') ? $this->arg('n') : 1;
             
-            $info = $this->db->pq('SELECT imagedirectory as loc, filetemplate as ft, numberofimages as num FROM ispyb4a_db.datacollection WHERE datacollectionid=:1', array($this->arg('id')))[0];
+            list($info) = $this->db->pq('SELECT imagedirectory as loc, filetemplate as ft, numberofimages as num FROM ispyb4a_db.datacollection WHERE datacollectionid=:1', array($this->arg('id')));
             
             if ($n > $info['NUM']) return;
             
@@ -146,7 +146,7 @@
             $n = 1;
             if ($this->has_arg('n')) $n = $this->arg('n');
             
-            $info = $this->db->pq('SELECT dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE dc.datacollectionid=:1', array($this->arg('id')))[0];
+            list($info) = $this->db->pq('SELECT dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE dc.datacollectionid=:1', array($this->arg('id')));
             $this->ads($info['DIR']);
             
             $root = str_replace($info['VIS'], $info['VIS'] . '/processed', $info['DIR']).$info['IMP'].'_'.$info['RUN'].'_/fast_dp/dimple';

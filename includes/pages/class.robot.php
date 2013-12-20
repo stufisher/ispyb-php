@@ -129,8 +129,10 @@
             foreach ($types as $t) $total[$t] = array_key_exists($t, $totals) ? $totals[$t] : 0;
             $visits[''] =  $total;
             
-            if ($this->has_arg('run'))
-                $run = $this->db->pq('SELECT run FROM ispyb4a_db.v_run WHERE runid=:1', array($this->args['run']))[0]['RUN'];
+            if ($this->has_arg('run')) {
+                $run = $this->db->pq('SELECT run FROM ispyb4a_db.v_run WHERE runid=:1', array($this->args['run']));
+                $run = $run[0]['RUN'];
+            }
 
             
             # Get breakdown of dewar usage for last 7 / 30 days
@@ -208,7 +210,7 @@
                 array_push($ticks, array(sizeof($rows) - 1 - $i, $r['ST']));
             }
 
-            $info = $this->db->pq("SELECT s.beamlinename as bl, vr.run, vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')))[0];
+            list($info) = $this->db->pq("SELECT s.beamlinename as bl, vr.run, vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')));
             
             $p = array($info['BL'], $info['RUN'], $this->arg('visit'));
             $l = array('bl/' . $info['BL'], 'run/' .$info['RUNID'], '');

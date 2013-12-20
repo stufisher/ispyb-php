@@ -37,7 +37,8 @@
             $sta = $this->has_arg('iDisplayStart') ? $this->arg('iDisplayStart') : 0;
             $len = $this->has_arg('iDisplayLength') ? $this->arg('iDisplayLength') : 20;
             
-            $tot = $this->db->pq("SELECT count(projectid) as tot FROM ispyb4a_db.project p  $where")[0]['TOT'];
+            $tot = $this->db->pq("SELECT count(projectid) as tot FROM ispyb4a_db.project p  $where");
+            $tot = $tot[0]['TOT'];
             
             $st = sizeof($args) + 1;
             array_push($args, $sta);

@@ -189,7 +189,7 @@
                     } else array_push($rows, $row);
                     
                     if ($d->BLMATCH || $d->UMATCH) {
-                        $y = explode('-', $d->YEAR)[0];
+                        list($y) = explode('-', $d->YEAR);
 
                         if (preg_match('/(\w\d\d(-\d)?)/', $d->BL, $m)) {
                             $blid = array_search(strtolower($m[0]), $blns);
