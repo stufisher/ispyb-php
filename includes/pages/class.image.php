@@ -176,8 +176,8 @@
             if (!array_key_exists($this->arg('bl'), $bls)) return;
             
             set_time_limit(0);
-            for ($i = 0; $i < ob_get_level(); $i++)
-                ob_end_flush();
+            #for ($i = 0; $i < ob_get_level(); $i++)
+            #    ob_end_flush();
             ob_implicit_flush(1);
             
             while (@ob_end_clean());
