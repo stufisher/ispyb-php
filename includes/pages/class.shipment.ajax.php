@@ -5,6 +5,7 @@
         var $arg_list = array('did' => '\d+',
                               'cid' => '\d+',
                               'sid' => '\d+',
+                              'lcid' => '\d+',
                               'name' => '\w+',
                               'ty' => '\w+',
                               'value' => '.*',
@@ -33,6 +34,7 @@
                               'vis' => '_get_visits',
                               
                               'lc' => '_get_contacts',
+                              'lcd' => '_get_lc_details',
                               
                               'update' => '_update_shipment',
                               'updated' => '_update_dewar',
@@ -135,11 +137,11 @@
         
         # Return available visits
         function _get_visits() {
-            $visits = $this->db->pq("SELECT p.proposalcode || p.proposalnumber||'-'||b.visit_number as visit, b.sessionid, b.beamlinename, TO_CHAR(b.startdate, 'DD-MM-YYYY') as st FROM ispyb4a_db.blsession b INNER JOIN ispyb4a_db.proposal p ON p.proposalid = b.proposalid WHERE p.proposalcode || p.proposalnumber LIKE :1 AND b.startdate > SYSDATE-60", array($this->arg('prop')));
+            $visits = $this->db->pq("SELECT p.proposalcode || p.proposalnumber||'-'||b.visit_number as visit, b.visit_number as vn, b.sessionid, b.beamlinename, TO_CHAR(b.startdate, 'DD-MM-YYYY') as st FROM ispyb4a_db.blsession b INNER JOIN ispyb4a_db.proposal p ON p.proposalid = b.proposalid WHERE p.proposalcode || p.proposalnumber LIKE :1 AND b.startdate > SYSDATE-60", array($this->arg('prop')));
             
             $vl = array();
             foreach ($visits as $v) {
-                $vl[$v['SESSIONID']] = $v['VISIT'] .' ('.$v['BEAMLINENAME'].': '.$v['ST'].')';
+                $vl[$v['SESSIONID']] = $v['VN'] .' ('.$v['BEAMLINENAME'].': '.$v['ST'].')';
             }
             
             $this->_output($vl);
@@ -176,6 +178,17 @@
             }
                                   
             $this->_output($array);
+        }
+        
+        
+        # Get labcontact shipping and billing details
+        function _get_lc_details() {
+            if (!$this->has_arg('lcid')) $this->_error('No labcontact specified');
+            
+            $det = $this->db->pq("SELECT defaultcourriercompany, courieraccount FROM ispyb4a_db.labcontact WHERE labcontactid=:1", array($this->arg('lcid')));
+            if (!sizeof($det)) $this->_error('No such labcontact');
+            
+            $this->_output($det[0]);
         }
         
         
