@@ -4,7 +4,7 @@ $(function() {
   var auto_load = 1
   var auto_load_thread = null
   var first = true
-  var nopgs = 0
+  var nopgs = null
   //var search = ''
   //var type = ''
   
@@ -94,11 +94,10 @@ $(function() {
              dataType: 'json',
              timeout: 10000,
              success: function(json){
-                //console.log('res '+new Date())
-                console.log(nopgs, json[0], nopgs == json[0])
                 if (json[0] != nopgs) {
                   var pgs = []
-                  for (var i = 0; i < json[0]; i++) pgs.push('<li'+(i+1==page?' class="selected"':'')+'><a href="#'+(i+1)+'">'+(i+1)+'</a></li>')
+                  var pc = json[0] == 0 ? 1 : json[0]
+                  for (var i = 0; i < pc; i++) pgs.push('<li'+(i+1==page?' class="selected"':'')+'><a href="#'+(i+1)+'">'+(i+1)+'</a></li>')
              
                   $('.pages').html('<ul>'+pgs.join('')+'</ul>')
                   nopgs = json[0]
