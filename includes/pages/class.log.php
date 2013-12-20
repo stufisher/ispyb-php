@@ -8,6 +8,8 @@
         
         var $root = 'Latest Visits';
         var $root_link = '/';
+        
+        var $sidebar = True;
     
         #var $debug = True;
         

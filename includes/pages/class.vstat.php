@@ -10,6 +10,8 @@
         var $dispatch = array('index' => '_index', 'proposal' => '_show_proposal');
         var $def = 'index';
         
+        var $sidebar = True;
+        
         var $root = 'Visit Statistics';
         var $root_link = '/vstat';
         
