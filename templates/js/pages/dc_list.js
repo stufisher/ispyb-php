@@ -4,6 +4,7 @@ $(function() {
   var auto_load = 1
   var auto_load_thread = null
   var first = true
+  var nopgs = 0
   //var search = ''
   //var type = ''
   
@@ -94,10 +95,14 @@ $(function() {
              timeout: 10000,
              success: function(json){
                 //console.log('res '+new Date())
-                var pgs = []
-                for (var i = 0; i < json[0]; i++) pgs.push('<li'+(i+1==page?' class="selected"':'')+'><a href="#'+(i+1)+'">'+(i+1)+'</a></li>')
+                console.log(nopgs, json[0], nopgs == json[0])
+                if (json[0] != nopgs) {
+                  var pgs = []
+                  for (var i = 0; i < json[0]; i++) pgs.push('<li'+(i+1==page?' class="selected"':'')+'><a href="#'+(i+1)+'">'+(i+1)+'</a></li>')
              
-                $('.pages').html('<ul>'+pgs.join('')+'</ul>')
+                  $('.pages').html('<ul>'+pgs.join('')+'</ul>')
+                  nopgs = json[0]
+                }
              
                 if (search) $('.data_collection').remove()
              
@@ -256,6 +261,7 @@ $(function() {
                        
                    
                    } else {
+                       /*
                        if (r['TYPE'] == 'data') {
                            $('.data_collection[dcid="'+r['ID']+'"]').data('first', false)
                            var sn = $('.data_collection[dcid="'+r['ID']+'"] .snapshots img')
@@ -263,7 +269,7 @@ $(function() {
                        
                            if (!$(sn).attr('dsrc') && r['SN']) $(sn).attr('dsrc', '/image/id/'+r['ID'])
                            if (!$(di).attr('dsrc') && r['DI']) $(di).attr('dsrc', '/image/diff/id/'+r['ID'])
-                       }
+                       }*/
                        
                    }
 
@@ -283,7 +289,7 @@ $(function() {
       if (auto_load) {
         auto_load_thread = setTimeout(function() {
             load_datacollection()
-        }, 5000)
+        }, 8000)
       }
   }
   
