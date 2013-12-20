@@ -159,7 +159,7 @@
             $info = array();
             # Visits
             if ($this->has_arg('visit')) {
-                $info = $this->db->pq("SELECT s.sessionid, s.beamlinename as bl, vr.run, vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')))[0];
+                list($info,) = $this->db->pq("SELECT s.sessionid, s.beamlinename as bl, vr.run, vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')));
             
                 for ($i = 0; $i < 4; $i++) array_push($args, $info['SESSIONID']);
                 
@@ -209,8 +209,9 @@
                                 
                 UNION SELECT count(xrf.xfefluorescencespectrumid) as tot from ispyb4a_db.xfefluorescencespectrum xrf $vis[3] WHERE $sess[3] $where4
                                 
-                UNION SELECT count(r.robotactionid) as tot FROM ispyb4a_db.robotaction r $vis[2] WHERE $sess[2]  $where3)", $args)[0]['T'];
-    
+                UNION SELECT count(r.robotactionid) as tot FROM ispyb4a_db.robotaction r $vis[2] WHERE $sess[2]  $where3)", $args);
+            $tot = $tot[0]['T'];
+            
             $this->profile('after page count');
             
             $pgs = intval($tot/$pp);
@@ -352,7 +353,7 @@
             }
             
             foreach ($ids as $i) {
-                $dc = $this->db->pq("SELECT bls.blsampleid, c.samplechangerlocation as scon, bls.location as spos, bls.name as san, im.measuredintensity as flux, dc.filetemplate, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4,dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) LEFT OUTER JOIN ispyb4a_db.blsample bls ON bls.blsampleid = dc.blsampleid LEFT OUTER JOIN ispyb4a_db.container c ON bls.containerid = c.containerid LEFT OUTER JOIN ispyb4a_db.image im ON (im.datacollectionid = dc.datacollectionid AND im.imagenumber = 1) WHERE dc.datacollectionid=:1 AND $where LIKE :2", array($i,$arg))[0];
+                list($dc) = $this->db->pq("SELECT bls.blsampleid, c.samplechangerlocation as scon, bls.location as spos, bls.name as san, im.measuredintensity as flux, dc.filetemplate, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4,dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) LEFT OUTER JOIN ispyb4a_db.blsample bls ON bls.blsampleid = dc.blsampleid LEFT OUTER JOIN ispyb4a_db.container c ON bls.containerid = c.containerid LEFT OUTER JOIN ispyb4a_db.image im ON (im.datacollectionid = dc.datacollectionid AND im.imagenumber = 1) WHERE dc.datacollectionid=:1 AND $where LIKE :2", array($i,$arg));
                 
                 $dc['DIR'] = $this->ads($dc['DIR']);
                 $root = str_replace($dc['VIS'], $dc['VIS'].'/processed', $dc['DIR']).$dc['IMP'].'_'.$dc['RUN'].'_'.'/';
@@ -509,7 +510,7 @@
                     if ($k == 'RES') $v = number_format($v, 2);
                 }
                 $r['VPATH'] = join('/', array_slice(explode('/', $r['IMD']),0,6));
-                $r['BL'] = explode('/', $r['IMD'])[2];
+                list(,,$r['BL']) = explode('/', $r['IMD']);
                 $r['DIST'] = $this->_r_to_dist($r['BL'], $r['LAM'], $r['RES']);
                 $r['ATRAN'] = round($r['TRAN']/100.0*$r['DCTRN'],1);
                 list($r['NTRAN'], $r['NEXP']) = $this->_norm_et($r['ATRAN'], $r['TIME']);
@@ -617,7 +618,7 @@
                         'Dimple' => array('fast_dp', array('dimple/final.pdb', 'dimple/final.mtz'))
                         );
             
-            $info = $this->db->pq('SELECT dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE dc.datacollectionid=:1', array($this->arg('id')))[0];
+            list($info) = $this->db->pq('SELECT dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE dc.datacollectionid=:1', array($this->arg('id')));
             
             $info['DIR'] = $this->ads($info['DIR']);
             $data = array();
