@@ -216,9 +216,10 @@
             } else $tot = 0;
             
             if ($this->has_arg('iSortCol_0')) {
-                usort($rows, function($a, $b) {
-                    $c = $this->arg('iSortCol_0');
-                    $d = $this->has_arg('sSortDir_0') ? ($this->arg('sSortDir_0') == 'asc' ? 1 : 0) : 0;
+                $v = $this;
+                usort($rows, function($a, $b) use ($v) {
+                    $c = $v->arg('iSortCol_0');
+                    $d = $v->has_arg('sSortDir_0') ? ($v->arg('sSortDir_0') == 'asc' ? 1 : 0) : 0;
                       
                     if (gettype($a[$c]) == 'string') return $d ? strcmp($a[$c],$b[$c]) : strcmp($b[$c], $a[$c]);
                     else return $d ? ($a[$c] - $b[$c]) : ($b[$c] - $a[$c]);
