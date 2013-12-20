@@ -1911,6 +1911,15 @@ table.dewars tr:hover td {
     background: #dddddd !important;
 }
 
+table.dewars input {
+    width: 100%;
+}
+
+table.samples tr td:last-child,
+table.dewars tr td:last-child {
+    white-space: nowrap;
+}
+
 /*
 .current {
     padding: 4%;
