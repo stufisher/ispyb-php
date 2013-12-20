@@ -5,21 +5,21 @@
 
     <div class="calendar">
     <ul class="links">
-        <li><a href="/dc/<?php echo $has_prop ? 'proposal/' : '' ?>mon/<?php echo $months[$c_month] ?>/year/<?php echo ($c_year-1) ?>"><?php echo ($c_year-1) ?></a></li>
+        <li><a href="/cal/<?php echo $has_prop ? 'proposal/' : '' ?>mon/<?php echo $months[$c_month] ?>/year/<?php echo ($c_year-1) ?>"><?php echo ($c_year-1) ?></a></li>
 
         <?php if ($c_month == 1): ?>
-            <li><a href="/dc/<?php echo $has_prop ? 'proposal/' : '' ?>mon/<?php echo $prev_mon ?>/year/<?php echo ($c_year-1) ?>"><?php echo $prev_mon ?></a></li>
+            <li><a href="/cal/<?php echo $has_prop ? 'proposal/' : '' ?>mon/<?php echo $prev_mon ?>/year/<?php echo ($c_year-1) ?>"><?php echo $prev_mon ?></a></li>
         <?php else: ?>
-            <li><a href="/dc/<?php echo $has_prop ? 'proposal/' : '' ?>mon/<?php echo $prev_mon ?>"><?php echo $prev_mon ?></a></li>
+            <li><a href="/cal/<?php echo $has_prop ? 'proposal/' : '' ?>mon/<?php echo $prev_mon ?>"><?php echo $prev_mon ?></a></li>
         <?php endif ?>
 
         <?php if ($c_month == 12): ?>
-            <li><a href="/dc/<?php echo $has_prop ? 'proposal/' : '' ?>mon/<?php echo $next_mon ?>/year/<?php echo ($c_year+1) ?>"><?php echo $next_mon ?></a></li>
+            <li><a href="/cal/<?php echo $has_prop ? 'proposal/' : '' ?>mon/<?php echo $next_mon ?>/year/<?php echo ($c_year+1) ?>"><?php echo $next_mon ?></a></li>
         <?php else: ?>
-            <li><a href="/dc/<?php echo $has_prop ? 'proposal/' : '' ?>mon/<?php echo $next_mon ?>"><?php echo $next_mon ?></a></li>
+            <li><a href="/cal/<?php echo $has_prop ? 'proposal/' : '' ?>mon/<?php echo $next_mon ?>"><?php echo $next_mon ?></a></li>
         <?php endif ?>
 
-        <li><a href="/dc/<?php echo $has_prop ? 'proposal/' : '' ?>mon/<?php echo $months[$c_month] ?>/year/<?php echo ($c_year+1) ?>"><?php echo ($c_year+1) ?></a></li>
+        <li><a href="/cal/<?php echo $has_prop ? 'proposal/' : '' ?>mon/<?php echo $months[$c_month] ?>/year/<?php echo ($c_year+1) ?>"><?php echo ($c_year+1) ?></a></li>
     </ul>
 
     <ul>
@@ -40,7 +40,7 @@
                     <li><?php echo $t ?>
                         <ul>
                         <?php foreach ($vi as $v): ?>
-                        <li><?php echo $v['BL'] ?> - <a href="/dc/visit/<?php echo $v['VIS'] ?>"><?php echo $v['VIS'] ?></a></li>
+                        <li><?php echo $v['BL'] ?> - <a href="/cal/visit/<?php echo $v['VIS'] ?>"><?php echo $v['VIS'] ?></a></li>
                         <?php endforeach; ?>
                         </ul>
                     </li>
