@@ -109,7 +109,7 @@
             oci_set_prefetch($stid, 20);
             
             // Get variables for prepared query
-            $arg_count = preg_match_all('/:\d+/', $query);
+            $arg_count = preg_match_all('/:\d+/', $query, $mat);
             //if (sizeof($args) != $arg_count) trigger_error('Number of bound variables does not match number of arguments', E_USER_ERROR);
             
             for ($i = 0; $i < $arg_count; $i++) {
@@ -124,7 +124,7 @@
             // Add Explain Plan if requested
             if ($this->explain) {
                 $exp = oci_parse($this->conn, 'EXPLAIN PLAN FOR '.$query);
-                $arg_count = preg_match_all('/:\d+/', $query);
+                $arg_count = preg_match_all('/:\d+/', $query, $mat);
                 $r = oci_execute($exp);
                 oci_free_statement($exp);
                 
