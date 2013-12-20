@@ -65,8 +65,8 @@
         </ul>
     </div>
 
-    <h1>Sample History <span class="r"><a href="/dc/sid/<?php echo $samp['BLSAMPLEID'] ?>">View All Details</a></h1>
-
+    <h1>Sample History</h1>
+    <span class="r"><a href="/dc/sid/<?php echo $samp['BLSAMPLEID'] ?>">View All Details</a></span>
     <div class="page_wrap">
         <div class="pages"></div>
         <div class="clear"></div>
