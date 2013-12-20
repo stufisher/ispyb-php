@@ -7,7 +7,7 @@
             <li><a href="/">Upcoming Visits</a>
                 <?php if ($this->staff): ?>
                 <ul>
-                    <li><a href="/dc">Calendar</a></li>
+                    <li><a href="/cal">Calendar</a></li>
                 </ul>
                 <?php endif; ?>
             </li>
@@ -25,6 +25,8 @@
                 <span class="current" title="Click to change the currently selected proposal"><?php echo $prop ?></span>
                 <?php if ($prop): ?>
                 <ul>
+                    <li><a href="/dc">View All Data</a></li>
+
                     <li><a href="/proposal/visits">Visits</a></li>
 
                     <li><a href="/cal/proposal">Calendar</a></li>
