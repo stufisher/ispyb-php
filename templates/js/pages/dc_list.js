@@ -4,18 +4,27 @@ $(function() {
   var auto_load = 1
   var auto_load_thread = null
   var first = true
-  var search = ''
+  //var search = ''
   //var type = ''
+  
+  // Hash of distl plots
+  var distl = {}
   
   
   $('#rd').dialog({ title: 'Radiation Damage Analysis', autoOpen: false, buttons: { 'Close': function() { $(this).dialog('close') } } });
   
-  if (active == 0) $('div.log').hide()
+  $('#distl_full').dialog({ title: 'DISTL Plot', autoOpen: false, buttons: { 'Close': function() { $(this).dialog('close') } } });
+  
+  //if (active == 0) $('div.log').hide()
   
   
   var dragImg = document.createElement('img');
   dragImg.src = '/templates/images/drag.png'
   
+  if (search) {
+    $('input[name=search]').val(search)
+    auto_load = 0
+  }
   
   // Filter by type
   $('.filter ul li[id='+type+']').addClass('current')
@@ -57,6 +66,10 @@ $(function() {
             page = 1
             first = true
             search = $this.val()
+                          
+            url = window.location.pathname.replace(/\/s\/\w+/, '')+(search ? ('/s/'+search) : '')
+            window.history.pushState({}, '', url)
+                          
             load_datacollection();
       }, 800);
   });
@@ -75,10 +88,10 @@ $(function() {
       //console.log('fn '+new Date())
   
       $.ajax({
-             url: '/dc/ajax/visit/' + visit + (page ? ('/page/' + page) : '') + (search ? ('/s/'+search) : '') + (type ? ('/t/'+type) : '') + ($(window).width() <= 600 ? '/pp/5' : '') + (dcid ? ('/id/'+dcid) : ''),
+             url: '/dc/ajax' + (is_sample ? ('/sid/'+sid) : '') + (is_visit ? ('/visit/' + visit) : '') + (page ? ('/page/' + page) : '') + (search ? ('/s/'+search) : '') + (type ? ('/t/'+type) : '') + ($(window).width() <= 600 ? '/pp/5' : '') + (dcid ? ('/id/'+dcid) : ''),
              type: 'GET',
              dataType: 'json',
-             timeout: 5000,
+             timeout: 10000,
              success: function(json){
                 //console.log('res '+new Date())
                 var pgs = []
@@ -90,6 +103,7 @@ $(function() {
              
                 $.each(json[1].reverse(), function(i,r) {
                     if ($.inArray(r['ID'], dcids) == -1) {
+                       var vis_link = is_visit ? '' : ' [<a href="/dc/visit/'+prop+'-'+r['VN']+'">'+prop+'-'+r['VN']+'</a>]'
                        
                        // Data Collection
                        if (r['TYPE'] == 'data') {
@@ -105,8 +119,9 @@ $(function() {
                        
                            $('<div class="data_collection" dcid="'+r['ID']+'" type="data">' +
                              '<h1>'+
-                                '<button class="flag '+f+'" title="Click to add this data collection to the list of favourite data collections">Favourite</button>  <a href="/dc/visit/'+visit+'/id/'+r['ID']+'" class="perm">Permalink</a> '+
+                                '<button class="atp" ty="dc" iid="'+r['ID']+'" name="'+r['DIR']+r['FILETEMPLATE']+'">Add to Project</button> <button class="flag '+f+'" title="Click to add this data collection to the list of favourite data collections">Favourite</button>  <a href="/dc/visit/'+prop+'-'+r['VN']+'/id/'+r['ID']+'" class="perm">Permalink</a> '+
                                 '<span class="date">'+r['ST']+'</span> - <span class="temp">'+r['DIR']+r['FILETEMPLATE']+'</span>'+
+                                vis_link +
                              '</h1>'+
                              (state ?
                              ('<div class="distl" title="DISTL plot showing number of spots (yellow and blue points), and estimated resolution (red points) for each image in the data collection"></div>'+
@@ -154,7 +169,7 @@ $(function() {
                            ev = 12398.4193
                            d = $('<div class="data_collection" dcid="'+r['ID']+'" type="edge">' +
                              '<div class="edge"></div>'+
-                             '<h1><!--<button class="atp" ty="edge" iid="'+r['ID']+'" name="'+r['DIR']+' Edge Scan"></button>--> <button class="flag '+f+'">Favourite</button> <a class="perm" href="/dc/visit/'+visit+'/t/edge/id/'+r['ID']+'">Permalink</a> '+r['ST']+'</h1>'+
+                             '<h1><button class="atp" ty="edge" iid="'+r['ID']+'" name="'+r['DIR']+' Edge Scan">Add to Project</button> <button class="flag '+f+'">Favourite</button> <a class="perm" href="/dc/visit/'+prop+'-'+r['VN']+'/t/edge/id/'+r['ID']+'">Permalink</a> '+r['ST']+                                 vis_link +'</h1>'+
                              '<h2>'+r['DIR']+' Edge Scan</h2>'+
 
                              '<ul class="clearfix">'+
@@ -187,7 +202,7 @@ $(function() {
                            d = $('<div class="data_collection" dcid="'+r['ID']+'" type="mca">' +
                              '<div class="mca"></div>'+
                              '<div class="elements">'+el+'</div>'+
-                             '<h1><!--<button class="atp" ty="mca" iid="'+r['ID']+'" name="Fluorescence Spectrum"></button>--> <button class="flag '+f+'">Favourite</button> <a class="perm" href="/dc/visit/'+visit+'/t/mca/id/'+r['ID']+'">Permalink</a> '+r['ST']+'</h1>'+
+                             '<h1><button class="atp" ty="mca" iid="'+r['ID']+'" name="Fluorescence Spectrum">Add to Project</button> <button class="flag '+f+'">Favourite</button> <a class="perm" href="/dc/visit/'+prop+'-'+r['VN']+'/t/mca/id/'+r['ID']+'">Permalink</a> '+r['ST']+                                vis_link +'</h1>'+
                              '<h2>MCA Fluorescence Spectrum</h2>'+
 
                              '<ul class="clearfix">'+
@@ -209,12 +224,12 @@ $(function() {
                          if (r['IMP'] == 'ANNEAL' || r['IMP'] == 'WASH') {
                            $('<div class="data_collection" dcid="'+r['ID']+'">' +
                                '<div class="snapshots">'+
-                                  '<a href="/image/ai/visit/'+visit+'/aid/'+r['ID']+'/f/1" rel="lightbox-'+r['ID']+'" title="Crystal Snapshot Before"><img dsrc="/image/ai/visit/'+visit+'/aid/'+r['ID']+'" alt="Crystal Snapshot Before" /></a>'+
+                                  '<a href="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'/f/1" rel="lightbox-'+r['ID']+'" title="Crystal Snapshot Before"><img dsrc="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'" alt="Crystal Snapshot Before" /></a>'+
                                '</div>'+
                                '<div class="snapshots">'+
-                                  '<a href="/image/ai/visit/'+visit+'/aid/'+r['ID']+'/f/1" rel="lightbox-'+r['ID']+'" title="Crystal Snapshot After"><img dsrc="/image/ai/visit/'+visit+'/aid/'+r['ID']+'" alt="Crystal Snapshot After" /></a>'+
+                                  '<a href="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'/f/1" rel="lightbox-'+r['ID']+'" title="Crystal Snapshot After"><img dsrc="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'" alt="Crystal Snapshot After" /></a>'+
                                '</div>'+
-                               '<h1>'+r['ST']+'</h1>'+
+                               '<h1>'+r['ST']+ vis_link +'</h1>'+
                                '<h2>Sample '+r['IMP'].toLowerCase()+'</h2>'+
                                  '<ul class="clearfix">'+
                                    '<li>Time: '+r['BSX']+'s</li>'+
@@ -278,7 +293,7 @@ $(function() {
   // Update AP status
   function update_aps() {  
     $.ajax({
-        url: '/dc/ajax/aps/visit/' + visit,
+        url: '/dc/ajax/aps' + (is_visit ? ('/visit/'+visit) : ''),
         type: 'POST',
         data: { ids: $('.data_collection[type=data]').map(function(i,e) { return $(e).attr('dcid') }).get() },
         dataType: 'json',
@@ -494,7 +509,7 @@ $(function() {
                     },
                  }
              
-               $.plot($(div), data, options);
+               distl[id] = $.plot($(div), data, options);
              
                var refresh_imq = true
                if (j[0].length > 0) {
@@ -580,8 +595,49 @@ $(function() {
         $(this).removeClass('dragged')
       })
   
-      // Load IQI's
-      $('.data_collection .distl').each(function(i) {
+      // Make IQIs clickable
+      $('.data_collection .distl').unbind('click').bind('click', function() {
+        var id = $(this).parent('div').attr('dcid')
+        if (id in distl) {
+          $('#distl_full').dialog('open')
+          var options = {
+            xaxis: {
+                minTickSize: 1,
+                tickDecimals: 0,
+                //tickColor: 'transparent'
+     
+            },
+            yaxes: [{}, { position: 'right' }],
+            grid: {
+                borderWidth: 0,
+            },
+            series: {
+                lines: { show: false },
+                points: {
+                    show: true,
+                    radius: 1,
+                }
+            },
+          }
+                       
+          var d = distl[id].getData()
+          var data = [{
+                    data: d[0].data,
+                 }, {
+                    data: d[1].data,
+                 }, {
+                    data: d[2].data,
+                    yaxis: 2
+                 }]
+                                                        
+          var lrg = $.plot($('#distl_full .distl'),[], options)
+          lrg.setData(data)
+          lrg.setupGrid()
+          lrg.draw()
+          
+        }
+      // Load IQIs
+      }).each(function(i) {
           if (!$(this).data('plotted')) {
               var w = 0.175*$('.data_collection').width()
               $(this).height($(window).width() > 600 ? w : (w*1.65))
@@ -594,7 +650,7 @@ $(function() {
               })
             }, i*100+100)
           }
-      })
+      })  
   
   
       // Make flagable data collections iconified

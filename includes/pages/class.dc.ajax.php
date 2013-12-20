@@ -25,7 +25,8 @@
         # Data Collection AJAX Requests
         #   This is pretty crazy, it will return unioned data collections, energy
         #   scans, xfe spectra, and robot/sample actions as a single array ordered
-        #   by start time descending for either:
+        #   by start time descending for:
+        #   - a proposal /
         #   - a visit /visit/
         #   - a particular sample id /sid/
         #   - a project (explicit or implicit) /pjid/(imp/1/)
@@ -34,10 +35,12 @@
             session_write_close();
             
             $this->profile('starting dc page');
-            if (!$this->has_arg('visit') &&
-                !($this->has_arg('sid') && $this->arg('prop')) &&
-                !($this->has_arg('pjid') && $this->arg('prop')))
-                    $this->_error('No visit, sample, or project specified');
+            #if (!$this->has_arg('visit') &&
+            #    !($this->has_arg('sid') && $this->arg('prop')) &&
+            #    !($this->has_arg('pjid') && $this->arg('prop')))
+            #        $this->_error('No visit, sample, or project specified');
+            
+            if (!($this->has_arg('visit') || $this->has_arg('prop'))) $this->_error('No visit or proposal specified');
             
             $args = array();
             
@@ -46,57 +49,17 @@
             $where3 = '';
             $where4 = '';
             
-            $inner = '';
-            $tables = array('dc.sessionid', 'es.sessionid', 'r.blsessionid', 'xrf.sessionid');
             $sess = array();
-            foreach ($tables as $i => $t) array_push($sess, $t.'=:'.($i+1));
-            $vis = array('','','','');
-            $visq = '';
             
-            
-            # View a particular sample
-            if ($this->has_arg('sid')) {
-                $inner = ' INNER JOIN blsample_has_energyscan be ON be.energyscanid = es.energyscanid';
-                $tables2 = array('dc', 'be', 'r', 'xrf');
-                foreach ($tables2 as $i => $t) $sess[$i] = $t.'.blsampleid=:'.($i+1);
-                foreach ($tables as $i => $t) $vis[$i] = ' INNER JOIN ispyb4a_db.blsession ses ON ses.sessionid = '.$t;
-                $visq = 'ses.visit_number as vn,';
-            }
+            # Extra joins
+            $extj = array('','','','');
+            # Extra columns
+            $extc = '';
             
             
             # View a project
             if ($this->has_arg('pjid')) {
                 //$this->db->set_stats(true);
-                
-                $visq = 'ses.visit_number as vn,bls.name as sample,bls.blsampleid,';
-                $tables = array(array('project_has_session', 'dc', 'sessionid'),
-                                array('project_has_energyscan', 'es', 'energyscanid'),
-                                array('project_has_session', 'r', 'blsessionid', 'sessionid'),
-                                array('project_has_xfefspectrum', 'xrf', 'xfefluorescencespectrumid'),
-                                );
-                
-                foreach ($tables as $i => $t) {
-                    $ct = sizeof($t) == 4 ? $t[3] : $t[2];
-                    $ses = $t[1] == 'r' ? 'blsessionid' : 'sessionid';
-                    
-                    # Fucking inconsistencies!
-                    $smp = $t[1] == 'es' ? " LEFT OUTER JOIN blsample_has_energyscan she ON she.energyscanid = es.energyscanid LEFT OUTER JOIN ispyb4a_db.blsample bls ON bls.blsampleid = she.blsampleid"
-                    : " LEFT OUTER JOIN ispyb4a_db.blsample bls ON bls.blsampleid = $t[1].blsampleid";
-                    
-                    $vis[$i] = "INNER JOIN ispyb4a_db.blsession ses ON ses.sessionid = $t[1].$ses LEFT OUTER JOIN ispyb4a_db.$t[0] prj ON $t[1].$t[2] = prj.$ct $smp";
-                    $sess[$i] = 'prj.projectid=:'.($i+1);
-                    
-                    if ($this->has_arg('imp')) {
-                        if ($this->arg('imp')) {
-                            # Extra linker table needed for energy scans :(
-                            $ij = $t[1] == 'es' ? "LEFT OUTER JOIN ispyb4a_db.blsample_has_energyscan bes ON $t[1].$t[2] = bes.$t[2] LEFT OUTER JOIN ispyb4a_db.blsample smp ON bes.blsampleid = smp.blsampleid"
-                                                : "LEFT OUTER JOIN ispyb4a_db.blsample smp ON $t[1].blsampleid = smp.blsampleid";
-                            
-                            $vis[$i] .= " $ij LEFT OUTER JOIN ispyb4a_db.crystal cr ON cr.crystalid = smp.crystalid LEFT OUTER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid LEFT OUTER JOIN ispyb4a_db.project_has_protein prj2 ON prj2.proteinid = pr.proteinid LEFT OUTER JOIN ispyb4a_db.project_has_blsample prj3 ON prj3.blsampleid = smp.blsampleid";
-                            $sess[$i] = '(prj.projectid=:'.($i*3+1).' OR prj2.projectid=:'.($i*3+2).' OR prj3.projectid=:'.($i*3+3).')';
-                        }
-                    }
-                }
             }
             
             
@@ -153,7 +116,7 @@
                 $start = $pg*$pp;
                 $end = $pg*$pp+$pp;
             }
-            
+
             
             # Check that whatever we are looking for actually exists
             $info = array();
@@ -161,25 +124,81 @@
             if ($this->has_arg('visit')) {
                 list($info,) = $this->db->pq("SELECT s.sessionid, s.beamlinename as bl, vr.run, vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')));
             
+                $sess = array('dc.sessionid=:1', 'es.sessionid=:2', 'r.blsessionid=:3', 'xrf.sessionid=:4');
                 for ($i = 0; $i < 4; $i++) array_push($args, $info['SESSIONID']);
                 
             # Samples
             } else if ($this->has_arg('sid') && $this->has_arg('prop')) {
                 $info = $this->db->pq("SELECT s.blsampleid FROM ispyb4a_db.blsample s INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = s.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = pr.proposalid WHERE s.blsampleid=:1 AND p.proposalcode || p.proposalnumber LIKE :2", array($this->arg('sid'), $this->arg('prop')));
+                
+                $extj[1] .= ' INNER JOIN blsample_has_energyscan be ON be.energyscanid = es.energyscanid';
+                $tables2 = array('dc', 'be', 'r', 'xrf');
+                foreach ($tables2 as $i => $t) $sess[$i] = $t.'.blsampleid=:'.($i+1);
                 for ($i = 0; $i < 4; $i++) array_push($args, $this->arg('sid'));
                  
             # Projects
             } else if ($this->has_arg('pjid') && $this->has_arg('prop')) {
                 $info = $this->db->pq('SELECT title FROM ispyb4a_db.project WHERE projectid=:1', array($this->arg('pjid')));
                 
+                
+                $extc = 'bls.name as sample,bls.blsampleid,';
+                $tables = array(array('project_has_session', 'dc', 'sessionid'),
+                                array('project_has_energyscan', 'es', 'energyscanid'),
+                                array('project_has_session', 'r', 'blsessionid', 'sessionid'),
+                                array('project_has_xfefspectrum', 'xrf', 'xfefluorescencespectrumid'),
+                                );
+                
+                foreach ($tables as $i => $t) {
+                    $ct = sizeof($t) == 4 ? $t[3] : $t[2];
+                    
+                    # Fucking inconsistencies!
+                    $smp = $t[1] == 'es' ? " LEFT OUTER JOIN blsample_has_energyscan she ON she.energyscanid = es.energyscanid LEFT OUTER JOIN ispyb4a_db.blsample bls ON bls.blsampleid = she.blsampleid"
+                    : " LEFT OUTER JOIN ispyb4a_db.blsample bls ON bls.blsampleid = $t[1].blsampleid";
+                    
+                    $extj[$i] .= " LEFT OUTER JOIN ispyb4a_db.$t[0] prj ON $t[1].$t[2] = prj.$ct $smp";
+                    $sess[$i] = 'prj.projectid=:'.($i+1);
+                    
+                    if ($this->has_arg('imp')) {
+                        if ($this->arg('imp')) {
+                            # Extra linker table needed for energy scans :(
+                            $ij = $t[1] == 'es' ? "LEFT OUTER JOIN ispyb4a_db.blsample_has_energyscan bes ON $t[1].$t[2] = bes.$t[2] LEFT OUTER JOIN ispyb4a_db.blsample smp ON bes.blsampleid = smp.blsampleid"
+                                                : "LEFT OUTER JOIN ispyb4a_db.blsample smp ON $t[1].blsampleid = smp.blsampleid";
+                            
+                            $extj[$i] .= " $ij LEFT OUTER JOIN ispyb4a_db.crystal cr ON cr.crystalid = smp.crystalid LEFT OUTER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid LEFT OUTER JOIN ispyb4a_db.project_has_protein prj2 ON prj2.proteinid = pr.proteinid LEFT OUTER JOIN ispyb4a_db.project_has_blsample prj3 ON prj3.blsampleid = smp.blsampleid";
+                            $sess[$i] = '(prj.projectid=:'.($i*3+1).' OR prj2.projectid=:'.($i*3+2).' OR prj3.projectid=:'.($i*3+3).')';
+                        }
+                    }
+                }
+                
+                
                 $n = 4;
                 if ($this->has_arg('imp'))
                     if ($this->arg('imp')) $n = 12;
                 for ($i = 0; $i < $n; $i++) array_push($args, $this->arg('pjid'));
+            
+            # Proposal
+            } else if ($this->has_arg('prop')) {
+                $info = $this->db->pq('SELECT proposalid FROM ispyb4a_db.proposal p WHERE p.proposalcode || p.proposalnumber LIKE :1', array($this->arg('prop')));
+                
+                for ($i = 0; $i < 4; $i++) {
+                    $sess[$i] = 'ses.proposalid=:'.($i+1);
+                    array_push($args, $this->proposalid);
+                }
             }
             
             if (!sizeof($info)) $this->_error('The specified visit, sample, or project doesnt exist');
-        
+            
+            
+            # If not staff check they have access to data collection
+            if (!$this->has_arg('visit') && !$this->staff) {
+                for ($i = 0; $i < 4; $i++) {
+                    $extj[$i] .= " INNER JOIN investigation@DICAT_RO i ON lower(i.visit_id) LIKE :".(sizeof($args)+1)." || '-' || ses.visit_number INNER JOIN investigationuser@DICAT_RO iu on i.id = iu.investigation_id INNER JOIN user_@DICAT_RO u on u.id = iu.user_id ".$where." AND u.name=:".(sizeof($args)+2);
+                    array_push($args, $this->arg('prop'));
+                    array_push($args, phpCAS::getUser());
+                }
+            }
+            
+            
             
             # View a single data collection
             if ($this->has_arg('id')) {
@@ -203,13 +222,25 @@
                 for ($i = 0; $i < 5; $i++) array_push($args, $this->arg('s'));
             }
             
-            $tot = $this->db->pq("SELECT sum(tot) as t FROM (SELECT count(dc.datacollectionid) as tot FROM ispyb4a_db.datacollection dc $vis[0] WHERE $sess[0] $where
+            $tot = $this->db->pq("SELECT sum(tot) as t FROM (SELECT count(dc.datacollectionid) as tot FROM ispyb4a_db.datacollection dc
+                INNER JOIN ispyb4a_db.blsession ses ON ses.sessionid = dc.sessionid
+                $extj[0]
+                WHERE $sess[0] $where
                 
-                UNION SELECT count(es.energyscanid) as tot FROM ispyb4a_db.energyscan es $inner $vis[1] WHERE $sess[1] $where2
+                UNION SELECT count(es.energyscanid) as tot FROM ispyb4a_db.energyscan es
+                INNER JOIN ispyb4a_db.blsession ses ON ses.sessionid = es.sessionid
+                $extj[1]
+                WHERE $sess[1] $where2
                                 
-                UNION SELECT count(xrf.xfefluorescencespectrumid) as tot from ispyb4a_db.xfefluorescencespectrum xrf $vis[3] WHERE $sess[3] $where4
+                UNION SELECT count(xrf.xfefluorescencespectrumid) as tot from ispyb4a_db.xfefluorescencespectrum xrf
+                INNER JOIN ispyb4a_db.blsession ses ON ses.sessionid = xrf.sessionid
+                $extj[3]
+                WHERE $sess[3] $where4
                                 
-                UNION SELECT count(r.robotactionid) as tot FROM ispyb4a_db.robotaction r $vis[2] WHERE $sess[2]  $where3)", $args);
+                UNION SELECT count(r.robotactionid) as tot FROM ispyb4a_db.robotaction r
+                INNER JOIN ispyb4a_db.blsession ses ON ses.sessionid = r.blsessionid
+                $extj[2]
+                WHERE $sess[2]  $where3)", $args);
             $tot = $tot[0]['T'];
             
             $this->profile('after page count');
@@ -224,23 +255,27 @@
             $q = "SELECT outer.*
              FROM (SELECT ROWNUM rn, inner.*
              FROM (
-             SELECT $visq dc.runstatus, dc.beamsizeatsamplex as bsx, dc.beamsizeatsampley as bsy, dc.overlap, 1 as flux, 1 as scon, 'a' as spos, 'a' as san, 'data' as type, dc.imageprefix as imp, dc.datacollectionnumber as run, dc.filetemplate, dc.datacollectionid as id, dc.numberofimages as ni, dc.imagedirectory as dir, dc.resolution, dc.exposuretime, dc.axisstart, dc.numberofimages as numimg, TO_CHAR(dc.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, dc.transmission, dc.axisrange, dc.wavelength, dc.comments, 1 as epk, 1 as ein, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4, dc.starttime as sta FROM ispyb4a_db.datacollection dc
-                 $vis[0]
+             SELECT $extc ses.visit_number as vn, dc.runstatus, dc.beamsizeatsamplex as bsx, dc.beamsizeatsampley as bsy, dc.overlap, 1 as flux, 1 as scon, 'a' as spos, 'a' as san, 'data' as type, dc.imageprefix as imp, dc.datacollectionnumber as run, dc.filetemplate, dc.datacollectionid as id, dc.numberofimages as ni, dc.imagedirectory as dir, dc.resolution, dc.exposuretime, dc.axisstart, dc.numberofimages as numimg, TO_CHAR(dc.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, dc.transmission, dc.axisrange, dc.wavelength, dc.comments, 1 as epk, 1 as ein, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4, dc.starttime as sta FROM ispyb4a_db.datacollection dc
+             INNER JOIN ispyb4a_db.blsession ses ON ses.sessionid = dc.sessionid
+             $extj[0]
              WHERE $sess[0] $where
                    
              UNION
-             SELECT $visq 'A',1,1,1, 1, 1 as scon, 'A' as spos, 'A' as sn, 'edge' as type, es.jpegchoochfilefullpath, 1, 'A', es.energyscanid, 1, es.element, es.peakfprime, es.exposuretime, es.peakfdoubleprime, 1, TO_CHAR(es.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, es.transmissionfactor, es.inflectionfprime, es.inflectionfdoubleprime, es.comments, es.peakenergy, es.inflectionenergy, 'A', 'A', 'A', 'A', es.starttime as sta FROM ispyb4a_db.energyscan es $inner
-                 $vis[1]
+             SELECT $extc ses.visit_number as vn, 'A',1,1,1, 1, 1 as scon, 'A' as spos, 'A' as sn, 'edge' as type, es.jpegchoochfilefullpath, 1, 'A', es.energyscanid, 1, es.element, es.peakfprime, es.exposuretime, es.peakfdoubleprime, 1, TO_CHAR(es.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, es.transmissionfactor, es.inflectionfprime, es.inflectionfdoubleprime, es.comments, es.peakenergy, es.inflectionenergy, 'A', 'A', 'A', 'A', es.starttime as sta FROM ispyb4a_db.energyscan es
+            INNER JOIN ispyb4a_db.blsession ses ON ses.sessionid = es.sessionid
+            $extj[1]
             WHERE $sess[1] $where2
                    
             UNION
-            SELECT $visq 'A',1,1,1, 1, 1, 'A', 'A', 'mca' as type, 'A', 1, 'A', xrf.xfefluorescencespectrumid, 1, xrf.filename, 1, xrf.exposuretime, 1, 1, TO_CHAR(xrf.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, xrf.beamtransmission, 1, xrf.energy, xrf.comments, 1, 1, 'A', 'A', 'A', 'A', xrf.starttime as sta FROM ispyb4a_db.xfefluorescencespectrum xrf
-                $vis[3]
+            SELECT $extc ses.visit_number as vn, 'A',1,1,1, 1, 1, 'A', 'A', 'mca' as type, 'A', 1, 'A', xrf.xfefluorescencespectrumid, 1, xrf.filename, 1, xrf.exposuretime, 1, 1, TO_CHAR(xrf.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, xrf.beamtransmission, 1, xrf.energy, xrf.comments, 1, 1, 'A', 'A', 'A', 'A', xrf.starttime as sta FROM ispyb4a_db.xfefluorescencespectrum xrf
+            INNER JOIN ispyb4a_db.blsession ses ON ses.sessionid = xrf.sessionid
+            $extj[3]
             WHERE $sess[3] $where4
                    
             UNION
-            SELECT $visq 'A',ROUND((CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400, 1),1,1, 1, 1, r.status, r.message, 'load' as type, r.actiontype, 1, 'A', r.robotactionid, 1,  r.samplebarcode, r.containerlocation, r.dewarlocation, 1, 1, TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, 1, 1, 1, 'A', 1, 1, 'A', 'A', 'A', 'A', r.starttimestamp as sta FROM ispyb4a_db.robotaction r
-                $vis[2]
+            SELECT $extc ses.visit_number as vn, 'A',ROUND((CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400, 1),1,1, 1, 1, r.status, r.message, 'load' as type, r.actiontype, 1, 'A', r.robotactionid, 1,  r.samplebarcode, r.containerlocation, r.dewarlocation, 1, 1, TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, 1, 1, 1, 'A', 1, 1, 'A', 'A', 'A', 'A', r.starttimestamp as sta FROM ispyb4a_db.robotaction r
+            INNER JOIN ispyb4a_db.blsession ses ON ses.sessionid = r.blsessionid
+            $extj[2]
             WHERE $sess[2] $where3
                  
                    
