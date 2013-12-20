@@ -54,6 +54,7 @@
                    'download',
                    'pdf',
                    'robot',
+                   'cal',
                    'dc',
                    'mc',
                    'samples',
