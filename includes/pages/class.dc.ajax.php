@@ -782,9 +782,9 @@
             if (!$this->has_arg('t')) $this->_error('No data type specified');
             if (!$this->arg('id')) $this->_error('No data collection id specified');
             
-            $types = array('data' => ['datacollection', 'datacollectionid'],
-                           'edge' => ['energyscan', 'energyscanid'],
-                           'mca' => ['xfefluorescencespectrum', 'xfefluorescencespectrumid'],
+            $types = array('data' => array('datacollection', 'datacollectionid'),
+                           'edge' => array('energyscan', 'energyscanid'),
+                           'mca' => array('xfefluorescencespectrum', 'xfefluorescencespectrumid'),
                            );
             
             if (!array_key_exists($this->arg('t'), $types)) $this->_error('No such data type');
@@ -814,9 +814,9 @@
             if (!$this->arg('id')) $this->_error('No data collection id specified');
             if (!$this->arg('value')) $this->_error('No comment specified');
             
-            $types = array('data' => ['datacollection', 'datacollectionid'],
-                           'edge' => ['energyscan', 'energyscanid'],
-                           'mca' => ['xfefluorescencespectrum', 'xfefluorescencespectrumid'],
+            $types = array('data' => array('datacollection', 'datacollectionid'),
+                           'edge' => array('energyscan', 'energyscanid'),
+                           'mca' => array('xfefluorescencespectrum', 'xfefluorescencespectrumid'),
                            );
             
             if (!array_key_exists($this->arg('t'), $types)) $this->_error('No such data type');
