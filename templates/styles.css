@@ -1915,6 +1915,7 @@ table.dewars input {
     width: 100%;
 }
 
+table.shipments tr td:last-child,
 table.samples tr td:last-child,
 table.dewars tr td:last-child {
     white-space: nowrap;

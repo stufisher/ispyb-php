@@ -7,7 +7,7 @@
         <div class="ra"><a class="add" href="/shipment/add" title="Create a new shipment">Add Shipment</a></div>
 
         <div class="table">
-            <table class="robot_actions">
+            <table class="robot_actions shipments">
                 <thead>
                     <tr>
                         <th>Name</th>
