@@ -5,6 +5,8 @@
         var $arg_list = array('value' => '.*',
                               'cid' => '\d+',
                               'ty' => '\w+',
+                              'iDisplayStart' => '\d+',
+                              'iDisplayLength' => '\d+',
                               );
         var $dispatch = array('contacts' => '_get_contacts',
                               'update' => '_update_contact',
