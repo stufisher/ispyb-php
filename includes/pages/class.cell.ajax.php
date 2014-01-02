@@ -95,6 +95,9 @@
                 
                 $dc['DIR'] = $this->ads($dc['DIR']);
                 $dc['DIR'] = substr($dc['DIR'], strpos($dc['DIR'], $dc['VISIT'])+strlen($dc['VISIT'])+1);
+                
+                $dc['WAVELENGTH'] = number_format($dc['WAVELENGTH'], 3);
+                $dc['TRANSMISSION'] = number_format($dc['TRANSMISSION'], 3);
             }
             
             if ($this->has_arg('pdb')) {
