@@ -92,10 +92,7 @@
             $id = 0;
             $rows = $this->db->pq($q, $args);
             
-            if (!$rows) {
-                $this->_no_data();
-                return;
-            }
+            if (!$rows) $this->error('No Data', 'No data associated with that beamline/run');
             
             $id = 0; //sizeof($rows)-1;
             foreach ($rows as $r) {
@@ -198,10 +195,7 @@
         function _get_visit() {
             $rows = $this->db->pq("SELECT TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, r.status, r.actiontype, r.containerlocation, r.dewarlocation, r.samplebarcode, r.message, (CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as time FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = s.sessionid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1 AND (r.actiontype = 'LOAD' OR r.actiontype='UNLOAD') ORDER BY r.starttimestamp DESC", array($this->arg('visit')));
             
-            if (!$rows) {
-                $this->_no_data();
-                return;
-            }
+            if (!$rows) $this->error('No Data', 'No data associated with that visit');
             
             $times = array();
             $ticks = array();
@@ -226,13 +220,6 @@
             
             $this->render('robot_visit', 'robot_list');
 
-        }
-        
-        
-        # No data for selected beamline / run combination
-        function _no_data() {
-            $this->template('Robot Statistics > No data for beamline/run', array('No Data'), array(''));
-            $this->render('robot_no_data');
         }
         
     }
