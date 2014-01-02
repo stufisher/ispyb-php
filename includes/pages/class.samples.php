@@ -35,7 +35,7 @@
             
             $info = $info[0];
             
-            $p = array($info['BL'], $this->arg('visit'), 'Sample Creation');
+            $p = array($info['BL'], $this->arg('visit'), 'Sample Allocation');
             $l = array('', '/dc/visit/'.$this->arg('visit'), '');
             $this->template('Container Allocation: ' . $this->arg('visit'), $p, $l);
             $this->t->vis = $this->arg('visit');
