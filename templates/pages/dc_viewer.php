@@ -4,7 +4,7 @@
     <p class="help">This page is a full scale diffraction image viewer. Mousehweel zooms in and out, drag click to pan around the image. Press &gt; to go to the next image and &lt; the previous.</p>
 
     <div class="data_collection">
-        <ul class="full_width clearfix">
+        <ul class="full clearfix">
             <li>Exposure: <?php echo number_format($d['EXPOSURETIME'],3) ?>s</li>
             <li>Transmission: <?php echo number_format($d['TRANSMISSION'],3) ?>%</li>
             <li>Resolution: <?php echo number_format($d['RES'],2) ?>&#197;</li>
