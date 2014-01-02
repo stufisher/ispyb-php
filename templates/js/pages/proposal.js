@@ -22,6 +22,11 @@ $(function() {
   $('.robot_actions').dataTable(dt)
   $('.table input').focus()
   
+  $('input.search-mobile').keyup(function() {
+    $('.dataTables_filter input').val($(this).val()).trigger('keyup')
+  }).parent('span').addClass('enable')
+  $('#sidebar,.cont_wrap').addClass('searchbox')
+  
   function _map_callbacks() {
       /*
       $('button.activate').button({ icons: { primary: 'ui-icon-check' }, text: false }).unbind('click').click(function() {
