@@ -5,6 +5,7 @@
 
         <p class="help">This page allows you to allocate samples from ISpyB to the beamline sample changer. Drag and drop containers on to the locations on the beamline. Shipments and Dewars can be expanded by clicking on their titles</p>
 
+        <!--
         <div class="add" title="Add New Container">
             <label for="shipment">Shipment:</label>
             <div class="cpadding"><select name="shipment"></select></div>
@@ -44,6 +45,7 @@
             </div>
 
         </div>
+        -->
 
 
         <div class="drag_container">
@@ -56,7 +58,7 @@
 
 
         <div class="c_holder">
-            <span class="r"><button id="add" title="Click to create a new container">Add New Container</button></span>
+            <!--<span class="r"><button id="add" title="Click to create a new container">Add New Container</button></span>-->
             <h1>Unassigned Containers</h1>
             <div id="unassigned"></div>
             <div class="clear"></div>
