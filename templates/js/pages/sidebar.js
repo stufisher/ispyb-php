@@ -21,16 +21,19 @@ $(function() {
     type: 'autocomplete',
     autocomplete: { source: '/proposal/ajax/p/' },
     name: 'prop',
-    width: '100%',
+    width: '60px',
     submit: 'Ok',
     style: 'display: inline',
     placeholder: 'Click to Select',
+    //onblur: 'ignore',
     callback: function() { window.location.href = '/proposal/visits' },
   }).addClass('editable');
 
-  $('#sidebar a.pull').click(function() {
-    $('#sidebar ul').slideToggle()
-  })
+  //$('#sidebar a.pull').click(function() {
+  //  $('#sidebar ul').slideToggle()
+  //})
+  
+  $('a.pull').addClass('enable').click(function() { $('body').toggleClass('active'); return false })
   
   $('#sidebar ul li.help a').click(function() {
     help = help == 1 ? 0 : 1;
