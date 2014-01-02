@@ -118,7 +118,7 @@
             $this->t->is_sample = $is_sample;
             $this->t->js_var('is_visit', $is_visit);
             $this->t->js_var('is_sample', $is_sample);
-            $this->t->js_var('prop', $this->arg('prop'));
+            $this->t->js_var('prop', $this->has_arg('prop') ? $this->arg('prop') : '');
             
             $this->t->js_var('page', $this->has_arg('page') ? intval($this->arg('page')) : 1);
             #$this->t->js_var('year', $info['YR']);
