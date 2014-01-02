@@ -15,7 +15,7 @@
                         <th>Outgoing Contact</th>
                         <th>Return Contact</th>
                         <th>Status</th>
-                        <th>Components</th>
+                        <th># Comp</th>
                         <th>Comment</th>
                         <th>&nbsp;</th>
                     </tr>

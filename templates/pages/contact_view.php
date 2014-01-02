@@ -39,7 +39,7 @@
                 <span class="labname"><?php echo $cont['LABNAME'] ?></span>
             </li>
 
-            <li class="clearfix">
+            <li class="clearfix reorder">
                 <div class="address text"><?php echo $cont['ADDRESS'] ?></div>
                 <span class="label">Laboratory Address</span>
             </li>

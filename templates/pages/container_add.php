@@ -31,7 +31,7 @@
     </div>
 
     <div class="table sample">
-        <table class="robot_actions samples form">
+        <table class="robot_actions samples form tw">
             <thead>
                 <tr>
                     <th>Location</th>

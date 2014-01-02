@@ -3,7 +3,7 @@
         <p class="help">This page lists the visits available to the currently selected proposal</p>
 
         <div class="table">
-            <table class="robot_actions">
+            <table class="robot_actions visits">
                 <thead>
                     <tr>
                         <th>Start Date</th>

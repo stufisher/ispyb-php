@@ -90,12 +90,12 @@
 
     <p class="help">This section shows contents and history for the selected dewar. Click the spyglass icon to view the contents of the container</p>
 
-    <div class="border left">
+    <div class="left">
         <ul class="containers"></ul>
     </div>
 
 
-    <div class="right">
+    <div class="right table table-no-margin">
         <table class="robot_actions history">
             <thead>
                 <tr>

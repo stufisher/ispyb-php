@@ -9,7 +9,7 @@
         </ul>
     </div>
 
-    <div class="robot">
+    <div class="ra">
         <a href="/fault/new">Add Report</a> |
         <a href="/fault/stats">Stats</a>
     </div>

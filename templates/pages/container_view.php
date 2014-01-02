@@ -17,7 +17,7 @@
     </div>
 
     <div class="table sample">
-        <table class="robot_actions samples">
+        <table class="robot_actions samples tw">
             <thead>
                 <tr>
                     <th>Location</th>

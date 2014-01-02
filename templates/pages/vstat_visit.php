@@ -158,7 +158,7 @@
         <h1>EHC Log</h1>
 
         <div class="table">
-            <table class="robot_actions">
+            <table class="robot_actions ehc">
                 <thead>
                 <tr>
                     <th>Title</th>
