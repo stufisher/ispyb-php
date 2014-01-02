@@ -30,14 +30,14 @@
         <ul>
             <li id="dc">Data Collections</li>
             <li id="ed">Edge Scans</li>
-            <li id="fl">Fluorescence Spectra</li>
+            <li id="fl">MCA Spectra</li>
             <li id="rb">Robot Actions</li>
             <li id="ac">Sample Actions</li>
             <li id="flag">Favourite</li>
         </ul>
 
         <?php if ($this->staff && $is_visit): ?>
-        <div class="robot">
+        <div class="ra">
             <a href="/robot/visit/<?php echo $vis ?>">Robot Stats</a> | <a href="/vstat/bag/<?php echo $vid ?>/visit/<?php echo $vno ?>">Visit Stats</a> | <a href="/status/bl/<?php echo $bl ?>">Beamline Status</a>
         </div>
         <?php endif; ?>
@@ -56,12 +56,12 @@
         <label>Search: </label><input type="text" name="search" />
     </div>
 
-    <div class="page_wrap clearfix" title="Click to change pages">
-        <div class="pages"></div>
+    <div class="page_wrap clearfix">
+        <div class="pages" title="Click to change pages"></div>
     </div>
 
     <?php if ($dcid): ?>
-    <h1 class="message"><a href="/dc/visit/<?php echo $vis ?>">View All Data Collections</a></h1>
+    <h1 class="message nou"><a href="/dc/visit/<?php echo $vis ?>">View All Data Collections</a></h1>
     <?php endif; ?>
 
     <div class="data_collections"></div>
