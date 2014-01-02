@@ -191,6 +191,8 @@
                 $temp[$args[$i]] = $args[$i+1];
             }
             
+            $this->arg_list['sass'] = '\d';
+            
             $parsed = array();
             foreach ($this->arg_list as $k => $v) {
                 if (array_key_exists($k, $temp)) {
@@ -252,6 +254,7 @@
             $this->t = new Template($title, $this->nav($p, $new), $hf);
             if ($this->sidebar) $this->t->side();
             $this->t->prop = $this->has_arg('prop') ? $this->arg('prop') : '';
+            $this->t->sass = $this->has_arg('sass');
             $this->t->staff = $this->staff;
         }
         
