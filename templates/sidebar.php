@@ -50,8 +50,6 @@
 
         </ul>
 
-        <a class="pull">Menu</a>
-
     </div>
 
     <div class="project">
