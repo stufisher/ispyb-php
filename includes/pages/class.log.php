@@ -23,9 +23,9 @@
             
             if ($this->staff) {
                 foreach(array('i02', 'i03', 'i04', 'i04-1', 'i24') as $b) {
-                    $visit = $this->db->pq('SELECT * FROM (SELECT p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis, TO_CHAR(s.startdate, \'DD-MM-YYYY HH24:MI\') as st, TO_CHAR(s.enddate, \'DD-MM-YYYY HH24:MI\') as en,s.beamlinename as bl FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE s.enddate < TO_DATE(:1,\'dd-mm-yyyy HH24:MI\') AND s.beamlinename LIKE :2 ORDER BY s.enddate DESC) where rownum < 3', array(strtoupper(date('d-m-Y 09:01', $day)), $b));
+                    $visit = $this->db->pq('SELECT * FROM (SELECT p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis, TO_CHAR(s.startdate, \'DD-MM-YYYY HH24:MI\') as st, TO_CHAR(s.enddate, \'DD-MM-YYYY HH24:MI\') as en,s.beamlinename as bl, s.sessionid FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE s.enddate < TO_DATE(:1,\'dd-mm-yyyy HH24:MI\') AND s.beamlinename LIKE :2 ORDER BY s.enddate DESC) where rownum < 3', array(strtoupper(date('d-m-Y 09:01', $day)), $b));
 
-                    $visitn = $this->db->pq('SELECT * FROM (SELECT p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis, TO_CHAR(s.startdate, \'DD-MM-YYYY HH24:MI\') as st, TO_CHAR(s.enddate, \'DD-MM-YYYY HH24:MI\') as en,s.beamlinename as bl FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE s.startdate > TO_DATE(:1,\'dd-mm-yyyy HH24:MI\') AND s.beamlinename LIKE:2 ORDER BY s.startdate) where rownum < 3', array(strtoupper(date('d-m-Y 08:59', $day)), $b));
+                    $visitn = $this->db->pq('SELECT * FROM (SELECT p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis, TO_CHAR(s.startdate, \'DD-MM-YYYY HH24:MI\') as st, TO_CHAR(s.enddate, \'DD-MM-YYYY HH24:MI\') as en,s.beamlinename as bl, s.sessionid FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE s.startdate > TO_DATE(:1,\'dd-mm-yyyy HH24:MI\') AND s.beamlinename LIKE:2 ORDER BY s.startdate) where rownum < 3', array(strtoupper(date('d-m-Y 08:59', $day)), $b));
                     
                     if (sizeof($visit) > 0) {
                         // Nasty hack to check for overwritten visits
@@ -33,7 +33,7 @@
                         else $v = $visit[0];
                         
                         list($id,$no) = explode('-',$v['VIS']);
-                        array_push($visit_listl, '<li><h1>'.$b.'</h1><h2><a href="/vstat/bag/'.$id.'/visit/'.$no.'">'.$v['VIS'].'</a></h2><ul><li>Started: '.$v['ST'].'</li><li>Ended: '.$v['EN'].'</li><li><a href="/dc/visit/'.$v['VIS'].'">Data Collections</a></li></ul></li>');
+                        array_push($visit_listl, '<li><h1>'.$b.$this->lc($v['SESSIONID']).'</h1><h2><a href="/vstat/bag/'.$id.'/visit/'.$no.'">'.$v['VIS'].'</a></h2><ul><li>Started: '.$v['ST'].'</li><li>Ended: '.$v['EN'].'</li><li><a href="/dc/visit/'.$v['VIS'].'">Data Collections</a></li></ul></li>');
                     }
                     
                     if (sizeof($visitn) > 0) {
@@ -41,12 +41,12 @@
                         else $v = $visitn[0];
                         
                         list($id,$no) = explode('-',$v['VIS']);
-                        array_push($visit_listn, '<li><h1>'.$b.'</h1><h2><a href="/vstat/bag/'.$id.'/visit/'.$no.'">'.$v['VIS'].'</a></h2><ul><li>Starts: '.$v['ST'].'</li><li>Ends: '.$v['EN'].'</li><li><a href="/dc/visit/'.$v['VIS'].'">Data Collections</a></li></ul></li>');
+                        array_push($visit_listn, '<li><h1>'.$b.$this->lc($v['SESSIONID']).'</h1><h2><a href="/vstat/bag/'.$id.'/visit/'.$no.'">'.$v['VIS'].'</a></h2><ul><li>Starts: '.$v['ST'].'</li><li>Ends: '.$v['EN'].'</li><li><a href="/dc/visit/'.$v['VIS'].'">Data Collections</a></li></ul></li>');
                     }
                 }
                 
             } else {
-                $visit = $this->db->pq('SELECT * FROM (SELECT p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis, TO_CHAR(s.startdate, \'DD-MM-YYYY HH24:MI\') as st, TO_CHAR(s.enddate, \'DD-MM-YYYY HH24:MI\') as en,s.beamlinename as bl
+                $visit = $this->db->pq('SELECT * FROM (SELECT p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis, TO_CHAR(s.startdate, \'DD-MM-YYYY HH24:MI\') as st, TO_CHAR(s.enddate, \'DD-MM-YYYY HH24:MI\') as en,s.beamlinename as bl, s.sessionid
                     FROM ispyb4a_db.blsession s
                     INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid)
                     INNER JOIN investigation@DICAT_RO i ON (lower(i.visit_id) = p.proposalcode || p.proposalnumber || \'-\' || s.visit_number)
@@ -54,7 +54,7 @@
                     INNER JOIN user_@DICAT_RO u on u.id = iu.user_id
                     WHERE u.name=:1 AND s.enddate < TO_DATE(:2,\'dd-mm-yyyy HH24:MI\') ORDER BY s.enddate DESC) where rownum < 6', array(phpCAS::getUser(), strtoupper(date('d-m-Y 09:01', $day))));
 
-                $visitn = $this->db->pq('SELECT * FROM (SELECT p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis, TO_CHAR(s.startdate, \'DD-MM-YYYY HH24:MI\') as st, TO_CHAR(s.enddate, \'DD-MM-YYYY HH24:MI\') as en,s.beamlinename as bl
+                $visitn = $this->db->pq('SELECT * FROM (SELECT p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis, TO_CHAR(s.startdate, \'DD-MM-YYYY HH24:MI\') as st, TO_CHAR(s.enddate, \'DD-MM-YYYY HH24:MI\') as en,s.beamlinename as bl, s.sessionid
                     FROM ispyb4a_db.blsession s
                     INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid)
                     INNER JOIN investigation@DICAT_RO i ON (lower(i.visit_id) = p.proposalcode || p.proposalnumber || \'-\' || s.visit_number)
@@ -65,12 +65,12 @@
                 
                 if (sizeof($visit) > 0) {
                     foreach ($visit as $v)
-                        array_push($visit_listl, '<li><h1>'.$v['BL'].'</h1><h2>'.$v['VIS'].'</h2><ul><li>Started: '.$v['ST'].'</li><li>Ended: '.$v['EN'].'</li><li><a href="/dc/visit/'.$v['VIS'].'">Data Collections</a></li></ul></li>');
+                        array_push($visit_listl, '<li><h1>'.$v['BL'].$this->lc($v['SESSIONID']).'</h1><h2>'.$v['VIS'].'</h2><ul><li>Started: '.$v['ST'].'</li><li>Ended: '.$v['EN'].'</li><li><a href="/dc/visit/'.$v['VIS'].'">Data Collections</a></li></ul></li>');
                 }
                 
                 if (sizeof($visitn) > 0) {
                     foreach ($visitn as $v)
-                        array_push($visit_listn, '<li><h1>'.$v['BL'].'</h1><h2>'.$v['VIS'].'</h2><ul><li>Starts: '.$v['ST'].'</li><li>Ends: '.$v['EN'].'</li><li><a href="/dc/visit/'.$v['VIS'].'">Data Collections</a></li></ul></li>');
+                        array_push($visit_listn, '<li><h1>'.$v['BL'].$this->lc($v['SESSIONID']).'</h1><h2>'.$v['VIS'].'</h2><ul><li>Starts: '.$v['ST'].'</li><li>Ends: '.$v['EN'].'</li><li><a href="/dc/visit/'.$v['VIS'].'">Data Collections</a></li></ul></li>');
                 }                
                 
             }
@@ -81,6 +81,11 @@
             $this->render('log');
         }
         
+                                                            
+        function lc($sid) {
+            $lc = $this->lc_lookup($sid);
+            if ($lc) return ' - LC: '.$lc->name;
+        }
     
     }
 
