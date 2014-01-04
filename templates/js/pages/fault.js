@@ -7,6 +7,13 @@ $(function() {
   
   _get_faults()
   
+  $('input.search-mobile').focus().keyup(function() {
+    $('input[name=search]').val($(this).val()).trigger('keyup')
+    }).parent('span').addClass('enable')
+  $('#sidebar,.cont_wrap').addClass('searchbox')
+  
+  $('input[name=search]').focus()
+  
   // Search as you type
   var thread = null;
   $('input[name=search]').keyup(function() {
