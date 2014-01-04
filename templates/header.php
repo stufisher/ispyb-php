@@ -10,7 +10,7 @@
 
     <?php if (!$mobile): ?>
 
-    <?php if ($sass): ?>
+    <?php if (!$sass): ?>
     <link rel="stylesheet" type="text/css" href="<?php echo $template_url ?>css/stylesheets/main.css">
 
     <?php else: ?>
