@@ -1,20 +1,22 @@
     <h1>Data Collections for PDB Depositions</h1>
-    <table class="robot_actions">
-        <thead>
-            <tr>
-                <th>Code</th>
-                <th>Release Date</th>
-                <th>PDB BL</th>
-                <th>BL Match</th>
-                <th>Author Match</th>
-                <th>Nearest</th>
-                <th>Beamlines</th>
-                <th>Datasets</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    <div class="table">
+        <table class="robot_actions">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Release Date</th>
+                    <th>PDB BL</th>
+                    <th>BL Match</th>
+                    <th>Author Match</th>
+                    <th>Nearest</th>
+                    <th>Beamlines</th>
+                    <th>Datasets</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 
 
     <h1>Stats</h1>
