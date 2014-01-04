@@ -110,7 +110,7 @@ $(function() {
       //console.log('fn '+new Date())
   
       $.ajax({
-             url: '/dc/ajax' + (is_sample ? ('/sid/'+sid) : '') + (is_visit ? ('/visit/' + visit) : '') + (page ? ('/page/' + page) : '') + (search ? ('/s/'+search) : '') + (type ? ('/t/'+type) : '') + ($(window).width() <= 600 ? '/pp/5' : '') + (dcid ? ('/id/'+dcid) : ''),
+             url: '/dc/ajax' + (is_sample ? ('/sid/'+sid) : '') + (is_visit ? ('/visit/' + visit) : '') + (page ? ('/page/' + page) : '') + (search ? ('/s/'+search) : '') + (type ? ('/t/'+type) : '') + ($(window).width() <= 600 ? '/pp/5' : ($(window).width() <= 1024 ? '/pp/10' : '')) + (dcid ? ('/id/'+dcid) : ''),
              type: 'GET',
              dataType: 'json',
              timeout: 10000,
@@ -173,11 +173,11 @@ $(function() {
                              '</ul>'+
                              '<div class="holder">'+
                              (state ? (r['NI'] < 10 ?
-                                ('<span></span><h1 title="Click to show EDNA/mosflm strategies">Strategies</h1>'+
+                                ('<h1 title="Click to show EDNA/mosflm strategies">Strategies<span></span></h1>'+
                                  '<div class="strategies"></div>'):
-                                ('<span></span><h1 title="Click to show autoprocessing results such as Fast_DP and XIA2">Auto Processing</h1>'+
+                                ('<h1 title="Click to show autoprocessing results such as Fast_DP and XIA2">Auto Processing<span></span></h1>'+
                                  '<div class="autoproc"></div>'+
-                                 '<span></span><h1 title="Click to show downstream processing results such as Dimple and Fast_EP">Downstream Processing</h1>'+
+                                 '<h1 title="Click to show downstream processing results such as Dimple and Fast_EP">Downstream Processing<span></span></h1>'+
                                  '<div class="downstream"></div>')) : '')+
                              '</div>'+
                              '</div>').data('apr', r['AP']).data('nimg', r['NUMIMG']).hide().data('first', true).prependTo('.data_collections').slideDown()
@@ -343,10 +343,12 @@ $(function() {
                   '<img src="/templates/images/cancel.png" alt="Failed"/>']
            
            if (div.children('div').hasClass('autoproc')) {
-               sp = div.children('span')
-               $(sp[0]).html('Fast DP: ' + val[res[2]] +
+               sp = div.children('h1').eq(0).children('span')
+               sp.html('Fast DP: ' + val[res[2]] +
                          ' Xia2: ' + val[res[3]] + ' ' +val[res[4]] + ' ' +val[res[5]])
-               $(sp[1]).html('Fast EP: ' + val[res[6]] + ' Dimple: ' + val[res[7]])
+            
+               sp = div.children('h1').eq(1).children('span')
+               sp.html('Fast EP: ' + val[res[6]] + ' Dimple: ' + val[res[7]])
                if (!$(md).data('first') && ((res[2] == 2 && res[2] != ld[2]) ||
                          (res[3] == 2 && res[3] != ld[3]) ||
                          (res[4] == 2 && res[4] != ld[4]) ||
@@ -358,8 +360,8 @@ $(function() {
                }
            
            } else {
-               sp = div.children('span')
-               $(sp[0]).html('Mosflm: ' + val[res[0]] + ' EDNA: ' + val[res[1]])
+               sp = div.children('h1').eq(0).children('span')
+               sp.html('Mosflm: ' + val[res[0]] + ' EDNA: ' + val[res[1]])
            
                if (!$(md).data('first') && ((res[0] == 2 && res[0] != ld[0]) || (res[1] == 2 && res[1] != ld[1]))) {
                    setTimeout(function() {
@@ -415,7 +417,7 @@ $(function() {
     })
   }
   
-  
+  /*
   // Update job status
   function update_jobs(id, res, d) {
     div = $('div[dcid="'+id+'"] > .holder')
@@ -448,7 +450,7 @@ $(function() {
         }
     }
   
-  }
+  }*/
   
   
   // Log messages
