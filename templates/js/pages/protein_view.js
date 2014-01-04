@@ -19,8 +19,18 @@ $(function() {
         'sScrollX': '100%',
   }, dt)
   
-  $('.robot_actions').dataTable(dt)
-  $('.table input').focus()  
+  var dt = $('.robot_actions').dataTable(dt)
+  $('.table input').focus()
+  
+  $(window).resize(function() { _resize() })
+  
+  function _resize() {
+  $.each([0,3,4,5,6,7],function(i,n) {
+         dt.fnSetColumnVis(n, !($(window).width() <= 600))
+         })
+  }
+  
+  _resize()
   
   function _map_callbacks() {
     //setTimeout(function() {

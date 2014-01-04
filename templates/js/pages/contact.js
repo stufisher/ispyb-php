@@ -14,12 +14,22 @@ $(function() {
             }
   }
   
-  if ($(window).width() <= 600) dt = $.extend({
+  /*if ($(window).width() <= 600) dt = $.extend({
         'bScrollCollapse': true,
         'sScrollX': '100%',
-  }, dt)
+  }, dt)*/
   
-  $('.robot_actions').dataTable(dt)
+  var dt = $('.robot_actions').dataTable(dt)
+  
+  $(window).resize(function() { _resize() })
+  
+  function _resize() {
+  $.each([2,3],function(i,n) {
+         dt.fnSetColumnVis(n, !($(window).width() <= 600))
+         })
+  }
+  
+  _resize()
   
   function _map_callbacks() {
     $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false })
