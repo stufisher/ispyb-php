@@ -156,6 +156,13 @@
             $data = array();
             foreach ($rows as $r) {
                 $dc = array_key_exists($r['SESSIONID'], $dcs) ? $dcs[$r['SESSIONID']] : 0;
+                $r['COMMENTS'] = '<span class="comment">'.$r['COMMENTS'].'</span>';
+                
+                $lc = $this->lc_lookup($r['SESSIONID']);
+                if (!$r['LC'] && $lc) $r['LC'] = $lc->name;
+                if ($lc) {
+                    if ($lc->type) $r['COMMENTS'] = $lc->type.' | '.$r['COMMENTS'];
+                }
                 
                 array_push($data, array($r['ST'], $r['EN'], $r['VIS'], $r['BL'], $r['LC'], $r['COMMENTS'], $dc, '<a class="view" title="View Data Collections" href="/dc/visit/'.$this->arg('prop').'-'.$r['VIS'].'">View Data</a> <a class="stats" title="View Statistics" href="/vstat/bag/'.$this->arg('prop').'/visit/'.$r['VIS'].'">View Statistics</a> <a class="report" title="Download PDF Report" href="/pdf/report/visit/'.$this->arg('prop').'-'.$r['VIS'].'">Download Report</a> <a class="export" title="Export Data Collections to CSV" href="/download/csv/visit/'.$this->arg('prop').'-'.$r['VIS'].'">Download CSV</a>'));
                 
