@@ -1,7 +1,7 @@
 
         <h1><?php echo $title ?></h1>
 
-        <div class="plot_container border">
+        <div class="plot_container">
             <div id="avg_time"></div>
         </div>
 
