@@ -104,6 +104,8 @@
             if (!file_exists($out)) {
                 chdir('/tmp');
                 exec('/tmp/cbf2jpg.sh '.$info['LOC'].' '.$info['FT'].' '.$n.' '.$out);
+                $img = imagecreatefromjpeg($out);
+                imagejpeg($img,$out,50);
             }
             
             if (file_exists($out)) {
