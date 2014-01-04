@@ -17,7 +17,7 @@
     <div class="clear"></div>
 
     <div class="search">
-        <label>Search: </label><input type="text" name="search" />
+        <input type="text" name="search" placeholder="&#xf002;" />
     </div>
 
     <div class="page_wrap">
