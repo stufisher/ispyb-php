@@ -34,6 +34,17 @@ $(function() {
     $('a.report').button({ icons: { primary: 'ui-icon-document' }, text: false })
     $('a.export').button({ icons: { primary: 'ui-icon-extlink' }, text: false })
     $('a.process').button({ icons: { primary: 'ui-icon-gear' }, text: false })
+  
+    $('.comment').each(function(i,e) {
+        var vid = $(this).parent('td').parent('tr').children('td').eq(2).html()
+        $(e).editable('/proposal/ajax/comment/prop/'+prop+'-'+vid+'/', {
+                           width: '100px',
+                           height: '100%',
+                           type: 'text',
+                           submit: 'Ok',
+                           style: 'display: inline',
+                           }).addClass('editable');
+      })  
   }
   
   
