@@ -40,7 +40,11 @@
                     <li><?php echo $t ?>
                         <ul>
                         <?php foreach ($vi as $v): ?>
-                        <li><?php echo $v['BL'] ?> - <a href="/dc/visit/<?php echo $v['VIS'] ?>"><?php echo $v['VIS'] ?></a></li>
+                        <li><?php echo $v['BL'] ?> - <a href="/dc/visit/<?php echo $v['VIS'] ?>"><?php echo $v['VIS'] ?></a>
+                            <?php if ($v['LC']): ?>
+                            (<?php echo $v['LC'] ?>)
+                            <?php endif;?>
+                        </li>
                         <?php endforeach; ?>
                         </ul>
                     </li>
