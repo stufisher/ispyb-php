@@ -14,7 +14,7 @@
 
     <div class="search">
         <span class="count"></span> |
-        <label title="Search for data collections in the selected folder">Search: <input type="text" name="search" /></label> 
+        <label title="Search for data collections in the selected folder"><input type="text" name="search"  placeholder="&#xf002;" /></label> 
         <label title="Select which directory to show data collections from">Directory: <select name="dir"></select></label>
     </div>
 
