@@ -16,6 +16,8 @@
         var $base;
         var $sidebar = false;
         
+        var $lc_cache;
+        
         var $sessionid;
         var $proposalid;
         
@@ -425,6 +427,20 @@
             $u = phpCAS::getUser();
             if ($u) {
                 setcookie('ispyb_prop_'.$u, $val, time()+31536000, '/');
+            }
+        }
+        
+        
+        # ------------------------------------------------------------------------
+        # Local Contact Lookup
+        # Hopefully we'll get db access to this information at some point...
+        function lc_lookup($sid) {
+            if (!$this->lc_cache) {
+                $this->lc_cache = json_decode(file_get_contents('lc_lookup.json'));
+            }
+
+            if (property_exists($this->lc_cache,$sid)) {
+                return $this->lc_cache->$sid;
             }
         }
         
