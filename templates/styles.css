@@ -60,10 +60,6 @@ a:hover {
     width: 80%;
 }
 
-#sidebar a.pull {
-    display: none;
-}
-
 #sidebar ul {
     list-style: none;
     border: 1px solid #E2E2E2;
@@ -201,7 +197,7 @@ ul#menu {
     font-size: 12px;
     float: right;
     list-style-type:none;
-    padding: 10px;
+    padding: 5px;
     color: #efefef;
 }
 
@@ -241,7 +237,8 @@ ul#navigation {
     font-size: 10px;
     list-style-type:none;
     padding: 5px 5px;
-    box-shadow: 0 6px 0 rgba(0,0,0,0.05);
+    /*box-shadow: 0 6px 0 rgba(0,0,0,0.05);*/
+    clear: both;
 }
 
 ul#navigation li a {
@@ -1790,14 +1787,10 @@ span.run_state {
 }
 
 .dend_wrap {
-    /*height: 30%;*/
-    /*overflow-y: auto;*/
     padding: 0.5%;
-    /*display: none;*/
 }
 
 .dendrogram {
-    /*height: 1000px;*/
     width: 96%;
     height: 100px;
     background: url('/templates/images/load.gif') center no-repeat;
@@ -2120,12 +2113,28 @@ span.snapshots.sample img {
 
 @media (max-width: 400px) {
     
+    .editable {
+        padding: 2% 1%;
+        display: inline-block;
+    }
+    
+    .editable:hover {
+        padding-right: 7%;
+    }
+    
+    .temp {
+        display: block;
+        margin: 3px 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
     ul.visits li {
         width: 97%;
     }
     
     div.text {
-        width: 100%;
+        width: 93%;
         float: none;
         
         -webkit-box-ordinal-group: 2;
@@ -2204,7 +2213,7 @@ span.snapshots.sample img {
     }
     
     #container {
-        width: 98%;
+        width: 96%;
     }
     
     .distl {
@@ -2266,37 +2275,221 @@ span.snapshots.sample img {
         width: 95%;
     }
     
+    li.noday {
+        display: none !important;
+    }
     
-    #sidebar a.pull {
+    div.form textarea, div.form input[name=title] {
+        width: 100%;
+    }
+    
+    .pdb, .cell, .opts {
         display: block;
-        background: #E2E2E2;
-        padding: 4%;
+        padding: 2px;
+        vertical-align: middle;
     }
 
-    #sidebar ul {
+    .pdb input, .cell input, .opts input {
+        width: 20%;
+        vertical-align: middle;
+    }
+    .cell input {
+        width: 26%
+    }
+    
+    .pdb_details > ul li {
+        float: none;
+        width: 100%;
+    }
+    
+    .cells .data,
+    .cells .cell,
+    .cells .stats,
+    .cells .users {
+        float: none !important;
+        width: 100% !important;
+    }
+
+    .cells .data ul li,
+    .cells .cell ul li,
+    .cells .stats ul li {
+        width: 50%;
+       float: left;
+        
+    }
+    
+    .cells h3 {
+        text-decoration: underline;
+        margin: 3px 0;
+    }
+    
+}
+
+.fa {
+    vertical-align: middle;
+}
+
+a.icon {
+    display: inline-block;
+    padding: 5px;
+    text-decoration: none;
+}
+
+a.icon:hover {
+    cursor: pointer;
+    color: #cdcdcd;
+}
+
+a.pull {
+    display: none;
+}
+
+span.search-mobile {
+    display: none;
+    padding: 1%;
+    background: #cdcdcd;
+}
+
+input.search-mobile {
+    font-family: 'FontAwesome';
+    width: 97%;
+    padding: 1%;
+}
+
+span.search-mobile.split input.search-mobile {
+    width: 46%;
+}
+
+span.search-mobile.split select {
+    font-size: 16px;
+}
+
+@media (max-width: 600px) {
+    .icon-label {
         display: none;
-        border: 1px solid #E2E2E2;
-        border-bottom: 0;
+    }
+    
+    span.search-mobile.enable {
+        display: block;
+    }
+    
+    div.search,
+    div.dataTables_filter {
+        display: none;
+    }
+    
+    .filter {
+        display: none;
+    }
+    
+    #sidebar.searchbox, .cont_wrap.searchbox {
+        margin-top: 76px;
+    }
+}
+
+/* Responsive Navigation */
+@media (max-width: 1024px) {    
+    a.pull.enable {
+        display: inline-block;
+    }
+    
+    #sidebar, .cont_wrap {
+        -webkit-transition: .2s all ease;
+        -moz-transition: .2s all ease;
+        transition: .2s all ease;
+        width: 100%;
+        
+        margin-top: 56px;
+    }
+	
+	.cont_wrap {
+        margin-left: 0;
+        float: left;
+    }
+    
+	#sidebar {
+        margin-left: -100%;
+        float: left; width: 180px !important;
+        
+    }
+    
+    #sidebar input {
+        width: 70% !important;
+        height: 100% !important;
+    }
+    
+    #sidebar ul, #sidebar ul li, #sidebar ul li ul, #sidebar .help {
+        border: 0 !important;
+        background: #bdbdbd;
+    }
+    
+    #sidebar ul li.feedback, #sidebar ul li.help {
+        background: none !important;
+        float: none;
     }
     
     #sidebar ul li {
-        float:none;
         width: 100%;
-        border-bottom: 1px solid #E2E2E2;
-    }
- 
-    #sidebar ul li span,
-    #sidebar ul li a {
-        padding: 4% 0;
     }
     
+    
+    #sidebar ul li span,
+    #sidebar ul li a {
+        padding: 12px 5%;
+        width: 90%;
+        text-align: left;
+        border-bottom: 1px solid #3e3e3e !important;
+        border-top: 1px solid #717171 !important;
+        color: #ffffff;
+        background: rgb(92, 92, 92);
+    }
+    
+    #sidebar ul li ul li a {
+        width: 85%;
+    }
+    
+    #sidebar ul li.help.active a {
+        background: rgb(115,115,115);
+    }
+    #sidebar ul li a:hover {
+        background: rgb(105,105,105);
+    }
+    
+    
     #sidebar ul li ul {
-        position: relative;
         display: block !important;
+        left: 0;
+        position: relative;
+    }
+	
+	body.active #sidebar {
+        margin-left: 0;
+        width: 182px
+    }
+    
+	body.active .cont_wrap {
+        margin-right: -100%;
+    }
+    
+    body.active {
+        position: relative;
+    }
+    
+    #footer {
+        clear: both;
+    }
+    
+    #wrapper {
+        background: rgb(92, 92, 92);
+        /*background: #f4f4f4;*/
+        overflow-x: hidden;
+    }
+    
+    #header {
+        position: fixed;
+        top: 0;
         width: 100%;
-        border-left: 0;
-        border-bottom: 0;
-        background: rgb(237,237,237);
+        z-index: 2;
     }
 }
 
