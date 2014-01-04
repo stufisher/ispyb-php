@@ -11,6 +11,21 @@ $(function() {
   // Hash of distl plots
   var distl = {}
   
+  $('a.vstat').button({ icons: { primary: 'ui-icon-image' }, text: false  })
+  $('a.blstat').button({ icons: { primary: 'ui-icon-check' }, text: false  })
+  
+  $('input[name=search]').focus()
+  
+  $('input.search-mobile').focus().keyup(function() {
+    $('input[name=search]').val($(this).val()).trigger('keyup')
+  }).parent('span').addClass('enable').addClass('split')
+  $('#sidebar,.cont_wrap').addClass('searchbox')
+  
+  var flt = ''
+  $('.filter li').each(function(i,e) {
+    flt += '<option value="'+$(e).attr('id')+'">'+$(e).html()+'</option>'
+  })
+  $('span.search-mobile').append('<select name="filter"><option value="">- Filter -</option>'+flt+'</select>')
   
   $('#rd').dialog({ title: 'Radiation Damage Analysis', autoOpen: false, buttons: { 'Close': function() { $(this).dialog('close') } } });
   
@@ -38,8 +53,15 @@ $(function() {
         $(this).addClass('current')
         type = $(this).attr('id')
     }
-    
-                           
+    _filter()
+  })
+  
+  $('select[name=filter]').change(function() {
+    type = $(this).val()
+    _fiter()
+  })
+  
+  function _filter() {
     $('.data_collection').remove()
     $('.log ul li').remove()
     first = true
@@ -50,7 +72,7 @@ $(function() {
                            
     clearTimeout(auto_load_thread)
     load_datacollection()
-  })
+  }
   
   
   // Search as you type
@@ -74,7 +96,6 @@ $(function() {
             load_datacollection();
       }, 800);
   });
-  $('input[name=search]').focus()
   
   
   // Async load of data collections
@@ -121,11 +142,11 @@ $(function() {
                        
                            var state = r['RUNSTATUS'] == null ? 1 : (r['RUNSTATUS'].indexOf('Successful') > -1)
                        
-                           $('<div class="data_collection" dcid="'+r['ID']+'" type="data">' +
+                           $('<div class="data_collection" dcid="'+r['ID']+'" type="data" '+(state ? 'title="Click to view diffraction images"' : '')+'>' +
                              '<h1>'+
                                 '<button class="atp" ty="dc" iid="'+r['ID']+'" name="'+r['DIR']+r['FILETEMPLATE']+'">Add to Project</button> <button class="flag '+f+'" title="Click to add this data collection to the list of favourite data collections">Favourite</button>  <a href="/dc/visit/'+prop+'-'+r['VN']+'/id/'+r['ID']+'" class="perm">Permalink</a> '+
-                                '<span class="date">'+r['ST']+'</span> - <span class="temp">'+r['DIR']+r['FILETEMPLATE']+'</span>'+
-                                vis_link +
+                                '<span class="date">'+r['ST']+'</span><span class="spacer"> - </span>'+vis_link+' <span class="temp">'+r['DIR']+r['FILETEMPLATE']+'</span>'+
+                                
                              '</h1>'+
                              (state ?
                              ('<div class="distl" title="DISTL plot showing number of spots (yellow and blue points), and estimated resolution (red points) for each image in the data collection"></div>'+
@@ -173,8 +194,9 @@ $(function() {
                            ev = 12398.4193
                            d = $('<div class="data_collection" dcid="'+r['ID']+'" type="edge">' +
                              '<div class="edge"></div>'+
-                             '<h1><button class="atp" ty="edge" iid="'+r['ID']+'" name="'+r['DIR']+' Edge Scan">Add to Project</button> <button class="flag '+f+'">Favourite</button> <a class="perm" href="/dc/visit/'+prop+'-'+r['VN']+'/t/edge/id/'+r['ID']+'">Permalink</a> '+r['ST']+                                 vis_link +'</h1>'+
-                             '<h2>'+r['DIR']+' Edge Scan</h2>'+
+                             '<h1><button class="atp" ty="edge" iid="'+r['ID']+'" name="'+r['DIR']+' Edge Scan">Add to Project</button> <button class="flag '+f+'">Favourite</button> <a class="perm" href="/dc/visit/'+prop+'-'+r['VN']+'/t/edge/id/'+r['ID']+'">Permalink</a> '+vis_link+' '+r['ST']+
+                                 ' - '+r['DIR']+' Edge Scan'+
+                                 '</h1>'+
 
                              '<ul class="clearfix">'+
                                  '<li>E(Peak): '+r['EPK']+'eV (' + (ev/r['EPK']).toFixed(4) + '&#197;)</li>'+
@@ -183,7 +205,7 @@ $(function() {
                                  '<li>f&rsquo;&rsquo;: '+r['WAVELENGTH']+' / f&rsquo;: '+r['AXISRANGE']+'e</li>'+
                                  '<li>Exposure: '+r['EXPOSURETIME']+'s</li>'+
                                  '<li>Transmission: '+r['TRANSMISSION']+'%</li>'+
-                                 '<li>Comment: <span class="comment_edit">'+(r['COMMENTS'] ? r['COMMENTS'] : '')+'</span></li>'+
+                                 '<li class="comment" title="Click to edit the comment for this edge scan">Comment: <span class="comment_edit">'+(r['COMMENTS'] ? r['COMMENTS'] : '')+'</span></li>'+
                              '</ul>'+
                              '</div>').data('apr', r['AP']).hide().prependTo('.data_collections').slideDown()
                        
@@ -206,14 +228,15 @@ $(function() {
                            d = $('<div class="data_collection" dcid="'+r['ID']+'" type="mca">' +
                              '<div class="mca"></div>'+
                              '<div class="elements">'+el+'</div>'+
-                             '<h1><button class="atp" ty="mca" iid="'+r['ID']+'" name="Fluorescence Spectrum">Add to Project</button> <button class="flag '+f+'">Favourite</button> <a class="perm" href="/dc/visit/'+prop+'-'+r['VN']+'/t/mca/id/'+r['ID']+'">Permalink</a> '+r['ST']+                                vis_link +'</h1>'+
-                             '<h2>MCA Fluorescence Spectrum</h2>'+
+                             '<h1><button class="atp" ty="mca" iid="'+r['ID']+'" name="Fluorescence Spectrum">Add to Project</button> <button class="flag '+f+'">Favourite</button> <a class="perm" href="/dc/visit/'+prop+'-'+r['VN']+'/t/mca/id/'+r['ID']+'">Permalink</a> '+vis_link +' '+r['ST']+
+                                 ' - MCA Spectrum'+
+                                 '</h1>'+
 
                              '<ul class="clearfix">'+
                                  '<li>Energy: '+r['WAVELENGTH']+'eV</li>'+
                                  '<li>Exposure: '+r['EXPOSURETIME']+'s</li>'+
                                  '<li>Transmission: '+r['TRANSMISSION']+'%</li>'+
-                                 '<li>Comment: <span class="comment_edit">'+(r['COMMENTS']?r['COMMENTS']:'')+'</span></li>'+
+                                 '<li class="comment" title="Click to edit the comment for this mca spectrum">Comment: <span class="comment_edit">'+(r['COMMENTS']?r['COMMENTS']:'')+'</span></li>'+
                              '</ul>'+
                              '</div>').data('apr', r['AP']).hide().prependTo('.data_collections').slideDown()
                        
@@ -233,7 +256,7 @@ $(function() {
                                '<div class="snapshots">'+
                                   '<a href="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'/f/1" rel="lightbox-'+r['ID']+'" title="Crystal Snapshot After"><img dsrc="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'" alt="Crystal Snapshot After" /></a>'+
                                '</div>'+
-                               '<h1>'+r['ST']+ vis_link +'</h1>'+
+                               '<h1>'+vis_link+ r['ST']+'</h1>'+
                                '<h2>Sample '+r['IMP'].toLowerCase()+'</h2>'+
                                  '<ul class="clearfix">'+
                                    '<li>Time: '+r['BSX']+'s</li>'+
@@ -348,8 +371,16 @@ $(function() {
            $(md).data('apr', res)
                 
            // Load images
-           if (img[0]) $('div[dcid='+id+'] .diffraction img').attr('dsrc', '/image/diff/id/'+id)
+           if (img[0]) {
+             if ($('.data_collection[dcid='+id+']').css('background-image') == 'none') {
+               $('.data_collection[dcid='+id+']').css('background-image', 'url(/image/diff/f/1/id/'+id+')')
+             }
+           }
+                
+           //if (img[0]) $('div[dcid='+id+'] .diffraction img').attr('dsrc', '/image/diff/id/'+id)
            if (img[1].length > 0) {
+             //$('.data_collection[dcid='+id+'] > .snapshots').css('background-image', 'url(/image/id/'+id+')').css('background-size', 'cover').css('background-position', '0 50%')
+                
              if (img[2]) $('div[dcid='+id+'] .snapshots img').attr('dsrc', '/image/id/'+id)
              sns = ''
              for (var i = 1; i < img[1].length; i++) sns += ('<a href="/image/id/'+id+'/f/1/n/'+(i+1)+'" rel="lightbox-'+id+'" title="Crystal Snapshot '+(i+1)+'"></a>')
@@ -676,7 +707,11 @@ $(function() {
   
       $('.data_collection .perm').button({ icons: { primary: 'ui-icon-link' }, text: false })
   
-    
+      $('.data_collection').unbind('click').click(function(e) {
+        console.log(e)
+        if (this == e.target || $(e.target).is('li') || $(e.target).is('span')) window.location.href = '/dc/view/id/'+$(this).attr('dcid')
+      })
+  
       $('.data_collection .comment_edit').each(function(i,e) {
         var id = $(this).parent().parent().parent('div').attr('dcid')
         var t = $(this).parent().parent().parent('div').attr('type')
