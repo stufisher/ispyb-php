@@ -48,7 +48,7 @@
             $day = mktime(0,0,0,$c_month,1,$c_year);
             $den = mktime(23,59,59,$c_month,$this->t->dim+1,$c_year);
             
-            $visits = $this->db->pq("SELECT p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis, p.proposalcode || p.proposalnumber as prop, s.beamlinename as bl, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE s.startdate BETWEEN TO_DATE(:1,'dd-mm-yyyy') AND TO_DATE(:2,'dd-mm-yyyy') AND (s.beamlinename LIKE 'i02' OR s.beamlinename LIKE 'i03' OR s.beamlinename LIKE 'i04' OR s.beamlinename LIKE 'i04-1' OR s.beamlinename LIKE 'i24') ORDER BY s.startdate, s.beamlinename", array(strtoupper(date('d-m-Y', $day)), strtoupper(date('d-m-Y', $den))));
+            $visits = $this->db->pq("SELECT p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis, p.proposalcode || p.proposalnumber as prop, s.beamlinename as bl, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st, s.sessionid FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE s.startdate BETWEEN TO_DATE(:1,'dd-mm-yyyy') AND TO_DATE(:2,'dd-mm-yyyy') AND (s.beamlinename LIKE 'i02' OR s.beamlinename LIKE 'i03' OR s.beamlinename LIKE 'i04' OR s.beamlinename LIKE 'i04-1' OR s.beamlinename LIKE 'i24') ORDER BY s.startdate, s.beamlinename", array(strtoupper(date('d-m-Y', $day)), strtoupper(date('d-m-Y', $den))));
             
             $vbd = array();
             foreach ($visits as $v) {
@@ -64,6 +64,10 @@
                 
                 if (!array_key_exists($k, $vbd)) $vbd[$k] = array();
                 if (!array_key_exists($k2, $vbd[$k])) $vbd[$k][$k2] = array();
+                
+                $lc = $this->lc_lookup($v['SESSIONID']);
+                $v['LC'] = $lc ? $lc->i : '';
+                $v['TY'] = $lc ? $lc->type : '';
                 
                 array_push($vbd[$k][$k2], $v);
             }
