@@ -4,18 +4,20 @@
     </div>
 
     <div id="stats" title="Stats for Blend Run #">
-        <table class="robot_actions">
-            <thead>
-                <tr>
-                    <th>&nbsp;</th>
-                    <th>Overall</th>
-                    <th>Inner</th>
-                    <th>Outer</th>
-                </tr>
-            </thead>
+        <div class="table">
+            <table class="robot_actions">
+                <thead>
+                    <tr>
+                        <th>&nbsp;</th>
+                        <th>Overall</th>
+                        <th>Inner</th>
+                        <th>Outer</th>
+                    </tr>
+                </thead>
 
-            <tbody></tbody>
-        </table>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 
     <p class="help">This page allows you to &quot;Blend&quot; integrated data sets together</p>
@@ -43,7 +45,7 @@
         <div class="clear"></div>
     </div>
 
-    <div class="blended_wrap">
+    <div class="blended_wrap table">
         <table class="blended_table robot_actions">
         <thead>
             <tr>
@@ -82,7 +84,7 @@
         <button name="blend" title="Click to blend the selected data sets">Blend</button>
     </div>
 
-    <div class="table_wrap">
+    <div class="table_wrap table">
         <table class="integrated robot_actions">
         <thead>
             <tr>
