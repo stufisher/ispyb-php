@@ -10,6 +10,7 @@
         var $root = 'Multi-Crystal Integration';
         var $root_link = '/mc';
         
+        var $sidebar = True;
         
         # Main page for multicrystal integration
         function _data_collections() {
