@@ -38,7 +38,8 @@
 
         <?php if ($this->staff && $is_visit): ?>
         <div class="ra">
-            <a href="/robot/visit/<?php echo $vis ?>">Robot Stats</a> | <a href="/vstat/bag/<?php echo $vid ?>/visit/<?php echo $vno ?>">Visit Stats</a> | <a href="/status/bl/<?php echo $bl ?>">Beamline Status</a>
+            <a href="/vstat/bag/<?php echo $vid ?>/visit/<?php echo $vno ?>" title="Visit Statistics" class="vstat">Visit Stats</a>
+            <a href="/status/bl/<?php echo $bl ?>" title="Beamline Status" class="blstat">Beamline Status</a>
         </div>
         <?php endif; ?>
     </div>
@@ -53,7 +54,7 @@
 
 
     <div class="search" title="Search the current data collections">
-        <label>Search: </label><input type="text" name="search" />
+        <input type="text" name="search" placeholder="&#xf002;" />
     </div>
 
     <div class="page_wrap clearfix">
