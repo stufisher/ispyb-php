@@ -16,7 +16,7 @@
 
     <div class="clear"></div>
 
-    <div class="search">
+    <div class="search hide">
         <input type="text" name="search" placeholder="&#xf002;" />
     </div>
 

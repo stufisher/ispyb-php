@@ -53,7 +53,7 @@
     <?php endif; ?>
 
 
-    <div class="search" title="Search the current data collections">
+    <div class="search hide" title="Search the current data collections">
         <input type="text" name="search" placeholder="&#xf002;" />
     </div>
 
