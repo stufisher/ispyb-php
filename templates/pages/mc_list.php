@@ -19,12 +19,11 @@
     </div>
 
     <div class="filter">
-        <ul>
+        <ul class="clearfix">
             <li class="current" title="Reintegrate data sets"><a href="/mc/visit/<?php echo $visit ?>">Integrate</a></li>
             <li title="Blend integrated data sets together"><a href="/mc/blend/visit/<?php echo $visit ?>">Blend</a></li>
             <li><span class="jobs">0</span> job(s) running</li>
         </ul>
-        <div class="clear"></div>
     </div>
 
     <div class="options data_collection">

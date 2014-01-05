@@ -4,7 +4,7 @@
     <p class="help">Schedule of visits for the currently selected proposal</p>
 
     <div class="calendar">
-    <ul class="links">
+    <ul class="links clearfix">
         <li><a href="/cal/<?php echo $has_prop ? 'proposal/' : '' ?>mon/<?php echo $months[$c_month] ?>/year/<?php echo ($c_year-1) ?>"><?php echo ($c_year-1) ?></a></li>
 
         <?php if ($c_month == 1): ?>
@@ -22,7 +22,7 @@
         <li><a href="/cal/<?php echo $has_prop ? 'proposal/' : '' ?>mon/<?php echo $months[$c_month] ?>/year/<?php echo ($c_year+1) ?>"><?php echo ($c_year+1) ?></a></li>
     </ul>
 
-    <ul>
+    <ul class="clearfix">
     <?php foreach($days as $i => $d): ?>
         <li class="head<?php echo $i < 6 ? '' : ' wend' ?>"><?php echo $d ?></li>
     <?php endforeach ?>
@@ -57,6 +57,4 @@
     <?php endfor; ?>
 
     </ul>
-
-    <div class="clear"></div>
     </div>

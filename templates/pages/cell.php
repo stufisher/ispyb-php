@@ -37,13 +37,12 @@
 
     <div class="pdb_details data_collection">
         <h1 class="title"></h1>
-        <ul>
+        <ul class="clearfix">
             <li>Beamline: <span class="beamline"></span></li>
             <li>Date: <span class="date"></span>, Resolution: <span class="res"></span></li>
             <li>Author: <span class="author"></span></li>
             <li>Citation: <span class="citation"></span></li>
         </ul>
-        <div class="clear"></div>
     </div>
 
 

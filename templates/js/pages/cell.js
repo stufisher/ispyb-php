@@ -95,7 +95,7 @@ $(function() {
                     else us.push(u)
                   })
                    
-                  $('<div class="cells data_collection" dcid="'+r['ID']+'">'+
+                  $('<div class="cells data_collection clearfix" dcid="'+r['ID']+'">'+
                         '<h1><a href="/dc/visit/'+r['VISIT']+'/id/'+r['ID']+'" title="Click to view full details for this data collection">'+r['VISIT']+': '+r['BL']+' - '+r['ST']+'</a> (<span title="Distance between search unit cell parameters and those for this data set. A smaller number means the data set is close to the searched parameters">Distance: '+parseFloat(r['DIST']).toFixed(2)+', '+r['TYPE']+')</span></h1>'+
                         '<h2>'+r['DIR']+r['FILETEMPLATE']+'</h2>'+
                     
@@ -140,8 +140,6 @@ $(function() {
                              '<li>Transmission: '+r['TRANSMISSION']+'%</li>'+
                         '</ul>'+
                         '</div>'+
-                    
-                    '<div class="clear"></div>'+
                     '</div>').hide().appendTo('.data_collections').slideDown()
             })
         }

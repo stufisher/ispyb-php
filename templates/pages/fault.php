@@ -1,6 +1,6 @@
     <h1>Fault List</h1>
 
-    <div class="filter">
+    <div class="filter clearfix">
         <ul>
             <li id="dc">Beamline: <select name="beamline"></select> <span class="beamline remove"></span></li>
             <li id="ed">System: <select name="system"></select> <span class="system remove"></span></li>
@@ -14,15 +14,13 @@
         <a href="/fault/stats">Stats</a>
     </div>
 
-    <div class="clear"></div>
 
     <div class="search hide">
         <input type="text" name="search" placeholder="&#xf002;" />
     </div>
 
-    <div class="page_wrap">
+    <div class="page_wrap clearfix">
         <div class="pages"></div>
-        <div class="clear"></div>
     </div>
 
     <div class="table tw">
@@ -44,7 +42,6 @@
     </table>
     </div>
 
-    <div class="page_wrap">
+    <div class="page_wrap clearfix">
         <div class="pages"></div>
-        <div class="clear"></div>
     </div>
