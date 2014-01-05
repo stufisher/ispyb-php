@@ -59,12 +59,12 @@ $(function() {
   
     // Make sample rows clickable
     $('.robot_actions.samples tbody tr').unbind('click').click(function(i,e) {
-      var cur = $(this).hasClass('current')
-      $('.robot_actions.samples tbody tr').removeClass('current')
+      var cur = $(this).hasClass('selected')
+      $('.robot_actions.samples tbody tr').removeClass('selected')
       if (cur) {
         sid = 0
       } else {
-        $(this).addClass('current')
+        $(this).addClass('selected')
         sid = $(this).children('td').eq(0).html()
       }
           
@@ -75,12 +75,12 @@ $(function() {
   
     // Make protein rows clickable
     $('.robot_actions.proteins tbody tr').unbind('click').click(function(i,e) {
-      var cur = $(this).hasClass('current')
-      $('.robot_actions.proteins tbody tr').removeClass('current')
+      var cur = $(this).hasClass('selected')
+      $('.robot_actions.proteins tbody tr').removeClass('selected')
       if (cur) {
         prid = 0
       } else {
-        $(this).addClass('current')
+        $(this).addClass('selected')
         prid = $(this).children('td').eq(0).children('span').attr('value')
       }
           
