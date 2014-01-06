@@ -1,7 +1,7 @@
     <h1><span class="title"><?php echo $f['TITLE'] ?></span></h1>
 
     <div class="form">
-        <ul>
+        <ul class="clearfix">
 
             <li>
                 <span class="label">Beamline</span>
@@ -105,5 +105,4 @@
 
         </ul>
 
-        <div class="clear"></div>
     </div>
