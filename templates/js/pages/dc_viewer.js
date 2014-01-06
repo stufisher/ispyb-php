@@ -61,7 +61,7 @@ $(function() {
     $('.im_progress').offset({ left: 0, top: 0 }).show()
     $('.im_progress').offset({ left: left, top: top }).hide()
   }
-  resize()
+
   
   $(window).resize(function() {
     clearTimeout(resize_thread)
@@ -105,7 +105,10 @@ $(function() {
   }
   
   // Load the first image
-  load(1)
+  setTimeout(function() {
+    load(1)
+    resize()
+  }, 500)
   
   // Start precaching images
   function precache() {
