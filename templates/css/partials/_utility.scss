@@ -1,0 +1,66 @@
+// Clearfix
+.clearfix {
+    @include clearfix;
+}
+
+
+// Two column
+.right {
+    float: right;
+    @include cols(2,0 0 0 1%);
+    
+    @media (max-width: $breakpoint-vsmall) {
+        @include cols(1,0);
+    }
+}
+
+.left {
+    float: left;
+    @include cols(2,0 1% 0 0);
+    
+    @media (max-width: $breakpoint-vsmall) {
+        @include cols(1,0);
+    }
+}
+
+
+// Misc helpers
+.r {
+    float: right;
+}
+
+.l {
+    float: left;
+}
+
+
+.la {
+    text-align: left;
+}
+
+.ra {
+    text-align: right;
+}
+
+.active {
+    background: $content-active;
+}
+
+.clear {
+    clear: both;
+}
+
+.b {
+    font-weight: bold;
+}
+
+
+
+
+@media (max-width: $breakpoint-vsmall) {
+    
+    h1 {
+        font-size: 12px;
+    }
+    
+}

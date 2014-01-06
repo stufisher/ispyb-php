@@ -1,0 +1,66 @@
+
+.calendar > ul {
+    list-style: none;
+    
+    &.links li {
+        display: block;
+        @include cols(4,1%,0.2%);
+        height: 15px;
+        text-align: center;
+    }
+    
+    > li {
+        float: left;
+        display: block;
+        @include cols(7,1%,0.2%);
+        background: $content-cal-background;
+        height: 100px;
+        overflow: auto;
+        
+        @media (max-width: $breakpoint-small) {
+            @include cols(4,2%,0.5%);
+        }
+        
+        @media (max-width: $breakpoint-vsmall) {
+            @include cols(2,2%,0.5%);
+        }
+        
+        &.head {
+            background: $content-cal-header-background;
+            height: 15px;
+            font-weight: bold;
+            text-align: center;
+            
+            @media (max-width: $breakpoint-small) {
+                display: none;
+            }
+        }
+        
+        &.wend {
+            background: $content-cal-hl1-background;
+        }
+        
+        &.noday {
+            background: $content-cal-hl2-background;
+            
+            @media (max-width: $breakpoint-small) {
+                display: none;
+            }
+        }
+        
+        &.today {
+            background: $content-cal-header-background;
+        }
+
+        ul {
+            padding: 5px;
+            
+            > li > ul {
+                padding: 0 5px;
+                list-style: none;
+            }
+
+        }
+        
+    }
+}

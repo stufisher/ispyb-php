@@ -1,0 +1,140 @@
+// Header
+// ---------------------------------------------------------
+
+#header {
+    background: $header-background;
+    color: $header-color;
+
+    h1 {
+        padding: 10px;
+        font-size: 12px;
+        font-weight: $normal;
+        color: $header-color;
+
+        a {
+            color: $header-color;
+            text-decoration: none;
+        }
+    }
+
+    a {
+        color: $header-color;
+        
+        &:hover {
+            color: $header-hover-color;
+        }
+    }
+    
+    
+
+    // Responsive Sidebar Hooks
+    a.pull {
+        display: none;
+    }
+
+    span.search-mobile {
+        display: none;
+        padding: 1px;
+        background: $content-search-background;
+
+        input.search-mobile {
+            font-family: $icon-font;
+            width: 97%;
+            padding: 1%;
+        }
+    }
+
+    span.search-mobile.split {
+        
+        input.search-mobile {
+            width: 46%;
+        }
+        
+        select {
+            font-size: 16px;
+        }
+    }
+ 
+    @media (max-width: $breakpoint-medium) {
+        a.pull.enable {
+            display: inline-block;
+        }
+    }
+    
+    @media (max-width: $breakpoint-small) {
+        .icon-label {
+            display: none;
+        }
+        
+        span.search-mobile.enable {
+            display: block;
+        }
+    }
+}
+
+
+// Navigation
+#menu {
+    font-size: 12px;
+    float: right;
+    list-style-type:none;
+    padding: 5px;
+    color: $header-menu-color;
+    white-space: nowrap;
+    
+    li {
+        display: inline;
+        padding: 0 5px;
+        
+        
+        a {
+            color: $header-menu-color;
+            text-decoration: none;
+            
+            &:hover {
+                color: $header-menu-hover;
+            }
+        }
+    }
+}
+
+
+// Breadcrumbs
+#navigation {
+    background: $header-bc-background;
+    color: $header-bc-color;
+    font-size: 10px;
+    list-style-type:none;
+    padding: 5px 5px;
+    clear: both;
+    
+    li {
+        display: inline;
+        padding: 2px;
+        
+        a {
+            color: $header-bc-color;
+            text-decoration: none;
+            
+            &:hover {
+                color: $header-bc-hover;
+            }
+        }
+        
+        &:before {
+            content: '\00BB  ';
+        }
+    }
+}
+
+
+#footer {
+    background: $footer-background;
+    padding: 1%;
+
+    p {
+        text-align: center;
+        color: $footer-color;
+        font-size: 10px;
+    }
+}

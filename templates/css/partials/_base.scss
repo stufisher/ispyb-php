@@ -1,0 +1,47 @@
+@import "compass";
+@import "modules/all";
+
+* {
+	padding: 0;
+	margin: 0;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    background: $body-background;
+    font-family: $main-font;
+    font-size: $main-font-size;
+    line-height: $main-line-height;
+    min-height: 100%;
+}
+
+a {
+    color: $link-color;
+    
+    &:hover {
+        color: $link-hover-color;
+    }
+}
+
+
+#wrapper {
+	background: $content-background;
+}
+
+.cont_wrap {
+    background: $content-background;
+}
+
+
+#container {
+    width: 80%;
+    margin: 0 auto;
+    padding-top: 20px;
+    
+    @media (max-width: $breakpoint-large) {
+        width: 96%;
+    }
+}

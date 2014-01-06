@@ -1,0 +1,898 @@
+// Main Content Holder
+.content {
+    padding-bottom: 1%;
+
+    & > h1 {
+        padding: 10px 0;
+        margin-bottom: 15px;
+        word-wrap: break-word;
+        font-size: $page-header-size;
+        font-family: $page-header-font;
+        border-bottom: 1px solid grey;
+        
+        &.nou {
+            border-bottom: 0;
+        }
+        
+        &.center {
+            text-align: center;
+        }
+    }
+
+    .border {
+        border: 1px solid $content-border;
+    
+        p {
+            padding: 10px;
+        }
+    }
+    
+    p.help {
+        display: none;
+        padding: 1%;
+        margin-bottom: 1%;
+        border-radius: 5px;
+        color: $content-help-color;
+        background: $content-help-background;
+    }
+
+}
+
+
+// Block like lists
+.block {
+    list-style: none;
+    
+    li {
+        padding: 2%;
+        margin: 0 0 1% 0;
+        border-radius: 6px;
+        background: $content-search-background;
+        height: 20px;
+    }
+}
+
+.containers {
+    @extend .block;
+}
+
+
+// Log Panel
+.status,
+.log {
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+div.log {
+    margin-top: 5px;
+}
+
+.status,
+.log h1 {
+    font-size: 14px;
+    padding: 5px;
+}
+
+.log ul {
+    height: 70px;
+    overflow: auto;
+    overflow-x: hidden;
+    padding: 5px;
+    background: $content-light-background;
+    border-radius: 6px;
+}
+
+.log ul li {
+    display: block;
+    padding: 2px;
+}
+
+.log ul li span.title {
+    color: $content-dark-background;
+}
+
+
+// Search Box
+.search {
+    float:right;
+    padding: 5px;
+    margin-left: 5px;
+    background: $content-search-background;
+    margin-top: 4px;
+    //width: 20%;
+    border-radius: 5px;
+    box-shadow: 0 1px 1px rgba(100,100,100,.4) inset, 0 1px 0 rgba(255,255,255,.2);
+    white-space: nowrap;
+    
+    input {
+        font-family: $icon-font;
+        width: 160px;
+        padding: 1%;
+        
+        &:focus {
+            outline: 0;
+        }
+    }
+    
+    @media (max-width: $breakpoint-small) {
+        width: 100%;
+    }
+    
+    &.hide {
+        @media (max-width: $breakpoint-small) {
+            display: none;
+        }
+    }
+}
+
+
+// Paging
+.page_wrap {
+    overflow: auto;
+    margin: 5px;
+    padding: 0 0 10px 0;
+    
+    .pages {
+        white-space: nowrap;
+        
+        ul {
+            list-style: none;
+            
+            li {
+                display: inline-block;
+                
+                a {
+                    text-decoration: none;
+                    display: block;
+                    width: 25px;
+                    padding: 3px 0;
+                    text-align: center;
+                    background: $content-page-background;
+                    color: $content-page-color;
+                    margin: 2px;
+                    
+                    &:hover {
+                        color: $content-page-hover-color;
+                    }
+                    
+                    @media (max-width: $breakpoint-vsmall) {
+                        padding: 20% 3px;
+                    }
+                }
+                
+                &.selected a {
+                    background: $content-page-selected-background;
+                }
+            }
+
+        }
+    }
+}
+
+
+
+// Page Filters
+.filter {
+    @extend .list-arrow;
+    margin-bottom: 5px;
+    
+    @media (max-width: $breakpoint-small) {
+        display: none;
+    }
+}
+
+
+// List arranged as horizontal arrows
+.list-arrow {
+    overflow: hidden;
+    width: 100%;
+    
+    li {
+        cursor: pointer;
+        float: left;
+        text-decoration: none;
+        color: $content-filter-color;
+        background: $content-filter-background;
+        position: relative;
+        z-index: 1;
+        text-shadow: 0 1px 0 rgba(255,255,255,.5);
+        border-radius: .4em 0 0 .4em;
+        //padding: .7em 0.5em .7em 1em;
+        padding: .5em 0.2em .5em 0.6em;
+        margin: 0 2em 0 0;
+        transition: background .3s ease-out;
+        
+        &:hover, &:hover:after, &.current, &.current:after {
+            background: $content-filter-current-background;
+        }
+        
+        &:after{
+            background: $content-filter-background;
+            content: "";
+            height: 2.5em;
+            margin-top: -1.25em;
+            position: absolute;
+            right: -1em;
+            top: 50%;
+            width: 2.5em;
+            z-index: -1;
+            @include rotate;
+            border-radius: .4em;
+            transition: background .3s ease-out;
+        }
+        
+
+    }
+}
+
+
+// Main data collections layout
+.data_collections {
+    @include clearfix;
+}
+
+.data_collection {
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    background: $content-main-background;
+    border: 1px solid $content-border;
+    
+    > h1 {
+        font-family: $content-header-font;
+        font-size: $content-header-size;
+        padding: 5px 5px 0px 0px;
+        margin-bottom: 5px;
+    }
+    
+    > h2 {
+        font-size: 12px;
+        padding: 3px 3px 3px 3px;
+        text-decoration: underline;
+        margin-bottom: 5px;
+        word-wrap: break-word;
+        width: 49%;
+        
+        @media (max-width: $breakpoint-small) {
+            width: 100%;
+        }
+    }
+    
+    
+    p {
+        padding: 5px;
+    }
+    
+    @media (max-width: $breakpoint-vsmall) {
+        .temp {
+            display: block;
+            margin: 3px 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+    
+    
+    // Sub contents
+    .holder {
+        
+        /*
+        > span {
+            float: right;
+            padding: 7px;
+            
+            img {
+                vertical-align: middle;
+            }
+        }*/
+        
+        > h1 {
+            cursor: pointer;
+            background: $content-sub-header-background;
+            padding: 8px;
+            font-size: 12px;
+            margin-top: 2px;
+            @include clearfix;
+            
+            &:hover {
+                background: $content-sub-header-hover-background;
+            }
+            
+            > span {
+                float: right;
+                
+                img {
+                    vertical-align: middle;
+                }
+            }
+        }
+        
+        > div {
+            background: $content-sub-background;
+            display: none;
+            overflow: auto;
+            
+            > div > table.atoms {
+                width: 50%;
+                
+                @media (max-width: $breakpoint-vsmall) {
+                    width: 100%;
+                }
+            }
+            
+            > div > table.rstats {
+                width: 68%;
+                margin-top: 5px;
+                
+                @media (max-width: $breakpoint-vsmall) {
+                    width: 100%;
+                }
+            }
+            
+            
+            > table,
+            > div > table {
+                font-size: 10px;
+                width: 100%;
+            }
+        }
+        
+
+        table {
+            tr {
+                cursor: pointer;
+                &:hover {
+                    background: $content-sub-hover-background;
+                }
+                
+                th {
+                    font-weight: bold;
+                    background: $content-filter-current-background;
+                    padding: 5px;
+                    text-align: center;
+                }
+            }
+            
+            td {
+                padding: 5px;
+            }
+            
+            &.rstats tr:first-child td {
+                font-weight: bold;
+                background: $content-filter-current-background;
+            }
+
+        }
+
+
+        // Inset Content
+        .plot_fastep {
+            margin: 0 1%;
+            width: 48%;
+            height: 150px;
+            float: right;
+            
+            @media (max-width: $breakpoint-vsmall) {
+                height: 100px;
+                float: none;
+            }
+        }
+        
+        .plot_dimple {
+            width: 70%;
+            float: right;
+            
+            @media (max-width: $breakpoint-vsmall) {
+                height: 100px;
+                float: none;
+            }
+        }
+        
+        .blobs {
+            float: right;
+            padding-left: 10px;
+            width: 30%;
+            
+            @media (max-width: $breakpoint-vsmall) {
+                float: none;
+                width: 100%;
+                margin-left: 0;
+                padding-left: 0;
+            }
+        }
+        
+        .blobs img {
+            width: 100%;
+            height: auto;
+        }
+
+        
+        #dimple a img {
+            opacity: 1;
+        }
+        
+        #dimple a:hover img {
+            opacity: 0.5;
+        }
+    }
+
+    
+    // Inset Content
+    .diffraction,
+    .snapshots {
+        float: right;
+        background: $content-inlay-background;
+        padding: 0;
+        margin: 0.25%;
+    }
+    
+    .snapshots {
+        width: 23%;
+        
+        @media (max-width: $breakpoint-small) {
+            width: 48.0%;
+        }
+    }
+    
+    .diffraction {
+        width: 18%;
+        
+        @media (max-width: $breakpoint-small) {
+            width: 29.5%;
+        }
+    }
+    
+    .diffraction img,
+    .snapshots img {
+        width: 100%;
+        height: auto;
+        display: none;
+        opacity: 1;
+    }
+
+    .diffraction a:hover img,
+    .snapshots a:hover img {
+        opacity: 0.5;
+    }
+
+    .distl {
+        width: 23%;
+        float: right;
+        margin: 0.25%;
+        padding: 1%;
+        border-radius: 5px;
+        cursor: pointer;
+        
+        @media (max-width: $breakpoint-small) {
+            width: 48%;
+        }
+    }
+
+    .edge,
+    .mca {
+        height: 120px;
+        width: 50%;
+        float: right;
+        
+        @media (max-width: $breakpoint-small) {
+            width: 100%;
+        }
+    }
+    
+    .elements {
+        float: right;
+        margin: 0.5% 1% 2% 0.5%;
+        
+        table tr td {
+            font-size: 10px;
+            padding: 4px;
+            white-space: nowrap;
+        }
+
+    }
+    
+    > ul {
+        @extend .ul;
+    }
+}
+
+
+// List Styling
+.ul {
+    width: 49%;
+    list-style: none;
+    
+    @media (max-width: $breakpoint-small) {
+        width: 100%;
+    }
+    
+    > li {
+        float: left;
+        width: 43%;
+        @include calc(width, "47.5% - 15px");
+        padding: 1%;
+        margin: 0.5%;
+        background: darken($content-light-background,2%);
+        margin-left: 15px;
+        position: relative;
+        //white-space: nowrap;
+        transition: background .3s ease-out;
+        
+        //@include cols(2,1.25% 1%);
+        
+        &:hover {
+            background: $content-light-background;
+        }
+        
+        &:before {
+            content: "";
+            position: absolute;
+            background: $content-dark-background;
+            padding: 0;
+            top: 0;
+            left: -15px;
+            width: 10px;
+            height: 100%;
+            
+        }
+        
+        &:after{
+            position: absolute;
+            content: '';
+            border: .5em solid transparent;
+            left: -1em;
+            top: 50%;
+            margin-top: -.5em;
+            transition: all .3s ease-out;
+        }
+        
+        &:hover:after{
+            left: -.5em;
+            border-left-color: $content-dark-background;
+        }
+        
+        &.comment {
+            margin: 0.5%;
+            width: 95%;
+            @include calc(width, "97.5% - 15px");
+            margin-left: 15px;
+            
+            //@include cols(1,1.25% 1%);
+        }
+        
+        &.sample {
+            white-space: nowrap;
+        }
+    }
+    
+    &.full {
+        width: 100%;
+        
+        > li {
+            //@include cols(5,1.25% 1%);
+            margin: 0.5%;
+            padding: 1%;
+            width: 16%;
+            @include calc(width, "17.5% - 15px");
+            margin-left: 15px;
+            
+            @media (max-width: $breakpoint-small) {
+                //@include cols(2,1.25% 1%);
+                margin: 0.5%;
+                padding: 1%;
+                width: 45%;
+                @include calc(width, "47.5% - 15px");
+                margin-left: 15px;
+            }
+        }
+    }
+    
+    
+}
+
+
+
+.data_collection[type=data] {
+    background-position: 50% 50%;
+    background-size: cover;
+    cursor: pointer;
+    
+    .diffraction {
+        display: none;
+    }
+}
+
+#distl_full .distl {
+    height: 250px;
+}
+
+
+.ui-tabs .ui-tabs-panel {
+    padding: 8px !important;
+}
+
+.ui-tabs {
+    padding: 2px !important;
+}
+
+
+
+
+[draggable=true] {
+    -khtml-user-drag: element;
+    -webkit-user-drag: element;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+}
+
+.dragged td {
+    background: $content-page-background;
+}
+
+
+
+
+
+h1.status {
+    cursor: pointer;
+}
+
+div.status {
+    display: none;
+}
+
+.oav,
+.webcam {
+    width: 49.7%;
+    display: inline-block;
+}
+
+.oav {
+    display: block;
+    margin: auto;
+}
+
+div.status.oavs {
+    display: none;
+}
+
+.oav img,
+.webcam img {
+    width: 100%;
+    float: none;
+}
+
+.pvs {
+    padding: 0.2%;
+    
+    .pv {
+        display: inline-block;
+        @include cols(7, 0.5%, 0.2%);
+        //width: 12.8857143%;
+        //padding: 0.5%;
+        background: $content-inlay-background;
+        //margin: 0.2%;
+        border-radius: 5px;
+        text-align: center;
+        
+        &.on {
+            background: $content-active;
+        }
+        
+        &.off {
+            background: $content-inactive;
+        }
+    }
+}
+
+
+.log.gda ul {
+    height: 50%;
+    overflow-x: none;
+}
+
+.log.gda ul li {
+    white-space: nowrap;
+}
+
+
+
+// Diffraction Image Viewer
+.image_controls {
+    padding: 10px;
+    margin-bottom: 10px;
+    
+    .im_num {
+        @media (max-width: $breakpoint-vsmall) {
+            text-align: center;
+        }
+        
+        input[name="num"] {
+            width: 40px;
+        }
+    }
+    
+    .im_col {
+        width: 17%;
+        float: right;
+        padding: 0 1%;
+        
+        &.toggles {
+            width: 28%;
+            
+            @media (max-width: $breakpoint-small) {
+                width: 98%;
+                padding: 2% 0 0 0;
+            }
+        }
+
+        
+        @media (max-width: $breakpoint-small) {
+            padding: 0 2%;
+            width: 23%;
+        }
+        
+        @media (max-width: $breakpoint-vsmall) {
+            width: 98%;
+            margin-bottom: 5px;
+        }
+    }
+    
+    #zoom, #brightness, #contrast {
+        width: 100%;
+    }
+
+
+    abbr {
+        text-decoration: underline;
+        cursor: help;
+    }
+
+}
+
+
+.image_container {
+    margin-bottom: 10px;
+    
+    @media (max-width: $breakpoint-vsmall) {
+        height: 75%;
+    }
+    
+    .image {
+        width: 100%;
+        overflow: auto;
+        background: $content-fill-color url('/templates/images/load.gif') center no-repeat;
+        
+        #img {
+            display: none;
+            
+            &:hover {
+                cursor: pointer;
+            }
+        }
+    }
+    
+    .im_zoom {
+        position: absolute;
+        margin: 10px;
+        border: 1px solid $content-border;
+        background: $content-light-background;
+        box-shadow: 1px 1px 2px $content-dark-background;
+        border-radius: 2px;
+        height: 100px;
+        
+        @media (max-width: $breakpoint-small) {
+            height: 50px;
+            
+            #im_zoom {
+                height: 50px;
+                width: 50px;
+            }
+            
+        }
+    }
+    
+    .im_profile {
+        float: right;
+    }
+
+    
+    .yprofile {
+        width: 50px;
+        height: 100px;
+        position: absolute;
+        margin: 10px 0 0 215px;
+        
+        @media (max-width: $breakpoint-small) {
+            width: 25px;
+            height: 50px;
+            margin-left: 60px;
+        }
+    }
+    
+    .xprofile {
+        width: 200px;
+        height: 50px;
+        position: absolute;
+        margin: 110px 0 0 10px;
+        
+        @media (max-width: $breakpoint-small) {
+            width: 50px;
+            height: 25px;
+            margin-top: 60px;
+        }
+    }
+
+    .im_cur {
+        position: absolute;
+        margin: 170px 0 0 10px;
+        
+        @media (max-width: $breakpoint-small) {
+            margin: 90px 0 0 10px;
+        }
+        
+        p {
+            margin: 0;
+            padding: 0;
+        }
+    }
+
+    
+    .im_highlight {
+        width: 40px;
+        height: 20px;
+        position: absolute;
+        border: 1px solid $content-border;
+        
+        @media (max-width: $breakpoint-small) {
+            width: 20px;
+            height: 20px;
+        }
+    }
+    
+    .im_progress {
+        display: none;
+        position: absolute;
+        width: 250px;
+        height: 20px;
+    }    
+    
+}
+
+
+
+
+
+
+// Misc - need homes!
+table.samples .img {
+    width: 45%;
+}
+
+span.snapshots.sample img {
+    width: 25%;
+}
+
+.seq {
+    word-break: break-all;
+}
+
+.rd_plot {
+    height: 200px;
+}
+
+
+
+@media (max-width: $breakpoint-small) {
+    
+    span.snapshots.sample img {
+        width: 48%;
+    }
+    
+    table.samples .img {
+        width: 100%;
+    }
+
+    
+}
