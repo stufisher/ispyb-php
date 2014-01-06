@@ -10,12 +10,15 @@
                               'prop' => '\w\w\d+',
                               'array' => '\d',
                               'term' => '\w+',
+                              'value' => '.*',
+                              'visit' => '\w+\d+-\d+',
                                );
         
         var $dispatch = array('proposals' => '_get_proposals',
                               'p' => '_proposals',
                               'visits' => '_get_visits',
                               'set' => '_set_proposal',
+                              'comment' => '_set_comment',
 
                               );
         
@@ -176,6 +179,7 @@
         }
         
         
+        # ------------------------------------------------------------------------
         # Cookie selected proposal
         function _set_proposal() {
             if (!$this->has_arg('prop')) $this->_error('No proposal specified');
@@ -183,5 +187,23 @@
             print $this->arg('prop');
         }
     
+        
+        
+        # ------------------------------------------------------------------------
+        # Update comment for a visit
+        function _set_comment() {
+            if (!$this->has_arg('visit')) $this->_error('No visit specified');
+            if (!$this->arg('value')) $this->_error('No comment specified');
+            
+            $com = $this->db->pq("SELECT s.comments,s.sessionid from ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE p.proposalcode||p.proposalnumber||'-'||s.visit_number LIKE :1", array($this->arg('visit')));
+            
+            if (!sizeof($com)) $this->_error('No such data collection');
+            else $com = $com[0];
+            
+            $this->db->pq("UPDATE ispyb4a_db.blsession set comments=:1 where sessionid=:2", array($this->arg('value'), $com['SESSIONID']));
+            
+            print $this->arg('value');
+        }
+        
     }
 ?>
