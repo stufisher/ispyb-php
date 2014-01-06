@@ -34,7 +34,7 @@ $(function() {
     $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false }).hide()
     $('a.label').button({ icons: { primary: 'ui-icon-print' }, text: false })
   
-    $('table.shipments tr').unbind('click').click(function() {
+    $('table.shipments tbody tr').unbind('click').click(function() {
       window.location = $('td:last-child a.view', this).attr('href')
     })
   }

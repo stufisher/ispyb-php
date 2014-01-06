@@ -46,7 +46,7 @@ $(function() {
     $('a.process').button({ icons: { primary: 'ui-icon-gear' }, text: false })
   
   
-    $('table.visits tr').unbind('click').click(function(e) {
+    $('table.visits tbody tr').unbind('click').click(function(e) {
       if (!$(e.target).is('button')) {
         window.location = $('td:last-child a.view', this).attr('href')
       }
