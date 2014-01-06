@@ -21,19 +21,19 @@
 
     <h1>Stats</h1>
     <p>Results prior to 2010-05 are excluded from the calculated statistics</p>
-    
-    <div class="plot_container left">
-        <div id="visit_pie"></div>
-        <p>Breakdown of PDB depositions</p>
-    </div>
 
-    <div class="plot_container right">
-        <div id="pdbs"></div>
-        <div id="pdbs2"></div>
-        <p>Depositions by beamline / year (Top: ISpyB, Bottom: PDB)</p>
-    </div>
+    <div class="plot_wrap clearfix">
+        <div class="plot_container left">
+            <div id="visit_pie"></div>
+            <p>Breakdown of PDB depositions</p>
+        </div>
 
-    <div class="clear"></div>
+        <div class="plot_container right">
+            <div id="pdbs"></div>
+            <div id="pdbs2"></div>
+            <p>Depositions by beamline / year (Top: ISpyB, Bottom: PDB)</p>
+        </div>
+    </div>
 
 
     <h1 class="ph">Process</h1>

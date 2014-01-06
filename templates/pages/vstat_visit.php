@@ -12,39 +12,37 @@
         </div>
 
         <div class="data_collection">
-        <ul class="full">
-            <li>Started: <?php echo $info['ST'] ?></li>
-            <li>Ended: <?php echo $info['EN'] ?></li>
-            <li>Beamline: <?php echo $info['BL'] ?></li>
-            <li>Length: <?php echo $info['LEN'] ?> hours</li>
+            <ul class="full clearfix">
+                <li>Started: <?php echo $info['ST'] ?></li>
+                <li>Ended: <?php echo $info['EN'] ?></li>
+                <li>Beamline: <?php echo $info['BL'] ?></li>
+                <li>Length: <?php echo $info['LEN'] ?> hours</li>
 
-            <li>Last Data Collection: <?php echo $last ?></li>
+                <li>Last Data Collection: <?php echo $last ?></li>
 
-            <li>Number of Data Collections: <?php echo $info['DC_TOT'] ?></li>
-            <li>Number of Energy Scans: <?php echo $info['E_TOT'] ?></li>
-            <li>Number of Robot Actions: <?php echo $info['R_TOT'] ?></li>
-        </ul>
-
-        <div class="clear"></div>
-
+                <li>Number of Data Collections: <?php echo $info['DC_TOT'] ?></li>
+                <li>Number of Energy Scans: <?php echo $info['E_TOT'] ?></li>
+                <li>Number of Robot Actions: <?php echo $info['R_TOT'] ?></li>
+            </ul>
         </div>
 
-        <div class="plot_container left">
-            <div id="visit_pie"></div>
-            <p>Breakdown of Total Visit Time</p>
+        <div class="plot_wrap clearfix">
+            <div class="plot_container left">
+                <div id="visit_pie"></div>
+                <p>Breakdown of Total Visit Time</p>
+            </div>
+
+            <div class="plot_container right">
+                <div id="dc_hist"></div>
+                <p>Data Collection Times</p>
+            </div>
+
+            <div class="plot_container right">
+                <div id="dc_hist2"></div>
+                <p>Data Collection No. of Images</p>
+            </div>
         </div>
 
-        <div class="plot_container right">
-            <div id="dc_hist"></div>
-            <p>Data Collection Times</p>
-        </div>
-
-        <div class="plot_container right">
-            <div id="dc_hist2"></div>
-            <p>Data Collection No. of Images</p>
-        </div>
-
-        <div class="clear"></div>
 
         <?php if (sizeof($robot)): ?>
 
