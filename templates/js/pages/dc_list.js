@@ -373,13 +373,13 @@ $(function() {
            $(md).data('apr', res)
                 
            // Load images
-           if (img[0]) {
+           /*if (img[0]) {
              if ($('.data_collection[dcid='+id+']').css('background-image') == 'none') {
                $('.data_collection[dcid='+id+']').css('background-image', 'url(/image/diff/f/1/id/'+id+')')
              }
-           }
+           }*/
                 
-           //if (img[0]) $('div[dcid='+id+'] .diffraction img').attr('dsrc', '/image/diff/id/'+id)
+           if (img[0]) $('div[dcid='+id+'] .diffraction img').attr('dsrc', '/image/diff/id/'+id)
            if (img[1].length > 0) {
              //$('.data_collection[dcid='+id+'] > .snapshots').css('background-image', 'url(/image/id/'+id+')').css('background-size', 'cover').css('background-position', '0 50%')
                 
@@ -711,9 +711,9 @@ $(function() {
   
   
       // Make dc click through to image viewer
-      $('.data_collection').unbind('click').click(function(e) {
+      /*$('.data_collection').unbind('click').click(function(e) {
         if (this == e.target || $(e.target).is('li') || $(e.target).is('span')) window.location.href = '/dc/view/id/'+$(this).attr('dcid')
-      })
+      })*/
   
   
       // Make comment editable

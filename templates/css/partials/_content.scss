@@ -500,7 +500,7 @@ div.log {
 
 // List Styling
 .ul {
-    width: 49%;
+    width: 34%;
     list-style: none;
     
     @media (max-width: $breakpoint-small) {
@@ -511,7 +511,7 @@ div.log {
         float: left;
         width: 43%;
         @include calc(width, "47.5% - 15px");
-        padding: 1%;
+        padding: 1.5% 1%;
         margin: 0.5%;
         background: darken($content-light-background,2%);
         margin-left: 15px;
@@ -592,7 +592,7 @@ div.log {
 }
 
 
-
+/*
 .data_collection[type=data] {
     background-position: 50% 50%;
     background-size: cover;
@@ -601,7 +601,7 @@ div.log {
     .diffraction {
         display: none;
     }
-}
+}*/
 
 #distl_full .distl {
     height: 250px;
