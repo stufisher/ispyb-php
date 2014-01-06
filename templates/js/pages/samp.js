@@ -134,7 +134,7 @@ $(function() {
       success: function(json){   
         $.each(json, function(i,d) {
             if ($.inArray(d['DEWARID'], dewars) == -1) { 
-               $('<div did="'+d['DEWARID']+'" class="dewar"><h1>'+d['CODE']+'</h1><div class="containers"></div><div class="clear"></div></div>').hide().appendTo('div[sid='+d['SHIPPINGID']+']').addClass(d['DEWARSTATUS'] == 'processing' ? 'active' : '')
+               $('<div did="'+d['DEWARID']+'" class="dewar"><h1>'+d['CODE']+'</h1><div class="containers clearfix"></div></div>').hide().appendTo('div[sid='+d['SHIPPINGID']+']').addClass(d['DEWARSTATUS'] == 'processing' ? 'active' : '')
                
                if (d['DEWARSTATUS'] == 'processing') $('div[did='+d['DEWARID']+']').slideDown()
                
