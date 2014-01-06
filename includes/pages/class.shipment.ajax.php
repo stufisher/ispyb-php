@@ -280,6 +280,7 @@
         }
         
         
+        # Need to check for sample location number
         function _get_samples() {
             if (!$this->has_arg('prop')) $this->_error('No proposal specified');
             if (!$this->has_arg('cid')) $this->_error('No container id specified');
