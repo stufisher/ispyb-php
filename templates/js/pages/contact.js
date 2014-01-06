@@ -32,9 +32,13 @@ $(function() {
   _resize()
   
   function _map_callbacks() {
-    $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false })
-  }
+    $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false }).hide()
   
-  $('a.add').button({ icons: { primary: 'ui-icon-plus' } })
+    $('table.contacts tbody tr').unbind('click').click(function() {
+      window.location = $('td:last-child a', this).attr('href')
+    })
+  
+    $('a.add').button({ icons: { primary: 'ui-icon-plus' } })
+  }
 
 })
