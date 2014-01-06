@@ -46,13 +46,15 @@ $(function() {
     $('a.process').button({ icons: { primary: 'ui-icon-gear' }, text: false })
   
   
-    $('table.visits tr').unbind('click').click(function() {
-      window.location = $('td:last-child a.view', this).attr('href')
+    $('table.visits tr').unbind('click').click(function(e) {
+      if (!$(e.target).is('button')) {
+        window.location = $('td:last-child a.view', this).attr('href')
+      }
     })
   
     $('.comment').each(function(i,e) {
         var vid = $(this).parent('td').parent('tr').children('td').eq(2).html()
-        $(e).editable('/proposal/ajax/comment/prop/'+prop+'-'+vid+'/', {
+        $(e).editable('/proposal/ajax/comment/visit/'+prop+'-'+vid+'/', {
           width: '100px',
           height: '100%',
           type: 'text',
