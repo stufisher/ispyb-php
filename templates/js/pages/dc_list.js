@@ -709,11 +709,14 @@ $(function() {
   
       $('.data_collection .perm').button({ icons: { primary: 'ui-icon-link' }, text: false })
   
+  
+      // Make dc click through to image viewer
       $('.data_collection').unbind('click').click(function(e) {
-        console.log(e)
         if (this == e.target || $(e.target).is('li') || $(e.target).is('span')) window.location.href = '/dc/view/id/'+$(this).attr('dcid')
       })
   
+  
+      // Make comment editable
       $('.data_collection .comment_edit').each(function(i,e) {
         var id = $(this).parent().parent().parent('div').attr('dcid')
         var t = $(this).parent().parent().parent('div').attr('type')
