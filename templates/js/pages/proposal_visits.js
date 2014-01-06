@@ -39,22 +39,27 @@ $(function() {
   
   
   function _map_callbacks() {
-    $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false })
+    $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false }).hide()
     $('a.stats').button({ icons: { primary: 'ui-icon-image' }, text: false })
     $('a.report').button({ icons: { primary: 'ui-icon-document' }, text: false })
     $('a.export').button({ icons: { primary: 'ui-icon-extlink' }, text: false })
     $('a.process').button({ icons: { primary: 'ui-icon-gear' }, text: false })
   
+  
+    $('table.visits tr').unbind('click').click(function() {
+      window.location = $('td:last-child a.view', this).attr('href')
+    })
+  
     $('.comment').each(function(i,e) {
         var vid = $(this).parent('td').parent('tr').children('td').eq(2).html()
         $(e).editable('/proposal/ajax/comment/prop/'+prop+'-'+vid+'/', {
-                           width: '100px',
-                           height: '100%',
-                           type: 'text',
-                           submit: 'Ok',
-                           style: 'display: inline',
-                           }).addClass('editable');
-      })  
+          width: '100px',
+          height: '100%',
+          type: 'text',
+          submit: 'Ok',
+          style: 'display: inline',
+        }).addClass('editable');
+      })
   }
   
   

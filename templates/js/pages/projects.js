@@ -72,7 +72,12 @@ $(function() {
   })
   
   function _map_callbacks() {
-    $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false })
+    $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false }).hide()
+  
+    $('table.projects tr').unbind('click').click(function() {
+      window.location = $('td:last-child a', this).attr('href')
+    })
+
   }
 
 })
