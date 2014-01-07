@@ -169,6 +169,18 @@
         function _add_container() {
             if (!$this->has_arg('did') && !$this->has_arg('visit')) $this->error('No dewar or visit specified', 'No dewarid or visit specified to append to');
             
+            if ($this->has_arg('visit')) {
+                $sids = $this->db->pq("SELECT s.sessionid,p.proposalid FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE p.proposalcode||p.proposalnumber||'-'||s.visit_number LIKE :1 AND p.proposalcode||p.proposalnumber LIKE :2", array($this->arg('visit'), $this->arg('prop')));
+                
+                if (!sizeof($sids)) $this->error('No such visit', 'The specified visit doesnt exist');
+                else {
+                    $sid = $sids[0];
+                    
+                    $this->args['did'] = $this->_default_shipment_dewar($this->arg('visit'), $sid['SESSIONID'], $sid['PROPOSALID']);
+                    
+                }
+            }
+            
             if ($this->has_arg('submit')) {
                 if (!$this->has_arg('container')) $this->error('No container name specified');
                 
@@ -211,6 +223,38 @@
                 
                 $this->t->render('container_add');
             }
+        }
+        
+        
+        function _default_shipment_dewar($visit, $sid, $pid) {
+            $sids = $this->db->pq("SELECT shippingid FROM shipping WHERE proposalid LIKE :1 AND shippingname LIKE :2", array($pid, $visit.'_Shipment1'));
+            
+            if (sizeof($sids) > 0) {
+                $shid = $sids[0]['SHIPPINGID'];
+            } else {
+                $this->db->pq("INSERT INTO shipping (shippingid,proposalid,shippingname,bltimestamp,creationdate,shippingstatus) VALUES (s_shipping.nextval,:1,:2,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,'processing') RETURNING shippingid INTO :id", array($pid, $visit.'_Shipment1'));
+                                  
+                $shid = $this->db->id();
+                                  
+                $vals = $this->db->pq("INSERT INTO shippinghassession (shippingid,sessionid) VALUES (:1,:2)", array($shid, $sid));
+                                  
+            }
+            
+            $did = -1;
+            if ($sid) {
+                $dids = $this->db->pq("SELECT dewarid from dewar WHERE shippingid LIKE :1 AND code LIKE :2", array($shid, $visit.'_Dewar1'));
+                                     
+                if (sizeof($dids) > 0) {
+                    $did = $dids[0]['DEWARID'];
+                                  
+                } else {   
+                    $this->db->pq("INSERT INTO dewar (dewarid,code,shippingid,bltimestamp,dewarstatus) VALUES (s_dewar.nextval,:1,:2,CURRENT_TIMESTAMP,'processing') RETURNING dewarid INTO :id", array($visit.'_Dewar1', $shid));
+                                     
+                    $did = $this->db->id();
+                }
+            }
+                                  
+            return $did;
         }
     
     }
