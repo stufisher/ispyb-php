@@ -682,7 +682,7 @@ $(function() {
       }).each(function(i) {
           if (!$(this).data('plotted')) {
               var w = 0.175*$('.data_collection').width()
-              $(this).height($(window).width() > 600 ? w : (w*1.65))
+              $(this).height($(window).width() > 800 ? w : (w*1.65))
               $('.diffraction,.snapshots').height($(this).height())
             
             var pl = $(this)
