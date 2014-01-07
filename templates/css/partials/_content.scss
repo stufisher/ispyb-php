@@ -471,7 +471,7 @@ div.log {
 
     .edge,
     .mca {
-        height: 120px;
+        height: 160px;
         width: 50%;
         float: right;
         
@@ -505,6 +505,10 @@ div.log {
     
     @media (max-width: $breakpoint-small) {
         width: 100%;
+    }
+
+    &.half {
+        width: 49%;
     }
     
     > li {

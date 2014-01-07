@@ -202,7 +202,7 @@ $(function() {
                                  ' - '+r['DIR']+' Edge Scan'+
                                  '</h1>'+
 
-                             '<ul class="clearfix">'+
+                             '<ul class="clearfix half">'+
                                  '<li>E(Peak): '+r['EPK']+'eV (' + (ev/r['EPK']).toFixed(4) + '&#197;)</li>'+
                                  '<li>f&rsquo;&rsquo;: '+r['AXISSTART']+' / f&rsquo;: '+r['RESOLUTION']+'e</li>'+
                                  '<li>E(Inf): '+r['EIN']+'eV (' + (ev/r['EIN']).toFixed(4) + '&#197;)</li>'+
