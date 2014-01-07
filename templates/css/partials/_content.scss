@@ -509,6 +509,10 @@ div.log {
 
     &.half {
         width: 49%;
+        
+        @media (max-width: $breakpoint-small) {
+            width: 100%;
+        }
     }
     
     > li {
