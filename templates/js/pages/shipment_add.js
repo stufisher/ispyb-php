@@ -32,4 +32,50 @@ $(function() {
   $('select[name=lcret]').change(function() { _get_lc($(this).val()) })
   _get_lc($('select[name=lcret]').val())
   
+  
+  $('input[name=dewars').change(function() { _update_fcodes() })
+  
+  function _update_fcodes() {
+    var d = $('input[name=dewars]').val()
+    var l = $('span.fcodes span').length
+  
+    d > 0 ? $('li.d').fadeIn() : $('li.d').fadeOut()
+  
+    if (d > l) {
+      for (var i = l; i < d; i++) {
+        $('<span>'+(i+1)+'.<input type="text" name=fcodes[] value="" /></span> ').hide().appendTo($('span.fcodes')).fadeIn()
+      }
+  
+    } else if (d < l) {
+      for (var i = (l-1); i >= d; i--) {
+        console.log('rem '+ i)
+        $('span.fcodes span').eq(i).fadeOut().remove()
+      }
+    }
+  
+  
+  }
+  
+  _update_fcodes()
+  
+  function _get_exps() {
+    $.ajax({
+        url: '/shipment/ajax/vis',
+        type: 'GET',
+        dataType: 'json',
+        timeout: 5000,
+        success: function(json){
+           
+            var vals = '<option value=""></option>'
+            $.each(json, function(k,e) {
+               vals += '<option value="'+k+'">'+e+'</option>'
+            })
+           
+            $('select[name=exp]').html(vals)
+        }
+    })
+  }
+  
+  _get_exps()
+  
 })

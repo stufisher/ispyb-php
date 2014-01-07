@@ -14,7 +14,9 @@
                               'couriername' => '\w+',
                               'courierno' => '\w+',
                               'safety' => '\w+',
-                              
+                              'dewars' => '\d+',
+                              'exp' => '\d+',
+                              'visit' => '\w+\d+-\d+'
                               );
         
         var $dispatch = array('dispatch' => '_dispatch',
@@ -85,14 +87,46 @@
                 if (!sizeof($pid)) $this->error('No such proposal', 'The specified proposal doesnt exist');
                 else $pid = $pid[0]['PROPOSALID'];
                 
-                
                 $sd = $this->has_arg('shippingdate') ? $this->arg('shippingdate') : '';
                 $dd = $this->has_arg('delverydate') ? $this->arg('deliverydate') : '';
                 $com = $this->has_arg('comment') ? $this->arg('comment') : '';
                 
                 $this->db->pq("INSERT INTO ispyb4a_db.shipping (shippingid, proposalid, shippingname, deliveryagent_agentname, deliveryagent_agentcode, deliveryagent_shippingdate, deliveryagent_deliverydate, bltimestamp, creationdate, comments, sendinglabcontactid, returnlabcontactid, shippingstatus, safetylevel) VALUES (s_shipping.nextval,:1,:2,:3,:4,:5,:6,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,:7,:8,:9,'opened',:10) RETURNING shippingid INTO :id", array($pid, $this->arg('shippingname'), $this->arg('couriername'), $this->arg('courierno'), $sd, $dd, $com, $this->arg('lcout'), $this->arg('lcret'), $this->arg('safety')));
+
+                $sid = $this->db->id();
                 
-                $this->msg('New Shipment Added', 'Your shipment was sucessfully added. Click <a href="/shipment/sid/'.$this->db->id().'">here</a> to see to the shipment or <a href="/shipment/">here</a> to view the list of shipments');
+                $fc = array();
+                if (array_key_exists('fcodes', $_POST)) {
+                    foreach ($_POST['fcodes'] as $i => $f) {
+                        if (preg_match('/^\w+$/', $f)) {
+                            $fc[$i] = $f;
+                        } else $fc[$i] =  '';
+                    }
+                }
+                
+                if ($this->has_arg('dewars')) {
+                    if ($this->arg('dewars') > 0) {
+                        $exp = $this->has_arg('exp') ? $this->arg('exp') : '';
+                        
+                        for ($i = 0; $i < $this->arg('dewars'); $i++) {
+                            $n = $fc[$i] ? $fc[$i] : ('Dewar'.($i+1));
+                            
+                            $this->db->pq("INSERT INTO ispyb4a_db.dewar (dewarid,code,shippingid,bltimestamp,dewarstatus,firstexperimentid,facilitycode) VALUES (s_dewar.nextval,:1,:2,CURRENT_TIMESTAMP,'opened',:3,:4) RETURNING dewarid INTO :id", array($n, $sid, $exp, $fc[$i]));
+                            
+                            $id = $this->db->id();
+                            
+                            $vis = '';
+                            if ($exp) {
+                                $vr = $this->db->pq("SELECT s.beamlinename as bl,s.visit_number as vis FROM ispyb4a_db.blsession s WHERE s.sessionid=:1", array($exp));
+                                if (sizeof($vr)) $vis = '-'.$vr[0]['VIS'].'-'.$vr[0]['BL'];
+                            }
+                            
+                            $this->db->pq("UPDATE ispyb4a_db.dewar set barcode=:1 WHERE dewarid=:2", array($this->arg('prop').$vis.'-'.str_pad($id,7,'0',STR_PAD_LEFT), $id));
+                        }
+                    }
+                }
+                
+                $this->msg('New Shipment Added', 'Your shipment was sucessfully added. Click <a href="/shipment/sid/'.$sid.'">here</a> to see to the shipment or <a href="/shipment/">here</a> to view the list of shipments');
                 
             } else {
                 $cards = $this->db->pq('SELECT l.cardname,l.labcontactid FROM ispyb4a_db.labcontact l INNER JOIN ispyb4a_db.proposal p ON p.proposalid = l.proposalid WHERE p.proposalcode || p.proposalnumber LIKE :1', array($this->arg('prop')));
@@ -133,7 +167,7 @@
         
         
         function _add_container() {
-            if (!$this->has_arg('did')) $this->error('No dewar specified', 'No dewarid specified to append to');
+            if (!$this->has_arg('did') && !$this->has_arg('visit')) $this->error('No dewar or visit specified', 'No dewarid or visit specified to append to');
             
             if ($this->has_arg('submit')) {
                 if (!$this->has_arg('container')) $this->error('No container name specified');

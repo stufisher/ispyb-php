@@ -14,6 +14,27 @@
             </li>
 
             <li>
+                <label>Number of Dewars
+                    <span class="small">Number of dewars to automatically create for this shipment</span>
+                </label>
+                <input type="number" name="dewars" value="1" />
+            </li>
+
+            <li class="d">
+                <label>Facility Codes
+                    <span class="small">Unique code for each dewar of the shipment</span>
+                </label>
+                <span class="fcodes"></span>
+            </li>
+
+            <li class="d">
+                <label>First Experiment
+                    <span class="small">First experiment for the dewars in this shipment</span>
+                </label>
+                <select name="exp"></select>
+            </li>
+
+            <li>
                 <label>Safety Level
                     <span class="small">The safety level of the shipment</span>
                 </label>
