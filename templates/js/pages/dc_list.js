@@ -118,11 +118,15 @@ $(function() {
                 if (json[0] != nopgs) {
                   var pgs = []
                   var pc = json[0] == 0 ? 1 : json[0]
-                  for (var i = 0; i < pc; i++) pgs.push('<li'+(i+1==page?' class="selected"':'')+'><a href="#'+(i+1)+'">'+(i+1)+'</a></li>')
+                  for (var i = 0; i < pc; i++) pgs.push('<li><a href="#'+(i+1)+'">'+(i+1)+'</a></li>')
              
                   $('.pages').html('<ul>'+pgs.join('')+'</ul>')
                   nopgs = json[0]
                 }
+             
+                $('.pages ul').each(function(i,e) {
+                  $(this).children('li').removeClass('selected').eq(page-1).addClass('selected')
+                })
              
                 if (search) $('.data_collection').remove()
              
