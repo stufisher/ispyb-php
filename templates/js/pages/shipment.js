@@ -1,7 +1,7 @@
 $(function() {
   var dt = {sPaginationType: 'full_numbers',
             bAutoWidth: false,
-            aaSorting: [[ 0, 'desc' ]],
+            aaSorting: [[ 1, 'desc' ]],
             fnDrawCallback: _iconify,
   }
   

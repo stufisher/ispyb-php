@@ -25,7 +25,7 @@
                     <?php foreach ($rows as $r): ?>
                     <tr>
                         <td><?php echo $r['SHIPPINGNAME'] ?></td>
-                        <td><?php echo $r['CREATED'] ?></td>
+                        <td><span class="sort"><?php echo strtotime($r['CREATED']) ?></span><?php echo $r['CREATED'] ?></td>
                         <td><?php echo $r['LCOUT'] ?></td>
                         <td><?php echo $r['LCRET'] ?></td>
                         <td><?php echo $r['SHIPPINGSTATUS'] ?></td>
