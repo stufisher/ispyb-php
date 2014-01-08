@@ -48,7 +48,6 @@ $(function() {
   
     } else if (d < l) {
       for (var i = (l-1); i >= d; i--) {
-        console.log('rem '+ i)
         $('span.fcodes span').eq(i).fadeOut().remove()
       }
     }
