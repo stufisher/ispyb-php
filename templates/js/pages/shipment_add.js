@@ -4,7 +4,7 @@ $(function() {
   
   $.validator.addMethod('wwdash', function(value, element) {
     return this.optional(element) || /^(\w|\-)+$/.test(value);
-  }, "This field must contain only letters numbers, underscores, and dahses")
+  }, "This field must contain only letters numbers, underscores, and dashes")
   
   $('#add_shipment').validate({
     validClass: 'fvalid', errorClass: 'ferror',
