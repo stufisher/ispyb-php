@@ -33,7 +33,7 @@ $(function() {
   _get_lc($('select[name=lcret]').val())
   
   
-  $('input[name=dewars').change(function() { _update_fcodes() })
+  $('input[name=dewars]').change(function() { _update_fcodes() })
   
   function _update_fcodes() {
     var d = $('input[name=dewars]').val()
@@ -43,7 +43,7 @@ $(function() {
   
     if (d > l) {
       for (var i = l; i < d; i++) {
-        $('<span>'+(i+1)+'.<input type="text" name=fcodes[] value="" /></span> ').hide().appendTo($('span.fcodes')).fadeIn()
+        $('<span><input type="text" name=fcodes[] value="" placeholder="'+(i+1)+'" /></span> ').hide().appendTo($('span.fcodes')).fadeIn()
       }
   
     } else if (d < l) {
