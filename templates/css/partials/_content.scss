@@ -890,6 +890,11 @@ span.snapshots.sample img {
     height: 200px;
 }
 
+textarea[name=pasted] {
+    width: 100%;
+    height: 250px;
+}
+
 
 
 @media (max-width: $breakpoint-small) {
