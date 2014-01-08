@@ -7,7 +7,7 @@
                               'sid' => '\d+',
                               'page' => '\d+',
                               'name' => '.*',
-                              'acronym' => '\w+',
+                              'acronym' => '([\w-])+',
                               'seq' => '\w+',
                               'mass' => '\d+(.\d+)',
                               'submit' => '\d',
