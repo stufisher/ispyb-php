@@ -148,7 +148,7 @@ $(function() {
                        
                            $('<div class="data_collection" dcid="'+r['ID']+'" type="data" '+(state ? 'title="Click to view diffraction images"' : '')+'>' +
                              '<h1>'+
-                                '<button class="atp" ty="dc" iid="'+r['ID']+'" name="'+r['DIR']+r['FILETEMPLATE']+'">Add to Project</button> <button class="flag '+f+'" title="Click to add this data collection to the list of favourite data collections">Favourite</button>  <a href="/dc/visit/'+prop+'-'+r['VN']+'/id/'+r['ID']+'" class="perm">Permalink</a> '+
+                                '<button class="atp" ty="dc" iid="'+r['DCG']+'" name="'+r['DIR']+r['FILETEMPLATE']+'">Add to Project</button> <button class="flag '+f+'" title="Click to add this data collection to the list of favourite data collections">Favourite</button>  <a href="/dc/visit/'+prop+'-'+r['VN']+'/id/'+r['ID']+'" class="perm">Permalink</a> '+
                                 '<span class="date">'+r['ST']+'</span><span class="spacer"> - </span>'+vis_link+' <span class="temp">'+r['DIR']+r['FILETEMPLATE']+'</span>'+
                                 
                              '</h1>'+

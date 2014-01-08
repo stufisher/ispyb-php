@@ -21,6 +21,7 @@
                            'sample' => array('project_has_blsample', 'blsampleid'),
                            'edge' => array('project_has_energyscan', 'energyscanid'),
                            'mca' => array('project_has_xfefspectrum', 'xfefluorescencespectrumid'),
+                           'dc' => array('project_has_dcgroup', 'datacollectiongroupid'),
                            );
         
         

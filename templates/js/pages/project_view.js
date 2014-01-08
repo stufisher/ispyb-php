@@ -146,7 +146,7 @@ $(function() {
                           
                   var p = []
                   $.each(json[1], function(i, e) {
-                    p.push([e['ST'], (e['DIR']+e['FILETEMPLATE']).replace('_####.cbf', ''), e['SAMPLE'] ? e['SAMPLE'] : 'N/A', e['AXISRANGE'], e['NUMIMG'], e['WAVELENGTH'], e['TRANSMISSION'], e['EXPOSURETIME'], e['COMMENTS'], '<a class="view" href="/dc/visit/'+e['VIS']+'/id/'+e['ID']+'">View Data Collection</a>'])
+                    p.push([e['ST'], (e['DIR']+e['FILETEMPLATE']).replace('_####.cbf', ''), e['SAMPLE'] ? e['SAMPLE'] : 'N/A', e['AXISRANGE'], e['NUMIMG'], e['WAVELENGTH'], e['TRANSMISSION'], e['EXPOSURETIME'], e['COMMENTS'], '<a class="view" href="/dc/visit/'+e['VIS']+'/id/'+e['ID']+'">View Data Collection</a> <button class="atp" ty="dc" iid="'+e['DCG']+'" name="'+e['DIR']+e['FILETEMPLATE']+'">Add to/Remove from Project</button>'])
                   })
                           
                   fnCallback({ iTotalRecords: _pp(aoData)*json[0], iTotalDisplayRecords: _pp(aoData)*json[0], aaData: p })
