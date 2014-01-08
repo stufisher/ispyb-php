@@ -3,11 +3,18 @@
         <p class="message"></p>
     </div>
 
+    <div class="paste">
+        <p>Press ctrl-v to paste container contents from the clipboard</p>
+        <textarea name="pasted"></textarea>
+    </div>
+
     <div class="confirm"></div>
 
     <h1>Add Container</h1>
 
     <p class="help">This page allows you to add containers to the selected dewar and shipment. If the protein you want to use isnt listed type in a new name and press tab. This will create a new protein</p>
+
+    <button class="pf" title="Paste container contents from clipboard"><i class="fa fa-paste"></i> Paste from Spreadsheet</button>
 
     <form method="post" id="add_container">
 
@@ -58,6 +65,8 @@
         </table>
     </div>
 
-    <button name="submit" value="1" type="submit" class="submit">Add Container</button>
+    <div class="form">
+        <button name="submit" value="1" type="submit" class="submit">Add Container</button>
+    </div>
 
     </form>

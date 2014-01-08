@@ -165,4 +165,59 @@ $(function() {
     e.preventDefault();
   })
   
+  
+  
+  // Pasting contents
+  $('.paste').dialog({ autoOpen: false, buttons: { 'Insert': function() { _insert() }, 'Close': function() { $(this).dialog('close') } }, title: 'Paste Container Contents' });
+  
+  $('button.pf').button().click(function() {
+    $('.paste textarea').val('')
+    $('.paste').dialog('open')
+  })
+  
+  function _insert() {
+    var lines = $('.paste textarea').val().split('\n')
+    $.each(lines, function(i,l) {
+        var cols = l.split('\t')
+           
+        if (cols[2] == 'Puck') {
+           $('input[name=container]').val(cols[3])
+        }
+           
+        if (cols[0] > 0 && cols[0] <= 16) {
+          if (cols[2]) {
+            var cb = $('select.protein').eq(cols[0]-1)
+            var val = cb.children('option').filter(function() { return $(this).text() == cols[2] }).attr('value');
+           
+            if (val) cb.combobox('value', val)
+            else {
+              var safe = cols[2].replace(/\W+/, '')
+              $.ajax({
+                url: '/shipment/ajax/addp/name/'+safe,
+                type: 'GET',
+                dataType: 'json',
+                timeout: 5000,
+                success: function(pid){
+                  if (pid) {
+                    _get_proteins(function() {
+                      cb.combobox('value', pid)
+                    })
+                  }
+                }
+              })
+            }
+
+          }
+           
+          $('select[name^=sg]').eq(cols[0]-1).val(cols[3])
+          $('input.sname').eq(cols[0]-1).val(cols[4])
+          $('input.comment').eq(cols[0]-1).val(cols[19])
+           
+          _validate_container()
+        }
+    })
+  
+    $('.paste').dialog('close')
+  }
+  
 })
