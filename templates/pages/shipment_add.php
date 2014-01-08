@@ -21,7 +21,7 @@
             </li>
 
             <li class="d">
-                <label>Facility Codes
+                <label>Facility Dewar Codes
                     <span class="small">Unique code for each dewar of the shipment</span>
                 </label>
                 <span class="fcodes"></span>
