@@ -298,7 +298,7 @@
                 $c = $cs[0];
                                
                 $this->db->pq("UPDATE container SET samplechangerlocation='' WHERE containerid=:1",array($c['CONTAINERID']));                
-                $this->_update_history($c['DEWARID'], 'unprocessing');
+                //$this->_update_history($c['DEWARID'], 'unprocessing');
                                 
                 $this->_output(1);
             }
