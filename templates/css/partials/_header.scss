@@ -56,9 +56,15 @@
     }
  
     @media (max-width: $breakpoint-medium) {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 4;
+        
         a.pull.enable {
             display: inline-block;
         }
+        
     }
     
     @media (max-width: $breakpoint-small) {
@@ -131,6 +137,10 @@
 #footer {
     background: $footer-background;
     padding: 1%;
+    
+    @media (max-width: $breakpoint-medium) {
+        clear: both;
+    }
 
     p {
         text-align: center;

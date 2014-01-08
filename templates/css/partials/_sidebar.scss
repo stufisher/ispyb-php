@@ -101,11 +101,7 @@
 
 
 // Responsive Sidebar
-@media (max-width: $breakpoint-medium) {
-    a.pull.enable {
-        display: inline-block;
-    }
-    
+@media (max-width: $breakpoint-medium) {    
     #sidebar, .cont_wrap {
         @include transition-property(all);
         @include transition-duration(0.2s);
@@ -197,21 +193,6 @@
 
     }
     
-    #footer {
-        clear: both;
-    }
-    
-    #wrapper {
-        background: $sidebar-mobile-background;
-        overflow-x: hidden;
-    }
-    
-    #header {
-        position: fixed;
-        top: 0;
-        width: 100%;
-        z-index: 2;
-    }
 }
 
 @media (max-width: $breakpoint-small) {
@@ -223,6 +204,10 @@
     }
 }
 
+
+.project {
+    display: none;
+}
 
 
 .project p {

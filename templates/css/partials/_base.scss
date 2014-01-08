@@ -29,6 +29,11 @@ a {
 
 #wrapper {
 	background: $content-background;
+    
+    @media (max-width: $breakpoint-medium) {
+        background: $sidebar-mobile-background;
+        overflow-x: hidden;
+    }
 }
 
 .cont_wrap {
