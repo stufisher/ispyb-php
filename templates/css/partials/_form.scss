@@ -69,7 +69,31 @@ div.form {
         width: 150px;
         height: 30px;
     }
+    
+    /*
+    textarea + label.ferror,
+    select + label.ferror,
+    input + label.ferror,
+    span label.ferror {
+        float: none;
+        display: inline;
+        padding: 0.5%;
+        margin-left: 5px;
+        border-radius: 5px;
+        border: none;
+        box-shadow: 0 0 4px red;
+    }
 
+    input[name=title] + label.ferror,
+    textarea + label.ferror {
+        margin-left: 29%;
+        margin-bottom: 10px;
+        display: block;
+    }*/
+    
+    label.ferror {
+        display: none !important;
+    }
 }
 
 
@@ -78,10 +102,6 @@ div.form {
 //    clear: both;
 //}
 
-
-div.form label.ferror {
-    display: none !important;
-}
 
 .ferror,
 table.form .ferror,
