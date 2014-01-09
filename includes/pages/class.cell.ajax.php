@@ -185,7 +185,7 @@
                       
                     $stats[$s]++;
                     
-                    $row = array('<a href="/cell/pdb/'.$d->PDB.'">'.$d->PDB.'</a> | <a href="http://www.rcsb.org/pdb/explore/explore.do?structureId='.$d->PDB.'">PDB</a>', $d->YEAR, strtolower(str_replace('DIAMOND BEAMLINE ', '', $d->BL)), ($d->BLMATCH ? 'Yes' : 'No'), ($d->UMATCH ? 'Yes' : 'No'), $d->CLOSEST.($d->CLOSEST ? (' ('.number_format($d->DIST,2).')'):''), implode(', ',$d->BLS), $d->RESULTS, $s);
+                    $row = array('<a href="/cell/pdb/'.$d->PDB.'">'.$d->PDB.'</a> <a class="ext" href="http://www.rcsb.org/pdb/explore/explore.do?structureId='.$d->PDB.'">PDB</a>', $d->YEAR, strtolower(str_replace('DIAMOND BEAMLINE ', '', $d->BL)), ($d->BLMATCH ? 'Yes' : 'No'), ($d->UMATCH ? 'Yes' : 'No'), $d->CLOSEST.($d->CLOSEST ? (' ('.number_format($d->DIST,2).')'):''), implode(', ',$d->BLS), $d->RESULTS, $s);
                     
                     if ($this->has_arg('sSearch')) {
                         if (strpos(strtolower($d->PDB), strtolower($this->arg('sSearch'))) !== false || strpos(strtolower($s), strtolower($this->arg('sSearch'))) !== false) array_push($rows, $row);
