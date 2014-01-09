@@ -9,6 +9,8 @@
         var $root = 'Beamline Status';
         var $root_link = '/status';
     
+        var $require_staff = True;
+        
         //var $debug = True;
         
         
