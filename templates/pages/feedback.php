@@ -7,12 +7,12 @@
 
             <li>
                 <label>Your Name</label>
-                <input type="text" name="name" required />
+                <input type="text" name="name" value="<?php echo $user ?>" required />
             </li>
 
             <li>
                 <label>Your Email Address</label>
-                <input name="email" type="email" required />
+                <input name="email" type="email" value="<?php echo $email ?>" required />
             </li>
 
             <li>
