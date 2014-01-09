@@ -329,7 +329,7 @@ $(function() {
         type: 'POST',
         data: { ids: $('.data_collection[type=data]').map(function(i,e) { return $(e).attr('dcid') }).get() },
         dataType: 'json',
-        timeout: 10000,
+        timeout: 20000,
         success: function(list) {
          $.each(list, function(i, r) {
            var id = r[0]
