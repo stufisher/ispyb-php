@@ -27,6 +27,10 @@
                 
             } else {
                 $this->template('Send Feedback');
+                
+                $this->t->user = $this->_get_name(phpCAS::getUser());
+                $this->t->email = $this->_get_email(phpCAS::getUser());
+                
                 $this->t->render('feedback');
             }
         }
