@@ -15,12 +15,13 @@ $(function() {
     $('div.pdbs').slideToggle()
   })
   
-  var dt = $('.robot_actions').dataTable({'sPaginationType': 'full_numbers',
-                                          'bProcessing': true,
-                                          'bServerSide': true,
-                                          'sAjaxSource': '/cell/ajax/analysed/',
-                                          'fnServerData': function (sSource, aoData, fnCallback, oSettings) {
-                                         oSettings.jqXHR = $.ajax({
+  var dt = $('.robot_actions').dataTable({sPaginationType: 'full_numbers',
+                                          bProcessing: true,
+                                          bServerSide: true,
+                                          sAjaxSource: '/cell/ajax/analysed/',
+                                          aaSorting: [[ 0, 'desc' ]],
+                                          fnServerData: function (sSource, aoData, fnCallback, oSettings) {
+                                            oSettings.jqXHR = $.ajax({
                                                     'dataType': 'json',
                                                     'type': 'GET',
                                                     'url': sSource,
@@ -32,6 +33,7 @@ $(function() {
                                                         perbl_old = json['perbl_old'],
                                                         _plots()
                                                         fnCallback(json)
+                                                        $('a.ext').button({ icons: { primary: 'ui-icon-extlink' }, text: false })
                                                     }
                                                 })
                                             }
