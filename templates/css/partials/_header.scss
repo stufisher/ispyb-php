@@ -2,7 +2,7 @@
 // ---------------------------------------------------------
 
 #header {
-    background: $header-background;
+    background: $header-background url(/templates/images/diamond_gs_small.png) top center no-repeat;
     color: $header-color;
 
     h1 {
@@ -135,13 +135,23 @@
 
 
 #footer {
-    background: $footer-background;
+    background: $footer-background url(/templates/images/ispyb_gs_medium.png) center center no-repeat;
     padding: 1%;
+    height: 150px;
     
     @media (max-width: $breakpoint-medium) {
         clear: both;
     }
 
+    a {
+        color: $footer-color;
+        text-decoration: none;
+        
+        &:hover {
+            color: $footer-hover-color;
+        }
+    }
+    
     p {
         text-align: center;
         color: $footer-color;
