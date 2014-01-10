@@ -24,6 +24,7 @@
                     <th>Protein Acronym</th>
                     <th>Name</th>
                     <th>Spacegroup</th>
+                    <th>Barcode</th>
                     <th>Comment</th>
                     <th>Data</th>
                     <th>&nbsp;</th>
