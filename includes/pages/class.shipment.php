@@ -189,11 +189,11 @@
                     foreach ($_POST['p'] as $i => $s) {
                         if ($s > -1) {
                             $val = True;
-                            foreach (array('p' => '\d+', 'n' => '\w+','c'=> '[a-zA-Z0-9_]+', 'sg' => '\w+') as $k => $m) {
+                            foreach (array('p' => '\d+', 'n' => '\w+','c'=> '[a-zA-Z0-9_]+', 'sg' => '\w+', 'b' => '\w+') as $k => $m) {
                                 if ($_POST[$k][$i] && !preg_match('/^'.$m.'$/', $_POST[$k][$i])) $val = False;
                             }
                                              
-                            if ($val) array_push($samples, array('pos' => $i,'p' => $s, 'sg' => $_POST['sg'][$i], 'n' => $_POST['n'][$i], 'c' => $_POST['c'][$i]));
+                            if ($val) array_push($samples, array('pos' => $i,'p' => $s, 'sg' => $_POST['sg'][$i], 'n' => $_POST['n'][$i], 'c' => $_POST['c'][$i], 'b' => $_POST['b'][$i]));
                         }
                     }
                 }
@@ -206,7 +206,7 @@
                     $this->db->pq("INSERT INTO crystal (crystalid,proteinid,spacegroup) VALUES (s_crystal.nextval,:1,:2) RETURNING crystalid INTO :id", array($s['p'], $s['sg']));
                     $crysid = $this->db->id();
                                  
-                    $this->db->pq("INSERT INTO blsample (blsampleid,crystalid,containerid,location,comments,name) VALUES (s_blsample.nextval,:1,:2,:3,:4,:5)", array($crysid, $cid, $s['pos']+1, $s['c'], $s['n']));
+                    $this->db->pq("INSERT INTO blsample (blsampleid,crystalid,containerid,location,comments,name,code) VALUES (s_blsample.nextval,:1,:2,:3,:4,:5,:6)", array($crysid, $cid, $s['pos']+1, $s['c'], $s['n'], $s['b']));
                 }
                 
                 $this->msg('New Container Added', 'Your container was sucessfully added. Click <a href="/shipment/cid/'.$cid.'">here</a> to see to the container or <a href="/shipment/sid/'.$cont['SHIPPINGID'].'">here</a> to view the shipment');

@@ -26,9 +26,10 @@ $(function() {
         r.children('td').eq(3).html('<select name="sg">'+sg_ops+'</select>')
         r.find('[name=sg]').val(sg)
                                                                                               
-        r.children('td').eq(4).html('<input type="text" name="c" value="'+r.children('td').eq(4).html()+'" />')
-
-        r.children('td').eq(6).html('<button class="save">Save Changes</button>')
+        r.children('td').eq(4).html('<input type="text" name="b" value="'+r.children('td').eq(4).html()+'" />')
+        r.children('td').eq(5).html('<input type="text" name="c" value="'+r.children('td').eq(5).html()+'" />')
+                                                                                                           
+        r.children('td').eq(7).html('<button class="save">Save Changes</button>')
                                                                                               
         $('button.save', r).button({ icons: { primary: 'ui-icon-check' }, text: false }).click(function() {
             var r = $(this).parent('td').parent('tr')
@@ -40,6 +41,7 @@ $(function() {
                    p: $('select[name=p]', r).combobox('value'),
                    sg: $('select[name=sg]', r).val(),
                    c: $('input[name=c]', r).val(),
+                   b: $('input[name=b]', r).val(),
                    pos: r.children('td').eq(0).html(),
                          },
                 dataType: 'json',
@@ -95,6 +97,7 @@ $(function() {
             '<td pid="'+s['PROTEINID']+'">'+s['ACRONYM']+'</td>'+
             '<td>'+s['NAME']+'</td>'+
             '<td>'+(s['SPACEGROUP']?s['SPACEGROUP']:'')+'</td>'+
+            '<td>'+(s['CODE']?s['CODE']:'')+'</td>'+
             '<td>'+(s['COMMENTS']?s['COMMENTS']:'')+'</td>'+
             '<td>'+(s['BLSAMPLEID'] ? (s['DCOUNT'] > 0 ? 'Yes' : 'No') : '')+'</td>'+
             '<td><button class="edit" title="Edit sample details">Edit Sample</button> '+(s['BLSAMPLEID'] ? '<button class="delete">Delete Sample</button> &nbsp; <button class="view" title="View sample details">View Sample</button>' : '')+'</td>'+

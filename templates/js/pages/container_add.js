@@ -16,10 +16,23 @@ $(function() {
 
   $('table.samples tr td button.delete').button({ icons: { primary: 'ui-icon-close' }, text: false }).click(function(e) {
     e.preventDefault();
+                                                                                                            
+    var idx = $('table.samples tr td button.delete').index($(this))
+                                   
+    $('select.protein').eq(idx).combobox('value', -1)
+    $('input.sname').eq(idx).val('')
+    $('select.sg').eq(idx).val('')
+    $('input.code').eq(idx).val('')
+    $('input.comment').eq(idx).val('')
+                                   
+    _validate_container()
   })
   
   _get_proteins(function() { _validate_container })
-  
+
+  $('table.samples tr td button.insert').button({ icons: { primary: 'ui-icon-carat-1-s' }, text: false }).click(function(e) {
+    e.preventDefault();
+  })
   
   
   // Generate a confirmation dialog
@@ -108,6 +121,7 @@ $(function() {
         var nidx = $('input.sname').index(nx)
         $('select.protein').eq(nidx).combobox('value', $('select.protein').eq(sidx).combobox('value'))
         nx.val(snt+(no+1))
+        $('select.sg').eq(nidx).val($('select.sg').eq(sidx).val())
       
         _validate_container()
     }
@@ -129,6 +143,7 @@ $(function() {
 
           $('input.sname').eq(i).prop('disabled', false).removeClass('disabled')
           $('input.comment').eq(i).prop('disabled', false).removeClass('disabled')
+          $('input.code').eq(i).prop('disabled', false).removeClass('disabled')
          
           if (!$('input.sname').eq(i).val().match(/^\w+$/)) {
             $('input.sname').eq(i).removeClass('fvalid').addClass('ferror')
@@ -143,10 +158,18 @@ $(function() {
             msg = 'Your comment contains special characters. Comments may only contain letters, numbers, spaces, and underscores.'
                              
           } else $('input.comment').eq(i).removeClass('ferror').addClass('fvalid')
+
+          if ($('input.code').eq(i).val() && !$($('input.code')[i]).val().match(/^\w+$/)) {
+            $('input.code').eq(i).removeClass('fvalid').addClass('ferror')
+            ret = false
+            msg = 'Your barcode contains special characters. BArcodes may only contain letters and numbers'
+                             
+          } else $('input.comment').eq(i).removeClass('ferror').addClass('fvalid')
                              
         } else {
           $('input.sname').eq(i).prop('disabled', true).addClass('disabled').removeClass('fvalid').removeClass('ferror')
           $('input.comment').eq(i).prop('disabled', true).addClass('disabled').removeClass('fvalid').removeClass('ferror')
+          $('input.code').eq(i).prop('disabled', true).addClass('disabled').removeClass('fvalid').removeClass('ferror')
         }
     })
   
@@ -209,8 +232,9 @@ $(function() {
 
           }
            
-          $('select[name^=sg]').eq(cols[0]-1).val(cols[3])
+          $('select.sg').eq(cols[0]-1).val(cols[3])
           $('input.sname').eq(cols[0]-1).val(cols[4])
+          $('input.code').eq(cols[0]-1).val(cols[5])
           $('input.comment').eq(cols[0]-1).val(cols[19])
            
           _validate_container()
@@ -219,5 +243,22 @@ $(function() {
   
     $('.paste').dialog('close')
   }
+  
+  
+  // Excel style navigation
+  //   enter scrolls down a row, shift+enter up
+  $.each(['.ui-combobox input', 'input.sname', 'input.comment', 'input.code', 'select.sg'], function(i,el) {
+    $(el).keypress(function(e) {
+      console.log(e)
+      var idx = $(el).index($(this))
+      if(e.which == 13) {
+        var dir = e.shiftKey ? -1 : 1
+        if (idx < $(el).length) $(el).eq(idx+dir).focus()
+                                   
+        e.preventDefault()
+      }
+    })
+  })
+  
   
 })

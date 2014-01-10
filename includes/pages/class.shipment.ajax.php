@@ -22,6 +22,7 @@
                               'sg' => '\w+',
                               'p' => '\d+',
                               'pos' => '\d+',
+                              'b' => '\w+',
                               );
         
         var $dispatch = array('containers' => '_get_containers',
@@ -285,7 +286,7 @@
             if (!$this->has_arg('prop')) $this->_error('No proposal specified');
             if (!$this->has_arg('cid')) $this->_error('No container id specified');
             
-            $rows = $this->db->pq("SELECT sp.blsampleid, pr.proteinid, sp.comments, sp.name, to_number(sp.location) as location, pr.acronym, cr.spacegroup, count(dc.datacollectionid) as dcount FROM blsample sp  INNER JOIN crystal cr ON sp.crystalid = cr.crystalid INNER JOIN protein pr ON cr.proteinid = pr.proteinid INNER JOIN container c ON sp.containerid = c.containerid INNER JOIN dewar d ON d.dewarid = c.dewarid INNER JOIN shipping s ON s.shippingid = d.shippingid LEFT OUTER JOIN ispyb4a_db.datacollection dc ON dc.blsampleid = sp.blsampleid WHERE pr.proposalid=:1 AND c.containerid = :2 GROUP BY sp.blsampleid, pr.proteinid, sp.comments, sp.name, sp.location, pr.acronym, cr.spacegroup ORDER BY to_number(sp.location)", array($this->proposalid,$this->arg('cid')));
+            $rows = $this->db->pq("SELECT sp.blsampleid, sp.code, pr.proteinid, sp.comments, sp.name, to_number(sp.location) as location, pr.acronym, cr.spacegroup, count(dc.datacollectionid) as dcount FROM blsample sp INNER JOIN crystal cr ON sp.crystalid = cr.crystalid INNER JOIN protein pr ON cr.proteinid = pr.proteinid INNER JOIN container c ON sp.containerid = c.containerid INNER JOIN dewar d ON d.dewarid = c.dewarid INNER JOIN shipping s ON s.shippingid = d.shippingid LEFT OUTER JOIN ispyb4a_db.datacollection dc ON dc.blsampleid = sp.blsampleid WHERE pr.proposalid=:1 AND c.containerid = :2 GROUP BY sp.blsampleid, pr.proteinid, sp.code, sp.comments, sp.name, sp.location, pr.acronym, cr.spacegroup ORDER BY to_number(sp.location)", array($this->proposalid,$this->arg('cid')));
 
             $used = array();
             foreach($rows as $r) array_push($used, $r['LOCATION']);
@@ -293,7 +294,7 @@
             for ($i = 1; $i < 17; $i++) array_push($tot, $i);
             
             foreach (array_diff($tot, $used) as $i => $d) {
-                array_splice($rows, $d-1, 0, array(array('BLSAMPLEID' => '', 'COMMENTS' => '', 'NAME' => '', 'LOCATION' => $d, 'ACRONYM' => '', 'SPACEGROUP' => '', 'DCOUNT' => 0)));
+                array_splice($rows, $d-1, 0, array(array('BLSAMPLEID' => '', 'COMMENTS' => '', 'NAME' => '', 'LOCATION' => $d, 'ACRONYM' => '', 'SPACEGROUP' => '', 'DCOUNT' => 0, 'CODE' => '')));
             }
             
             $this->_output($rows);
@@ -310,6 +311,7 @@
 
             $c = $this->has_arg('c') ? $this->arg('c') : '';
             $sg = $this->has_arg('sg') ? $this->arg('sg') : '';
+            $b = $this->has_arg('b') ? $this->arg('b') : '';
             
             # Update sample
             if ($this->has_arg('sid')) {
@@ -319,7 +321,7 @@
                 else $samp = $samp[0];
                 
 
-                $this->db->pq("UPDATE ispyb4a_db.blsample set name=:1,comments=:2 WHERE blsampleid=:3", array($this->arg('n'),$c,$this->arg('sid')));
+                $this->db->pq("UPDATE ispyb4a_db.blsample set name=:1,comments=:2,code=:3 WHERE blsampleid=:4", array($this->arg('n'),$c,$b,$this->arg('sid')));
                 
                 $this->db->pq("UPDATE ispyb4a_db.crystal set spacegroup=:1,proteinid=:2 WHERE crystalid=:3", array($sg, $this->arg('p'), $samp['CRYSTALID']));
                 
@@ -330,7 +332,7 @@
                 $this->db->pq("INSERT INTO ispyb4a_db.crystal (crystalid,proteinid,spacegroup) VALUES (s_crystal.nextval,:1,:2) RETURNING crystalid INTO :id", array($this->arg('p'), $sg));
                 $crysid = $this->db->id();
                              
-                $this->db->pq("INSERT INTO ispyb4a_db.blsample (blsampleid,crystalid,containerid,location,comments,name) VALUES (s_blsample.nextval,:1,:2,:3,:4,:5)", array($crysid, $this->arg('cid'), $this->arg('pos'), $c, $this->arg('n')));
+                $this->db->pq("INSERT INTO ispyb4a_db.blsample (blsampleid,crystalid,containerid,location,comments,name,code) VALUES (s_blsample.nextval,:1,:2,:3,:4,:5,:6)", array($crysid, $this->arg('cid'), $this->arg('pos'), $c, $this->arg('n'),$b));
                 
                 $this->_output(1);
             }
