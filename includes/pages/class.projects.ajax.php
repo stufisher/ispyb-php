@@ -29,16 +29,13 @@
         function _projects() {
             if (!$this->has_arg('prop')) $this->_error('No proposal specified');
             
-            $args = array($this->proposalid);
-            $where = "WHERE p.proposalid=:1";
-
-            $args = array();
-            $where = "";
+            $args = array(phpCAS::getUser());
+            $where = "WHERE p.owner LIKE :1";
             
             $sta = $this->has_arg('iDisplayStart') ? $this->arg('iDisplayStart') : 0;
             $len = $this->has_arg('iDisplayLength') ? $this->arg('iDisplayLength') : 20;
             
-            $tot = $this->db->pq("SELECT count(projectid) as tot FROM ispyb4a_db.project p  $where");
+            $tot = $this->db->pq("SELECT count(projectid) as tot FROM ispyb4a_db.project p $where");
             $tot = $tot[0]['TOT'];
             
             $st = sizeof($args) + 1;
