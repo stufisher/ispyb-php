@@ -102,12 +102,9 @@
 
             
             if (!file_exists($out)) {
-                chdir('/tmp');
                 
-                if (!file_exists('/tmp/cbf2jpg.sh')) copy('./cbf2jpg.sh', '/tmp/cbf2jpg.sh');
-                
-                exec('/tmp/cbf2jpg.sh '.$info['LOC'].' '.$info['FT'].' '.$n.' '.$out);
-                error_log('/tmp/cbf2jpg.sh '.$info['LOC'].' '.$info['FT'].' '.$n.' '.$out);
+                exec('./cbf2jpg.sh '.$info['LOC'].' '.$info['FT'].' '.$n.' '.$out);
+                error_log('./cbf2jpg.sh '.$info['LOC'].' '.$info['FT'].' '.$n.' '.$out);
                 #$img = imagecreatefromjpeg($out);
                 #imagejpeg($img,$out,80);
             }
