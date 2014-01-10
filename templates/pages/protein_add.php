@@ -1,4 +1,4 @@
-    <div id="add_pdb">
+    <!--<div id="add_pdb">
         <div class="form">
         <form id="ap">
             <ul>
@@ -22,7 +22,7 @@
             </ul>
         </form>
         </div>
-    </div>
+    </div>-->
 
     <h1>Add Protein</h1>
 
