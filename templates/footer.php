@@ -9,7 +9,7 @@
 
 <?php if ($hf): ?>
 <div id="footer">
-    <p>Diamond Light Source &copy;2013</p>
+    <p><a href="http://diamond.ac.uk">Diamond Light Source</a> &copy;<?php echo date('Y') ?></p>
 </div>
 <?php endif; ?>
 
