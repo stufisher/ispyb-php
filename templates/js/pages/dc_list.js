@@ -173,6 +173,7 @@ $(function() {
                                  //'<li>Measured Flux: '+r['FLUX']+'</li>'+
                                  '<li>Transmission: '+r['TRANSMISSION']+'%</li>'+
                                  '<li>Beamsize: '+r['BSX']+'x'+r['BSY']+'&mu;m</li>'+
+                                 '<li>Type: '+(r['DCT'] ? r['DCT'] : '')+'</li>'+
                                  '<li class="comment" title="Click to edit the comment for this data collection">Comment: <span class="comment_edit">'+(r['COMMENTS']?r['COMMENTS']:'')+'</span></li>'+
                              '</ul>'+
                              '<div class="holder">'+
