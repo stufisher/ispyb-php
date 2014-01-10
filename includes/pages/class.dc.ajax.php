@@ -137,8 +137,8 @@
                 for ($i = 0; $i < 4; $i++) array_push($args, $this->arg('sid'));
                  
             # Projects
-            } else if ($this->has_arg('pjid') && $this->has_arg('prop')) {
-                $info = $this->db->pq('SELECT title FROM ispyb4a_db.project WHERE projectid=:1', array($this->arg('pjid')));
+            } else if ($this->has_arg('pjid')) {
+                $info = $this->db->pq('SELECT title FROM ispyb4a_db.project WHERE projectid=:1 AND owner=:2', array($this->arg('pjid'), phpCAS::getUser()));
                 
                 
                 $extc = 'bls.name as sample,bls.blsampleid,';
