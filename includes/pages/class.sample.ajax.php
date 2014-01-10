@@ -21,6 +21,8 @@
                               'proteins' => '_proteins',
                               'update' => '_update_sample',
                               'updatep' => '_update_protein',
+                              'pdbs' => '_get_pdbs',
+                              'addpdb' => '_add_pdb',
                               );
         
         var $def = 'samples';
@@ -304,6 +306,25 @@
         }
         
         
+        # ------------------------------------------------------------------------
+        # Get list of pdbs for a proposal
+        function _get_pdbs() {
+            if (!$this->has_arg('prop')) $this->_error('No proposal specified');
+
+            $rows = $this->db->pq("SELECT p.pdbid,p.name FROM ispyb4a_db.pdb p INNER JOIN ispyb4a_db.protein_has_pdb hp ON p.pdbid = hp.pdbid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = hp.proteinid WHERE proposalid=:1 ORDER BY p.pdbid DESC", array($this->proposalid));
+            
+            $this->_output($rows);
+        }
+        
+        # ------------------------------------------------------------------------
+        # Upload a new pdb
+        function _add_pdb() {
+            if ($_FILES['pdb_file']) {
+                $data = file_get_contents($_FILES['pdb_file']['tmp_name']);
+                $this->_output($data);
+            }
+
+        }
     }
 
 ?>

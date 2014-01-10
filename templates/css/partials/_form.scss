@@ -70,6 +70,21 @@ div.form {
         height: 30px;
     }
     
+    
+    select[multiple=multiple] {
+        width: 20%;
+        vertical-align: top;
+        
+        @media (max-width: $breakpoint-small) {
+            width: 60%;
+        }
+    }
+    
+    
+    .progress {
+        width: 150px;
+    }
+    
     /*
     textarea + label.ferror,
     select + label.ferror,
