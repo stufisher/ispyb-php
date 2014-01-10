@@ -17,7 +17,7 @@ $(function() {
       }
   })
 
-  $('.current').editable('/proposal/ajax/set/', {
+  /*$('.current').editable('/proposal/ajax/set/', {
     type: 'autocomplete',
     autocomplete: { source: '/proposal/ajax/p/' },
     name: 'prop',
@@ -27,7 +27,7 @@ $(function() {
     placeholder: 'Click to Select',
     //onblur: 'ignore',
     callback: function() { window.location.href = '/proposal/visits' },
-  }).addClass('editable');
+  }).addClass('editable');*/
 
   //$('#sidebar a.pull').click(function() {
   //  $('#sidebar ul').slideToggle()
