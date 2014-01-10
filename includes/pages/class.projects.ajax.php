@@ -42,7 +42,7 @@
             array_push($args, $sta);
             array_push($args, $sta+$len);
             
-            $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (SELECT p.title, p.projectid FROM ispyb4a_db.project p $where ORDER BY p.projectid) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
+            $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (SELECT p.title, p.projectid, p.acronym FROM ispyb4a_db.project p $where ORDER BY p.projectid) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
             
             if ($this->has_arg('array')) {
                 $data = array();
@@ -52,7 +52,7 @@
             } else {
                 $data = array();
                 foreach ($rows as $r) {
-                    array_push($data, array($r['TITLE'], '', 0, 0, 0, '<a href="/projects/pid/'.$r['PROJECTID'].'" title="View Project" class="view">View</a>'));
+                    array_push($data, array($r['TITLE'], $r['ACRONYM'], 0, 0, 0, '<a href="/projects/pid/'.$r['PROJECTID'].'" title="View Project" class="view">View</a>'));
                 }
             
                 $this->_output(array('iTotalRecords' => $tot,
@@ -68,7 +68,7 @@
             if (!$this->has_arg('title')) $this->_error('No title specified');
             if (!$this->has_arg('acronym')) $this->_error('No acronym specified');
             
-            $this->db->pq("INSERT INTO ispyb4a_db.project (projectid,title) VALUES (s_project.nextval, :1)", array($this->arg('title')));
+            $this->db->pq("INSERT INTO ispyb4a_db.project (projectid,title,acronym,owner) VALUES (s_project.nextval, :1, :2, :3)", array($this->arg('title'), $this->arg('acronym'), phpCAS::getUser()));
             
             $this->_output($this->db->id());
         }
