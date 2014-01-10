@@ -3,6 +3,8 @@
 #module load ccp4
 #module load mosflm
 
+cd /tmp
+
 export CCP4_MASTER=/dls_sw/apps/ccp4/x86_64/6.4.0/11oct2013/
 export CINCL=$CCP4_MASTER/ccp4-6.4.0/include
 export CLIBD=$CCP4_MASTER/ccp4-6.4.0/lib/data
