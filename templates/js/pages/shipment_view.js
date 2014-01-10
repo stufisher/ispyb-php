@@ -127,7 +127,8 @@ $(function() {
         success: function(json){
           var c_out = ''
           $.each(json, function(i,c) {
-            c_out += '<li cid="'+c['CONTAINERID']+'">'+c['CODE']+' ('+c['SCOUNT']+' samples) <span class="r"><a class="view" title="Click to View Container" href="/shipment/cid/'+c['CONTAINERID']+'">View Container</a> <button class="delete">Delete Container</button></span></li>'
+            c_out += '<li cid="'+c['CONTAINERID']+'">'+c['CODE']+' ('+c['SCOUNT']+' samples) <span class="r"><a class="view" title="Click to View Container" href="/shipment/cid/'+c['CONTAINERID']+'">View Container</a></span></li>'
+            //<button class="delete">Delete Container</button>
                  
           })
            
