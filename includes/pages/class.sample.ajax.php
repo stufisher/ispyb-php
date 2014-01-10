@@ -247,7 +247,7 @@
             $types = array('name' => array('\w+', 'name'),
                            'seq' => array('\w+', 'sequence'),
                            'acronym' => array('\w+', 'acronym'),
-                           'mass' => array('\w+', 'molecularmass'),
+                           'mass' => array('\d+(.\d+)?', 'molecularmass'),
                            );
             
             if (array_key_exists($this->arg('ty'), $types)) {
