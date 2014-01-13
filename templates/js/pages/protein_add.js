@@ -1,13 +1,4 @@
-$(function() {
-  $.validator.addMethod('wwdash', function(value, element) {
-    return this.optional(element) || /^(\w|\-)+$/.test(value);
-  }, "This field must contain only letters numbers, underscores, and dashes")
-  
-  $.validator.addMethod("extension", function(value, element, param) {
-	param = typeof param === "string" ? param.replace(/,/g, '|') : "png|jpe?g|gif";
-	return this.optional(element) || value.match(new RegExp(".(" + param + ")$", "i"));
-  }, "Please select a file with a valid extension.")
-  
+$(function() {  
   $('#add_protein').validate({
     errorElement: 'span',
     validClass: 'fvalid', errorClass: 'ferror',

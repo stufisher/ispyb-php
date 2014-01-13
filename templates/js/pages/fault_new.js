@@ -14,10 +14,6 @@ $(function() {
   
   $('#add_fault').validate({ validClass: 'fvalid', errorClass: 'ferror', rules: { start: { datetime: true }, end: { datetime: true }, blend: { datetime: true }, blstart: { datetime: true } } })
   
-  $.validator.addMethod("datetime", function(value, element) {
-    return this.optional(element) || /^\d\d-\d\d-\d\d\d\d \d\d:\d\d$/.test(value);
-  }, "Please specify a valid date and time");
-  
   function _get_beamlines() {
       $.ajax({
         url: '/fault/ajax/bls',

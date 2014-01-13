@@ -241,4 +241,26 @@ $(function() {
   
   var fl = $('.robot_actions.mca').dataTable(dt)
   
+  $.each({'title': 'wwsdash', 'acronym': 'wwdash'}, function(e,t) {
+    $('.'+e).editable('/projects/ajax/update/pid/'+pid+'/ty/'+e+'/', {
+       type: 'text',
+       height: '100%',
+       width: '20%',
+       submit: 'Ok',
+       style: 'display: inline',
+       onsubmit: function(s,td) {
+         var r = { value: {}}
+         r.value[t] = true
+         $(this).validate({
+           validClass: 'fvalid', errorClass: 'ferror',
+           errorElement: 'span',
+           rules: r
+         })
+         return $(this).valid();
+       },
+                      
+    }).addClass('editable');
+  })
+  
+  $('.tabs').tabs()
 })

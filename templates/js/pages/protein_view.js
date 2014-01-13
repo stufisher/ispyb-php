@@ -36,11 +36,6 @@ $(function() {
     $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false })
   }
 
-  
-  $.validator.addMethod('wwdash', function(value, element) {
-    return this.optional(element) || /^(\w|\-)+$/.test(value);
-  }, "This field must contain only letters numbers, underscores, and dashes")
-  
   $.each({'name': 'wwdash', 'acronym': 'wwdash', 'mass': 'number'}, function(e,t) {
     $('.'+e).editable('/sample/ajax/updatep/pid/'+pid+'/ty/'+e+'/', {
                       height: '100%',

@@ -12,7 +12,7 @@
                 <label>Card Name
                     <span class="small">Name for the Contact Card</span>
                 </label>
-                <input type="text" name="cardname" required title="Name of the contact card. Accepts A-z0-9-_" />
+                <input type="text" name="cardname" required />
             </li>
 
 

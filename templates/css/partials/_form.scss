@@ -45,6 +45,7 @@ div.form {
     }
     
     input, textarea, select {
+        padding: 0.1%;
         margin: 0 0 20px 5px;
         
         @media (max-width: $breakpoint-small) {
@@ -110,6 +111,30 @@ div.form {
         display: none !important;
     }
     
+    
+    span.ferror {
+        margin-left: 15px;
+        border: none;
+        background: $content-light-background;
+        border-radius: 5px;
+        padding: 0.5%;
+        position: relative;
+    }
+
+    span.ferror:before {
+        position: absolute;
+        border: .7em solid transparent;
+        left: -1.3em;
+        top: 50%;
+        margin-top: -.7em;
+        content: '';
+        border-right-color: $content-light-background;
+    }
+    
+    textarea + span.ferror {
+        margin-left: 29%;
+    }
+    
     .floated {
         width: 72%;
         margin: 1% 0;
@@ -139,7 +164,14 @@ div.form {
 .ferror,
 table.form .ferror,
 div.form .ferror {
-    border: 1px solid red;
+    //border: 1px solid red;
+    background: $content-inactive;
+}
+
+.fvalid,
+table.form .fvalid,
+div.form .fvalid {
+    //background: $content-active;
 }
 
 
