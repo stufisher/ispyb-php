@@ -4,7 +4,7 @@
         
         var $arg_list = array('cid' => '\d+',
                               'submit' => '\d',
-                              'cardname' => '.*',
+                              'cardname' => '([\w\s])+',
                               'familyname' => '.*',
                               'givenname' => '.*',
                               'phone' => '.*',

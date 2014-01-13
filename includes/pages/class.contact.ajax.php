@@ -83,7 +83,7 @@
             $v = $this->arg('value');
             
             # Update labcontact
-            $ctypes = array('cardname' => array('\w+', 'cardname'),
+            $ctypes = array('cardname' => array('([\w\s])+', 'cardname'),
                             'courier' => array('.*', 'defaultcourriercompany'),
                             'courierac' => array('.*', 'courieraccount'),
                             'billing' => array('.*', 'billingreference'),
