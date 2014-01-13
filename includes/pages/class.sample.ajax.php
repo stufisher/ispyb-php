@@ -17,6 +17,7 @@
                               'imp' => '\d',
                               'existing_pdb' => '\d+',
                               'pdb_code' => '\w\w\w\w',
+                              'pdbid' => '\d+',
                                );
         
         var $dispatch = array('samples' => '_samples',
@@ -25,6 +26,7 @@
                               'updatep' => '_update_protein',
                               'pdbs' => '_get_pdbs',
                               'addpdb' => '_add_pdb',
+                              'rempdb' => '_remove_pdb',
                               );
         
         var $def = 'samples';
@@ -40,7 +42,7 @@
             if (!$this->has_arg('prop')) $this->_error('No proposal specified');
             
             $args = array($this->proposalid);
-            $where = '';
+            $where = 'pr.proposalid=:1';
             $join = '';
             
             # For a specific project
@@ -67,7 +69,7 @@
             $sta = $this->has_arg('iDisplayStart') ? $this->arg('iDisplayStart') : 0;
             $len = $this->has_arg('iDisplayLength') ? $this->arg('iDisplayLength') : 20;
             
-            $tot = $this->db->pq("SELECT count(b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid $join WHERE pr.proposalid=:1 $where", $args);
+            $tot = $this->db->pq("SELECT count(b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid $join WHERE $where", $args);
             $tot = $tot[0]['TOT'];
             
             if ($this->has_arg('sSearch')) {
@@ -77,7 +79,7 @@
             }
             
             
-            $flt = $this->db->pq("SELECT count(b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid $join WHERE pr.proposalid=:1 $where", $args);
+            $flt = $this->db->pq("SELECT count(b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid $join WHERE $where", $args);
             $flt = $flt[0]['TOT'];
             
             $st = sizeof($args) + 1;
@@ -102,7 +104,7 @@
                                   INNER JOIN ispyb4a_db.shipping s ON s.shippingid = d.shippingid
                                   INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid
                                   $join
-                                  WHERE pr.proposalid=:1 $where
+                                  WHERE $where
                                   
                                   ORDER BY $order
                                   ) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
@@ -317,8 +319,8 @@
             $args = array($this->proposalid);
             
             if ($this->has_arg('pid')) {
-                $where = 'pr.proteinid=:1';
-                $args = array($this->arg('pid'));
+                $where .= ' AND pr.proteinid=:1';
+                array_push($args, $this->arg('pid'));
             }
 
             $rows = $this->db->pq("SELECT distinct p.pdbid,p.name,p.code FROM ispyb4a_db.pdb p INNER JOIN ispyb4a_db.protein_has_pdb hp ON p.pdbid = hp.pdbid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = hp.proteinid WHERE $where ORDER BY p.pdbid DESC", $args);
@@ -351,6 +353,10 @@
             }
 
             if ($this->has_arg('existing_pdb')) {
+                $rows = $this->db->pq("SELECT p.pdbid FROM ispyb4a_db.pdb p INNER JOIN ispyb4a_db.protein_has_pdb hp ON p.pdbid = hp.pdbid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = hp.proteinid WHERE pr.proposalid=:1 AND p.pdbid=:2", array($this->proposalid, $this->arg('existing_pbd')));
+                
+                if (!sizeof($rows)) $this->_error('The specified pdb doesnt exist');
+                
                 $this->db->pq("INSERT INTO ispyb4a_db.protein_has_pdb (proteinhaspdbid,proteinid,pdbid) VALUES (s_protein_has_pdb.nextval,:1,:2)", array($this->arg('pid'),$this->arg('existing_pdb')));
             }
                 
@@ -358,12 +364,33 @@
 
         }
                 
-        // Duplication :(
+        # Duplication :(
         function _associate_pdb($name,$contents,$code,$pid) { 
             $this->db->pq("INSERT INTO ispyb4a_db.pdb (pdbid,name,contents,code) VALUES(s_pdb.nextval,:1,:2,:3) RETURNING pdbid INTO :id", array($name,$contents,$code));
             $pdbid = $this->db->id();
             
             $this->db->pq("INSERT INTO ispyb4a_db.protein_has_pdb (proteinhaspdbid,proteinid,pdbid) VALUES (s_protein_has_pdb.nextval,:1,:2)", array($pid,$pdbid));
+        }
+        
+        # ------------------------------------------------------------------------
+        # Remove a pdb
+        function _remove_pdb() {
+            if (!this->has_arg('prop')) $this->_error('No proposal specified');
+            if (!$this->has_arg('pid')) $this->_error('No protein specified');
+            if (!$this->has_arg('pdbid')) $this->_error('No pdb specified');
+            
+            $pdb = $this->db->pq("SELECT pd.pdbid FROM ispyb4a_db.pdb pd INNER JOIN ispyb4a_db.protein_has_pdb hp ON hp.pdbid=pd.pdbid INNER JOIN ispyb4a_db.protein p ON p.proteinid = hp.proteinid WHERE pd.pdbid=:1 AND p.proposalid=:2 p.proteinid=:3", array($this->arg('pdbid'), $this->proposalid, $this->arg('pid')));
+            
+            if (!sizeof($pdb)) $this->_error('No such pdb');
+            
+            # Remove association
+            $this->db->pq("DELETE FROM ispyb4a_db.protein_has_pdb WHERE pdbid=:1 AND proteinid=:2", array($this->arg('pdbid'), $this->arg('pid')));
+            
+            # Remove entry if its the last one
+            $count = $this->db->pq("SELECT pdbid FROM ispyb4a_db.protein_has_pdb WHERE pdbid=:1", array($this->arg('pdbid')));
+            if (!sizeof($count)) $this->db->pq("DELETE FROM ispyb4a_db.pdb WHERE pdbid=:1", array($this->arg('pdbid')));
+            
+            $this->_output(1);
         }
     }
 

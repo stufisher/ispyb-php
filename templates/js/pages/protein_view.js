@@ -94,8 +94,16 @@ $(function() {
            
         $('.pdb ul').html(pdb_out)
            
+        // Enable delete buttons
         $('button.delete').button({ icons: { primary: 'ui-icon-closethick' }, text: false }).click(function(i,e) {
-
+          $.ajax({
+            url: '/sample/ajax/rempdb/pid/'+pid+'/pdbid/'+$(this).parent('span').parent('li').attr('pdbid'),
+            type: 'GET',
+            dataType: 'json',
+            success: function(json){
+              _get_pdbs()
+            }
+          })
         })
       }
     })
@@ -111,7 +119,7 @@ $(function() {
     _get_all_pdbs(function() { $('#add_pdb').dialog('open') })
   })
   
-  function _get_all_pdbs(fn) {
+  function _get_all_pdbs(callback) {
     $.ajax({
       url: '/sample/ajax/pdbs',
       type: 'GET',
@@ -123,8 +131,8 @@ $(function() {
           pdb_out += '<option value="'+p['PDBID']+'">'+p['NAME']+(p['CODE'] ? ' [Code]' : ' [File]')+'</option>'
         })
            
-        $('select[name^=existing_pdb]').html(pdb_out)
-        if (fn) fn()
+        $('select[name=existing_pdb]').html(pdb_out)
+        if (callback) callback()
       }
     })
   }

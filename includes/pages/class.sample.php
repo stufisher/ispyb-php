@@ -156,6 +156,10 @@
                 if (array_key_exists('existing_pdb', $_POST)) {
                     if (sizeof($_POST['existing_pdb'])) {
                         foreach ($_POST['existing_pdb'] as $p) {
+                            $rows = $this->db->pq("SELECT p.pdbid FROM ispyb4a_db.pdb p INNER JOIN ispyb4a_db.protein_has_pdb hp ON p.pdbid = hp.pdbid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = hp.proteinid WHERE pr.proposalid=:1 AND p.pdbid=:2", array($this->proposalid, $p));
+                            
+                            if (!sizeof($rows)) $this->_error('The specified pdb doesnt exist');                            
+                            
                             $this->db->pq("INSERT INTO ispyb4a_db.protein_has_pdb (proteinhaspdbid,proteinid,pdbid) VALUES (s_protein_has_pdb.nextval,:1,:2)", array($pid,$p));
                         }
                     }
