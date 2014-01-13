@@ -17,14 +17,16 @@
                 <label>Number of Dewars
                     <span class="small">Number of dewars to automatically create for this shipment</span>
                 </label>
-                <input type="number" name="dewars" value="1" />
+                <input type="text" name="dewars" value="1" />
             </li>
 
-            <li class="d">
+            <li class="d clearfix">
                 <label>Facility Dewar Codes
                     <span class="small">Unique code for each dewar of the shipment</span>
                 </label>
+                <div class="floated">
                 <span class="fcodes"></span>
+                </div>
             </li>
 
             <li class="d">
@@ -70,7 +72,7 @@
                 <label>Shipping Date
                     <span class="small">Date shipment left lab</span>
                 </label>
-                <input class="half date" type="text" name="shippingdate" />
+                <input class="half" type="text" name="shippingdate" />
             </li>
 
 
@@ -78,7 +80,7 @@
                 <label>Delivery Date
                     <span class="small">Estimated date of delivery at facility</span>
                 </label>
-                <input class="half date" type="text" name="deliverydate" />
+                <input class="half" type="text" name="deliverydate" />
             </li>
 
             <li>
