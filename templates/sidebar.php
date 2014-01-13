@@ -27,11 +27,11 @@
                     <li><a href="/contact">Lab Contacts</a></li>
 
                     <li><a href="/vstat/proposal">Statistics</a></li>
-
-                    <li><a href="/projects">Projects</a></li>
                 </ul>
                 <?php endif; ?>
             </li>
+
+            <li><a href="/projects">Projects</a></li>
 
             <li><a href="/cell">Unit Cell Search</a>
                 <?php if ($this->staff): ?>
