@@ -9,11 +9,15 @@
                               'ty' => '\w+',
                               'iid' => '\d+',
                               'rem' => '\d',
+                              'value' => '.*',
                               );
         var $dispatch = array('projects' => '_projects',
                               'add' => '_add_project',
                               'check' => '_check_project',
-                              'addto' => '_add_to_project');
+                              'addto' => '_add_to_project',
+                              'update' => '_update_project',
+                              );
+        
         var $def = 'projects';
     
 
@@ -119,6 +123,35 @@
             }
             
             $this->_output($ret);
+        }
+        
+        
+        # Update project
+        function _update_project() {
+            if (!$this->has_arg('prop')) $this->_error('No proposal specified');
+            if (!$this->has_arg('pid')) $this->_error('No project id specified');
+            if (!$this->has_arg('value')) $this->_error('No value specified');
+            
+            $proj = $this->db->pq("SELECT p.projectid FROM ispyb4a_db.project p WHERE p.owner LIKE :1 AND p.projectid=:2", array(phpCAS::getUser(),$this->arg('pid')));
+            
+            if (!sizeof($proj)) $this->_error('No such project');
+            
+            $types = array('title' => array('.*', 'title'),
+                           'acronym' => array('([\w-])+', 'acronym'),
+                           );
+            
+            if (array_key_exists($this->arg('ty'), $types)) {
+                $t = $types[$this->arg('ty')];
+                $v = $this->arg('value');
+                                
+                // Check the value matches the template
+                if (preg_match('/^'.$t[0].'$/m', $v)) {
+                    $this->db->pq('UPDATE ispyb4a_db.project SET '.$t[1].'=:1 WHERE projectid=:2', array($v, $this->arg('pid')));
+
+                    print $v;
+                }
+                
+            } 
         }
     
     }

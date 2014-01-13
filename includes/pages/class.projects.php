@@ -29,7 +29,7 @@
         function _view_project() {
             if (!$this->has_arg('pid')) $this->error('No project', 'No project was specified');
             
-            $proj = $this->db->pq("SELECT p.title FROM ispyb4a_db.project p WHERE p.projectid=:1", array($this->arg('pid')));
+            $proj = $this->db->pq("SELECT p.title,p.acronym FROM ispyb4a_db.project p WHERE p.projectid=:1", array($this->arg('pid')));
             
             if (!sizeof($proj)) $this->error('No such project', 'The specified project doesnt exist');
             else $proj = $proj[0];
