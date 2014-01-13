@@ -1,32 +1,6 @@
-    <!--<div id="add_pdb">
-        <div class="form">
-        <form id="ap">
-            <ul>
-                <li>
-                    <label>Name:
-                        <input type="text" name="name" />
-                    </label>
-                </li>
-
-                <li>
-                    <label>File:
-                        <input type="file" name="pdb_file" />
-                    </label>
-                </li>
-
-                <li>
-                    <label>Progress:
-                        <div class="progress"></div>
-                    </label>
-                </li>
-            </ul>
-        </form>
-        </div>
-    </div>-->
-
     <h1>Add Protein</h1>
 
-    <form method="post" id="add_protein">
+    <form method="post" id="add_protein" enctype="multipart/form-data">
 
     <div class="form">
         <ul>
@@ -60,25 +34,35 @@
                 <span class="seq"><textarea name="seq" ></textarea></span>
             </li>
 
-            <li>
-                <label>PDB
-                    <span class="small">Upload new PDB to automatically launch dimple</span>
-                </label>
-                <span class="pdb">
+            <li class="clearfix reorder">
+                <div class="floated pdb">
                     <span class="file">
-                        <input type="file" name="new_pdb[]" />
+                        <input type="file" class="new_pdb" name="new_pdb[]" />
                         <button class="delete">Delete File</button>
                     </span>
+                </div>
+                <label>PDB
+                    <span class="small">Upload a new PDB to automatically launch dimple</span>
+                </label>
+            </li>
+
+            <li>
+                <label>
+                    <span class="small">Use an existing PDB to automatically launch dimple</span>
+                </label>
+
+                <span class="exist_pdb">
+                    <select name="existing_pdb" multiple="multiple"></select>
                 </span>
             </li>
 
             <li>
-                <label>PDB
-                    <span class="small">Use existing PDB to automatically launch dimple</span>
+                <label>
+                    <span class="small">List of RCSB PDB Codes to use, comma separated</span>
                 </label>
 
-                <span class="pdb">
-                    <select name="existing_pdb" multiple="multiple"></select>
+                <span class="rcsb_pdb">
+                    <input type="text" name="pdb_codes" />
                 </span>
             </li>
 

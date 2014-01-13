@@ -1,3 +1,29 @@
+    <div id="add_pdb">
+        <div class="form">
+        <form id="ap">
+            <ul>
+                <li>
+                    <label>Name:
+                        <input type="text" name="name" />
+                    </label>
+                </li>
+
+                <li>
+                    <label>File:
+                        <input type="file" name="pdb_file" />
+                    </label>
+                </li>
+
+                <li>
+                    <label>Progress:
+                        <div class="progress"></div>
+                    </label>
+                </li>
+            </ul>
+        </form>
+        </div>
+    </div>
+
     <h1>View Protein</h1>
 
     <p class="help">This page shows details for the selected protein and a list of samples which make use of it</p>
@@ -22,6 +48,11 @@
             <li>
                 <span class="label">Molecular Mass</span>
                 <span class="mass"><?php echo $prot['MOLECULARMASS'] ?></span>
+            </li>
+
+            <li>
+                <span class="label">Associated PDB Files</span>
+                <span class="pdb"><!--<button class="add">Add PDB File</button>--><ul></ul></span>
             </li>
 
         </ul>

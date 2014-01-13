@@ -310,8 +310,16 @@
         # Get list of pdbs for a proposal
         function _get_pdbs() {
             if (!$this->has_arg('prop')) $this->_error('No proposal specified');
+            
+            $where = 'pr.proposalid=:1';
+            $args = array($this->proposalid);
+            
+            if ($this->has_arg('pid')) {
+                $where = 'pr.proteinid=:1';
+                $args = array($this-arg('pid'));
+            }
 
-            $rows = $this->db->pq("SELECT p.pdbid,p.name FROM ispyb4a_db.pdb p INNER JOIN ispyb4a_db.protein_has_pdb hp ON p.pdbid = hp.pdbid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = hp.proteinid WHERE proposalid=:1 ORDER BY p.pdbid DESC", array($this->proposalid));
+            $rows = $this->db->pq("SELECT p.pdbid,p.name FROM ispyb4a_db.pdb p INNER JOIN ispyb4a_db.protein_has_pdb hp ON p.pdbid = hp.pdbid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = hp.proteinid WHERE $where ORDER BY p.pdbid DESC", $args);
             
             $this->_output($rows);
         }

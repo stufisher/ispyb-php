@@ -3,7 +3,13 @@ $(function() {
     return this.optional(element) || /^(\w|\-)+$/.test(value);
   }, "This field must contain only letters numbers, underscores, and dashes")
   
+  $.validator.addMethod("extension", function(value, element, param) {
+	param = typeof param === "string" ? param.replace(/,/g, '|') : "png|jpe?g|gif";
+	return this.optional(element) || value.match(new RegExp(".(" + param + ")$", "i"));
+  }, "Please select a file with a valid extension.")
+  
   $('#add_protein').validate({
+    errorElement: 'span',
     validClass: 'fvalid', errorClass: 'ferror',
     rules: {
         name: {
@@ -12,53 +18,38 @@ $(function() {
                              
         acronym: {
             wwdash: true,
+        },
+                             
+        mass: {
+            number: true,
         }
     }
   })
   
-  /*
-  $('.progress').progressbar({ value: 0 });
-  $('#add_pdb').dialog({ title: 'Add PDB', autoOpen: false, buttons: { 'Add': function() { _add_pdb() }, 'Cancel': function() { $(this).dialog('close') } } });
-  
-  $('button.add').button({ icons: { primary: 'ui-icon-plus' } }).click(function(i,e) { $('#add_pdb').dialog('open') })
   
   
-  // Upload new pdb file
-  function _add_pdb() {
-    var n = $('#add_pdb input[name=name]').val()
-    var file = $('input[name=pdb_file]')[0].files[0]
+  function _map_change() {
+    $('input.new_pdb').unbind('change').change(function() { _file_change(this) })
+    $('button.delete').button({ icons: { primary: 'ui-icon-closethick' }, text: false }).unbind('click').click(function(e) {
+      e.preventDefault()
+      if ($('span.file').length > 1) $(this).parent('span').remove()
+    })
   
-    if (file && n) {
-      var fd = new FormData($('form#ap')[0])
-      $.ajax({
-        url: '/sample/ajax/addpdb',
-        type: 'POST',
-        data: fd,
-        dataType: 'json',
-        xhr: function() {
-          var myXhr = $.ajaxSettings.xhr()
-          if(myXhr.upload) myXhr.upload.addEventListener('progress', _upload_progress, false)
-          return myXhr;
-        },
-             
-        cache: false,
-        contentType: false,
-        processData: false,
-             
-        success: function(json){
-          $('#add_pdb').dialog('close')
-          _get_pdbs()
-        }
-      })
+    $('input.new_pdb').each(function() { $(this).rules('add', { extension: 'pdb' }) })
+  }
+  _map_change()
+
+  function _file_change(el) {
+    if ($(el).val()) {
+      if ($('input.new_pdb').index($(el)) == $('input.new_pdb').length - 1) {
+        $('<span class="file">'+
+          '  <input type="file" class="new_pdb" name="new_pdb[]" />'+
+          '  <button class="delete">Delete File</button>'+
+          '</span>').appendTo('div.pdb')
+        _map_change()
+      }
     }
   }
-  
-  function _upload_progress(e) {
-    var pc = (e.loaded / e.total)*100;
-    $('.progress').progressbar({ value: pc });
-  }*/
-  
-  //$('input[name=')
   
   // Get list of pdbs for proposal
   function _get_pdbs() {

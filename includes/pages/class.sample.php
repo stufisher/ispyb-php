@@ -11,6 +11,7 @@
                               'seq' => '\w+',
                               'mass' => '\d+(.\d+)',
                               'submit' => '\d',
+                              'pdb_codes' => '([\w\s,])+',
                               );
         var $dispatch = array('samples' => '_sample_dispatch',
                               'proteins' => '_protein_dispatch',
@@ -130,13 +131,50 @@
                 
                 $this->db->pq('INSERT INTO ispyb4a_db.protein (proteinid,proposalid,name,acronym,sequence,molecularmass,bltimestamp) VALUES (s_protein.nextval,:1,:2,:3,:4,:5,CURRENT_TIMESTAMP) RETURNING proteinid INTO :id',array($pid, $name, $this->arg('acronym'), $seq, $mass));
                 
+                $pid = $this->db->id();
+                
+                foreach ($_FILES['new_pdb']['name'] as $i => $pdb) {
+                    $info = pathinfo($pdb);
+                    
+                    if ($info['extension'] == 'pdb') {
+                        $file = file_get_contents($_FILES['new_pdb']['tmp_name']);
+                        $this->_associate_pdb($info['basename'],$file,'',$pid);
+                    }
+                }
+                
+                if ($this->has_arg('pdb_codes')) {
+                    foreach (explode(',',$this->arg('pdb_codes')) as $c) {
+                        $c = strtolower(trim($c));
+                        if (strlen($c) == 4) {
+                            $this->_associate_pdb($c,'',$c,$pid);
+                        }
+                    }
+                }
+                
+                if ($_POST['existing_pdb']) {
+                    if (sizeof($_POST['existing_pdb'])) {
+                        foreach ($_POST['existing_pdb'] as $p) {
+                            #$this->db->pq("INSERT INTO ispyb4a_db.protein_has_pdb (proteinhaspdbid,proteinid,pdbid) VALUES (s_protein_has_pdb.nextval,:1,:2)", array($pid,$p));
+                        }
+                    }
+                }
+                
                 $this->msg('New Protein Added', 'You protein was successfully added, click <a href="/sample/proteins/pid/'.$this->db->id().'">here</a> to view it');
                 
                 
             } else {
-                $this->template('Add Protein');
+                $this->template('Add Protein', array('Proteins', 'Add Protein'), array('/proteins', ''));
                 $this->t->render('protein_add');
             }
+        }
+        
+        
+        function _associate_pdb($name,$contents,$code,$pid) {
+            return; 
+            $this->db->pq("INSERT INTO ispyb4a_db.pdb (pdbid,name,contents,code) VALUES(s_pdb.nextval,:1,:2,:3) RETURNING pdbid INTO :id", array($name,$contents,$code));
+            $pdbid = $this->db->id();
+            
+            $this->db->pq("INSERT INTO ispyb4a_db.protein_has_pdb (proteinhaspdbid,proteinid,pdbid) VALUES (s_protein_has_pdb.nextval,:1,:2)", array($pid,$pdbid));
         }
 
     }
