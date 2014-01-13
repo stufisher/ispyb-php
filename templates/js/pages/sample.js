@@ -38,9 +38,13 @@ $(function() {
   $('#sidebar,.cont_wrap').addClass('searchbox')
   
   function _map_callbacks() {
-    setTimeout(function() {
-      $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false })
-    }, 500)
+    $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false }).hide()
+  
+    $('table.samples tbody tr').unbind('click').click(function() {
+      window.location = $('td:last-child a.view', this).attr('href')
+    })
+
+  
   }
 
 

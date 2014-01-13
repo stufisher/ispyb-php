@@ -97,7 +97,7 @@
     }
 
     
-    table.proposals,table.dewars, table.ehc, table.proteins.flt, table.samples.flt,table.blended_table, table.integrated, table.projects, table.shipments, table.visits, table.contacts {
+    table.proposals,table.dewars, table.ehc, table.proteins.flt, table.samples.flt,table.blended_table, table.integrated, table.projects, table.shipments, table.visits, table.contacts, table.proteins, table.samples {
         @extend table.hover-row;
     }
     
