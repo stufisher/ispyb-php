@@ -64,13 +64,23 @@
                                                             
                 
                 if (sizeof($visit) > 0) {
-                    foreach ($visit as $v)
+                    foreach ($visit as $v) {
+                        if ($visit[0]['ST'] == $visit[1]['ST']) $v = $visit[1];
+                        else $v = $visit[0];
+                        
+                        list($id,$no) = explode('-',$v['VIS']);
                         array_push($visit_listl, '<li><h1>'.$v['BL'].$this->lc($v['SESSIONID']).'</h1><h2><a href="/dc/visit/'.$v['VIS'].'">'.$v['VIS'].'</a></h2><ul><li>Started: '.$v['ST'].'</li><li>Ended: '.$v['EN'].'</li><li><a href="/vstat/bag/'.$id.'/visit/'.$no.'">Visit Statistics</a></li></ul></li>');
+                    }
                 }
                 
                 if (sizeof($visitn) > 0) {
-                    foreach ($visitn as $v)
+                    foreach ($visitn as $v) {
+                        if ($visitn[0]['ST'] == $visitn[1]['ST']) $v = $visitn[1];
+                        else $v = $visitn[0];
+                        
+                        list($id,$no) = explode('-',$v['VIS']);
                         array_push($visit_listn, '<li><h1>'.$v['BL'].$this->lc($v['SESSIONID']).'</h1><h2><a href="/dc/visit/'.$v['VIS'].'">'.$v['VIS'].'</a></h2><ul><li>Starts: '.$v['ST'].'</li><li>Ends: '.$v['EN'].'</li><li><a href="/vstat/bag/'.$id.'/visit/'.$no.'">Visit Statistics</a></li></ul></li>');
+                    }
                 }                
                 
             }
