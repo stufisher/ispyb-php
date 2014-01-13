@@ -9,7 +9,12 @@
 
             <li>
                 <span class="label">Name</span>
-                <span class="name"><?php echo $proj['TITLE'] ?></span>
+                <span class="title"><?php echo $proj['TITLE'] ?></span>
+            </li>
+
+            <li>
+                <span class="label">Acronym</span>
+                <span class="acronym"><?php echo $proj['ACRONYM'] ?></span>
             </li>
 
         </ul>
@@ -68,74 +73,81 @@
 
     <p class="help">This table shows all data collections for the selected project. They can be further filtered by clicking the filter buttons below</p>
 
-    <div class="filter clearfix" title="Click to filter the current list to specified data collection types">
+    <div class="tabs">
+
         <ul>
-            <li id="fc">Data Collections</li>
-            <li id="sc">Screening</li>
-            <li id="gr">Grid Scans</li>
-            <li id="flag">Favourite</li>
+            <li><a href="#data">Data Collections</a></li>
+            <li><a href="#edge">Edge Scans</a></li>
+            <li><a href="#mca">Fluorescence Spectra</a></li>
         </ul>
-    </div>
-
-    <div class="table">
-        <table class="robot_actions dcs">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Template</th>
-                    <th>Sample</th>
-                    <th>&Omega; Osc (&deg;)</th>
-                    <th># Img</th>
-                    <th>&lambda; (&#197;)</th>
-                    <th>Trans (%)</th>
-                    <th>Exp (s)</th>
-                    <th>Comment</th>
-                    <th>&nbsp;</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
 
 
-    <h1>Energy Scans</h1>
+        <div id="data">
+            <div class="filter clearfix" title="Click to filter the current list to specified data collection types">
+                <ul>
+                    <li id="fc">Data Collections</li>
+                    <li id="sc">Screening</li>
+                    <li id="gr">Grid Scans</li>
+                    <li id="flag">Favourite</li>
+                </ul>
+            </div>
 
-    <div class="table">
-        <table class="robot_actions energy">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Element</th>
-                    <th>Sample</th>
-                    <th>Trans (%)</th>
-                    <th>Exp (s)</th>
-                    <th>Peak</th>
-                    <th>Inf</th>
-                    <th>Comment</th>
-                    <th>&nbsp;</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
+            <div class="table">
+                <table class="robot_actions dcs">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Template</th>
+                            <th>Sample</th>
+                            <th>&Omega; Osc (&deg;)</th>
+                            <th># Img</th>
+                            <th>&lambda; (&#197;)</th>
+                            <th>Trans (%)</th>
+                            <th>Exp (s)</th>
+                            <th>Comment</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
 
+        <div id="edge" class="table">
+            <table class="robot_actions energy">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Element</th>
+                        <th>Sample</th>
+                        <th>Trans (%)</th>
+                        <th>Exp (s)</th>
+                        <th>Peak</th>
+                        <th>Inf</th>
+                        <th>Comment</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
 
-    <h1>Fluorescence Spectra</h1>
-
-    <div class="table">
-        <table class="robot_actions mca">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Sample</th>
-                    <th>Energy (eV)</th>
-                    <th>Trans (%)</th>
-                    <th>Exp (s)</th>
-                    <th>Elements</th>
-                    <th>Comment</th>
-                    <th>&nbsp;</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+        <div id="mca" class="table">
+            <table class="robot_actions mca">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Sample</th>
+                        <th>Energy (eV)</th>
+                        <th>Trans (%)</th>
+                        <th>Exp (s)</th>
+                        <th>Elements</th>
+                        <th>Comment</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+                                  
     </div>
