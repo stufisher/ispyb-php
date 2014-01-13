@@ -121,9 +121,15 @@
         function _diffraction_image() {
             if (!$this->has_arg('id')) return;
             
-            $n = $this->has_arg('n') ? $this->arg('n') : 1;
+            $first = $this->db->pq("SELECT startimagenumber as si FROM ispyb4a_db.datacollection WHERE datacollectionid=:1", array($this->arg('id')));
+            
+            if (!sizeof($first)) $this->_error('No such data collection');
+            else $first = $first[0]['SI'];
+            
+            $n = $this->has_arg('n') ? $this->arg('n') : $first;
+            
             $rows = $this->db->pq('SELECT jpegfilefullpath as im FROM ispyb4a_db.image WHERE datacollectionid=:1 AND imagenumber=:2', array($this->arg('id'), $n));
-
+            
             if (sizeof($rows) > 0) {
                 $im = $rows[0]['IM'];
                 if (file_exists($im)) {
