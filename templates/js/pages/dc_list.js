@@ -167,6 +167,7 @@ $(function() {
                                  '<li>&Omega; Osc: '+r['AXISRANGE']+'&deg;</li>'+
                                  '<li>&Omega; Overlap: '+r['OVERLAP']+'&deg;</li>'+
                                  '<li>No. Images: '+r['NUMIMG']+'</li>'+
+                                 (r['SI'] == 1 ? '' : ('<li>First Image: '+r['SI']+'</li>'))+
                                  '<li>Resolution: '+r['RESOLUTION']+'&#197;</li>'+
                                  '<li>Wavelength: '+r['WAVELENGTH']+'&#197;</li>'+
                                  '<li>Exposure: '+r['EXPOSURETIME']+'s</li>'+
