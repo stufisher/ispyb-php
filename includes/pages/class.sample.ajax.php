@@ -15,6 +15,8 @@
                               'ty' => '\w+',
                               'pjid' => '\d+',
                               'imp' => '\d',
+                              'existing_pdb' => '\d+',
+                              'pdb_code' => '\w\w\w\w',
                                );
         
         var $dispatch = array('samples' => '_samples',
@@ -316,22 +318,52 @@
             
             if ($this->has_arg('pid')) {
                 $where = 'pr.proteinid=:1';
-                $args = array($this-arg('pid'));
+                $args = array($this->arg('pid'));
             }
 
-            $rows = $this->db->pq("SELECT p.pdbid,p.name FROM ispyb4a_db.pdb p INNER JOIN ispyb4a_db.protein_has_pdb hp ON p.pdbid = hp.pdbid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = hp.proteinid WHERE $where ORDER BY p.pdbid DESC", $args);
+            $rows = $this->db->pq("SELECT distinct p.pdbid,p.name,p.code FROM ispyb4a_db.pdb p INNER JOIN ispyb4a_db.protein_has_pdb hp ON p.pdbid = hp.pdbid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = hp.proteinid WHERE $where ORDER BY p.pdbid DESC", $args);
             
             $this->_output($rows);
         }
         
         # ------------------------------------------------------------------------
-        # Upload a new pdb
+        # Add a new pdb
         function _add_pdb() {
-            if ($_FILES['pdb_file']) {
-                $data = file_get_contents($_FILES['pdb_file']['tmp_name']);
-                $this->_output($data);
+            if (!$this->has_arg('pid')) $this->_error('No protein id specified');
+
+            $prot = $this->db->pq("SELECT pr.proteinid FROM ispyb4a_db.protein pr INNER JOIN ispyb4a_db.proposal p ON pr.proposalid = p.proposalid WHERE p.proposalcode || p.proposalnumber LIKE :1 AND pr.proteinid = :2", array($this->arg('prop'),$this->arg('pid')));
+            
+            if (!sizeof($prot)) $this->_error('No such protein');
+            
+            if (array_key_exists('pdb_file', $_FILES)) {
+                if ($_FILES['pdb_file']['name']) {
+                    $info = pathinfo($_FILES['pdb_file']['name']);
+                    
+                    if ($info['extension'] == 'pdb') {
+                        $file = file_get_contents($_FILES['pdb_file']['tmp_name']);
+                        $this->_associate_pdb($info['basename'],$file,'',$this->arg('pid'));
+                    }
+                }
+            }
+                
+            if ($this->has_arg('pdb_code')) {
+                $this->_associate_pdb($this->arg('pdb_code'),'',$this->arg('pdb_code'),$this->arg('pid'));
             }
 
+            if ($this->has_arg('existing_pdb')) {
+                $this->db->pq("INSERT INTO ispyb4a_db.protein_has_pdb (proteinhaspdbid,proteinid,pdbid) VALUES (s_protein_has_pdb.nextval,:1,:2)", array($this->arg('pid'),$this->arg('existing_pdb')));
+            }
+                
+            $this->_output(1);
+
+        }
+                
+        // Duplication :(
+        function _associate_pdb($name,$contents,$code,$pid) { 
+            $this->db->pq("INSERT INTO ispyb4a_db.pdb (pdbid,name,contents,code) VALUES(s_pdb.nextval,:1,:2,:3) RETURNING pdbid INTO :id", array($name,$contents,$code));
+            $pdbid = $this->db->id();
+            
+            $this->db->pq("INSERT INTO ispyb4a_db.protein_has_pdb (proteinhaspdbid,proteinid,pdbid) VALUES (s_protein_has_pdb.nextval,:1,:2)", array($pid,$pdbid));
         }
     }
 

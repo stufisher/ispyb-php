@@ -5,7 +5,6 @@ $(function() {
             sAjaxSource: '/sample/ajax/pid/'+pid+'/',
             bAutoWidth:false ,
             aaSorting: [[ 0, 'desc' ]],
-            //fnDrawCallback: _map_callbacks(),
             fnServerData: function ( sSource, aoData, fnCallback ) {
                 $.getJSON( sSource, aoData, function (json) { 
                    fnCallback(json)
@@ -67,20 +66,37 @@ $(function() {
   }).addClass('editable');
   
   
+  $('#ap').validate({
+    validClass: 'fvalid', errorClass: 'ferror',
+    rules: {
+        pdb_file: {
+          extension: 'pdb',
+        },
+        pdb_code: {
+          minlength: 4,
+          maxlength: 4,
+        },
+    }
+  })
+  
   // Get list of pdbs for proposal
-  function _get_pdbs(pid) {
+  function _get_pdbs() {
     $.ajax({
       url: '/sample/ajax/pdbs'+(pid ? ('/pid/'+pid) : ''),
       type: 'GET',
       dataType: 'json',
       timeout: 5000,
       success: function(json){
-        var pdb_out = '<option value="">&nbsp;</option>'
+        var pdb_out = ''
         $.each(json, function(i,p) {
-          pdb_out += '<option value="'+p['PDBID']+'">'+p['NAME']+'</option>'
+          pdb_out += '<li pdbid="'+p['PDBID']+'">'+p['NAME']+(p['CODE'] ? ' [Code]' : ' [File]')+' <span class="r"><button class="delete">Delete</button></span></li>'
         })
            
-        $('select[name=pdb]').html(pdb_out)
+        $('.pdb ul').html(pdb_out)
+           
+        $('button.delete').button({ icons: { primary: 'ui-icon-closethick' }, text: false }).click(function(i,e) {
+
+        })
       }
     })
   }
@@ -90,18 +106,35 @@ $(function() {
   $('#add_pdb .progress').progressbar({ value: 0 });
   $('#add_pdb').dialog({ title: 'Add PDB', autoOpen: false, buttons: { 'Add': function() { _add_pdb() }, 'Cancel': function() { $(this).dialog('close') } } });
   
-  $('button.add').button({ icons: { primary: 'ui-icon-plus' } }).click(function(i,e) { $('#add_pdb').dialog('open') })
+  $('button.add').button({ icons: { primary: 'ui-icon-plus' } }).click(function(i,e) {
+    $('.progress').progressbar({ value: 0 });
+    _get_all_pdbs(function() { $('#add_pdb').dialog('open') })
+  })
+  
+  function _get_all_pdbs(fn) {
+    $.ajax({
+      url: '/sample/ajax/pdbs',
+      type: 'GET',
+      dataType: 'json',
+      timeout: 5000,
+      success: function(json){
+        var pdb_out = '<option value="">N/A</option>'
+        $.each(json, function(i,p) {
+          pdb_out += '<option value="'+p['PDBID']+'">'+p['NAME']+(p['CODE'] ? ' [Code]' : ' [File]')+'</option>'
+        })
+           
+        $('select[name^=existing_pdb]').html(pdb_out)
+        if (fn) fn()
+      }
+    })
+  }
   
   
   // Upload new pdb file
   function _add_pdb() {
-    var n = $('#add_pdb input[name=name]').val()
-    var file = $('input[name=pdb_file]')[0].files[0]
-  
-    if (file && n) {
       var fd = new FormData($('form#ap')[0])
       $.ajax({
-        url: '/sample/ajax/addpdb',
+        url: '/sample/ajax/addpdb/pid/'+pid,
         type: 'POST',
         data: fd,
         dataType: 'json',
@@ -120,7 +153,6 @@ $(function() {
           _get_pdbs()
         }
       })
-    }
   }
   
   function _upload_progress(e) {

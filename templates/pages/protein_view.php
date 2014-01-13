@@ -3,14 +3,20 @@
         <form id="ap">
             <ul>
                 <li>
-                    <label>Name:
-                        <input type="text" name="name" />
+                    <label>File:
+                        <input type="file" name="pdb_file" />
                     </label>
                 </li>
 
                 <li>
-                    <label>File:
-                        <input type="file" name="pdb_file" />
+                    <label>PDB Code:
+                        <input type="text" name="pdb_code" />
+                    </label>
+                </li>
+
+                <li>
+                    <label>Existing PDB:
+                        <select name="existing_pdb"></select>
                     </label>
                 </li>
 
@@ -50,9 +56,13 @@
                 <span class="mass"><?php echo $prot['MOLECULARMASS'] ?></span>
             </li>
 
-            <li>
-                <span class="label">Associated PDB Files</span>
-                <span class="pdb"><!--<button class="add">Add PDB File</button>--><ul></ul></span>
+            <li class="clearfix">
+                <span class="label">Associated PDB Files<br />
+                    <button class="add">Add PDB File</button>
+                </span>
+                <span class="pdb floated">
+                    <ul class="visits clearfix"></ul>
+                </span>
             </li>
 
         </ul>

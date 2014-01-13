@@ -50,12 +50,12 @@ $(function() {
       dataType: 'json',
       timeout: 5000,
       success: function(json){
-        var pdb_out = '<option value="">&nbsp;</option>'
+        var pdb_out = '<option value="">N/A</option>'
         $.each(json, function(i,p) {
-          pdb_out += '<option value="'+p['PDBID']+'">'+p['NAME']+'</option>'
+          pdb_out += '<option value="'+p['PDBID']+'">'+p['NAME']+(p['CODE'] ? ' [Code]' : ' [File]')+'</option>'
         })
            
-        $('select[name=pdb]').html(pdb_out)
+        $('select[name^=existing_pdb]').html(pdb_out)
       }
     })
   }

@@ -138,7 +138,7 @@
                         $info = pathinfo($pdb);
                         
                         if ($info['extension'] == 'pdb') {
-                            $file = file_get_contents($_FILES['new_pdb']['tmp_name']);
+                            $file = file_get_contents($_FILES['new_pdb']['tmp_name'][$i]);
                             $this->_associate_pdb($info['basename'],$file,'',$pid);
                         }
                     }
@@ -156,12 +156,12 @@
                 if (array_key_exists('existing_pdb', $_POST)) {
                     if (sizeof($_POST['existing_pdb'])) {
                         foreach ($_POST['existing_pdb'] as $p) {
-                            #$this->db->pq("INSERT INTO ispyb4a_db.protein_has_pdb (proteinhaspdbid,proteinid,pdbid) VALUES (s_protein_has_pdb.nextval,:1,:2)", array($pid,$p));
+                            $this->db->pq("INSERT INTO ispyb4a_db.protein_has_pdb (proteinhaspdbid,proteinid,pdbid) VALUES (s_protein_has_pdb.nextval,:1,:2)", array($pid,$p));
                         }
                     }
                 }
                 
-                $this->msg('New Protein Added', 'You protein was successfully added, click <a href="/sample/proteins/pid/'.$this->db->id().'">here</a> to view it');
+                $this->msg('New Protein Added', 'You protein was successfully added, click <a href="/sample/proteins/pid/'.$pid.'">here</a> to view it');
                 
                 
             } else {
@@ -171,8 +171,7 @@
         }
         
         
-        function _associate_pdb($name,$contents,$code,$pid) {
-            return; 
+        function _associate_pdb($name,$contents,$code,$pid) { 
             $this->db->pq("INSERT INTO ispyb4a_db.pdb (pdbid,name,contents,code) VALUES(s_pdb.nextval,:1,:2,:3) RETURNING pdbid INTO :id", array($name,$contents,$code));
             $pdbid = $this->db->id();
             

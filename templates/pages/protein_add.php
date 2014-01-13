@@ -52,7 +52,7 @@
                 </label>
 
                 <span class="exist_pdb">
-                    <select name="existing_pdb" multiple="multiple"></select>
+                    <select name="existing_pdb[]" multiple="multiple"></select>
                 </span>
             </li>
 
