@@ -134,11 +134,13 @@
                 $pid = $this->db->id();
                 
                 foreach ($_FILES['new_pdb']['name'] as $i => $pdb) {
-                    $info = pathinfo($pdb);
-                    
-                    if ($info['extension'] == 'pdb') {
-                        $file = file_get_contents($_FILES['new_pdb']['tmp_name']);
-                        $this->_associate_pdb($info['basename'],$file,'',$pid);
+                    if ($pdb) {
+                        $info = pathinfo($pdb);
+                        
+                        if ($info['extension'] == 'pdb') {
+                            $file = file_get_contents($_FILES['new_pdb']['tmp_name']);
+                            $this->_associate_pdb($info['basename'],$file,'',$pid);
+                        }
                     }
                 }
                 
@@ -151,7 +153,7 @@
                     }
                 }
                 
-                if ($_POST['existing_pdb']) {
+                if (array_key_exists('existing_pdb', $_POST)) {
                     if (sizeof($_POST['existing_pdb'])) {
                         foreach ($_POST['existing_pdb'] as $p) {
                             #$this->db->pq("INSERT INTO ispyb4a_db.protein_has_pdb (proteinhaspdbid,proteinid,pdbid) VALUES (s_protein_has_pdb.nextval,:1,:2)", array($pid,$p));
