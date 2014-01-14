@@ -60,7 +60,7 @@
                     <td><select class="sg" name="sg[]"><?php echo $sgs ?></select>
                     <td><input class="code" type="text" name="b[]" /></td>
                     <td><input class="comment" type="text" name="c[]" /></td>
-                    <td><button class="clone" title="Clone this sample">Clone Sample</button> <button class="insert" title="Insert Row">Insert Row</button> <button class="delete" title="Remove this sample">Delete Sample</button>
+                    <td><button class="clone" title="Clone this sample">Clone Sample</button> <!--<button class="insert" title="Insert Row">Insert Row</button>--> <button class="delete" title="Remove this sample">Delete Sample</button>
                 </tr>
                 <?php endfor; ?>
             </tbody>
