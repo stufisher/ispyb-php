@@ -7,7 +7,7 @@ $(function() {
     validClass: 'fvalid', errorClass: 'ferror',
     rules: {
         shippingname: {
-            wwdash: true,
+            wwsdash: true,
         },
         dewars: {
             number: true,

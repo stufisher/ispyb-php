@@ -211,7 +211,7 @@
                            'dd' => array('\d+-\d+-\d+', 'deliveryagent_deliverydate', '', 1),
                            'com' => array('.*', 'comments', '', 0),
                            'safety' => array('\w+', 'safetylevel', '', 0),
-                           'title' => array('([\w-])+', 'shippingname', '', 0),
+                           'title' => array('([\w\s-])+', 'shippingname', '', 0),
                            );
             
             if (array_key_exists($this->arg('ty'), $types)) {

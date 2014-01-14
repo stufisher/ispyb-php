@@ -173,6 +173,15 @@ $(function() {
                        type: 'text',
                        submit: 'Ok',
                        style: 'display: inline',
+                       
+                       onsubmit: function(s,td) {
+                         $(this).validate({
+                            validClass: 'fvalid', errorClass: 'ferror',
+                            errorElement: 'span',
+                            rules: { value: { wwsdash: true }}
+                         })
+                         return $(this).valid();
+                       },
                        }).addClass('editable');
   
   $('.lcout').editable('/shipment/ajax/update/sid/'+sid+'/ty/lcout/', {

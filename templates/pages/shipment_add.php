@@ -10,7 +10,7 @@
                 <label>Name
                     <span class="small">Name for the shipment</span>
                 </label>
-                <input type="text" name="shippingname" required title="Name of the shipment. Accepts A-z0-9-_" />
+                <input type="text" name="shippingname" required />
             </li>
 
             <li>
