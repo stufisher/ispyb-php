@@ -319,7 +319,7 @@
             $args = array($this->proposalid);
             
             if ($this->has_arg('pid')) {
-                $where .= ' AND pr.proteinid=:1';
+                $where .= ' AND pr.proteinid=:2';
                 array_push($args, $this->arg('pid'));
             }
 
@@ -353,7 +353,7 @@
             }
 
             if ($this->has_arg('existing_pdb')) {
-                $rows = $this->db->pq("SELECT p.pdbid FROM ispyb4a_db.pdb p INNER JOIN ispyb4a_db.protein_has_pdb hp ON p.pdbid = hp.pdbid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = hp.proteinid WHERE pr.proposalid=:1 AND p.pdbid=:2", array($this->proposalid, $this->arg('existing_pbd')));
+                $rows = $this->db->pq("SELECT p.pdbid FROM ispyb4a_db.pdb p INNER JOIN ispyb4a_db.protein_has_pdb hp ON p.pdbid = hp.pdbid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = hp.proteinid WHERE pr.proposalid=:1 AND p.pdbid=:2", array($this->proposalid, $this->arg('existing_pdb')));
                 
                 if (!sizeof($rows)) $this->_error('The specified pdb doesnt exist');
                 
@@ -375,11 +375,11 @@
         # ------------------------------------------------------------------------
         # Remove a pdb
         function _remove_pdb() {
-            if (!this->has_arg('prop')) $this->_error('No proposal specified');
+            if (!$this->has_arg('prop')) $this->_error('No proposal specified');
             if (!$this->has_arg('pid')) $this->_error('No protein specified');
             if (!$this->has_arg('pdbid')) $this->_error('No pdb specified');
             
-            $pdb = $this->db->pq("SELECT pd.pdbid FROM ispyb4a_db.pdb pd INNER JOIN ispyb4a_db.protein_has_pdb hp ON hp.pdbid=pd.pdbid INNER JOIN ispyb4a_db.protein p ON p.proteinid = hp.proteinid WHERE pd.pdbid=:1 AND p.proposalid=:2 p.proteinid=:3", array($this->arg('pdbid'), $this->proposalid, $this->arg('pid')));
+            $pdb = $this->db->pq("SELECT pd.pdbid FROM ispyb4a_db.pdb pd INNER JOIN ispyb4a_db.protein_has_pdb hp ON hp.pdbid=pd.pdbid INNER JOIN ispyb4a_db.protein p ON p.proteinid = hp.proteinid WHERE pd.pdbid=:1 AND p.proposalid=:2 AND p.proteinid=:3", array($this->arg('pdbid'), $this->proposalid, $this->arg('pid')));
             
             if (!sizeof($pdb)) $this->_error('No such pdb');
             
