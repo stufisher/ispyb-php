@@ -4,7 +4,8 @@ $(function() {
   })
   
   var c = $.cookie('ispyb_help')
-  var help = c === undefined ? 1 : c
+  var help_def = ($(window).width() <= 800) ? 0 : 1
+  var help = c === undefined ? help_def : c
   
   $('[title]').each(function(i,e) {
     $(e).attr('t_old', $(e).attr('title'))
