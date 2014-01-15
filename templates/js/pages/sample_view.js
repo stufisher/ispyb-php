@@ -197,6 +197,6 @@ $(function() {
     onblur: 'ignore',
   }).addClass('editable');
   
-  
+  $('.snapshots').magnificPopup({ delegate: 'a', type: 'image' })
   
 })

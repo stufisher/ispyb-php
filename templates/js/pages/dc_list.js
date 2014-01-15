@@ -155,7 +155,7 @@ $(function() {
                              (state ?
                              ('<div class="distl" title="DISTL plot showing number of spots (yellow and blue points), and estimated resolution (red points) for each image in the data collection"></div>'+
                              '<div class="snapshots" title="View crystal snapshots for the current data collection">'+
-                                '<a href="/image/id/'+r['ID']+'/f/1" rel="lightbox-'+r['ID']+'" title="Crystal Snapshot 1"><img dsrc="" alt="Crystal Snapshot 1" /></a>'+
+                                '<a href="/image/id/'+r['ID']+'/f/1" title="Crystal Snapshot 1"><img dsrc="" alt="Crystal Snapshot 1" /></a>'+
                              '</div>'+
                              '<div class="diffraction" title="Click to view diffraction images">'+
                                 '<a href="/dc/view/id/'+r['ID']+'"><img dsrc="" alt="Diffraction Image 1" /></a>' +
@@ -255,12 +255,12 @@ $(function() {
                        } else if (r['TYPE'] == 'load') {
                          // Sample Actions
                          if (r['IMP'] == 'ANNEAL' || r['IMP'] == 'WASH') {
-                           $('<div class="data_collection" dcid="'+r['ID']+'">' +
+                           $('<div class="data_collection" dcid="'+r['ID']+'" type="action">' +
                                '<div class="snapshots">'+
-                                  '<a href="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'/f/1" rel="lightbox-'+r['ID']+'" title="Crystal Snapshot Before"><img dsrc="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'" alt="Crystal Snapshot Before" /></a>'+
+                                  '<a href="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'/f/1" title="Crystal Snapshot Before"><img dsrc="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'" alt="Crystal Snapshot Before" /></a>'+
                                '</div>'+
                                '<div class="snapshots">'+
-                                  '<a href="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'/f/1" rel="lightbox-'+r['ID']+'" title="Crystal Snapshot After"><img dsrc="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'" alt="Crystal Snapshot After" /></a>'+
+                                  '<a href="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'/f/1" title="Crystal Snapshot After"><img dsrc="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'" alt="Crystal Snapshot After" /></a>'+
                                '</div>'+
                                '<h1>'+vis_link+ r['ST']+'</h1>'+
                                '<h2>Sample '+r['IMP'].toLowerCase()+'</h2>'+
@@ -391,8 +391,15 @@ $(function() {
                 
              if (img[2]) $('div[dcid='+id+'] .snapshots img').attr('dsrc', '/image/id/'+id)
              sns = ''
-             for (var i = 1; i < img[1].length; i++) sns += ('<a href="/image/id/'+id+'/f/1/n/'+(i+1)+'" rel="lightbox-'+id+'" title="Crystal Snapshot '+(i+1)+'"></a>')
+             for (var i = 1; i < img[1].length; i++) sns += ('<a href="/image/id/'+id+'/f/1/n/'+(i+1)+'" title="Crystal Snapshot '+(i+1)+'"></a>')
              if ($('div[dcid='+id+'] .snapshots a').length == 1) $('div[dcid='+id+'] .snapshots').append(sns)
+                $('div[dcid='+id+'] .snapshots').magnificPopup({
+                  delegate: 'a', type: 'image',
+                  gallery: {
+                    enabled: true,
+                    navigateByImgClick: true,
+                  }
+                })
            }
             
                 
@@ -422,41 +429,6 @@ $(function() {
         }
     })
   }
-  
-  /*
-  // Update job status
-  function update_jobs(id, res, d) {
-    div = $('div[dcid="'+id+'"] > .holder')
-    val = ['<img src="/templates/images/info.png" alt="N/A"/>',
-           '<img src="/templates/images/run.png" alt="Running"/>',
-           '<img src="/templates/images/ok.png" alt="Completed"/>',
-           '<img src="/templates/images/cancel.png" alt="Failed"/>']
-  
-    if (div.children('div').hasClass('autoproc')) {
-        sp = div.children('span')
-        $(sp[0]).html('Fast DP: ' + val[res[2]] +
-                      ' Xia2: ' + val[res[3]] + ' ' +val[res[4]] + ' ' +val[res[5]])
-        $(sp[1]).html('Fast EP: ' + val[res[6]] + ' Dimple: ' + val[res[7]])
-        if (d && (res[2] == 2 || res[3] == 2 || res[4] == 2 || res[5] == 2)) {
-            setTimeout(function() {
-                log_message('New auto processing for', '<a href="#'+id+'">' + $('div[dcid="' + id + '"] > h2').text() + '</a>')
-                load_autoproc(div.children('div.autoproc'), id)
-            }, 3000)
-        }
-  
-    } else {
-        sp = div.children('span')
-        $(sp[0]).html('Mosflm: ' + val[res[0]] + ' EDNA: ' + val[res[1]])
-  
-        if (d && (res[0] == 2 || res[1] == 2)) {
-            setTimeout(function() {
-                log_message('New strategies for', '<a href="#'+id+'">' + $('div[dcid="' + id + '"] > h2').text() + '</a>')
-                load_strategy(div.children('div.strategies'), id)
-            }, 3000)
-        }
-    }
-  
-  }*/
   
   
   // Log messages
@@ -582,6 +554,10 @@ $(function() {
   
   function map_callbacks() {
       update_aps()
+  
+      // Make sample snapshots lightboxed
+      $('div[type=action] .snapshots').magnificPopup({ delegate: 'a', type: 'image' })
+  
   
       // Enable tabs on all autoproc divs
       $('.data_collection .holder h1').each(function() {
