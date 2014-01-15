@@ -10,20 +10,8 @@
 
     <?php if (!$mobile): ?>
 
-    <?php if (!$sass): ?>
     <link rel="stylesheet" type="text/css" href="<?php echo $template_url ?>css/stylesheets/main.css">
-
-    <?php else: ?>
-    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.3.0/build/cssreset/reset-min.css">
-
-    <?php foreach($st as $s): ?>
-    <link href="<?php echo $s ?>" type="text/css" rel="stylesheet" >
-    <?php endforeach; ?>
-
-    <?php endif; ?>
-
-    <link rel="stylesheet" href="/templates/font-awesome/css/font-awesome.min.css">
-    <!--<link rel="stylesheet" id="google-webfonts-css"  href="http://fonts.googleapis.com/css?family=Maven+Pro%7CDroid+Serif%3A400italic%7CDroid+Sans%3A400%2C700&#038;ver=3.6.1" type="text/css" media="all" />-->
+    <link rel="stylesheet" href="<?php echo $template_url ?>font-awesome/css/font-awesome.min.css">
 
     <?php foreach($js as $j): ?>
     <script type="text/javascript" src="<?php echo $j ?>"></script>
