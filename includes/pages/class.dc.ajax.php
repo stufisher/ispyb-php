@@ -811,7 +811,7 @@
             
             session_write_close();
             $iqs = array(array(), array(), array());
-            $imqs = $this->db->pq('SELECT im.imagenumber as nim, imq.method1res as res, imq.spottotal as s, imq.goodbraggcandidates as b FROM ispyb4a_db.image im INNER JOIN ispyb4a_db.imagequalityindicators imq ON imq.imageid = im.imageid WHERE im.datacollectionid=:1 ORDER BY imagenumber', array($this->arg('id')));
+            $imqs = $this->db->pq('SELECT im.imagenumber as nim, imq.method2res as res, imq.spottotal as s, imq.goodbraggcandidates as b FROM ispyb4a_db.image im INNER JOIN ispyb4a_db.imagequalityindicators imq ON imq.imageid = im.imageid WHERE im.datacollectionid=:1 ORDER BY imagenumber', array($this->arg('id')));
             
             foreach ($imqs as $imq) {
                 array_push($iqs[0], array(intval($imq['NIM']), intval($imq['S'])));
