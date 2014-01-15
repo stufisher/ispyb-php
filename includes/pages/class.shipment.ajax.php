@@ -43,7 +43,7 @@
                               );
         
         var $def = 'containers';
-        var $profile = True;
+        #var $profile = True;
         //var $debug = True;
         #var $explain = True;
         

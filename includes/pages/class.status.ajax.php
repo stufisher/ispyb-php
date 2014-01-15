@@ -10,7 +10,7 @@
                               );
         
         var $def = 'pvs';
-        var $profile = True;
+        #var $profile = True;
         //var $debug = True;
         
         

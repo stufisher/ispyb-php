@@ -31,7 +31,7 @@
                               
                               );
         var $def = 'list';
-        var $profile = True;
+        #var $profile = True;
         #var $debug = True;
         
         # ------------------------------------------------------------------------

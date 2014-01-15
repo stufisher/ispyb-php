@@ -30,7 +30,7 @@
                               );
         
         var $def = 'samples';
-        var $profile = True;
+        #var $profile = True;
         #var $debug = True;
         #var $explain = True;
         #var $stats = True;

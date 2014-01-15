@@ -17,7 +17,7 @@
                               );
         
         var $def = 'smp';
-        var $profile = True;
+        #var $profile = True;
         #var $debug = True;
         
         
