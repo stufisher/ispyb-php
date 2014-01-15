@@ -58,7 +58,7 @@ $(function() {
   
   $('select[name=filter]').change(function() {
     type = $(this).val()
-    _fiter()
+    _filter()
   })
   
   function _filter() {
