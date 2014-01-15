@@ -61,8 +61,9 @@ $(function() {
   _toggle_help()
   
   $(document).ajaxComplete(function() {
-    $('button.atp').prop('title', 'Add/Remove to/from Project').button({ icons: { primary: 'ui-icon-note' }, text: false }).unbind('click').click(function() {
+    $('button.atp').prop('title', 'Add/Remove to/from Project').button({ icons: { primary: 'ui-icon-note' }, text: false }).unbind('click').click(function(e) {
       _load_project_dialog($(this).attr('ty'), $(this).attr('iid'), $(this).attr('name'))
+      e.stopPropagation();
     })
                            
     $('[title]').each(function(i,e) {
