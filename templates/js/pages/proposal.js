@@ -43,7 +43,7 @@ $(function() {
         })
       })*/
   
-      $('table.proposals tr').unbind('click').click(function() {
+      $('table.proposals tbody tr').unbind('click').click(function() {
         $.ajax({
             url: '/proposal/ajax/set/prop/'+$(this).children('td').eq(1).html()+$(this).children('td').eq(2).html(),
             type: 'GET',
