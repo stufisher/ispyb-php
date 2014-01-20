@@ -4,9 +4,14 @@
         
         var $arg_list = array('bl' => '\w\d\d(-\d)?',
                               'p' => '\d+',
+                              'st' => '\d\d-\d\d-\d\d\d\d',
+                              'en' => '\d\d-\d\d-\d\d\d\d',
                               );
+        
+        
         var $dispatch = array('pvs' => '_get_pvs',
                               'log' => '_get_server_log',
+                              'sch' => '_schedule',
                               );
         
         var $def = 'pvs';
@@ -103,6 +108,33 @@
             foreach ($lines as &$l) $l = htmlentities($l, ENT_QUOTES);
             
             $this->_output(array_reverse($lines));
+        }
+        
+        
+        # ------------------------------------------------------------------------
+        # Local Contact Schedule
+        function _schedule() {
+            if (!$this->has_arg('bl')) $this->_error('No beamline specified');
+            
+            $st = $this->has_arg('st') ? $this->arg('st') : date('d-m-Y');
+            $en = $this->has_arg('st') ? $this->arg('st') : date('d-m-Y', mktime(0,0,0,date('m'),date('d')+28,date('Y')));
+            
+            $visits = $this->db->pq("SELECT TO_CHAR(s.startdate, 'DY DD-MM-YYYY HH24:MI') as st, TO_CHAR(s.enddate, 'DY DD-MM-YYYY HH24:MI') as en, s.sessionid, p.proposalcode||p.proposalnumber||'-'||s.visit_number as vis FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON s.proposalid = p.proposalid WHERE s.startdate BETWEEN TO_DATE(:1,'dd-mm-yyyy') AND TO_DATE(:2,'dd-mm-yyyy') AND s.beamlinename LIKE :3 ORDER BY s.startdate", array($st, $en, $this->arg('bl')));
+            
+            $rows = array();
+            foreach ($visits as &$v) {
+                $lc = $this->lc_lookup($v['SESSIONID']);
+                $v['LC'] = $lc ? $lc->name : '';
+                $v['TY'] = $lc ? $lc->type : '';
+                $v['OC'] = $lc ? $lc->oc : '';
+                
+                array_push($rows, array($v['ST'], $v['EN'], '<a href="/dc/visit/'.$v['VIS'].'">'.$v['VIS'].'</a>', $v['LC'], $v['OC'], $v['TY']));
+            }
+            
+            $this->_output(array('iTotalRecords' => sizeof($rows),
+                                 'iTotalDisplayRecords' => sizeof($rows),
+                                 'aaData' => $rows,
+                           ));
         }
 
     }

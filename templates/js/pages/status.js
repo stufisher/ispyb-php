@@ -13,12 +13,6 @@ $(function() {
         url: '/status/ajax/bl/'+bl,
         type: 'GET',
         dataType: 'json',
-        error: function(a,b,c) {
-           console.log(a)
-           console.log(b)
-           console.log(c)
-        },
-           
         success: function(pvs){           
           $.each(pvs, function(k,v) {
             var c;
@@ -64,20 +58,14 @@ $(function() {
   
   // Refresh gda log
   function _gda_log(old,p) {
-    console.log(p)
     $.ajax({
         url: '/status/ajax/log/bl/'+bl+(p?('/p/'+p):''),
         type: 'GET',
         dataType: 'json',
         success: function(log){
-          console.log(log.length)
-           
           $.each(old ? log.reverse() : log, function(i,l) {
             // 2013-08-12 17:33:05,892
             var id = l // l.substring(0,90)
-            //l = l.replace(/(\d+-\d+-\d+ \d+:\d+:\d+,\d+)/, '<span class="b">$1</span>')
-                 
-            //if (!$('.log.gda ul li[l="'+id+'"]').length) {
             if ($.inArray(l, lines) == -1) {
               var line = $('<li l="'+id+'">'+l+'</li>').hide()
               old ? line.appendTo('.log.gda ul').fadeIn() : line.prependTo('.log.gda ul').slideDown()
@@ -104,6 +92,22 @@ $(function() {
         _gda_log(true, p)
     }
   })
-
+  
+  
+  // Local contact schedule
+  var dt = {sPaginationType: 'full_numbers',
+            bProcessing: true,
+            bServerSide: true,
+            sAjaxSource: '/status/ajax/sch/bl/'+bl+'/',
+            bAutoWidth:false ,
+            fnServerData: function ( sSource, aoData, fnCallback ) {
+                $.getJSON( sSource, aoData, function (json) { 
+                   fnCallback(json)
+                   //_map_callbacks()
+                })
+            }
+  }
+  
+  var dt = $('table.schedule').dataTable(dt)
 
 })
