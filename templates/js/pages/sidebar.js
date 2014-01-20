@@ -112,6 +112,8 @@ $(function() {
     })
   }
   
+  $('.project select[name=pid]').change(function() { _check_project_item() })
+  
   
   // Show add to project popup
   function _load_project_dialog(ty, id, name) {
