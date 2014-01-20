@@ -1,11 +1,9 @@
 $(function() {
 
   // Check for ios
-  function isiPhone() {
-    return ((navigator.platform.indexOf("iPhone") != -1) ||
-            (navigator.platform.indexOf("iPod") != -1) ||
-            (navigator.platform.indexOf("iPad") != -1));
-  }  
+  function isOld() {
+    return false
+  }
   
   $('#zoom').slider({min: 0, max: 200, step: 5})
   $('#brightness').slider({min: -100, max: 100, step: 5})
@@ -46,8 +44,8 @@ $(function() {
   
   var blocks = 0
   
-  //if (!isiPhone())
-  var c = Caman('#img')
+  if (!isOld())
+    var c = Caman('#img')
   
   // Set canvas size to parent element
   function resize() {
@@ -112,6 +110,7 @@ $(function() {
   
   // Start precaching images
   function precache() {
+   if ($(window).width() > 800) {
     var pro = function() {
         console.log('loaded', ci)
         setTimeout(function() {
@@ -127,6 +126,7 @@ $(function() {
         success: pro,
         error: pro
     })
+   }
   }
   
   //precache()
@@ -197,7 +197,7 @@ $(function() {
   
   // Apply image adjustments
   function adjust() {
-    //if (isiPhone()) return
+    if (isOld()) return
     c.revert()
     if ($('input[name=invert]').is(':checked')) {
       c.invert()
@@ -220,7 +220,7 @@ $(function() {
   
   // Recache canvas to caman
   function _recache() {
-    //if (isiPhone()) return
+    if (isOld()) return
     c.reloadCanvasData()
     c.resetOriginalPixelData()
   }
@@ -648,7 +648,7 @@ $(function() {
   
   
   // Bind CamanJS Status
-  //if (!isiPhone()) {
+  if (!isOld()) {
     Caman.Event.listen(c, 'blockFinished', function (info) {
         blocks++
         tot = $('input[name=invert]').is(':checked') ? 12 : 8
@@ -660,6 +660,6 @@ $(function() {
         $('.im_progress').progressbar('value', 0)
         $('.im_progress').fadeIn(100)
     })
-  //}
+  }
   
 });
