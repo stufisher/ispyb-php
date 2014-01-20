@@ -49,7 +49,7 @@ $(function() {
   
     if (d > l) {
       for (var i = l; i < d; i++) {
-        $('<span><input type="text" name=fcodes[] value="" placeholder="'+(i+1)+'" /></span> ').hide().appendTo($('span.fcodes')).fadeIn()
+        $('<span><input type="text" name=fcodes[] value="" placeholder="DLS-XX-000'+(i+1)+'" /></span> ').hide().appendTo($('span.fcodes')).fadeIn()
       }
   
     } else if (d < l) {
