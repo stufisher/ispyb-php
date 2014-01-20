@@ -45,7 +45,7 @@
     include_once('includes/class.template.php');
     
     $db = new Oracle($isb['user'], $isb['pass'], $isb['db']);
-    
+    register_shutdown_function(array($db, '__destruct'));
     
     # New pages need to be added to this array in order for them to be
     # parsed
