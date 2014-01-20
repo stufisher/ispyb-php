@@ -142,11 +142,13 @@ $(function() {
                            sns = ''
                            for (var i = 1; i < r['X'].length; i++) sns += ('<a href="/image/id/'+r['ID']+'/f/1/n/'+(i+1)+'" rel="lightbox-'+r['ID']+'" title="Crystal Snapshot '+(i+1)+'"></a>')*/
                        
+                           var load = 'Loading: <img width="16" height="16" src="/templates/images/ajax-loader.gif" alt="Loading..." />'
+                       
                            var f = r['COMMENTS'] ? (r['COMMENTS'].indexOf('_FLAG_') > -1 ? 'ui-state-highlight' : '') : ''
                        
                            var state = r['RUNSTATUS'] == null ? 1 : (r['RUNSTATUS'].indexOf('Successful') > -1)
                        
-                           $('<div class="data_collection" dcid="'+r['ID']+'" type="data" '+(state ? 'title="Click to view diffraction images"' : '')+'>' +
+                       $('<div class="data_collection" dcid="'+r['ID']+'" type="data'+(state ? '' : '_stopped')+'" '+(state ? 'title="Click to view diffraction images"' : '')+'>' +
                              '<h1>'+
                                 '<button class="atp" ty="dc" iid="'+r['DCG']+'" name="'+r['DIR']+r['FILETEMPLATE']+'">Add to Project</button> <button class="flag '+f+'" title="Click to add this data collection to the list of favourite data collections">Favourite</button>  <a href="/dc/visit/'+prop+'-'+r['VN']+'/id/'+r['ID']+'" class="perm">Permalink</a> '+
                                 '<span class="date">'+r['ST']+'</span><span class="spacer"> - </span>'+vis_link+' <span class="temp">'+r['DIR']+r['FILETEMPLATE']+'</span>'+
@@ -179,11 +181,11 @@ $(function() {
                              '</ul>'+
                              '<div class="holder">'+
                              (state ? (r['NI'] < 10 ?
-                                ('<h1 title="Click to show EDNA/mosflm strategies">Strategies<span></span></h1>'+
+                                ('<h1 title="Click to show EDNA/mosflm strategies">Strategies<span>'+load+'</span></h1>'+
                                  '<div class="strategies"></div>'):
-                                ('<h1 title="Click to show autoprocessing results such as Fast_DP and XIA2">Auto Processing<span></span></h1>'+
+                                ('<h1 title="Click to show autoprocessing results such as Fast_DP and XIA2">Auto Processing<span>'+load+'</span></h1>'+
                                  '<div class="autoproc"></div>'+
-                                 '<h1 title="Click to show downstream processing results such as Dimple and Fast_EP">Downstream Processing<span></span></h1>'+
+                                 '<h1 title="Click to show downstream processing results such as Dimple and Fast_EP">Downstream Processing<span>'+load+'</span></h1>'+
                                  '<div class="downstream"></div>')) : '')+
                              '</div>'+
                              '</div>').data('apr', r['AP']).data('nimg', r['NUMIMG']).hide().data('first', true).prependTo('.data_collections').slideDown()
@@ -323,9 +325,63 @@ $(function() {
   
   load_datacollection()
   
+
+  
+  function _show_images() {
+    // Fade in images
+    $('.data_collection .diffraction img, .data_collection .snapshots img').each(function(i) {
+      var im = $(this)
+      setTimeout(function() {
+        if (!$(im).attr('src') && $(im).attr('dsrc')) {
+          $(im).attr('src', $(im).attr('dsrc')).load(function() {
+            $(im).show()//fadeIn()
+          })
+        }
+      }, i*100)
+    })
+  }
+  
   
   // Update AP status
-  function update_aps() {  
+  function update_aps() {
+    var ids = $('.data_collection[type=data]').map(function(i,e) { if (!$(e).attr('di') || !$(e).attr('sn')) return $(e).attr('dcid') }).get()
+    if (ids.length)
+      $.ajax({
+        url: '/dc/ajax/chi' + (is_visit ? ('/visit/'+visit) : ''),
+        type: 'POST',
+        data: { ids: ids },
+        dataType: 'json',
+        timeout: 20000,
+          success: function(list) {
+            $.each(list, function(i, r) {
+               var id = r[0]
+               var img = r[1]
+
+               if (img[0]) {
+                 $('div[dcid='+id+']').attr('di',1)
+                 $('div[dcid='+id+'] .diffraction img').attr('dsrc', '/image/diff/id/'+id)
+               }
+               if (img[1].length > 0) {
+                 if (img[2]) {
+                   $('div[dcid='+id+']').attr('sn',1)
+                   $('div[dcid='+id+'] .snapshots img').attr('dsrc', '/image/id/'+id)
+                 }
+                 sns = ''
+                 for (var i = 1; i < img[1].length; i++) sns += ('<a href="/image/id/'+id+'/f/1/n/'+(i+1)+'" title="Crystal Snapshot '+(i+1)+'"></a>')
+                 if ($('div[dcid='+id+'] .snapshots a').length == 1) $('div[dcid='+id+'] .snapshots').append(sns)
+                    $('div[dcid='+id+'] .snapshots').magnificPopup({
+                      delegate: 'a', type: 'image',
+                      gallery: {
+                        enabled: true,
+                        navigateByImgClick: true,
+                      }
+                    })
+               }
+            })
+            _show_images()
+          }
+      })
+
     $.ajax({
         url: '/dc/ajax/aps' + (is_visit ? ('/visit/'+visit) : ''),
         type: 'POST',
@@ -334,10 +390,10 @@ $(function() {
         timeout: 20000,
         success: function(list) {
          $.each(list, function(i, r) {
+           if (i == 'profile') return;
            var id = r[0]
            var res = r[1]
-           var img = r[2]
-           var dcv = r[3]
+           var dcv = r[2]
                 
            var md = $('div[dcid='+id+']')
            var div = $(md).children('.holder')
@@ -377,31 +433,7 @@ $(function() {
                }
            }
            $(md).data('apr', res)
-                
-           // Load images
-           /*if (img[0]) {
-             if ($('.data_collection[dcid='+id+']').css('background-image') == 'none') {
-               $('.data_collection[dcid='+id+']').css('background-image', 'url(/image/diff/f/1/id/'+id+')')
-             }
-           }*/
-                
-           if (img[0]) $('div[dcid='+id+'] .diffraction img').attr('dsrc', '/image/diff/id/'+id)
-           if (img[1].length > 0) {
-             //$('.data_collection[dcid='+id+'] > .snapshots').css('background-image', 'url(/image/id/'+id+')').css('background-size', 'cover').css('background-position', '0 50%')
-                
-             if (img[2]) $('div[dcid='+id+'] .snapshots img').attr('dsrc', '/image/id/'+id)
-             sns = ''
-             for (var i = 1; i < img[1].length; i++) sns += ('<a href="/image/id/'+id+'/f/1/n/'+(i+1)+'" title="Crystal Snapshot '+(i+1)+'"></a>')
-             if ($('div[dcid='+id+'] .snapshots a').length == 1) $('div[dcid='+id+'] .snapshots').append(sns)
-                $('div[dcid='+id+'] .snapshots').magnificPopup({
-                  delegate: 'a', type: 'image',
-                  gallery: {
-                    enabled: true,
-                    navigateByImgClick: true,
-                  }
-                })
-           }
-            
+
                 
            // Update sample details
            if (dcv['SAN'] && !$(md).find('.sample').length) {
@@ -413,19 +445,7 @@ $(function() {
               $('<li class="flux">Measured Flux: '+dcv['FLUX']+'</li>').hide().prependTo($(md).children('ul')).fadeIn()
            }
           })
-           
-           
-          // Fade in images
-          $('.data_collection .diffraction img, .data_collection .snapshots img').each(function(i) {
-            var im = $(this)
-            setTimeout(function() {
-              if (!$(im).attr('src') && $(im).attr('dsrc')) {
-                $(im).attr('src', $(im).attr('dsrc')).load(function() {
-                    $(im).fadeIn()
-                })
-              }
-            }, i*100)
-          })           
+
         }
     })
   }
@@ -554,6 +574,8 @@ $(function() {
   
   function map_callbacks() {
       update_aps()
+  
+      _show_images()
   
       // Make sample snapshots lightboxed
       $('div[type=action] .snapshots').magnificPopup({ delegate: 'a', type: 'image' })

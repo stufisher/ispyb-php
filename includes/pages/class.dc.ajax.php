@@ -10,6 +10,8 @@
                               'ed' => '_edge',
                               'mca' => '_mca',
                               'aps' => '_ap_status',
+                              'chi' => '_chk_image',
+                              'sdf' => '_get_sample_flux',
                               'imq' => '_image_qi',
                               'rd' => '_rd',
                               'flag' => '_flag',
@@ -17,7 +19,7 @@
                               );
         
         var $def = 'dc';
-        var $profile = True;
+        #var $profile = True;
         #var $debug = True;
         #var $explain = True;
         
@@ -356,25 +358,104 @@
             $this->_output(array($pgs, $dcs));
         }
         
+        # ------------------------------------------------------------------------
+        # Check whether diffraction and snapshot images exist
+        function _chk_image() {
+            if (!($this->has_arg('visit') || $this->has_arg('prop'))) $this->_error('No visit or proposal specified');
+            
+            $where = array();
+            $ids = array();
+            if (array_key_exists('ids', $_POST)) {
+                foreach ($_POST['ids'] as $i) {
+                    if (preg_match('/^\d+$/', $i)) {
+                        array_push($ids,$i);
+                        array_push($where,'dc.datacollectionid=:'.sizeof($ids));
+                    }
+                }
+            }
+            $where = '('.implode(' OR ', $where).')';
+            
+            if (!sizeof($ids)) {
+                $this->_output(array());
+                exit(1);
+            }
+            
+            $dct = $this->db->pq("SELECT p.proposalcode||p.proposalnumber||'-'||s.visit_number as vis, dc.datacollectionid as id, dc.startimagenumber, dc.filetemplate, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4,dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, s.visit_number FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE $where", $ids);
+                
+            $this->profile('dc query');
+                                   
+            $dcs = array();
+            foreach ($dct as $d) $dcs[$d['ID']] = $d;
+            
+            $out = array();
+            
+            foreach ($dcs as $dc) {
+                //$dc['VIS'] = $this->arg('prop').'-'.$dc['VISIT_NUMBER'];
+                
+                $sn = 0;
+                $images = array();
+                foreach (array('X1', 'X2', 'X3', 'X4') as $j => $im) {
+                    if (file_exists($dc[$im])) {
+                        array_push($images, $j);
+                        if ($im == 'X1') {
+                            if (file_exists(str_replace('.png', 't.png', $dc[$im]))) $sn = 1;
+                        }
+                    }
+                    unset($dc[$im]);
+                }
+
+                $dc['DIR'] = $this->ads($dc['DIR']);
+                $dc['X'] = $images;
+                
+                $di = str_replace($dc['VIS'], $dc['VIS'].'/jpegs', $dc['DIR']).str_replace('.cbf', '.jpeg',preg_replace('/#+/', sprintf('%0'.substr_count($dc['FILETEMPLATE'], '#').'d', $dc['STARTIMAGENUMBER']),$dc['FILETEMPLATE']));
+                
+                $this->profile('diffraction image');
+                $die = 0;
+                if (file_exists($di)) $die = 1;
+            
+                array_push($out, array($dc['ID'], array($die,$images,$sn)));
+            }
+            $this->_output($out);
+        }
+        
         
         # ------------------------------------------------------------------------
         # Autoprocessing Status
         function _ap_status() {
             session_write_close();
             
+            $where = array();
+            
+            #$this->db->set_debug(True);
+            #$this->db->set_stats(True);
+            $this->profile = True;
+            
             if (!($this->has_arg('visit') || $this->has_arg('prop'))) $this->_error('No visit or proposal specified');
             
             $ids = array();
             if (array_key_exists('ids', $_POST)) {
                 foreach ($_POST['ids'] as $i) {
-                    if (preg_match('/^\d+$/', $i)) array_push($ids,$i);
+                    if (preg_match('/^\d+$/', $i)) {
+                        array_push($ids,$i);
+                        array_push($where,'dc.datacollectionid=:'.sizeof($ids));
+                    }
                 }
             }
+                   
+            if (!sizeof($ids)) {
+                $this->_output(array());
+                exit(1);
+            }
+                                
+            $where = '('.implode(' OR ', $where).')';
             
-            $aps = array(
+            $this->profile('start');
+            
+            $aps1 = array(
                          array('simple_strategy/', 'strategy_native.log', 'Phi start'),
                          array('edna/', 'summary.html', 'Selected spacegroup'),
-                         
+                         );
+            $aps2 = array(
                          array('fast_dp/', 'fast_dp.log', 'dF/F'),
                          
                          array('xia2/2da-run/', 'xia2.txt' , 'dF/F'),
@@ -387,75 +468,79 @@
             
             $out = array();
             
-            if ($this->has_arg('visit')) {
-                $where = "p.proposalcode || p.proposalnumber || '-' || s.visit_number";
-                $arg = $this->arg('visit');
-            } else {
-                $where = 'p.proposalcode || p.proposalnumber';
-                $arg = $this->arg('prop');
-            }
-            
-            foreach ($ids as $i) {
-                $dc = $this->db->pq("SELECT dc.startimagenumber, bls.blsampleid, c.samplechangerlocation as scon, bls.location as spos, bls.name as san, im.measuredintensity as flux, dc.filetemplate, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4,dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) LEFT OUTER JOIN ispyb4a_db.blsample bls ON bls.blsampleid = dc.blsampleid LEFT OUTER JOIN ispyb4a_db.container c ON bls.containerid = c.containerid LEFT OUTER JOIN ispyb4a_db.image im ON (im.datacollectionid = dc.datacollectionid AND im.imagenumber = 1) WHERE dc.datacollectionid=:1 AND $where LIKE :2", array($i,$arg));
+            # DC Details
+            $dct = $this->db->pq("SELECT dc.overlap, dc.blsampleid, dc.datacollectionid as id, dc.startimagenumber, dc.filetemplate, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4,dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, s.visit_number FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid WHERE $where", $ids);
                 
-                if (sizeof($dc)) {
-                    $dc = $dc[0];
+            $this->profile('dc query');
+                                   
+            $dcs = array();
+            foreach ($dct as $d) $dcs[$d['ID']] = $d;
+                                   
+            foreach ($dcs as $dc) {
+                $flx = $this->db->pq("SELECT * FROM (SELECT measuredintensity as flux from ispyb4a_db.image WHERE datacollectionid=:1 ORDER BY imagenumber) WHERE rownum = 1", array($dc['ID']));
                 
-                    $dc['DIR'] = $this->ads($dc['DIR']);
-                    $root = str_replace($dc['VIS'], $dc['VIS'].'/processed', $dc['DIR']).$dc['IMP'].'_'.$dc['RUN'].'_'.'/';
-                
-                    $apr = array();
-                    foreach ($aps as $ap) {
-                        # 0: didnt run, 1: running, 2: success, 3: failed
-                        $val = 0;
-                        //$rts = glob($root.$ap[0]);
-                        $rt = $root.$ap[0];
-                        
-                        //if (sizeof($rts) > 0) {
-                        if (file_exists($rt)) {
-                            $val = 1;
-                            
-                            $log = $root.$ap[0].$ap[1];
-                            //$logs = glob($root.$ap[0].$ap[1]);
-                            //if (sizeof($logs) > 0) {
-                            //print $log;
-                            if (is_readable($log)) {
-                                $file = file_get_contents($log);
-                                $val = 3;
-                                if (strpos($file, $ap[2]) !== False) $val = 2;
-                            }
-                            //}
-                        } //else $val = 3;
-                        
-                        array_push($apr, $val);
-                        
+                $dc['FLUX'] =  sizeof($flx) ? $flx[0]['FLUX'] : 'N/A';
+                $this->profile('flux query');
+                                   
+                if ($dc['BLSAMPLEID']) {
+                    $smp = $this->db->pq("SELECT c.samplechangerlocation as scon, bls.location as spos, bls.name as san FROM ispyb4a_db.blsample bls INNER JOIN ispyb4a_db.container c ON bls.containerid = c.containerid WHERE bls.blsampleid=:1", array($dc['BLSAMPLEID']));
+                    if (sizeof($smp)) {
+                        $s = $smp[0];
+                        $dc['SCON'] = $s['SCON'];
+                        $dc['SPOS'] = $s['SPOS'];
+                        $dc['SAN'] = $s['SAN'];
                     }
-                    
-                    $sn = 0;
-                    $images = array();
-                    foreach (array('X1', 'X2', 'X3', 'X4') as $j => $im) {
-                        if (file_exists($dc[$im])) {
-                            array_push($images, $j);
-                            if ($im == 'X1') {
-                                if (file_exists(str_replace('.png', 't.png', $dc[$im]))) $sn = 1;
-                            }
-                        }
-                        unset($dc[$im]);
-                    }
-
-                    $dc['DIR'] = $this->ads($dc['DIR']);
-                    $dc['X'] = $images;
-                    
-                    $di = str_replace($dc['VIS'], $dc['VIS'].'/jpegs', $dc['DIR']).str_replace('.cbf', '.jpeg',preg_replace('/#+/', sprintf('%0'.substr_count($dc['FILETEMPLATE'], '#').'d', $dc['STARTIMAGENUMBER']),$dc['FILETEMPLATE']));
-                    
-                    $die = 0;
-                    if (file_exists($di)) $die = 1;
-                    
-                    array_push($out, array($i, $apr, array($die,$images,$sn), array('FLUX' => $dc['FLUX'] ? sprintf('%.2e', $dc['FLUX']) : 'N/A', 'SCON' => $dc['SCON'], 'SPOS' => $dc['SPOS'], 'SAN' => $dc['SAN'], 'SID' => $dc['BLSAMPLEID'])));
-                
+                } else {
+                    $dc['SCON'] = '';
+                    $dc['SPOS'] = '';
+                    $dc['SAN'] = '';
                 }
+                $this->profile('samp query');
+                
+
+                $this->profile('qend');
+
+                $dc['VIS'] = $this->arg('prop').'-'.$dc['VISIT_NUMBER'];
+                
+                $dc['DIR'] = $this->ads($dc['DIR']);
+                $root = str_replace($dc['VIS'], $dc['VIS'].'/processed', $dc['DIR']).$dc['IMP'].'_'.$dc['RUN'].'_'.'/';
+            
+                $this->profile('filestart');
+                if ($dc['OVERLAP'] == 0) {
+                    $aps = $aps2;
+                    $apr = array(0,0);
+                } else {
+                    $aps = $aps1;
+                    $apr = array();
+                }
+                foreach ($aps as $ap) {
+                    # 0: didnt run, 1: running, 2: success, 3: failed
+                    $val = 0;
+
+                    $rt = $root.$ap[0];
+                    if (file_exists($rt)) {
+                        $val = 1;
+                        $log = $root.$ap[0].$ap[1];
+                        if (is_readable($log)) {
+                            //$file = file_get_contents($log);
+                            $val = 3;
+                            //if (strpos($file, $ap[2]) !== False) $val = 2;
+                            exec('grep -q "'.$ap[2].'" '.$log, $out,$ret);
+                            if ($ret == 0) $val = 2;
+                        }
+                    } //else $val = 3;
+                    
+                    array_push($apr, $val);
+                    
+                }
+            
+                if ($dc['OVERLAP'] != 0) for ($i = 0; $i < 5; $i++) array_push($apr, 0);
+                $this->profile('fileend');
+                
+                array_push($out, array($dc['ID'], $apr, array('FLUX' => $dc['FLUX'] ? sprintf('%.2e', $dc['FLUX']) : 'N/A', 'SCON' => $dc['SCON'], 'SPOS' => $dc['SPOS'], 'SAN' => $dc['SAN'], 'SID' => $dc['BLSAMPLEID'])));
             }
         
+            $this->profile('end');
             $this->_output($out);
         }
         
@@ -811,7 +896,7 @@
             
             session_write_close();
             $iqs = array(array(), array(), array());
-            $imqs = $this->db->pq('SELECT im.imagenumber as nim, imq.method2res as res, imq.spottotal as s, imq.goodbraggcandidates as b FROM ispyb4a_db.image im INNER JOIN ispyb4a_db.imagequalityindicators imq ON imq.imageid = im.imageid WHERE im.datacollectionid=:1 ORDER BY imagenumber', array($this->arg('id')));
+            $imqs = $this->db->pq('SELECT im.imagenumber as nim, imq.method2res as res, imq.spottotal as s, imq.goodbraggcandidates as b FROM ispyb4a_db.image im INNER JOIN ispyb4a_db.imagequalityindicators imq ON imq.imageid = im.imageid AND im.datacollectionid=:1 ORDER BY imagenumber', array($this->arg('id')));
             
             foreach ($imqs as $imq) {
                 array_push($iqs[0], array(intval($imq['NIM']), intval($imq['S'])));
