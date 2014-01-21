@@ -1,7 +1,17 @@
+    <div class="epics">
+        <h1></h1>
+        <div class="motors"></div>
+    </div>
+
     <h1><?php echo $bl ?> Beamline Status</h1>
     <div class="status pv">
         <div class="pvs"></div>
     </div>
+
+    <!--
+    <h1>EPICS Screens</h1>
+    <div class="screens"></div>
+    -->
 
     <h1 class="status webcams">Webcams</h1>
     <div class="status webcams">

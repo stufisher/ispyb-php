@@ -1,5 +1,6 @@
 $(function() {
-  var log_thread;
+  var epics_thread = null
+  var log_thread = null;
   var lines = [];
   
   $('div.status.pv, div.status.webcams').show()
@@ -37,7 +38,42 @@ $(function() {
         }, 3000)
       }
   }
+  
+  
+  // EPICS screens
+  $('.epics').dialog({ autoOpen: false, buttons: { 'Close': function() {
+    clearTimeout(epics_thread)
+    $(this).dialog('close');
+  } } });
+  
+  var pages = ['Sample Environment', 'Goniometer']
+  $.each(pages, function(i,t) {
+    $('<button id="#'+i+'">'+t+'</button>').button().appendTo($('.screens')).click(function() {
+      _load_page(i, function() { $('.epics').dialog('open') })
+      epics_thread = setTimeout(function() { _load_page.bind(i) },2000)
+    })
+  })
 
+  
+  function _load_page(id,callback) {
+    $.ajax({
+        url: '/status/ajax/epics/'+id+'/bl/'+bl,
+        type: 'GET',
+        dataType: 'json',
+        success: function(pvs){           
+          $.each(pvs, function(k,v) {
+          })
+           
+          if (callback) callback()
+        }
+    })
+  }
+  
+  function _generate_motor(pvs) {
+    var html = ''
+  
+    return html
+  }
   
   // Status H1 toggles status visibility
   $('h1.status.webcams').click(function() {

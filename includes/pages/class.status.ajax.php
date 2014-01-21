@@ -6,12 +6,14 @@
                               'p' => '\d+',
                               'st' => '\d\d-\d\d-\d\d\d\d',
                               'en' => '\d\d-\d\d-\d\d\d\d',
+                              'c' => '\d+',
                               );
         
         
         var $dispatch = array('pvs' => '_get_pvs',
                               'log' => '_get_server_log',
                               'sch' => '_schedule',
+                              'com' => '_get_component',
                               );
         
         var $def = 'pvs';
@@ -69,6 +71,55 @@
             
             $this->_output($return);
             
+        }
+        
+        
+        function _get_component() {
+            if (!$this->has_arg('bl')) $this->_error('No beamline specified');
+            
+            $pages = array('Sample Environment' => array(
+                              'Beamstop X' => 'MO-BS-01:X',
+                              'Beamstop Y' => 'MO-BS-01:Y',
+                              'Beamstop Z' => 'MO-BS-01:Z',
+                              'Scatterguard X' => 'MO-SCAT-01:X',
+                              'Scatterguard Y' => 'MO-SCAT-01:Y',
+                              'Scintillator Y' => 'MO-SCIN-01:Y',
+                              'Scintillator Z' => 'MO-SCIN-01:Z',
+                              'Mini Aperture X' => 'MO-MAPT-01:X',
+                              'Mini Aperture Y' => 'MO-MAPT-01:Y',
+                              'Mini Aperture Z' => 'MO-MAPT-01:Z',
+                              ),
+                           'Goniometer' => array(
+                              'Goniometer X' => 'MO-GONIO-01:X',
+                              'Goniometer Y' => 'MO-GONIO-01:Y',
+                              'Goniometer Z' => 'MO-GONIO-01:Z',
+                              'Omega' => 'MO-GONIO-01:OMEGA',
+                              'Sample Centring Y' => 'MO-GONIO-01:CENTREY',
+                              'Sample Centring Z' => 'MO-GONIO-01:CENTREZ',
+                              'Plate Y' => 'MO-GONIO-01:PLATEY',
+                              'Plate Z' => 'MO-GONIO-01:PLATEZ',
+                            ),
+            );
+            
+            $bls = array('i03' => 'BL03I');
+            
+            $vals = array('RBV','VAL','HLS', 'LLS','DMOV');
+            
+            $k = array_keys($pages);
+            $output = array();
+            if ($this->has_arg('c') && $this->arg('c') < sizeof($k)) {
+                $pvs = $pages[$k[$this->arg('c')]];
+            
+                foreach ($pvs as $n => $pv) {
+                    $output[$n] = array();
+                    foreach ($vals as $i => $s) {
+                        $p = $bls[$this->arg('bl')].'-'.$pv.'.'.$s;
+                        $output[$n][$s] = $this->pv($p);
+                    }
+                }
+            }
+            
+            $this->_output($output);
         }
         
         
