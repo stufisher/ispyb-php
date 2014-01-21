@@ -19,17 +19,18 @@
         function _fault_attachment() {
             if (!$this->has_arg('fid')) return;
             
-            $attachments = $this->db->pq('SELECT attachment from ispyb4a_db.bf_fault WHERE faultid = :1', array($this->arg('fid')));
+            $attachments = $this->db->pq("SELECT TO_CHAR(starttime,'yyyy') as year,attachment from ispyb4a_db.bf_fault WHERE faultid = :1", array($this->arg('fid')));
             
             if (sizeof($attachments)) {
                 $attachment = $attachments[0]['ATTACHMENT'];
+                $year = $attachments[0]['YEAR'];
                 $ext = pathinfo($attachment, PATHINFO_EXTENSION);
                 
                 if (in_array($ext, array('png', 'jpg', 'jpeg', 'gif'))) $head = 'image'.$ext;
                 else $head = 'application/octet-stream';
                 
                 header('Content-Type:'.$head);
-                readfile('http://rdb.pri.diamond.ac.uk/php/elog/files/2013/'.$attachment);
+                readfile('http://rdb.pri.diamond.ac.uk/php/elog/files/'.$year.'/'.$attachment);
             }
             else return;
         
