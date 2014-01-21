@@ -312,11 +312,17 @@
         
         
         # Get a PV
-        function pv($pvid) {
+        function pv($pvs) {
             putenv('PATH=/dls_sw/epics/R3.14.11/base/bin/linux-x86_64/:$PATH');
-            $ret = exec('caget ' . $pvid);
-            $lis = preg_split('/\s+/', $ret);
-            return sizeof($lis) > 1 ? $lis[1] : '';
+            exec('caget ' . implode(' ', $pvs), $ret);
+            $output = array();
+            
+            foreach ($ret as $i => $v) {
+                $lis = preg_split('/\s+/', $v);
+                $output[$lis[0]] = sizeof($lis) > 1 ? $lis[1] : '';
+            }
+            
+            return $output;
         }
         
         
