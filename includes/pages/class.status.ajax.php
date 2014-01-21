@@ -13,7 +13,8 @@
         var $dispatch = array('pvs' => '_get_pvs',
                               'log' => '_get_server_log',
                               'sch' => '_schedule',
-                              'com' => '_get_component',
+                              'epics' => '_get_component',
+                              'ep' => '_epics_pages',
                               );
         
         var $def = 'pvs';
@@ -63,10 +64,13 @@
             
             if (!array_key_exists($this->arg('bl'), $bl_pvs)) $this->_error('No such beamline');
             
+            $pvs = array_merge($ring_pvs, $bl_pvs[$this->arg('bl')]);
+            $vals = $this->pv(array_values($pvs));
+            
             $return = array();
-            foreach (array_merge($ring_pvs, $bl_pvs[$this->arg('bl')]) as $k => $pv) {
-                $return[$k] = $this->pv($pv);
-                if ($k == 'Hutch') $return[$k] = $return[$k] == 7 ? 'Open' : 'Locked';
+            foreach ($pvs as $k => $pv) {
+                if ($k == 'Hutch') $return[$k] = $vals[$pv] == 7 ? 'Open' : 'Locked';
+                else $return[$k] = $vals[$pv];
             }
             
             $this->_output($return);
@@ -77,49 +81,62 @@
         function _get_component() {
             if (!$this->has_arg('bl')) $this->_error('No beamline specified');
             
-            $pages = array('Sample Environment' => array(
-                              'Beamstop X' => 'MO-BS-01:X',
-                              'Beamstop Y' => 'MO-BS-01:Y',
-                              'Beamstop Z' => 'MO-BS-01:Z',
-                              'Scatterguard X' => 'MO-SCAT-01:X',
-                              'Scatterguard Y' => 'MO-SCAT-01:Y',
-                              'Scintillator Y' => 'MO-SCIN-01:Y',
-                              'Scintillator Z' => 'MO-SCIN-01:Z',
-                              'Mini Aperture X' => 'MO-MAPT-01:X',
-                              'Mini Aperture Y' => 'MO-MAPT-01:Y',
-                              'Mini Aperture Z' => 'MO-MAPT-01:Z',
-                              ),
-                           'Goniometer' => array(
-                              'Goniometer X' => 'MO-GONIO-01:X',
-                              'Goniometer Y' => 'MO-GONIO-01:Y',
-                              'Goniometer Z' => 'MO-GONIO-01:Z',
-                              'Omega' => 'MO-GONIO-01:OMEGA',
-                              'Sample Centring Y' => 'MO-GONIO-01:CENTREY',
-                              'Sample Centring Z' => 'MO-GONIO-01:CENTREZ',
-                              'Plate Y' => 'MO-GONIO-01:PLATEY',
-                              'Plate Z' => 'MO-GONIO-01:PLATEZ',
-                            ),
-            );
+            if (!file_exists('motors.json')) $this->_error('Couldnt find motors file');
+            $json = preg_replace("/(\s\s+|\n)/", '', file_get_contents('motors.json'));
+            $pages = json_decode($json, true);
             
-            $bls = array('i03' => 'BL03I');
+            $bls = array('i03' => 'BL03I', 'i02' => 'BL02I', 'i04' => 'BL04I');
+            $vals = array('RBV','VAL','HLS', 'LLS','DMOV', 'SEVR', 'LVIO', 'MSTA');
             
-            $vals = array('RBV','VAL','HLS', 'LLS','DMOV');
             
             $k = array_keys($pages);
             $output = array();
             if ($this->has_arg('c') && $this->arg('c') < sizeof($k)) {
-                $pvs = $pages[$k[$this->arg('c')]];
-            
-                foreach ($pvs as $n => $pv) {
-                    $output[$n] = array();
-                    foreach ($vals as $i => $s) {
-                        $p = $bls[$this->arg('bl')].'-'.$pv.'.'.$s;
-                        $output[$n][$s] = $this->pv($p);
+                $pvp = $pages[$k[$this->arg('c')]];
+                $pvs = array();
+                foreach ($pvp as $pt) {
+                    list($p, $t) = $pt;
+                    
+                    # Motors
+                    if ($t == 1) {
+                        foreach ($vals as $i => $s) {
+                            array_push($pvs, $bls[$this->arg('bl')].'-'.$p.'.'.$s);
+                        }
+                        
+                    # Toggles
+                    } else if ($t == 2) {
+                        array_push($pvs, $bls[$this->arg('bl')].'-'.$p);
+                    }
+                }
+
+                $pvv = $this->pv($pvs);
+                
+                foreach ($pvp as $n => $pt) {
+                    list($pv, $t) = $pt;
+                    $output[$n] = array('t' => $t, 'val' => array());
+                    # Motors
+                    if ($t == 1) {
+                        foreach ($vals as $i => $s) {
+                            $p = $bls[$this->arg('bl')].'-'.$pv.'.'.$s;
+                            $output[$n]['val'][$s] = $pvv[$p];
+                        }
+                        
+                    # Toggles
+                    } else if ($t == 2) {
+                        $p = $bls[$this->arg('bl')].'-'.$pv;
+                        $output[$n]['val'] = $pvv[$p] == $pt[2];
                     }
                 }
             }
             
             $this->_output($output);
+        }
+        
+        
+        function _epics_pages() {
+            if (!file_exists('motors.json')) $this->_error('Couldnt find motors file');
+            $json = preg_replace("/(\s\s+|\n)/", '', file_get_contents('motors.json'));
+            $this->_output(array_keys(json_decode($json, true)));
         }
         
         

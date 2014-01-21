@@ -1,5 +1,6 @@
 $(function() {
   var epics_thread = null
+  var epics_poll = false;
   var log_thread = null;
   var lines = [];
   
@@ -43,37 +44,108 @@ $(function() {
   // EPICS screens
   $('.epics').dialog({ autoOpen: false, buttons: { 'Close': function() {
     clearTimeout(epics_thread)
+    epics_poll = false;
     $(this).dialog('close');
   } } });
   
-  var pages = ['Sample Environment', 'Goniometer']
-  $.each(pages, function(i,t) {
-    $('<button id="#'+i+'">'+t+'</button>').button().appendTo($('.screens')).click(function() {
-      _load_page(i, function() { $('.epics').dialog('open') })
-      epics_thread = setTimeout(function() { _load_page.bind(i) },2000)
-    })
+  // Load Page Names
+  $.ajax({
+     url: '/status/ajax/ep',
+     type: 'GET',
+     dataType: 'json',
+     success: function(pages){
+         $.each(pages, function(i,t) {
+            $('<button id="#'+i+'">'+t+'</button>').button().appendTo($('.screens')).click(function() {
+              $('.epics .motors').empty()
+              epics_poll = true;
+             _load_page(i, function() { $('.epics').dialog('option', 'title', t).dialog('open') })
+            })
+         })
+     }
   })
 
   
   function _load_page(id,callback) {
     $.ajax({
-        url: '/status/ajax/epics/'+id+'/bl/'+bl,
+        url: '/status/ajax/epics/c/'+id+'/bl/'+bl,
         type: 'GET',
         dataType: 'json',
-        success: function(pvs){           
+        success: function(pvs){
           $.each(pvs, function(k,v) {
+             if (v['t'] == 1) {
+               if (!$('.epics .motors .motor[mid="'+k+'"]').length) $(_generate_motor(k,v['val'])).hide().appendTo($('.epics .motors')).fadeIn()
+               _update_motor(k,v['val'])
+             } else if (v['t'] == 2) {
+                 if (!$('.epics .motors .motor[tid="'+k+'"]').length) $(_generate_toggle(k,v['val'])).hide().appendTo($('.epics .motors')).fadeIn()
+                 _update_toggle(k,v['val'])
+             }
           })
            
-          if (callback) callback()
+          if (callback) callback() 
+          if (epics_poll) epics_thread = setTimeout(function() { _load_page(id) }, 1000)
         }
     })
   }
   
-  function _generate_motor(pvs) {
-    var html = ''
+  function _update_motor(title, pv) {
+    var p = $('.motor[mid="'+title+'"]')
   
-    return html
+    $('.value', p).html(pv['VAL'])
+    $('.readback', p).html(pv['RBV'])
+    $('.value', p).html(pv['VAL'])
+  
+    var buttons = {'SEVR': { MAJOR: 'inactive', MINOR: 'minor' },
+                   'DMOV': { 0: 'active' },
+                   'HLS': { 1: 'minor' },
+                   'LLS': { 1: 'minor' },
+                   'LVIO': { 1: 'minor' },
+    }
+  
+    $.each(buttons, function(k,b) {
+      var bd = $('.button.'+k.toLowerCase(), p)
+      $.each(b, function(v,s) {
+        pv[k] == v ? bd.addClass(s) : bd.removeClass(s)
+      })
+    })
+  
+    var b = $('.button.ffe', p)
+    var ffe = (pv['MSTA'] & 1<<6) == 1<<6
+    ffe ? b.addClass('inactive') : b.removeClass('inactive')
+  
   }
+  
+  function _generate_motor(title, pv) {
+    return '<div class="motor" mid="'+title+'">'+
+        '<div class="value" title="Set Value">'+pv['VAL']+'</div>'+
+        '<h1>'+title+'</h1>'+
+        '<div class="main">'+
+            '<div class="below">'+
+                '<div class="button l sevr" title="Alarm">!</div>'+
+                '<div class="button r dmov" title="Moving">M</div>'+
+                '<div class="readback" title="Readback Value">'+pv['RBV']+'</div>'+
+            '</div>'+
+        '</div>'+
+        '<div class="buttons clearfix">'+
+            '<div class="label"><div class="button hls">&nbsp;</div> High Limit</div>'+
+            '<div class="label"><div class="button lls">&nbsp;</div> Low Limit</div>'+
+            '<div class="label"><div class="button lvio">&nbsp;</div> Soft Limit</div>'+
+            '<div class="label"><div class="button ffe">&nbsp;</div> Following Error</div>'+
+        '</div>'+
+    '</div>'
+  }
+  
+  function _generate_toggle(title, v) {
+    return '<div class="motor" tid="'+title+'">'+
+        '<h1 class="clearfix"><div class="button r">&nbsp;</div>'+title+'</h1>'+
+    '</div>'
+  }
+  
+  function _update_toggle(title, v) {
+    var p = $('.motor[tid="'+title+'"]')
+    var bd = $('.button', p)
+    v ? bd.addClass('active') : bd.removeClass('active')
+  }
+  
   
   // Status H1 toggles status visibility
   $('h1.status.webcams').click(function() {

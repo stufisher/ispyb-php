@@ -8,10 +8,10 @@
         <div class="pvs"></div>
     </div>
 
-    <!--
+
     <h1>EPICS Screens</h1>
     <div class="screens"></div>
-    -->
+
 
     <h1 class="status webcams">Webcams</h1>
     <div class="status webcams">

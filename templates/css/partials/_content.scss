@@ -909,3 +909,90 @@ textarea[name=pasted] {
 
     
 }
+
+
+
+// EPICS
+.motor {
+    float: left;
+    @include cols(2,2%,0.5%);
+    background: #cdcdcd;
+    border-radius: 5px;
+    
+    .button {
+        width: 11%;
+        background: #000000;
+        border-radius: 2px;
+        overflow: hidden;
+        border: 1px solid;
+        text-align: center;
+        
+        &.active {
+            background: $content-active;
+        }
+        
+        &.inactive {
+            background: $content-inactive;
+        }
+        
+        &.minor {
+            background: $content-minor;
+        }
+    }
+    
+    .buttons {
+        margin: 2% 0;
+        position: absolute;
+        background: #fff;
+        width: 40%;
+        padding: 1% 2% 1% 1%;
+        white-space: nowrap;
+        display: none;
+        border-radius: 5px;
+        
+        .button {
+            margin: 0.5%;
+            display: inline-block;
+        }
+    }
+    
+    .main:hover ~ .buttons {
+        display: block;
+    }
+    
+    .value {
+        float: right;
+        padding: 2%;
+        background: #bcbcbc;
+    }
+    
+    .l {
+        float: left;
+    }
+    
+    .r {
+        float: right;
+    }
+    
+    h1 {
+        background: #eeeeee;
+        margin: 1% 0 2% 0;
+        padding: 1% 1%;
+    }
+    
+    .below {
+        text-align: center;
+        
+        .readback {
+            color: green;
+            display: inline-block;
+            border: 1px solid #000000;
+            border-radius: 2px;
+            width: 67%;
+        }
+    }
+}
+
+
+
+
