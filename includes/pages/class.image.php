@@ -29,6 +29,7 @@
                 if (in_array($ext, array('png', 'jpg', 'jpeg', 'gif'))) $head = 'image'.$ext;
                 else $head = 'application/octet-stream';
                 
+                $this->_browser_cache();
                 header('Content-Type:'.$head);
                 readfile('http://rdb.pri.diamond.ac.uk/php/elog/files/'.$year.'/'.$attachment);
             }
@@ -56,6 +57,7 @@
             
             $n = $this->has_arg('n') ? ($this->arg('n')-1) : 0;
             if ($n < sizeof($images)) {
+                $this->_browser_cache();
                 header('Content-Type:image/png');
                 readfile($this->has_arg('f') ? $images[$n] : str_replace('.png', 't.png', $images[$n]));
             }
@@ -78,6 +80,7 @@
             
             $n = $this->has_arg('n') ? ($this->arg('n')-1) : 0;
             if ($n < sizeof($images)) {
+                $this->_browser_cache();
                 header('Content-Type:image/png');
                 #readfile($this->has_arg('f') ? $images[$n] : $this->_cache($images[$n]));
                 readfile($this->has_arg('f') ? $images[$n] : str_replace('.png', 't.png', $images[$n]));
@@ -134,6 +137,7 @@
             if (sizeof($rows) > 0) {
                 $im = $rows[0]['IM'];
                 if (file_exists($im)) {
+                    $this->_browser_cache();
                     header('Content-Type:image/jpeg');
                     #readfile($this->has_arg('f') ? $im : $this->_cache($im, 'jpg', 0.212));
                     readfile($this->has_arg('f') ? $im : str_replace('.jpeg', '.thumb.jpeg', $im));
