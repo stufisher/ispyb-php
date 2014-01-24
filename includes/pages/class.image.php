@@ -108,7 +108,7 @@
             if (!file_exists($out)) {
                 
                 exec('./cbf2jpg.sh '.$info['LOC'].' '.$info['FT'].' '.$n.' '.$out);
-                error_log('./cbf2jpg.sh '.$info['LOC'].' '.$info['FT'].' '.$n.' '.$out);
+                #error_log('./cbf2jpg.sh '.$info['LOC'].' '.$info['FT'].' '.$n.' '.$out);
                 #$img = imagecreatefromjpeg($out);
                 #imagejpeg($img,$out,80);
             }
