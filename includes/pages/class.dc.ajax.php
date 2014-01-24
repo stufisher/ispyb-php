@@ -377,7 +377,7 @@
             
             if (!sizeof($ids)) {
                 $this->_output(array());
-                exit(1);
+                return;
             }
             
             $dct = $this->db->pq("SELECT p.proposalcode||p.proposalnumber||'-'||s.visit_number as vis, dc.datacollectionid as id, dc.startimagenumber, dc.filetemplate, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4,dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, s.visit_number FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE $where", $ids);
@@ -444,7 +444,7 @@
                    
             if (!sizeof($ids)) {
                 $this->_output(array());
-                exit(1);
+                return;
             }
                                 
             $where = '('.implode(' OR ', $where).')';
