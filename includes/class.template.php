@@ -77,7 +77,7 @@
             $this->hf = false;
             $this->mobile = true;
 
-            $this->header .= '<script type="text/javascript" src="'. $this->template_url.'js/jquery-1.9.1.min.js"></script>' . "\n";
+            $this->header .= '<script type="text/javascript" src="'. $this->template_url.'js/unmerged/jquery-1.9.1.min.js"></script>' . "\n";
             $this->header .= '    <script type="text/javascript" src="'. $this->template_url.'mobile/jquery.mobile-1.3.2.min.js"></script>' . "\n";
             $this->header .= '    <link href="'. $this->template_url.'mobile/jquery.mobile-1.3.2.min.css" type="text/css" rel="stylesheet" />' . "\n";
             $this->header .= '    <link href="'. $this->template_url.'mobile/mobile.css" type="text/css" rel="stylesheet" >' . "\n";
@@ -94,7 +94,7 @@
             $this->hf = false;
 
             $this->header .= '<link href="'. $this->template_url.'mobile/minimal.css" type="text/css" rel="stylesheet" />' . "\n";
-            $this->header .= '    <script type="text/javascript" src="'. $this->template_url.'js/jquery-1.9.1.min.js"></script>' . "\n";
+            $this->header .= '    <script type="text/javascript" src="'. $this->template_url.'js/unmerged/jquery-1.9.1.min.js"></script>' . "\n";
         }
         
         # Enable header / footer
