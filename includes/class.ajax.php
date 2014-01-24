@@ -18,7 +18,7 @@
             }
             
             $this->_parse_args($args);
-            $this->_auth();
+            if (!$this->_auth()) return;
             
             session_write_close();
             

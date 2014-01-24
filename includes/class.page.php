@@ -49,7 +49,7 @@
                         include_once($aj);
                         
                         $ajax = new Ajax($db, $args);
-                        exit(1);
+                        return;
                     }
                     
                 # Normal page load
@@ -60,7 +60,7 @@
             }
             
             $this->_parse_args($args);
-            $this->_auth();
+            if (!$this->_auth()) return;
             
             #session_write_close();
             
@@ -176,8 +176,10 @@
                 $this->t->title = 'Access Denied';
                 $this->t->msg = 'You dont have access to that page';
                 $this->render('generic_msg');
-                exit();
+                //exit();
             }
+            
+            return $auth;
             
         }
         
