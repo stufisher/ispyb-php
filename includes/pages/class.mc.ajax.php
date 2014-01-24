@@ -156,11 +156,11 @@
                     $r['INT'] = 2;
                     
                     foreach ($log as $l) {
-                        if (strpos($l, 'High resolution limit') !== false) $stats['RESH'] = number_format(preg_split('/\t/', $l)[1],2);
-                        if (strpos($l, 'Completeness') !== false) $stats['C'] = number_format(preg_split('/\t/', $l)[1],1);
-                        if (strpos($l, 'Rmerge') !== false) $stats['R'] = number_format(preg_split('/\t/', $l)[1],3);
+                        if (strpos($l, 'High resolution limit') !== false) $stats['RESH'] = number_format(array_slice(preg_split('/\t/', $l),1),2);
+                        if (strpos($l, 'Completeness') !== false) $stats['C'] = number_format(array_slice(preg_split('/\t/', $l),1),1);
+                        if (strpos($l, 'Rmerge') !== false) $stats['R'] = number_format(array_slice(preg_split('/\t/', $l),1),3);
                         if (strpos($l, 'Cell:') !== false) $stats['CELL'] = array_slice(preg_split('/\s+/', $l), 1);
-                        if (strpos($l, 'Spacegroup:') !== false) $stats['SG'] = preg_split('/\s+/', $l)[1];
+                        if (strpos($l, 'Spacegroup:') !== false) $stats['SG'] = array_slice(preg_split('/\s+/', $l),1);
                     }
                     
                     $r['STATS'] = $stats;
@@ -363,8 +363,8 @@
                     $prs = $r.'/BLEND_KEYWORDS.dat';
                     if (file_exists($prs)) {
                         foreach (explode("\n", file_get_contents($prs)) as $l) {
-                            if (strpos($l, 'RADFRAC') !== false) $run['RFRAC'] = preg_split('/\s+/', $l)[1];
-                            if (strpos($l, 'ISIGI') !== false) $run['ISIGI'] = preg_split('/\s+/', $l)[1];
+                            if (strpos($l, 'RADFRAC') !== false) $run['RFRAC'] = array_slice(preg_split('/\s+/', $l),1);
+                            if (strpos($l, 'ISIGI') !== false) $run['ISIGI'] = array_slice(preg_split('/\s+/', $l),1);
                         }
                     }
                     
@@ -465,7 +465,7 @@
                     }
                 }
                 
-                $all = @array_map(intval, end($raw)[1]);
+                $all = @array_map(intval, array_slice(end($raw),1));
                 array_push($data, array($all, 0));
                 foreach ($raw as $r) {
                     
@@ -672,7 +672,7 @@
                 $tmp = min($d);
                 if ($tmp < $min) {
                     $min = $tmp;
-                    $mk = array($i, array_keys($d, $tmp)[0]);
+                    $mk = array($i, array_slice(array_keys($d, $tmp),0));
                 }
             }
             
