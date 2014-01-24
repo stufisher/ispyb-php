@@ -7,7 +7,7 @@
             <li><a href="/proposal">Proposals</a></li>
 
             <li>
-                <span class="current"><?php echo $prop ?></span>
+                <span class="current"><?php echo $prop ? $prop : 'No Proposal' ?></span>
                 <?php if ($prop): ?>
                 <ul>
                     <li><a href="/dc">View All Data</a></li>
