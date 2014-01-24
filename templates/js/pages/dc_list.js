@@ -136,12 +136,6 @@ $(function() {
                        
                        // Data Collection
                        if (r['TYPE'] == 'data') {
-                           /*var sn = r['SN'] ? '/image/id/'+r['ID'] : ''
-                           var di = r['DI'] ? '/image/diff/id/'+r['ID'] : ''
-                       
-                           sns = ''
-                           for (var i = 1; i < r['X'].length; i++) sns += ('<a href="/image/id/'+r['ID']+'/f/1/n/'+(i+1)+'" rel="lightbox-'+r['ID']+'" title="Crystal Snapshot '+(i+1)+'"></a>')*/
-                       
                            var load = 'Loading: <img width="16" height="16" src="/templates/images/ajax-loader.gif" alt="Loading..." />'
                        
                            var f = r['COMMENTS'] ? (r['COMMENTS'].indexOf('_FLAG_') > -1 ? 'ui-state-highlight' : '') : ''
@@ -151,7 +145,7 @@ $(function() {
                        $('<div class="data_collection" dcid="'+r['ID']+'" type="data'+(state ? '' : '_stopped')+'" '+(state ? 'title="Click to view diffraction images"' : '')+'>' +
                              '<h1>'+
                                 '<button class="atp" ty="dc" iid="'+r['DCG']+'" name="'+r['DIR']+r['FILETEMPLATE']+'">Add to Project</button> <button class="flag '+f+'" title="Click to add this data collection to the list of favourite data collections">Favourite</button>  <a href="/dc/visit/'+prop+'-'+r['VN']+'/id/'+r['ID']+'" class="perm">Permalink</a> '+
-                                '<span class="date">'+r['ST']+'</span><span class="spacer"> - </span>'+vis_link+' <span class="temp">'+r['DIR']+r['FILETEMPLATE']+'</span>'+
+                                '<span class="date">'+vis_link+' '+r['ST']+'</span><span class="spacer"> - </span><span class="temp">'+r['DIR']+r['FILETEMPLATE']+'</span>'+
                                 
                              '</h1>'+
                              (state ?
@@ -162,9 +156,15 @@ $(function() {
                              '<div class="diffraction" title="Click to view diffraction images">'+
                                 '<a href="/dc/view/id/'+r['ID']+'"><img dsrc="" alt="Diffraction Image 1" /></a>' +
                              '</div>') : '<div class="r">Data Collection Stopped</div>')+
-
+                         
+                         
+                             '<div class="links">'+
+                                 '<a href="/dc/view/id/'+r['ID']+'"><i class="fa fa-picture-o fa-3x"></i></a> Images '+
+                                 '<a class="sn" href="#snapshots"><i class="fa fa-camera fa-3x"></i></a>  Snapshots '+
+                                 '<a class="dl" href="#distl"><i class="fa fa-bar-chart-o fa-3x"></i></a> DISTL '+
+                             '</div>'+
+                         
                              '<ul class="clearfix">'+
-                                 //(r['SAN'] != null ? ('<li class="sample">Sample: ' + r['SAN'] + ' (m' + r['SCON'] + 'p' + r['SPOS']+')') : '')+
                                  '<li>&Omega; Start: '+r['AXISSTART']+'&deg;</li>'+
                                  '<li>&Omega; Osc: '+r['AXISRANGE']+'&deg;</li>'+
                                  '<li>&Omega; Overlap: '+r['OVERLAP']+'&deg;</li>'+
@@ -173,12 +173,12 @@ $(function() {
                                  '<li>Resolution: '+r['RESOLUTION']+'&#197;</li>'+
                                  '<li>Wavelength: '+r['WAVELENGTH']+'&#197;</li>'+
                                  '<li>Exposure: '+r['EXPOSURETIME']+'s</li>'+
-                                 //'<li>Measured Flux: '+r['FLUX']+'</li>'+
                                  '<li>Transmission: '+r['TRANSMISSION']+'%</li>'+
                                  '<li>Beamsize: '+r['BSX']+'x'+r['BSY']+'&mu;m</li>'+
                                  '<li>Type: '+(r['DCT'] ? r['DCT'] : '')+'</li>'+
                                  '<li class="comment" title="Click to edit the comment for this data collection">Comment: <span class="comment_edit">'+(r['COMMENTS']?r['COMMENTS']:'')+'</span></li>'+
                              '</ul>'+
+                         
                              '<div class="holder">'+
                              (state ? (r['NI'] < 10 ?
                                 ('<h1 title="Click to show EDNA/mosflm strategies">Strategies<span>'+load+'</span></h1>'+
@@ -188,7 +188,7 @@ $(function() {
                                  '<h1 title="Click to show downstream processing results such as Dimple and Fast_EP">Downstream Processing<span>'+load+'</span></h1>'+
                                  '<div class="downstream"></div>')) : '')+
                              '</div>'+
-                             '</div>').data('apr', r['AP']).data('nimg', r['NUMIMG']).hide().data('first', true).prependTo('.data_collections').slideDown()
+                             '</div>').data('apr', r['AP']).data('nimg', r['NUMIMG']).hide().data('first', true).prependTo('.data_collections').slideDown(100)
                        
                             $('.data_collection[dcid="'+r['ID']+'"] .distl').data('plotted', false)
                        
@@ -202,8 +202,8 @@ $(function() {
                            ev = 12398.4193
                            d = $('<div class="data_collection" dcid="'+r['ID']+'" type="edge">' +
                              '<div class="edge"></div>'+
-                             '<h1><button class="atp" ty="edge" iid="'+r['ID']+'" name="'+r['DIR']+' Edge Scan">Add to Project</button> <button class="flag '+f+'">Favourite</button> <a class="perm" href="/dc/visit/'+prop+'-'+r['VN']+'/t/edge/id/'+r['ID']+'">Permalink</a> '+vis_link+' '+r['ST']+
-                                 ' - '+r['DIR']+' Edge Scan'+
+                             '<h1><button class="atp" ty="edge" iid="'+r['ID']+'" name="'+r['DIR']+' Edge Scan">Add to Project</button> <button class="flag '+f+'">Favourite</button> <a class="perm" href="/dc/visit/'+prop+'-'+r['VN']+'/t/edge/id/'+r['ID']+'">Permalink</a><span class="date">'+vis_link+' '+r['ST']+
+                                 '</span><span class="spacer"> - </span><span class="temp">'+r['DIR']+' Edge Scan</span>'+
                                  '</h1>'+
 
                              '<ul class="clearfix half">'+
@@ -215,7 +215,7 @@ $(function() {
                                  '<li>Transmission: '+r['TRANSMISSION']+'%</li>'+
                                  '<li class="comment" title="Click to edit the comment for this edge scan">Comment: <span class="comment_edit">'+(r['COMMENTS'] ? r['COMMENTS'] : '')+'</span></li>'+
                              '</ul>'+
-                             '</div>').data('apr', r['AP']).hide().prependTo('.data_collections').slideDown()
+                             '</div>').data('apr', r['AP']).hide().prependTo('.data_collections').slideDown(100)
                        
                            plot_edge($('.data_collection[dcid="'+r['ID']+'"] .edge'), r['ID'])
                            if (!first) log_message('New edge scan', '<a href="#'+r['ID'] +'">' +r['DIR'] + ' Edge Scan</a>')
@@ -236,8 +236,8 @@ $(function() {
                            d = $('<div class="data_collection" dcid="'+r['ID']+'" type="mca">' +
                              '<div class="mca"></div>'+
                              '<div class="elements">'+el+'</div>'+
-                             '<h1><button class="atp" ty="mca" iid="'+r['ID']+'" name="Fluorescence Spectrum">Add to Project</button> <button class="flag '+f+'">Favourite</button> <a class="perm" href="/dc/visit/'+prop+'-'+r['VN']+'/t/mca/id/'+r['ID']+'">Permalink</a> '+vis_link +' '+r['ST']+
-                                 ' - MCA Spectrum'+
+                             '<h1><button class="atp" ty="mca" iid="'+r['ID']+'" name="Fluorescence Spectrum">Add to Project</button> <button class="flag '+f+'">Favourite</button> <a class="perm" href="/dc/visit/'+prop+'-'+r['VN']+'/t/mca/id/'+r['ID']+'">Permalink</a><span class="date">'+vis_link +' '+r['ST']+
+                                 '</span><span class="spacer"> - </span><span class="temp">MCA Spectrum</span>'+
                                  '</h1>'+
 
                              '<ul class="clearfix">'+
@@ -246,7 +246,7 @@ $(function() {
                                  '<li>Transmission: '+r['TRANSMISSION']+'%</li>'+
                                  '<li class="comment" title="Click to edit the comment for this mca spectrum">Comment: <span class="comment_edit">'+(r['COMMENTS']?r['COMMENTS']:'')+'</span></li>'+
                              '</ul>'+
-                             '</div>').data('apr', r['AP']).hide().prependTo('.data_collections').slideDown()
+                             '</div>').data('apr', r['AP']).hide().prependTo('.data_collections').slideDown(100)
                        
                            plot_mca($('.data_collection[dcid="'+r['ID']+'"] .mca'), r['ID'])
                            if (!first) log_message('New MCA fluorescence spectrum', '<a href="#'+r['ID'] +'">' +r['DIR'] + ' Fluorescence Spectrum</a>')
@@ -259,17 +259,16 @@ $(function() {
                          if (r['IMP'] == 'ANNEAL' || r['IMP'] == 'WASH') {
                            $('<div class="data_collection" dcid="'+r['ID']+'" type="action">' +
                                '<div class="snapshots">'+
-                                  '<a href="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'/f/1" title="Crystal Snapshot Before"><img dsrc="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'" alt="Crystal Snapshot Before" /></a>'+
+                                  '<a href="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'/f/1" title="Crystal Snapshot Before"><img class="lazy" data-src="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'" alt="Crystal Snapshot Before" /></a>'+
                                '</div>'+
                                '<div class="snapshots">'+
-                                  '<a href="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'/f/1" title="Crystal Snapshot After"><img dsrc="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'" alt="Crystal Snapshot After" /></a>'+
+                                  '<a href="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'/f/1" title="Crystal Snapshot After"><img class="lazy" data-src="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'" alt="Crystal Snapshot After" /></a>'+
                                '</div>'+
-                               '<h1>'+vis_link+ r['ST']+'</h1>'+
-                               '<h2>Sample '+r['IMP'].toLowerCase()+'</h2>'+
+                               '<h1><span class="date">'+vis_link+' '+r['ST']+'</span><span class="spacer"> - </span><span class="temp">Sample '+r['IMP'].toLowerCase()+'</span></h1>'+
                                  '<ul class="clearfix">'+
                                    '<li>Time: '+r['BSX']+'s</li>'+
                                  '</ul>'+
-                             '</div>').hide().prependTo('.data_collections').slideDown()
+                             '</div>').hide().prependTo('.data_collections').slideDown(100)
                        
                        
                            if (!first) log_message('Sample '+r['IMP'].toLowerCase(), '<a href="#'+r['ID'] +'">View</a>')
@@ -278,7 +277,7 @@ $(function() {
                          } else {
                            $('<div class="data_collection" dcid="'+r['ID']+'">' +
                              '<h1>'+r['ST']+' - Robot '+r['IMP'].toLowerCase()+'ing puck ' + r['EXPOSURETIME'] +' pin ' + r['RESOLUTION'] + ' (Barcode: '+r['DIR']+') Status: '+r['SPOS']+' - '+r['SAN']+' (Took '+r['BSX']+'s)</h1>' +
-                             '</div>').data('apr', r['AP']).hide().prependTo('.data_collections').slideDown()
+                             '</div>').data('apr', r['AP']).hide().prependTo('.data_collections').slideDown(100)
                        
                            if (!first) log_message('New sample loaded', '<a href="#'+r['ID'] +'">Barcode: ' +r['DIR'] + '</a>')
                          }
@@ -291,15 +290,7 @@ $(function() {
                        
                    
                    } else {
-                       /*
-                       if (r['TYPE'] == 'data') {
-                           $('.data_collection[dcid="'+r['ID']+'"]').data('first', false)
-                           var sn = $('.data_collection[dcid="'+r['ID']+'"] .snapshots img')
-                           var di = $('.data_collection[dcid="'+r['ID']+'"] .diffraction img')
-                       
-                           if (!$(sn).attr('dsrc') && r['SN']) $(sn).attr('dsrc', '/image/id/'+r['ID'])
-                           if (!$(di).attr('dsrc') && r['DI']) $(di).attr('dsrc', '/image/diff/id/'+r['ID'])
-                       }*/
+
                        
                    }
 
@@ -328,17 +319,7 @@ $(function() {
 
   
   function _show_images() {
-    // Fade in images
-    $('.data_collection .diffraction img, .data_collection .snapshots img').each(function(i) {
-      var im = $(this)
-      setTimeout(function() {
-        if (!$(im).attr('src') && $(im).attr('dsrc')) {
-          $(im).attr('src', $(im).attr('dsrc')).load(function() {
-            $(im).show()//fadeIn()
-          })
-        }
-      }, i*100)
-    })
+    $('.lazy').unveil(0,function() { $(this).load(function() {$(this).addClass('show')}) })
   }
   
   
@@ -359,12 +340,12 @@ $(function() {
 
                if (img[0]) {
                  $('div[dcid='+id+']').attr('di',1)
-                 $('div[dcid='+id+'] .diffraction img').attr('dsrc', '/image/diff/id/'+id)
+                 $('div[dcid='+id+'] .diffraction img').attr('data-src', '/image/diff/id/'+id).addClass('lazy')
                }
                if (img[1].length > 0) {
                  if (img[2]) {
                    $('div[dcid='+id+']').attr('sn',1)
-                   $('div[dcid='+id+'] .snapshots img').attr('dsrc', '/image/id/'+id)
+                   $('div[dcid='+id+'] .snapshots img').attr('data-src', '/image/id/'+id).addClass('lazy')
                  }
                  sns = ''
                  for (var i = 1; i < img[1].length; i++) sns += ('<a href="/image/id/'+id+'/f/1/n/'+(i+1)+'" title="Crystal Snapshot '+(i+1)+'"></a>')
@@ -378,6 +359,7 @@ $(function() {
                     })
                }
             })
+             
             _show_images()
           }
       })
@@ -389,7 +371,8 @@ $(function() {
         dataType: 'json',
         timeout: 20000,
         success: function(list) {
-         $.each(list, function(i, r) {
+         if (list)
+          $.each(list, function(i, r) {
            if (i == 'profile') return;
            var id = r[0]
            var res = r[1]
@@ -437,12 +420,12 @@ $(function() {
                 
            // Update sample details
            if (dcv['SAN'] && !$(md).find('.sample').length) {
-             $('<li class="sample">Sample: <a href="/sample/sid/'+dcv['SID']+'">' + dcv['SAN'] + ' (m' + dcv['SCON'] + 'p' + dcv['SPOS']+')</a></li>').hide().prependTo($(md).children('ul')).fadeIn()
+             $('<li class="sample">Sample: <a href="/sample/sid/'+dcv['SID']+'">' + dcv['SAN'] + ' (m' + dcv['SCON'] + 'p' + dcv['SPOS']+')</a></li>').prependTo($(md).children('ul'))
            }
                 
            // Add flux if available
            if (!$(md).find('.flux').length) {
-              $('<li class="flux">Measured Flux: '+dcv['FLUX']+'</li>').hide().prependTo($(md).children('ul')).fadeIn()
+              $('<li class="flux">Measured Flux: '+dcv['FLUX']+'</li>').prependTo($(md).children('ul'))
            }
           })
 
@@ -577,6 +560,14 @@ $(function() {
   
       _show_images()
   
+      $('.data_collection a.sn').unbind('click').click(function() {
+        $(this).parent('div').siblings('.snapshots').children('a').eq(0).trigger('click')
+      })
+
+      $('.data_collection a.dl').unbind('click').click(function() {
+        $(this).parent('div').siblings('.distl').trigger('click')
+      })
+  
       // Make sample snapshots lightboxed
       $('div[type=action] .snapshots').magnificPopup({ delegate: 'a', type: 'image' })
   
@@ -678,21 +669,19 @@ $(function() {
           lrg.draw()
           
         }
-      // Load IQIs
-      }).each(function(i) {
-          if (!$(this).data('plotted')) {
+      }).each(function(i,pl) {
+          if (!$(pl).data('plotted')) {
               var w = 0.175*$('.data_collection').width()
               $(this).height($(window).width() > 800 ? w : (w*1.65))
               $('.diffraction,.snapshots').height($(this).height())
-            
-            var pl = $(this)
-            setTimeout(function() {
               plot(pl, function() {
                 $(pl).data('plotted', true)
               })
-            }, i*100+100)
           }
-      })  
+      })
+  
+      // Load IQIs
+      //setTimeout(function() { _load_iqi() }, 150)
   
   
       // Make flagable data collections iconified
@@ -734,6 +723,35 @@ $(function() {
       })
   }
   
+  /*
+  //var _last_scroll = -1;
+  // Load image quality indicators (lazy load)
+  function _load_iqi() {
+    //var cur = $(window).scrollTop()
+    //if (cur - _last_scroll > 20 || _last_scroll == -1)
+      $('.data_collection .distl').each(function(i,pl) {
+          if (!$(this).data('plotted')) {
+              //var w = 0.175*$('.data_collection').width()
+              //$(this).height($(window).width() > 800 ? w : (w*1.65))
+              //$('.diffraction,.snapshots').height($(this).height())
+              
+            var wt = $(window).scrollTop(),
+              wb = wt + $(window).height(),
+              et = $(pl).offset().top,
+              eb = et + $(pl).height();
+
+            if (eb >= wt - 200 && et <= wb + 200)
+              plot(pl, function() {
+                $(pl).data('plotted', true)
+              })
+          }
+      })
+  
+    //_last_scroll = cur
+  }
+  $(window).scroll(_load_iqi);
+  $(window).resize(_load_iqi);
+  */
   
   // Create xml for gda
   function format_xml(el) {
@@ -1029,7 +1047,7 @@ $(function() {
                     blobs = ''
                     for (var i = 0; i < r['BLOBS']; i++) {
                         var bi = i == 0 ? '<img src="/image/dimp/id/'+id+'" alt="Dimple Blob 1" />' : ''
-                        blobs += '<a href="/image/dimp/id/'+id+'/n/'+(i+1)+'" rel="lightbox-d'+id+'" title="Dimple Blob '+(i+1)+'">'+bi+'</a>'
+                        blobs += '<a href="/image/dimp/id/'+id+'/n/'+(i+1)+'" title="Dimple Blob '+(i+1)+'">'+bi+'</a>'
                     }
                   
                     types[r['TYPE']].push('<div class="blobs">'+blobs+'</div>' +
@@ -1052,6 +1070,15 @@ $(function() {
             else out = '<p>No downstream processing found for this data collection</p>'
 
             d.html(out)
+            $('.data_collection .blobs').each(function(i,e) {
+              $(e).magnificPopup({
+                delegate: 'a', type: 'image',
+                gallery: {
+                  enabled: true,
+                  navigateByImgClick: true,
+                }
+              })
+            })
 
             $.each(json, function(i, r) {
                 if (r['TYPE'] == 'Fast EP') {
@@ -1110,11 +1137,6 @@ $(function() {
         url: '/status/ajax/bl/'+bl+'/t/'+t,
         type: 'GET',
         dataType: 'json',
-        error: function(a,b,c) {
-           console.log(a)
-           console.log(b)
-           console.log(c)
-        },
            
         success: function(pvs){           
           $.each(pvs, function(k,v) {
