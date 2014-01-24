@@ -14,14 +14,14 @@
 
 
     <h1 class="status webcams">Webcams</h1>
-    <div class="status webcams">
+    <div class="status webcams clearfix">
         <div class="webcam"><img src="/image/cam/bl/<?php echo $bl ?>/n/0" alt="webcam1" /></div>
         <div class="webcam"><img src="/image/cam/bl/<?php echo $bl ?>/n/1" alt="webcam2" /></div>
     </div>
 
 
     <h1 class="status oavs">OAV</h1>
-    <div class="status oavs">
+    <div class="status oavs clearfix">
         <div class="oav"><img src="" alt="oav" /></div>
     </div>
 
