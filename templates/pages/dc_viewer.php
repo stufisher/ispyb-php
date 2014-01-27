@@ -1,9 +1,9 @@
 
-    <h1><?php echo $d['VIS']?>: <?php echo $d['DIR'] ?><?php echo $d['FT'] ?></h1>
+    <h1 class="dcv_imp"><span class="visit"><?php echo $d['VIS']?>: </span><?php echo $d['DIR'] ?><?php echo $d['FT'] ?></h1>
 
     <p class="help">This page is a full scale diffraction image viewer. Mousehweel zooms in and out, drag click to pan around the image. Press &gt; to go to the next image and &lt; the previous.</p>
 
-    <div class="data_collection">
+    <div class="data_collection dc_params">
         <ul class="full clearfix">
             <li>Exposure: <?php echo number_format($d['EXPOSURETIME'],3) ?>s</li>
             <li>Transmission: <?php echo number_format($d['TRANSMISSION'],3) ?>%</li>

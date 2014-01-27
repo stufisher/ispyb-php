@@ -26,6 +26,8 @@
             }
             
             $dc = $dc[0];
+            
+            $dc['FT'] = str_replace('_####.cbf', '', $dc['FT']);
             $dc['DIR'] = $this->ads($dc['DIR']);
             $dc['DIR'] = substr($dc['DIR'], strpos($dc['DIR'], $dc['VIS'])+strlen($dc['VIS'])+1);
             foreach (array('X', 'Y', 'DET', 'LAM', 'RES') as $k) $dc[$k] = floatval($dc[$k]);            
