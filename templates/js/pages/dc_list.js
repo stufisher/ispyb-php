@@ -1011,7 +1011,7 @@ $(function() {
            })
            
            
-           $('.data_collection table.strat td:not(:first-child)').hide()
+           if ($(window).width() < 600) $('.data_collection table.strat td:not(:first-child)').hide()
            $('.data_collection table.strat tr').unbind('click').click(function() {
              $('td:not(:first-child)',this).slideToggle()
            })
