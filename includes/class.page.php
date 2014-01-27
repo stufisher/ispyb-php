@@ -64,7 +64,7 @@
             
             #session_write_close();
             
-            $this->log_action();
+            if ($page != 'image') $this->log_action();
             $fn = $this->dispatch[$page];
             $this->$fn();
         }
