@@ -64,7 +64,7 @@
             
             #session_write_close();
             
-            if ($page != 'image') $this->log_action();
+            $this->log_action();
             $fn = $this->dispatch[$page];
             $this->$fn();
         }
@@ -465,18 +465,22 @@
         # ------------------------------------------------------------------------
         # Log Action
         function log_action($act=1,$com='') {
+            if(get_class($this) == 'Image') return;
+            
             $action = $act ? 'LOGON' : 'LOGOFF';
-            $u = phpCAS::getUser();
-            $com = $com ? $com : 'ISPyB2: '.$_SERVER['REQUEST_URI'];
+            $u = class_exists('phpCAS') ? phpCAS::getUser() : '';
             
-            $chk = $this->db->pq("SELECT comments FROM ispyb4a_db.adminactivity WHERE username LIKE :1", array($u));
-            
-            if (sizeof($chk)) {
-                $this->db->pq("UPDATE ispyb4a_db.adminactivity SET action=:1, comments=:2, datetime=SYSDATE WHERE username=:3", array($action, $com, $u));
+            if ($u) {
+                $com = $com ? $com : 'ISPyB2: '.$_SERVER['REQUEST_URI'];
+                $chk = $this->db->pq("SELECT comments FROM ispyb4a_db.adminactivity WHERE username LIKE :1", array($u));
                 
-                
-            } else {
-                $this->db->pq("INSERT INTO ispyb4a_db.adminactivity (adminactivityid, username, action, comments, datetime) VALUES (s_adminactivity.nextval, :1, :2, :3, SYSDATE)", array($u, $action, $com));
+                if (sizeof($chk)) {
+                    $this->db->pq("UPDATE ispyb4a_db.adminactivity SET action=:1, comments=:2, datetime=SYSDATE WHERE username=:3", array($action, $com, $u));
+                    
+                    
+                } else {
+                    $this->db->pq("INSERT INTO ispyb4a_db.adminactivity (adminactivityid, username, action, comments, datetime) VALUES (s_adminactivity.nextval, :1, :2, :3, SYSDATE)", array($u, $action, $com));
+                }
             }
             
             return true;
