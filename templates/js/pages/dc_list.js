@@ -159,9 +159,9 @@ $(function() {
                          
                          
                              '<div class="links">'+
-                                 '<a href="/dc/view/id/'+r['ID']+'"><i class="fa fa-picture-o fa-3x"></i></a> Images '+
-                                 '<a class="sn" href="#snapshots"><i class="fa fa-camera fa-3x"></i></a>  Snapshots '+
-                                 '<a class="dl" href="#distl"><i class="fa fa-bar-chart-o fa-3x"></i></a> DISTL '+
+                                 '<a href="/dc/view/id/'+r['ID']+'"><i class="fa fa-picture-o fa-2x"></i> Images</a> '+
+                                 '<a class="sn" href="#snapshots"><i class="fa fa-camera fa-2x"></i> Snapshots</a> '+
+                                 '<a class="dl" href="#distl"><i class="fa fa-bar-chart-o fa-2x"></i> DISTL</a> '+
                              '</div>'+
                          
                              '<ul class="clearfix">'+
@@ -425,7 +425,7 @@ $(function() {
                 
            // Add flux if available
            if (!$(md).find('.flux').length) {
-              $('<li class="flux">Measured Flux: '+dcv['FLUX']+'</li>').prependTo($(md).children('ul'))
+              $('<li class="flux">Flux: '+dcv['FLUX']+'</li>').prependTo($(md).children('ul'))
            }
           })
 
@@ -574,7 +574,7 @@ $(function() {
   
       // Enable tabs on all autoproc divs
       $('.data_collection .holder h1').each(function() {
-        $(this).next().tabs();
+        $(this).next('div').tabs();
       })
       
       // Map autoprocess/strategy divs to associated ajax requests
@@ -812,61 +812,74 @@ $(function() {
         dataType: 'json',
         timeout: 5000,
         success: function(json){
-           var aids = {}
-           var types = new Array()
-           for (var k in ty) types[k] = new Array()
+          var size = json[0]
+          var res = json[1]
            
-            $.each(json, function(i,r) {
-                aids[r['TYPE']] = r['AUTOPROCPROGRAMID']
-                   
-                types[r['TYPE']].push('<tr>' +
-                    '<td>'+r['SHELL']+'</td>' +
-                    '<td>'+r['SG']+'</td>' +
-                    '<td>'+r['CELL_A']+'</td>' +
-                    '<td>'+r['CELL_B']+'</td>' +
-                    '<td>'+r['CELL_C']+'</td>' +
-                    '<td>'+r['CELL_AL']+'</td>' +
-                    '<td>'+r['CELL_BE']+'</td>' +
-                    '<td>'+r['CELL_GA']+'</td>' +
-                    '<td>'+r['NTOBS']+'</td>' +
-                    '<td>'+r['NUOBS']+'</td>' +
-                    '<td>'+r['RHIGH']+' - '+r['RLOW']+'</td>' +
-                    '<td>'+r['RMERGE']+'</td>' +
-                    '<td>'+r['ISIGI']+'</td>' +
-                    '<td>'+r['COMPLETENESS']+'</td>' +
-                    '<td>'+r['MULTIPLICITY']+'</td>' +
-                '</tr>')                  
+          var ct = '<thead><tr>' +
+                     '<th>Space Group</th>' +
+                     '<th>A</th>' +
+                     '<th>B</th>' +
+                     '<th>C</th>' +
+                     '<th>&alpha;</th>' +
+                     '<th>&beta;</th>' +
+                     '<th>&gamma;</th>' +
+                     '</tr></thead>'
+           
+          var dt = '<thead><tr>' +
+                   '<th>Shell</th>'+
+                   '<th>Observations</th>' +
+                   '<th>Unique</th>' +
+                   '<th>Resolution</th>' +
+                   '<th>Rmerge</th>' +
+                   '<th>I/sig(I)</th>' +
+                   '<th>Completeness</th>' +
+                   '<th>Multiplicity</th>' +
+                   '<th>Anom Completeness</th>' +
+                   '<th>Anom Multiplicity</th>' +
+                   '</tr></thead>'
+           
+          var aps = {}
+           
+          $.each(res, function(aid,ap) {
+            var cell  = '<tr>' +
+                              '<td>'+ap['SG']+'</td>' +
+                              '<td>'+ap['CELL']['CELL_A']+'</td>' +
+                              '<td>'+ap['CELL']['CELL_B']+'</td>' +
+                              '<td>'+ap['CELL']['CELL_C']+'</td>' +
+                              '<td>'+ap['CELL']['CELL_AL']+'</td>' +
+                              '<td>'+ap['CELL']['CELL_BE']+'</td>' +
+                              '<td>'+ap['CELL']['CELL_GA']+'</td>' +
+                              '</tr>'
+            aps[aid] = [ap['TYPE'], '<table class="reflow cell">'+ct+cell+'</table>',[]]
+            
+            $.each(ap['SHELLS'], function(n,s) {
+               aps[aid][2].push('<tr class="'+n+'">' +
+                                '<td>'+n+'</td>' +
+                                '<td>'+s['NTOBS']+'</td>' +
+                                '<td>'+s['NUOBS']+'</td>' +
+                                '<td>'+s['RHIGH']+' - '+s['RLOW']+'</td>' +
+                                '<td>'+s['RMERGE']+'</td>' +
+                                '<td>'+s['ISIGI']+'</td>' +
+                                '<td>'+s['COMPLETENESS']+'</td>' +
+                                '<td>'+s['MULTIPLICITY']+'</td>' +
+                                '<td>'+s['ANOMCOMPLETENESS']+'</td>' +
+                                '<td>'+s['ANOMMULTIPLICITY']+'</td>' +
+                                '</tr>')
             })
+            
+          })
+
+          var out = ''
+          var tab = ''
+          $.each(aps, function(aid,ap) {
+            out += '<div id="' + aid + '" aid="'+aid+'" did="'+id+'">'+
+                     '<p><a href="/download/id/'+id+'/aid/'+aid+'">Download mtz file</a>'+(ap[0]=='Fast DP' ? ' | <a href="#" class="rd_link">Radiation Damage Analysis</a>':'')+'</p>'+
+                     ap[1]+
+                     '<table class="reflow shell">'+dt+ap[2].join(' ')+'</table></div>'
+            tab += '<li><a href="#' + aid + '">'+ap[0]+'</a></li>'
+          })
            
-            var thead = '<thead><tr>' +
-                    '<th>Shell</th>' +
-                    '<th>SG</th>' +
-                    '<th>A</th>' +
-                    '<th>B</th>' +
-                    '<th>C</th>' +
-                    '<th>&alpha;</th>' +
-                    '<th>&beta;</th>' +
-                    '<th>&gamma;</th>' +
-                    '<th>Obs</th>' +
-                    '<th>Unique</th>' +
-                    '<th>Resolution</th>' +
-                    '<th>Rmerge</th>' +
-                    '<th>I/sig(I)</th>' +           
-                    '<th>Compl</th>' +
-                    '<th>Multi</th>' +
-                '</tr></thead>'         
-           
-           var out = ''
-           var tab = ''
-           for (k in ty) {
-                t = ty[k]
-                if (types[k].length > 0) {
-                    out += '<div id="' + t + '" aid="'+aids[k]+'" did="'+id+'"><p><a href="/download/id/'+id+'/aid/'+aids[k]+'">Download mtz file</a>'+(t=='fast_dp' ? ' | <a href="#" class="rd_link">Radiation Damage Analysis</a>':'')+'</p><table>'+thead+types[k].join(' ')+'</table></div>'
-                    tab += '<li><a href="#' + t + '">'+k+'</a></li>'
-                }
-           }
-           
-           if (json.length > 0) out = '<ul>' + tab + '</ul>' + out
+           if (size > 0) out = '<ul>' + tab + '</ul>' + out
            else out = '<p>No auto processing results found for this data collection</p>'
 
            d.html(out)
@@ -917,47 +930,14 @@ $(function() {
         dataType: 'json',
         timeout: 5000,
         success: function(json){
+            var count = json[0]
+            var rows = json[1]
+           
             var out = ''
            
-            $.each(json, function(i,r) {
-                exp = r['TIME']
-                trn = r['ATRAN']
-                   
-                if (exp != r['NEXP'] || trn != r['NTRAN']) {
-                    exp += ' (' + r['NEXP'] + ')'
-                    trn += ' (' + r['NTRAN'] + ')'
-                }
-                                         
-                out += '<tr draggable="true" sid="'+i+'">' +
-                    '<td title="'+r['COMMENTS']+'">'+r['COM']+'</td>' +
-
-                    '<td>'+r['SG']+'</td>' +
-                    '<td>'+r['A']+'</td>' +
-                    '<td>'+r['B']+'</td>' +
-                    '<td>'+r['C']+'</td>' +
-                    '<td>'+r['AL']+'</td>' +
-                    '<td>'+r['BE']+'</td>' +
-                    '<td>'+r['GA']+'</td>' +
-                   
-                    '<td>'+r['ST']+'</td>' +
-                    '<td>'+r['OSCRAN']+'</td>' +
-                    '<td>'+r['RES']+'</td>' +
-                    '<td>'+r['TRAN']+'</td>' +
-                    '<td>'+trn+'</td>' +
-                    '<td>'+exp+'</td>' +
-                    '<td>'+r['NIMG']+'</td>' +
-                '</tr>'                  
-            })
-           
-            var thead = '<thead><tr>' +
+            var dh = '<thead><tr>' +
                     '<th>Strategy</th>' +
-                    '<th>SG</th>' +
-                    '<th>A</th>' +
-                    '<th>B</th>' +
-                    '<th>C</th>' +
-                    '<th>&alpha;</th>' +
-                    '<th>&beta;</th>' +
-                    '<th>&gamma;</th>' +
+                    '<th>Description</th>' +
                     '<th>&Omega; Start</th>' +
                     '<th>&Omega; Osc</th>' +
                     '<th>Res (&#197;)</th>' +
@@ -966,14 +946,74 @@ $(function() {
                     '<th>Exposure (s)</th>' +
                     '<th>No. Images</th>' +
                 '</tr></thead>'
+           
+            var ch = '<thead><tr>' +
+                    '<th>Space Group</th>' +
+                    '<th>A</th>' +
+                    '<th>B</th>' +
+                    '<th>C</th>' +
+                    '<th>&alpha;</th>' +
+                    '<th>&beta;</th>' +
+                    '<th>&gamma;</th>' +
+                '</tr></thead>'
+           
+            $.each(rows, function(n,t) {
+                if (t['STRATS'].length) {   
+                var sect = '<h1>'+n+'</h1>'+
+                           '<table class="cell reflow">'+ch+
+                            '<tr>'+
+                            '<td>'+t['CELL']['SG']+'</td>' +
+                            '<td>'+t['CELL']['A']+'</td>' +
+                            '<td>'+t['CELL']['B']+'</td>' +
+                            '<td>'+t['CELL']['C']+'</td>' +
+                            '<td>'+t['CELL']['AL']+'</td>' +
+                            '<td>'+t['CELL']['BE']+'</td>' +
+                            '<td>'+t['CELL']['GA']+'</td>' +
+                            '</tr>'+
+                            '</table> '+
+                            '<table class="reflow strat">'+
+                            dh
+                
+                $.each(t['STRATS'], function(i,r) {
+                    exp = r['TIME']
+                    trn = r['ATRAN']
+                       
+                    if (exp != r['NEXP'] || trn != r['NTRAN']) {
+                        exp += ' (' + r['NEXP'] + ')'
+                        trn += ' (' + r['NTRAN'] + ')'
+                    }
+                                             
+                    sect += '<tr draggable="true" sid="'+i+'">' +
+                        '<td>'+r['COM']+'</td>' +
+                        '<td>'+r['COMMENTS']+'</td>' +
+                        '<td>'+r['ST']+'</td>' +
+                        '<td>'+r['OSCRAN']+'</td>' +
+                        '<td>'+r['RES']+'</td>' +
+                        '<td>'+r['TRAN']+'</td>' +
+                        '<td>'+trn+'</td>' +
+                        '<td>'+exp+'</td>' +
+                        '<td>'+r['NIMG']+'</td>' +
+                    '</tr>'   
+                       
+                })
+                   
+                sect += '</table>'
+                out += sect
+                }
+            })
+           
   
-           if (json.length > 0) out = '<table>' + thead + out + '</table>'
-           else out = '<p>No strategies found for this data collection</p>'
+           if (count == 0) out = '<p>No strategies found for this data collection</p>'
 
            d.html(out)
            $.each(json, function(i,r) {
-               r['DCID'] = id;
                $('.data_collection[dcid="'+id+'"] tr[sid='+i+']').data('strat', r)
+           })
+           
+           
+           $('.data_collection table.strat td:not(:first-child)').hide()
+           $('.data_collection table.strat tr').unbind('click').click(function() {
+             $('td:not(:first-child)',this).slideToggle()
            })
            
            d.slideDown();

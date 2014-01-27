@@ -630,26 +630,43 @@
                 return;
             }
             
-            $rows = $this->db->pq('SELECT s.comments, dc.transmission as dctrn, dc.wavelength as lam, dc.imagedirectory imd, dc.imageprefix as imp, dc.comments as dcc, dc.blsampleid as sid, sl.spacegroup as sg, sl.unitcell_a as a, sl.unitcell_b as b, sl.unitcell_c as c, sl.unitcell_alpha as al, sl.unitcell_beta as be, sl.unitcell_gamma as ga, s.shortcomments as com, sssw.axisstart as st, sssw.exposuretime as time, sssw.transmission as tran, sssw.oscillationrange as oscran, sssw.resolution as res, sssw.numberofimages as nimg FROM ispyb4a_db.screeningstrategy st INNER JOIN ispyb4a_db.screeningoutput so on st.screeningoutputid = so.screeningoutputid INNER JOIN ispyb4a_db.screening s on so.screeningid = s.screeningid INNER JOIN ispyb4a_db.screeningstrategywedge ssw ON ssw.screeningstrategyid = st.screeningstrategyid INNER JOIN ispyb4a_db.screeningstrategysubwedge sssw ON sssw.screeningstrategywedgeid = ssw.screeningstrategywedgeid INNER JOIN ispyb4a_db.screeningoutputlattice sl ON sl.screeningoutputid = st.screeningoutputid INNER JOIN ispyb4a_db.datacollection dc on s.datacollectionid = dc.datacollectionid WHERE s.datacollectionid = :1', array($this->arg('id')));
+            $rows = $this->db->pq('SELECT dc.datacollectionid as dcid, s.comments, dc.transmission as dctrn, dc.wavelength as lam, dc.imagedirectory imd, dc.imageprefix as imp, dc.comments as dcc, dc.blsampleid as sid, sl.spacegroup as sg, sl.unitcell_a as a, sl.unitcell_b as b, sl.unitcell_c as c, sl.unitcell_alpha as al, sl.unitcell_beta as be, sl.unitcell_gamma as ga, s.shortcomments as com, sssw.axisstart as st, sssw.exposuretime as time, sssw.transmission as tran, sssw.oscillationrange as oscran, sssw.resolution as res, sssw.numberofimages as nimg FROM ispyb4a_db.screeningstrategy st INNER JOIN ispyb4a_db.screeningoutput so on st.screeningoutputid = so.screeningoutputid INNER JOIN ispyb4a_db.screening s on so.screeningid = s.screeningid INNER JOIN ispyb4a_db.screeningstrategywedge ssw ON ssw.screeningstrategyid = st.screeningstrategyid INNER JOIN ispyb4a_db.screeningstrategysubwedge sssw ON sssw.screeningstrategywedgeid = ssw.screeningstrategywedgeid INNER JOIN ispyb4a_db.screeningoutputlattice sl ON sl.screeningoutputid = st.screeningoutputid INNER JOIN ispyb4a_db.datacollection dc on s.datacollectionid = dc.datacollectionid WHERE s.datacollectionid = :1', array($this->arg('id')));
         
+            $output = array('EDNA' => array('CELL' => array(), 'STRATS' => array()), 'Mosflm' => array('CELL' => array(), 'STRATS' => array()));
             $nf = array('A', 'B', 'C', 'AL', 'BE', 'GA');
             foreach ($rows as &$r) {
+                $t = strpos($r['COM'], 'EDNA') === false ? 'Mosflm' : 'EDNA'; 
+                
                 foreach ($r as $k => &$v) {
-                    if (in_array($k, $nf)) $v = number_format(floatval($v), 2);
+                    if (in_array($k, $nf)) {
+                        $v = number_format(floatval($v), 2);
+                        $output[$t]['CELL'][$k] = $v;
+                        unset($r[$k]);
+                    }
+                    
                     if ($k == 'TRAN') $v = number_format($v, 1);
                     if ($k == 'TIME') $v = number_format($v, 3);
                     if ($k == 'OSCRAN') $v = number_format($v, 2);
                     if ($k == 'RES') $v = number_format($v, 2);
                 }
+                
+                $output[$t]['CELL']['SG'] = $r['SG'];
+                unset($r['SG']);
+                
+                $r['COM'] = str_replace('EDNA', '', $r['COM']);
+                $r['COM'] = str_replace('Mosflm ', '', $r['COM']);
+                
                 $r['VPATH'] = join('/', array_slice(explode('/', $r['IMD']),0,6));
                 list(,,$r['BL']) = explode('/', $r['IMD']);
                 $r['DIST'] = $this->_r_to_dist($r['BL'], $r['LAM'], $r['RES']);
                 $r['ATRAN'] = round($r['TRAN']/100.0*$r['DCTRN'],1);
                 list($r['NTRAN'], $r['NEXP']) = $this->_norm_et($r['ATRAN'], $r['TIME']);
                 $r['AP'] = $this->_get_ap($r['DCC']);
+                
+                array_push($output[$t]['STRATS'], $r);
             }
                 
-            $this->_output($rows);
+            $this->_output(array(sizeof($rows), $output));
         }
         
         # ------------------------------------------------------------------------        
@@ -711,14 +728,18 @@
                 return;
             }
         
-            $rows = $this->db->pq('SELECT app.autoprocprogramid,app.processingcommandline as type, apss.ntotalobservations as ntobs, apss.ntotaluniqueobservations as nuobs, apss.resolutionlimitlow as rlow, apss.resolutionlimithigh as rhigh, apss.scalingstatisticstype as shell, apss.rmerge, apss.completeness, apss.multiplicity, apss.meanioversigi as isigi, ap.spacegroup as sg, ap.refinedcell_a as cell_a, ap.refinedcell_b as cell_b, ap.refinedcell_c as cell_c, ap.refinedcell_alpha as cell_al, ap.refinedcell_beta as cell_be, ap.refinedcell_gamma as cell_ga FROM ispyb4a_db.autoprocintegration api INNER JOIN ispyb4a_db.autoprocscaling_has_int aph ON api.autoprocintegrationid = aph.autoprocintegrationid INNER JOIN ispyb4a_db.autoprocscaling aps ON aph.autoprocscalingid = aps.autoprocscalingid INNER JOIN ispyb4a_db.autoproc ap ON aps.autoprocid = ap.autoprocid INNER JOIN ispyb4a_db.autoprocscalingstatistics apss ON apss.autoprocscalingid = aph.autoprocscalingid INNER JOIN ispyb4a_db.autoprocprogram app ON api.autoprocprogramid = app.autoprocprogramid WHERE api.datacollectionid = :1', array($this->arg('id')));
+            $rows = $this->db->pq('SELECT app.autoprocprogramid,app.processingcommandline as type, apss.ntotalobservations as ntobs, apss.ntotaluniqueobservations as nuobs, apss.resolutionlimitlow as rlow, apss.resolutionlimithigh as rhigh, apss.scalingstatisticstype as shell, apss.rmerge, apss.completeness, apss.anomalouscompleteness as anomcompleteness, apss.anomalousmultiplicity as anommultiplicity, apss.multiplicity, apss.meanioversigi as isigi, ap.spacegroup as sg, ap.refinedcell_a as cell_a, ap.refinedcell_b as cell_b, ap.refinedcell_c as cell_c, ap.refinedcell_alpha as cell_al, ap.refinedcell_beta as cell_be, ap.refinedcell_gamma as cell_ga FROM ispyb4a_db.autoprocintegration api INNER JOIN ispyb4a_db.autoprocscaling_has_int aph ON api.autoprocintegrationid = aph.autoprocintegrationid INNER JOIN ispyb4a_db.autoprocscaling aps ON aph.autoprocscalingid = aps.autoprocscalingid INNER JOIN ispyb4a_db.autoproc ap ON aps.autoprocid = ap.autoprocid INNER JOIN ispyb4a_db.autoprocscalingstatistics apss ON apss.autoprocscalingid = aph.autoprocscalingid INNER JOIN ispyb4a_db.autoprocprogram app ON api.autoprocprogramid = app.autoprocprogramid WHERE api.datacollectionid = :1', array($this->arg('id')));
             
             $types = array('fast_dp' => 'Fast DP', '-3da ' => 'XIA2 3da', '-2da ' => 'XIA2 2da', '-3daii ' => 'XIA2 3daii');
             
-            $dts = array('rlow', 'rhigh', 'cell_a', 'cell_b', 'cell_c', 'cell_al', 'cell_be', 'cell_ga');
+            $dts = array('cell_a', 'cell_b', 'cell_c', 'cell_al', 'cell_be', 'cell_ga');
+            $dts2 = array('rlow', 'rhigh');
             
-
+            $output = array();
             foreach ($rows as &$r) {
+                if (!array_key_exists($r['AUTOPROCPROGRAMID'], $output)) $output[$r['AUTOPROCPROGRAMID']] = array('SHELLS' => array(), 'CELL' => array());
+                
+                $shell = array();
                 foreach ($r as $k => &$v) {
                     if ($k == 'TYPE') {
                         foreach ($types as $id => $name) {
@@ -729,15 +750,35 @@
                         }
                     }
                     
-                    if (in_array(strtolower($k), $dts)) $v = number_format($v, 2);
-                    
                     if ($k == 'RMERGE') $v = number_format($v, 3);
                     if ($k == 'COMPLETENESS') $v = number_format($v, 1);
                     if ($k == 'MULTIPLICITY') $v = number_format($v, 1);
+                    
+                    if ($k == 'AUTOPROCPROGRAMID' | $k == 'SHELL') {
+                        continue;
+                    
+                    } else if ($k == 'TYPE') {
+                        $output[$r['AUTOPROCPROGRAMID']]['TYPE'] = $v;
+                        
+                    } else if ($k == 'SG') {
+                        $output[$r['AUTOPROCPROGRAMID']]['SG'] = $v;
+                    
+                    } else if (in_array(strtolower($k), $dts2)) {
+                        $shell[$k] = number_format($v, 2);
+                    
+                    } else if (in_array(strtolower($k), $dts)) {
+                        $v = number_format($v, 2);
+                        $output[$r['AUTOPROCPROGRAMID']]['CELL'][$k] = $v;
+                    } else {
+                        $shell[$k] = $v;
+                    }
                 }
+                    
+                $output[$r['AUTOPROCPROGRAMID']]['SHELLS'][$r['SHELL']] = $shell;
             }
                   
-            $this->_output($rows);
+            #$this->_output($rows);
+            $this->_output(array(sizeof($output), $output));
         }
         
         
