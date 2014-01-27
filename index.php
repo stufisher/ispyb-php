@@ -1,5 +1,22 @@
 <?php
     
+    if (substr_count($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')) ob_start("ob_gzhandler");
+    else ob_start();
+    
+    require_once('OracleSession.php');
+    $handler = new OracleSessionHandler();
+    session_set_save_handler(
+                             array($handler, '_open'),
+                             array($handler, '_close'),
+                             array($handler, '_read'),
+                             array($handler, '_write'),
+                             array($handler, '_destroy'),
+                             array($handler, '_gc')
+                             );
+    
+    // the following prevents unexpected effects when using objects as save handlers
+    register_shutdown_function('session_write_close');
+    
     require_once('config.php');
     
     # Url is parsed into a series of arguments, arguments take the form /name/value
