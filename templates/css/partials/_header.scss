@@ -75,6 +75,9 @@
         span.search-mobile.enable {
             display: block;
         }
+        
+        font-size: 14px;
+        background-image: none;
     }
 }
 
@@ -87,6 +90,10 @@
     padding: 5px;
     color: $header-menu-color;
     white-space: nowrap;
+    
+    @media (max-width: $breakpoint-small) {
+        font-size: 14px;
+    }
     
     li {
         display: inline;
