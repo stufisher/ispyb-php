@@ -8,6 +8,8 @@
     <meta name="viewport" content="initial-scale=1.0"/>
     <!--<meta name="viewport" content="target-densitydpi=medium-dpi" />-->
 
+    <link rel="icon" type="image/ico" href="/favicon.ico" />
+
     <?php if (!$mobile): ?>
 
     <link rel="stylesheet" type="text/css" href="<?php echo $template_url ?>css/stylesheets/main.css">
@@ -50,6 +52,7 @@
         <li class="selected"><a href="/robot" title="Robot Stats"><i class="fa fa-android fa-2x"></i> <span class="icon-label">Robot Stats</span></a></li>
         <li><a href="/fault" title="Fault Report"><i class="fa fa-tasks fa-2x"></i> <span class="icon-label">Fault Report</span></a></li>
         <?php endif; ?>
+        <li><a href="/logout" title="Logout"><i class="fa fa-sign-out fa-2x"></i> <span class="icon-label">Logout</span></a></li>
     </ul>
 
     <a class="icon pull"><i class="fa fa-bars fa-2x"></i> <span class="icon-label">Menu</span></a>
