@@ -33,7 +33,7 @@
                         else $v = $visit[0];
                         
                         list($id,$no) = explode('-',$v['VIS']);
-                        array_push($visit_listl, '<li><h1>'.$b.$this->lc($v['SESSIONID']).'</h1><h2><a href="/dc/visit/'.$v['VIS'].'">'.$v['VIS'].'</a></h2><ul><li>Started: '.$v['ST'].'</li><li>Ended: '.$v['EN'].'</li><li><a href="/vstat/bag/'.$id.'/visit/'.$no.'">Visit Statistics</a></li></ul></li>');
+                        array_push($visit_listl, '<li><h1>'.$b.$this->lc($v['SESSIONID']).'</h1><h2><a href="/dc/visit/'.$v['VIS'].'">'.$v['VIS'].'</a></h2><ul><li>Start: '.$v['ST'].'</li><li>End: '.$v['EN'].'</li><li><a href="/vstat/bag/'.$id.'/visit/'.$no.'">Visit Statistics</a></li></ul></li>');
                     }
                     
                     if (sizeof($visitn) > 0) {
@@ -41,7 +41,7 @@
                         else $v = $visitn[0];
                         
                         list($id,$no) = explode('-',$v['VIS']);
-                        array_push($visit_listn, '<li><h1>'.$b.$this->lc($v['SESSIONID']).'</h1><h2><a href="/dc/visit/'.$v['VIS'].'">'.$v['VIS'].'</a></h2><ul><li>Starts: '.$v['ST'].'</li><li>Ends: '.$v['EN'].'</li><li><a href="/vstat/bag/'.$id.'/visit/'.$no.'">Visit Statistics</a></li></ul></li>');
+                        array_push($visit_listn, '<li><h1>'.$b.$this->lc($v['SESSIONID']).'</h1><h2><a href="/dc/visit/'.$v['VIS'].'">'.$v['VIS'].'</a></h2><ul><li>Start: '.$v['ST'].'</li><li>End: '.$v['EN'].'</li><li><a href="/vstat/bag/'.$id.'/visit/'.$no.'">Visit Statistics</a></li></ul></li>');
                     }
                 }
                 
@@ -69,7 +69,7 @@
                         else $v = $visit[0];
                         
                         list($id,$no) = explode('-',$v['VIS']);
-                        array_push($visit_listl, '<li><h1>'.$v['BL'].$this->lc($v['SESSIONID']).'</h1><h2><a href="/dc/visit/'.$v['VIS'].'">'.$v['VIS'].'</a></h2><ul><li>Started: '.$v['ST'].'</li><li>Ended: '.$v['EN'].'</li><li><a href="/vstat/bag/'.$id.'/visit/'.$no.'">Visit Statistics</a></li></ul></li>');
+                        array_push($visit_listl, '<li><h1>'.$v['BL'].$this->lc($v['SESSIONID']).'</h1><h2><a href="/dc/visit/'.$v['VIS'].'">'.$v['VIS'].'</a></h2><ul><li>Start: '.$v['ST'].'</li><li>End: '.$v['EN'].'</li><li><a href="/vstat/bag/'.$id.'/visit/'.$no.'">Visit Statistics</a></li></ul></li>');
                     }
                 }
                 
@@ -79,7 +79,7 @@
                         else $v = $visitn[0];
                         
                         list($id,$no) = explode('-',$v['VIS']);
-                        array_push($visit_listn, '<li><h1>'.$v['BL'].$this->lc($v['SESSIONID']).'</h1><h2><a href="/dc/visit/'.$v['VIS'].'">'.$v['VIS'].'</a></h2><ul><li>Starts: '.$v['ST'].'</li><li>Ends: '.$v['EN'].'</li><li><a href="/vstat/bag/'.$id.'/visit/'.$no.'">Visit Statistics</a></li></ul></li>');
+                        array_push($visit_listn, '<li><h1>'.$v['BL'].$this->lc($v['SESSIONID']).'</h1><h2><a href="/dc/visit/'.$v['VIS'].'">'.$v['VIS'].'</a></h2><ul><li>Start: '.$v['ST'].'</li><li>End: '.$v['EN'].'</li><li><a href="/vstat/bag/'.$id.'/visit/'.$no.'">Visit Statistics</a></li></ul></li>');
                     }
                 }                
                 
