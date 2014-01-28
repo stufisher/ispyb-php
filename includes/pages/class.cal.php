@@ -66,7 +66,9 @@
                 if (!array_key_exists($k2, $vbd[$k])) $vbd[$k][$k2] = array();
                 
                 $lc = $this->lc_lookup($v['SESSIONID']);
-                $v['LC'] = $lc ? ('<abbr title="'.$lc->name.'">'.$lc->i.'</abbr>') : '';
+                $v['LC'] = $lc ? ('(<abbr title="'.$lc->name.'">'.$lc->i.'</abbr>)</span>') : '';
+                $v['LCF'] = $lc ? $lc->name : '';
+                $v['OCF'] = $lc ? $lc->oc : '';
                 $v['TY'] = $lc ? $lc->type : '';
                 
                 array_push($vbd[$k][$k2], $v);
