@@ -37,6 +37,7 @@
             <button name="prev" title="Load previous image">&lt;</button>
             <input type="text" name="num" value="1" title="Load the image with this number" />/<?php echo $d['NUM'] ?>
             <button name="next" title="Load next image">&gt;</button>
+            <button name="reset" title="Reset Image">Reset</button>
         </div>
     </div>
 

@@ -5,6 +5,15 @@ $(function() {
     return false
   }
   
+  $('button[name=reset]').button({ icons: { primary: 'ui-icon-refresh' }, text: false }).click(function() {
+    $('#brightness').slider('value', 0)
+    $('#contrast').slider('value', 0)
+    $('#zoom').slider('value', 0)
+    draw()
+    _recache()
+    adjust()
+  })
+  
   $('#zoom').slider({min: 0, max: 200, step: 5})
   $('#brightness').slider({min: -100, max: 100, step: 5})
   $('#contrast').slider({min: -100, max: 100, step: 5})
@@ -606,15 +615,19 @@ $(function() {
   
   // Bind image adjustments
   $('#contrast').on('slidechange', function( e, ui ) {
-     contrast = $(this).slider('value')
-     $('#cval').html(contrast)
-     adjust()
+    contrast = $(this).slider('value')
+    $('#cval').html(contrast)
+    draw()
+    _recache()
+    adjust()
   })
   
   $('#brightness').on('slidechange', function( e, ui ) {
-     brightness = $(this).slider('value')
-     $('#bval').html(brightness)
-     adjust()
+    brightness = $(this).slider('value')
+    $('#bval').html(brightness)
+    draw()
+    _recache()
+    adjust()
   })
   
   
