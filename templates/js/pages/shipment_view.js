@@ -26,7 +26,9 @@ $(function() {
               '<td><select name="exp">'+vals+'</select></td>'+
               '<td><input name="trackto" /></td>'+
               '<td><input name="trackfrom" /></td>'+
-              '<td colspan="3">&nbsp;</td>'+
+              '<td>&nbsp;</td>'+
+              '<td>&nbsp;</td>'+
+              '<td>&nbsp;</td>'+
               '<td><button class="save">Save Dewar</button> <button class="cancel">Cancel</button></td>'+
               '</tr>').appendTo('table.dewars tbody')
                          
@@ -88,7 +90,7 @@ $(function() {
                     '<td><span class="trackto">'+(d['TRACKINGNUMBERTOSYNCHROTRON'] ? d['TRACKINGNUMBERTOSYNCHROTRON'] : '')+'</span>'+(courier in tracking && d['TRACKINGNUMBERTOSYNCHROTRON'] ?  (' <a class="track" href="'+tracking[courier]+d['TRACKINGNUMBERTOSYNCHROTRON']+'">Track</a>'): '')+'</td>'+
                     '<td><span class="trackfrom">'+(d['TRACKINGNUMBERFROMSYNCHROTRON'] ? d['TRACKINGNUMBERFROMSYNCHROTRON'] : '')+'</span>'+(courier in tracking && d['TRACKINGNUMBERFROMSYNCHROTRON'] ?  (' <a class="track" href="'+tracking[courier]+d['TRACKINGNUMBERFROMSYNCHROTRON']+'">Track</a>'): '')+'</td>'+
                     '<td>'+d['DEWARSTATUS']+'</td>'+
-                    '<td>'+(d['STORAGELOCATION'] ? d['STORAGELOCATION'] : '')+'</td>'+
+                    '<td>'+(d['STORAGELOCATION'] ? d['STORAGELOCATION'] : 'Unknown')+'</td>'+
                     '<td>'+d['CCOUNT']+'</td>'+
                     '<td><a class="add" title="Click to add a container" href="/shipment/addc/did/'+d['DEWARID']+'">Add Container</a></td>'+
                 '</tr>'

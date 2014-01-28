@@ -38,7 +38,7 @@
     </div>
 
     <div class="table sample">
-        <table class="robot_actions samples form tw">
+        <table class="robot_actions samples form reflow">
             <thead>
                 <tr>
                     <th>Location</th>

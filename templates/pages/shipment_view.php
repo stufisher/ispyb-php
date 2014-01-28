@@ -65,7 +65,7 @@
     <div class="ra"><button id="add_dewar" title="Add a dewar to this shipment">Add Dewar</button></div>
 
     <div class="table dewars">
-        <table class="robot_actions dewars">
+        <table class="robot_actions dewars reflow">
             <thead>
                 <tr>
                     <th>Name</th>
