@@ -64,6 +64,8 @@
     $db = new Oracle($isb['user'], $isb['pass'], $isb['db']);
     register_shutdown_function(array(&$db, '__destruct'));
     
+    if ($parts[0] == 'logout') phpCAS::logout();
+    
     # New pages need to be added to this array in order for them to be
     # parsed
     $pages = array(
