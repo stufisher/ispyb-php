@@ -106,6 +106,22 @@
         @extend table.no-wrap-last;
     }
     
+    table.faults {
+        @media (max-width: $breakpoint-small) {
+            th:nth-child(4),
+            th:nth-child(5),
+            th:nth-child(6),
+            th:nth-child(7),
+            th:nth-child(8),
+            td:nth-child(4),
+            td:nth-child(5),
+            td:nth-child(6),
+            td:nth-child(7),
+            td:nth-child(8) {
+                display: none;
+            }
+        }
+    }
 
     div.dataTables_wrapper {
         background-color: $content-background;

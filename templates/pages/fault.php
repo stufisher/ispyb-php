@@ -23,8 +23,8 @@
         <div class="pages"></div>
     </div>
 
-    <div class="table tw">
-    <table class="robot_actions">
+    <div class="table">
+    <table class="robot_actions faults">
         <thead>
             <tr>
                 <th>Title</th>
