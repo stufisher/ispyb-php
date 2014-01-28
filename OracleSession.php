@@ -63,7 +63,7 @@
 
         public function _gc($max){
             $old = date('d-m-Y H:i', time() - $max);
-            $this->db->query("DELETE FROM genericdata WHERE parametervaluedate < TO_DATE(:old, 'DD-MM-YYYY HH24:MI')", array($old));
+            $this->db->pq("DELETE FROM genericdata WHERE parametervaluedate < TO_DATE(:old, 'DD-MM-YYYY HH24:MI')", array($old));
 
             return true;
         }
