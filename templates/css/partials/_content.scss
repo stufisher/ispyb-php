@@ -728,6 +728,12 @@ div.log {
         &.sample {
             white-space: nowrap;
         }
+        
+        h1 {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     }
     
     &.full {
@@ -752,6 +758,11 @@ div.log {
         }
     }
     
+    &.hover {
+        > li:hover {
+            cursor: pointer;
+        }
+    }
     
 }
 
