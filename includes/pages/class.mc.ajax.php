@@ -157,11 +157,11 @@
                     
                     foreach ($log as $l) {
                         $pat = preg_split('/\t/', $l);
-                        $pats = preg_split('/\s/', $l);
+                        $pats = preg_split('/\s+/', $l);
                         if (strpos($l, 'High resolution limit') !== false) $stats['RESH'] = number_format($pat[1],2);
                         if (strpos($l, 'Completeness') !== false) $stats['C'] = number_format($pat[1],1);
                         if (strpos($l, 'Rmerge') !== false) $stats['R'] = number_format($pat[1],3);
-                        if (strpos($l, 'Cell:') !== false) $stats['CELL'] = $pats[1];
+                        if (strpos($l, 'Cell:') !== false) $stats['CELL'] = array_slice($pats,1);
                         if (strpos($l, 'Spacegroup:') !== false) $stats['SG'] = $pats[1];
                     }
                     
