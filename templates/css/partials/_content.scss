@@ -283,6 +283,17 @@ div.log {
         }
     }
     
+    @media (max-width: $breakpoint-small) {
+        .aborted {
+            float: none;
+            text-align: center;
+            padding: 5px;
+            font-weight: bold;
+            background: darken($content-light-background,2%);
+        }
+    }
+    
+    
     @media (max-width: $breakpoint-vsmall) {
         .temp {
             display: block;
