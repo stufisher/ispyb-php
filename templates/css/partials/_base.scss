@@ -16,6 +16,10 @@ body {
     font-size: $main-font-size;
     line-height: $main-line-height;
     min-height: 100%;
+    
+    &.active {
+        background: $body-background;
+    }
 }
 
 a {
