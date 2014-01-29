@@ -155,14 +155,14 @@ $(function() {
                              '</div>'+
                              '<div class="diffraction" title="Click to view diffraction images">'+
                                 '<a href="/dc/view/id/'+r['ID']+'"><img dsrc="" alt="Diffraction Image 1" /></a>' +
-                             '</div>') : '<div class="r">Data Collection Stopped</div>')+
-                         
-                         
-                             '<div class="links">'+
-                                 '<a href="/dc/view/id/'+r['ID']+'"><i class="fa fa-picture-o fa-2x"></i> Images</a> '+
-                                 '<a class="sn" href="#snapshots"><i class="fa fa-camera fa-2x"></i> Snapshots</a> '+
-                                 '<a class="dl" href="#distl"><i class="fa fa-bar-chart-o fa-2x"></i> DISTL</a> '+
                              '</div>'+
+                              
+                             '<div class="links">'+
+                               '<a href="/dc/view/id/'+r['ID']+'"><i class="fa fa-picture-o fa-2x"></i> Images</a> '+
+                               '<a class="sn" href="#snapshots"><i class="fa fa-camera fa-2x"></i> Snapshots</a> '+
+                               '<a class="dl" href="#distl"><i class="fa fa-bar-chart-o fa-2x"></i> DISTL</a> '+
+                             '</div>') : '<div class="r">Data Collection Stopped</div>')+
+                        
                          
                              '<ul class="clearfix">'+
                                  '<li>&Omega; Start: '+r['AXISSTART']+'&deg;</li>'+
