@@ -408,12 +408,12 @@
         # LDAP: Return a name for a fedid
         function _get_name($fedid) {
             $src = $this->_ldap_search('uid='.$fedid);
-            return $src[$fedid];
+            return array_key_exists($fedid, $src) ? $src[$fedid] : $fedid;
         }
         
         function _get_email($fedid) {
             $src = $this->_ldap_search('uid='.$fedid, True);
-            return $src[$fedid];
+            return array_key_exists($fedid, $src) ? $src[$fedid] : $fedid;
         }
               
 
