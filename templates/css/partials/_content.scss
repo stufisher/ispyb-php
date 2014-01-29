@@ -379,7 +379,7 @@ div.log {
                 }
                 
                 &.reflow {
-                    @media (max-width: $breakpoint-small) {
+                    @media (max-width: $breakpoint-vsmall) {
                         td {
                             padding-left: 50%;
                         }
