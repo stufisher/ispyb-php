@@ -156,11 +156,13 @@
                     $r['INT'] = 2;
                     
                     foreach ($log as $l) {
-                        if (strpos($l, 'High resolution limit') !== false) $stats['RESH'] = number_format(array_slice(preg_split('/\t/', $l),1),2);
-                        if (strpos($l, 'Completeness') !== false) $stats['C'] = number_format(array_slice(preg_split('/\t/', $l),1),1);
-                        if (strpos($l, 'Rmerge') !== false) $stats['R'] = number_format(array_slice(preg_split('/\t/', $l),1),3);
-                        if (strpos($l, 'Cell:') !== false) $stats['CELL'] = array_slice(preg_split('/\s+/', $l), 1);
-                        if (strpos($l, 'Spacegroup:') !== false) $stats['SG'] = array_slice(preg_split('/\s+/', $l),1);
+                        $pat = preg_split('/\t/', $l);
+                        $pats = preg_split('/\s/', $l);
+                        if (strpos($l, 'High resolution limit') !== false) $stats['RESH'] = number_format($pat[1],2);
+                        if (strpos($l, 'Completeness') !== false) $stats['C'] = number_format($pat[1],1);
+                        if (strpos($l, 'Rmerge') !== false) $stats['R'] = number_format($pat[1],3);
+                        if (strpos($l, 'Cell:') !== false) $stats['CELL'] = $pats[1];
+                        if (strpos($l, 'Spacegroup:') !== false) $stats['SG'] = $pats[1];
                     }
                     
                     $r['STATS'] = $stats;
@@ -363,8 +365,9 @@
                     $prs = $r.'/BLEND_KEYWORDS.dat';
                     if (file_exists($prs)) {
                         foreach (explode("\n", file_get_contents($prs)) as $l) {
-                            if (strpos($l, 'RADFRAC') !== false) $run['RFRAC'] = array_slice(preg_split('/\s+/', $l),1);
-                            if (strpos($l, 'ISIGI') !== false) $run['ISIGI'] = array_slice(preg_split('/\s+/', $l),1);
+                            $pat = preg_split('/\s+/', $l);
+                            if (strpos($l, 'RADFRAC') !== false) $run['RFRAC'] = $pat[1];
+                            if (strpos($l, 'ISIGI') !== false) $run['ISIGI'] = $pat[1];
                         }
                     }
                     
