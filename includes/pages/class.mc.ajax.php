@@ -377,6 +377,7 @@
                         $run['STATE'] = 1;
                         foreach (explode("\n", file_get_contents($aim)) as $l) {
                             if (strpos($l, 'Rmerge  (all I+ and I-)') !== false) $stats['RMERGE'] = array_slice(preg_split('/\s\s\s+/', $l), 0);
+                            if (strpos($l, 'Rmeas (all I+ & I-)') !== false) $stats['RMEAS'] = array_slice(preg_split('/\s\s\s+/', $l), 0);
                             if (strpos($l, 'Rpim (all I+ & I-)') !== false) $stats['RPIM'] = array_slice(preg_split('/\s\s\s+/', $l), 0);
                             if (strpos($l, 'Mean((I)/sd(I))') !== false) $stats['ISIGI'] = array_slice(preg_split('/\s\s\s+/', $l), 0);
                             if (strpos($l, 'Completeness   ') !== false) $stats['C'] = array_slice(preg_split('/\s\s\s+/', $l), 0);
