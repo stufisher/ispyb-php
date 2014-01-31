@@ -5,7 +5,7 @@ div.form {
         list-style: none;
         
         li {
-            clear: both;
+            //clear: both;
         }
     }
     
@@ -155,6 +155,26 @@ div.form {
     
     ul.visits li {
         clear: none;
+    }
+    
+    .puck {
+        width: 25%;
+        float: right;
+
+        @media (max-width: $breakpoint-small) {
+            width: 40%;
+        }
+        
+        @media (max-width: $breakpoint-vsmall) {
+            width: 100%;
+            float: none;
+            
+            -webkit-box-ordinal-group: 2;
+            -moz-box-ordinal-group: 2;
+            -ms-flex-order: 1;
+            -webkit-order: 1;
+            order: 1;
+        }
     }
 }
 
