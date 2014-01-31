@@ -291,6 +291,10 @@ div.log {
             font-weight: bold;
             background: darken($content-light-background,2%);
         }
+        
+        .downloads {
+            float: none;
+        }
     }
     
     
@@ -300,6 +304,10 @@ div.log {
             margin: 3px 0;
             overflow: hidden;
             text-overflow: ellipsis;
+            
+            &:hover {
+                overflow-x: visible;
+            }
         }
         
         .date {
@@ -663,6 +671,16 @@ div.log {
         
         &.sample {
             white-space: nowrap;
+            
+            .wrap {
+                overflow-x: hidden;
+                text-overflow: ellipsis;
+                display: block;
+                
+                &:hover {
+                    overflow-x: visible;
+                }
+            }
         }
         
         h1 {
@@ -783,17 +801,17 @@ div.status.oavs {
     
     .pv {
         display: inline-block;
-        @include cols(7, 0.5%, 0.2%);
+        @include cols(8, 0.5%, 0.2%);
         background: $content-inlay-background;
         border-radius: 5px;
         text-align: center;
         
         @media (max-width: $breakpoint-small) {
-            @include cols(4, 0.5%, 0.2%);
+            @include cols(4, 1%, 1%);
         }
 
         @media (max-width: $breakpoint-vsmall) {
-            @include cols(2, 0.5%, 0.2%);
+            @include cols(2, 1.5%, 1.5%);
         }
         
         &.on {
@@ -884,7 +902,7 @@ div.status.oavs {
         display: none;
     }
     
-    h1.dcv_imp {
+    h1.no_mobile, button.no_mobile {
         display: none;
     }
 }
@@ -980,7 +998,7 @@ div.status.oavs {
         width: 40px;
         height: 20px;
         position: absolute;
-        border: 1px solid $content-border;
+        border: 1px solid blue;
         
         @media (max-width: $breakpoint-small) {
             width: 20px;
