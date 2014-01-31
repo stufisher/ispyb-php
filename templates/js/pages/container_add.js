@@ -13,6 +13,8 @@ $(function() {
     e.preventDefault();
     _clone($(this))
   })
+  
+  $('table.samples tr td .top a').button({ icons: { primary: 'ui-icon-triangle-1-n' } })
 
   $('table.samples tr td button.delete').button({ icons: { primary: 'ui-icon-close' }, text: false }).click(function(e) {
     e.preventDefault();
@@ -139,6 +141,7 @@ $(function() {
     } else $('input[name=container]').addClass('fvalid').removeClass('ferror')
   
     $('select.protein').each(function(i,e) {
+        var samp = true
         if ($(this).val() > -1) {
 
           $('input.sname').eq(i).prop('disabled', false).removeClass('disabled')
@@ -148,6 +151,7 @@ $(function() {
           if (!$('input.sname').eq(i).val().match(/^\w+$/)) {
             $('input.sname').eq(i).removeClass('fvalid').addClass('ferror')
             ret = false
+            samp = false
             msg = 'Your sample name is blank, contains special characters and/or spaces. Sample names may only contain letters, numbers, and underscores.'
                              
           } else $('input.sname').eq(i).removeClass('ferror').addClass('fvalid')
@@ -155,6 +159,7 @@ $(function() {
           if ($('input.comment').eq(i).val() && !$($('input.comment')[i]).val().match(/^[a-zA-Z0-9_ ]+$/)) {
             $('input.comment').eq(i).removeClass('fvalid').addClass('ferror')
             ret = false
+            samp = false
             msg = 'Your comment contains special characters. Comments may only contain letters, numbers, spaces, and underscores.'
                              
           } else $('input.comment').eq(i).removeClass('ferror').addClass('fvalid')
@@ -162,9 +167,12 @@ $(function() {
           if ($('input.code').eq(i).val() && !$($('input.code')[i]).val().match(/^\w+$/)) {
             $('input.code').eq(i).removeClass('fvalid').addClass('ferror')
             ret = false
-            msg = 'Your barcode contains special characters. BArcodes may only contain letters and numbers'
+            samp = false
+            msg = 'Your barcode contains special characters. Barcodes may only contain letters and numbers'
                              
           } else $('input.comment').eq(i).removeClass('ferror').addClass('fvalid')
+                        
+          $(e).parent('td').parent('tr').removeClass('v').removeClass('iv').addClass(samp ? 'v' : 'iv')
                              
         } else {
           $('input.sname').eq(i).prop('disabled', true).addClass('disabled').removeClass('fvalid').removeClass('ferror')
@@ -177,6 +185,8 @@ $(function() {
         $('.error .message').html(msg)
         $('.error').dialog('open')
     }
+  
+    _draw()
   
     return ret
   }
@@ -260,5 +270,141 @@ $(function() {
     })
   })
   
+  
+  
+  
+  
+  var centres = [[150,100],
+                 [101,136],
+                 [120,193],
+                 [180,192],
+                 [198,135],
+                 [150, 40],
+                 [90, 59],
+                 [49, 105],
+                 [40, 168],
+                 [65, 224],
+                 [119, 256],
+                 [181, 257],
+                 [234, 224],
+                 [259, 167],
+                 [251, 105],
+                 [210, 59],
+                 ]
+  
+  var canvas = $('.puck canvas')[0]
+  var ctx = canvas.getContext('2d')
+  
+  canvas.width = $('.puck').width()
+  canvas.height = $('.puck').width()
+  
+  var scale = canvas.width/300
+  var puck = new Image()
+  var hover = null
+  
+  puck.src = '/templates/images/puck.png'
+  puck.onload = function() {
+    _draw()
+  }
+  
+  
+  
+  
+  function _draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    var r = 1
+    _positions()
+    ctx.drawImage(puck, 0, 0, canvas.width, canvas.height)
+  }
+  
+  
+  function _circle(x,y,r,c,line) {
+    ctx.beginPath()
+    ctx.arc(x,y,r, 0, 2*Math.PI, false)
+    if (line) {
+      ctx.lineWidth = 2
+      ctx.strokeStyle = c;
+      ctx.stroke()
+    } else {
+      ctx.fillStyle = c
+      ctx.fill()
+    }
+  }
+  
+  function _positions() {
+    $('table.samples tbody tr').each(function(i,e) {
+      if ($(e).hasClass('v') || $(e).hasClass('iv')) {
+        var col = $(e).hasClass('v') ? '#82d180' : '#f26c4f'
+        _circle(centres[i][0]*scale, centres[i][1]*scale, 28*scale, col)
+      }
+
+      if ($(e).hasClass('selected')) {
+        _circle(centres[i][0]*scale, centres[i][1]*scale, 23*scale, 'grey', true)
+      }
+    })
+  
+    if (hover !== null) {
+      _circle(centres[hover][0]*scale, centres[hover][1]*scale, 23*scale, 'grey', true)
+    }
+  }
+  
+  $('.puck canvas').click(function(e) {
+    var cur = _get_xy(e, this)
+                          
+    var pos = null
+    $.each(centres, function(i,c) {
+      var r = 30*scale
+      var minx = c[0]*scale - r
+      var maxx = c[0]*scale + r
+      var miny = c[1]*scale - r
+      var maxy = c[1]*scale + r
+                                 
+      if (cur[0] < maxx && cur[0] > minx && cur[1] < maxy && cur[1] > miny) {
+        pos = i
+      }
+    })
+                          
+    $('table.samples tbody tr').removeClass('selected').eq(pos).addClass('selected').find('.ui-combobox input').focus()
+  })
+  
+  $('.puck canvas').mousemove(function(e) {
+    hover = null
+    var cur = _get_xy(e, this)
+                          
+    var pos = null
+    $.each(centres, function(i,c) {
+      var r = 30*scale
+      var minx = c[0]*scale - r
+      var maxx = c[0]*scale + r
+      var miny = c[1]*scale - r
+      var maxy = c[1]*scale + r
+                                 
+      if (cur[0] < maxx && cur[0] > minx && cur[1] < maxy && cur[1] > miny) {
+        hover = i
+      }
+    })
+
+    _draw()
+  })
+  
+  
+  // Return x,y offset for event
+  function _get_xy(e, obj) {
+    if (e.offsetX == undefined) {
+      return [e.pageX-$(obj).offset().left, e.pageY-$(obj).offset().top]
+    } else {
+      return [e.offsetX, e.offsetY]
+    }
+  }
+  
+  // Set selection on focus
+  $('table.samples tbody tr').each(function(i,e) {
+    $('input, select', this).focus(function(i,e) {
+      $('table.samples tbody tr').removeClass('selected')
+      $(this).closest('tr').addClass('selected')
+      hover = null
+      _draw()
+    })
+  })
   
 })
