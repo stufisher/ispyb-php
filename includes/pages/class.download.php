@@ -8,6 +8,7 @@
                               'visit' => '\w+\d+-\d+',
                               'u' => '\w+\d+',
                               's' => '\d',
+                              'log' => '\d',
                               );
         
         var $dispatch = array('ap' => '_auto_processing',
@@ -20,7 +21,7 @@
 
         
         # ------------------------------------------------------------------------
-        # Download mtz file for Fast DP / XIA2
+        # Download mtz/log file for Fast DP / XIA2
         function _auto_processing() {
             if (!$this->has_arg('id')) $this->error('No data collection', 'No data collection id specified');
             if (!$this->has_arg('aid')) $this->error('No auto processing id', 'No auto processing id specified');
@@ -28,26 +29,34 @@
             $rows = $this->db->pq('SELECT appa.filename,appa.filepath,appa.filetype FROM ispyb4a_db.autoprocintegration api INNER JOIN ispyb4a_db.autoprocscaling_has_int aph ON api.autoprocintegrationid = aph.autoprocintegrationid INNER JOIN ispyb4a_db.autoprocscaling aps ON aph.autoprocscalingid = aps.autoprocscalingid INNER JOIN ispyb4a_db.autoproc ap ON aps.autoprocid = ap.autoprocid INNER JOIN ispyb4a_db.autoprocprogram app ON api.autoprocprogramid = app.autoprocprogramid INNER JOIN ispyb4a_db.autoprocprogramattachment appa ON appa.autoprocprogramid = app.autoprocprogramid WHERE api.datacollectionid = :1 AND api.autoprocprogramid=:2', array($this->arg('id'), $this->arg('aid')));
             
             foreach ($rows as $r) {
-                // XIA2
-                if ($r['FILETYPE'] == 'Result') {
-                    $f = $r['FILEPATH'].'/'.$r['FILENAME'];
-                    if (file_exists($f)) {
-                        $this->_header($r['FILENAME']);
+                if ($this->has_arg('log')) {
+                    if ($r['FILETYPE'] == 'Log') {
+                        $f = $r['FILEPATH'].'/'.$r['FILENAME'];
+                        //$this->_header($this->arg('aid').'_'.$r['FILENAME']);
+                        if ($r['FILENAME'] == 'fast_dp.log') header("Content-Type: text/plain");
                         readfile($f);
+                    }
+                
+                } else {
+                    // XIA2
+                    if ($r['FILETYPE'] == 'Result') {
+                        $f = $r['FILEPATH'].'/'.$r['FILENAME'];
+                        if (file_exists($f)) {
+                            $this->_header($r['FILENAME']);
+                            readfile($f);
+                            
+                        } $this->error('No such file', 'The specified auto processing file doesnt exist');
                         
-                    } $this->error('No such file', 'The specified auto processing file doesnt exist');
-                    
-                } else if ($r['FILETYPE'] == 'Log' && $r['FILENAME'] == 'fast_dp.log') {
-                    $f = $r['FILEPATH'].'/fast_dp.mtz';
-                    if (file_exists($f)) {
-                        $this->_header($this->arg('aid').'_fast_dp.mtz');
-                        readfile();
-                        
-                    } $this->error('No such file', 'The specified auto processing file doesnt exist');
+                    } else if ($r['FILETYPE'] == 'Log' && $r['FILENAME'] == 'fast_dp.log') {
+                        $f = $r['FILEPATH'].'/fast_dp.mtz';
+                        if (file_exists($f)) {
+                            $this->_header($this->arg('aid').'_fast_dp.mtz');
+                            readfile();
+                            
+                        } $this->error('No such file', 'The specified auto processing file doesnt exist');
+                    }
                 }
             }
-            
-            print_r($rows);
         }
         
         
@@ -78,13 +87,78 @@
         
         
         # ------------------------------------------------------------------------
-        # Return mtz file for fast_ep and dimple
+        # Return pdb/mtz/log file for fast_ep and dimple
         function _ep_mtz() {
+            $info = $this->db->pq('SELECT dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE dc.datacollectionid=:1', array($this->arg('id')));
             
+            if (!sizeof($info)) $this->error('No such data collection', 'The specified data collection does not exist');
+            else $info = $info[0];
+            
+            $info['DIR'] = $this->ads($info['DIR']);
+
+            $root = str_replace($info['VIS'], $info['VIS'] . '/processed', $info['DIR']).$info['IMP'].'_'.$info['RUN'].'_'.'/fast_ep/';
+            $file = $root . 'sad.mtz';
+            
+            if (file_exists($file)) {
+                if ($this->has_arg('log')) {
+                    //$this->_header($this->arg('id').'_fast_ep.log');
+                    header("Content-Type: text/plain");
+                    readfile($root.'fast_ep.log');
+                    
+                } else {
+                    if (!file_exists('/tmp/'.$this->arg('id').'_fast_ep.tar.gz')) {
+                        $a = new PharData('/tmp/'.$this->arg('id').'_fast_ep.tar');
+
+                        $a->addFile($file, 'sad.mtz');
+                        $a->addFile($root.'sad_fa.pdb', 'sad_fa.pdb');
+                        $a->compress(Phar::GZ);
+
+                        unlink('/tmp/'.$this->arg('id').'_fast_ep.tar');
+                    }
+                    
+                    $this->_header($this->arg('id').'_fast_ep.tar.gz');
+                    readfile('/tmp/'.$this->arg('id').'_fast_ep.tar.gz');
+                }
+                
+                
+            } else $this->error('File not found', 'Fast EP files were not found');
         }
         
+        
         function _dimple_mtz() {
+            $info = $this->db->pq('SELECT dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE dc.datacollectionid=:1', array($this->arg('id')));
             
+            if (!sizeof($info)) $this->error('No such data collection', 'The specified data collection does not exist');
+            else $info = $info[0];
+            
+            $info['DIR'] = $this->ads($info['DIR']);
+
+            $root = str_replace($info['VIS'], $info['VIS'] . '/processed', $info['DIR']).$info['IMP'].'_'.$info['RUN'].'_'.'/fast_dp/dimple/';
+            $file = $root . 'final.pdb';
+            
+            if (file_exists($file)) {
+                if ($this->has_arg('log')) {
+                    //$this->_header($this->arg('id').'_dimple.log');
+                    header("Content-Type: text/plain");
+                    readfile($root.'08-refmac5_rigid.log');
+                    
+                } else {
+                    if (!file_exists('/tmp/'.$this->arg('id').'_dimple.tar.gz')) {
+                        $a = new PharData('/tmp/'.$this->arg('id').'_dimple.tar');
+
+                        $a->addFile($file, 'final.pdb');
+                        $a->addFile($root.'final.mtz', 'final.mtz');
+                        $a->compress(Phar::GZ);
+
+                        unlink('/tmp/'.$this->arg('id').'_dimple.tar');
+                    }
+                    
+                    $this->_header($this->arg('id').'_dimple.tar.gz');
+                    readfile('/tmp/'.$this->arg('id').'_dimple.tar.gz');
+                }
+                
+                
+            } else $this->error('File not found', 'Dimple files were not found');
         }
         
         
