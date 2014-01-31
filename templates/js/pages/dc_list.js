@@ -11,8 +11,8 @@ $(function() {
   // Hash of distl plots
   var distl = {}
   
-  $('a.vstat').button({ icons: { primary: 'ui-icon-image' }, text: false  })
-  $('a.blstat').button({ icons: { primary: 'ui-icon-check' }, text: false  })
+  $('a.vstat').button({ icons: { primary: 'ui-icon-image' }, text: true })
+  $('a.blstat').button({ icons: { primary: 'ui-icon-check' }, text: true })
   
   $('input[name=search]').focus()
   
@@ -420,7 +420,7 @@ $(function() {
                 
            // Update sample details
            if (dcv['SAN'] && !$(md).find('.sample').length) {
-             $('<li class="sample">Sample: <a href="/sample/sid/'+dcv['SID']+'">' + dcv['SAN'] + ' (m' + dcv['SCON'] + 'p' + dcv['SPOS']+')</a></li>').prependTo($(md).children('ul'))
+             $('<li class="sample"><span class="wrap">Sample: <a href="/sample/sid/'+dcv['SID']+'">' + dcv['SAN'] + ' (m' + dcv['SCON'] + 'p' + dcv['SPOS']+')</a></span></li>').prependTo($(md).children('ul'))
            }
                 
            // Add flux if available
@@ -830,7 +830,7 @@ $(function() {
                    '<th>Observations</th>' +
                    '<th>Unique</th>' +
                    '<th>Resolution</th>' +
-                   '<th>Rmerge</th>' +
+                   '<th>Rmeas</th>' +
                    '<th>I/sig(I)</th>' +
                    '<th>Completeness</th>' +
                    '<th>Multiplicity</th>' +
@@ -858,7 +858,7 @@ $(function() {
                                 '<td>'+s['NTOBS']+'</td>' +
                                 '<td>'+s['NUOBS']+'</td>' +
                                 '<td>'+s['RHIGH']+' - '+s['RLOW']+'</td>' +
-                                '<td>'+s['RMERGE']+'</td>' +
+                                '<td>'+s['RMEAS']+'</td>' +
                                 '<td>'+s['ISIGI']+'</td>' +
                                 '<td>'+s['COMPLETENESS']+'</td>' +
                                 '<td>'+s['MULTIPLICITY']+'</td>' +
@@ -873,7 +873,7 @@ $(function() {
           var tab = ''
           $.each(aps, function(aid,ap) {
             out += '<div id="' + aid + '" aid="'+aid+'" did="'+id+'">'+
-                     '<p><a href="/download/id/'+id+'/aid/'+aid+'">Download mtz file</a>'+(ap[0]=='Fast DP' ? ' | <a href="#" class="rd_link">Radiation Damage Analysis</a>':'')+'</p>'+
+                     '<p class="r downloads"><a class="dll" href="/download/id/'+id+'/aid/'+aid+'">MTZ file</a> <a class="view" href="/download/id/'+id+'/aid/'+aid+'/log/1">Log file</a>'+(ap[0]=='Fast DP' ? ' <a href="#" class="view rd_link">Radiation Damage</a>':'')+'</p>'+
                      ap[1]+
                      '<table class="reflow shell">'+dt+ap[2].join(' ')+'</table></div>'
             tab += '<li><a href="#' + aid + '">'+ap[0]+'</a></li>'
@@ -883,6 +883,9 @@ $(function() {
            else out = '<p>No auto processing results found for this data collection</p>'
 
            d.html(out)
+           $('a.view').button({ icons: { primary: 'ui-icon-search' } })
+           $('a.dll').button({ icons: { primary: 'ui-icon-arrowthick-1-s' } })
+           
            //$('.dlmtz').button({ icons: { primary: 'ui-icon-arrowthick-1-s' } })
            
            $('a.rd_link').unbind('click').click(function() {
@@ -1061,6 +1064,7 @@ $(function() {
                                '</tr></thead>'
 
                   types[r['TYPE']].push('<div class="plot_fastep"></div>')
+                  types[r['TYPE']].push('<p class="r"><a class="dll" href="/download/ep/id/'+id+'">PDB/MTZ file</a> <a class="view" href="/download/ep/id/'+id+'/log/1">Log file</a></p>')
                   types[r['TYPE']].push('<ul><li>Figure of Merit: '+r['FOM']+'</li><li>Pseudo-free CC: '+r['CC']+'</li></ul>')
                   types[r['TYPE']].push('<table class="atoms">'+thead+table+'</table>')
 
@@ -1091,6 +1095,7 @@ $(function() {
                     }
                   
                     types[r['TYPE']].push('<div class="blobs">'+blobs+'</div>' +
+                                          '<p class="r"><a class="dll" href="/download/dimple/id/'+id+'">PDB/MTZ file</a> <a class="view" href="/download/dimple/id/'+id+'/log/1">Log file</a></p>'+
                                           '<table class="rstats"><tr>' + stats.join('</tr><tr>') + '</tr></table>' +
                                           '<div class="plot_dimple"></div>')
                   }
@@ -1110,6 +1115,7 @@ $(function() {
             else out = '<p>No downstream processing found for this data collection</p>'
 
             d.html(out)
+           
             $('.data_collection .blobs').each(function(i,e) {
               $(e).magnificPopup({
                 delegate: 'a', type: 'image',
@@ -1152,6 +1158,8 @@ $(function() {
     
             d.tabs('refresh')
             d.tabs('option', 'active', 0)
+            $('a.view').button({ icons: { primary: 'ui-icon-search' } })
+            $('a.dll').button({ icons: { primary: 'ui-icon-arrowthick-1-s' } })
             d.slideDown();
         }
     })
