@@ -61,6 +61,9 @@ table.pad tr td {
     padding: 9px;
 }
 
+table tr.dc td {
+    background: #efefef;
+}
 
 table tr th {
     background: #cdcdcd;

@@ -60,7 +60,7 @@
 
             <tbody>
             <?php foreach ($dcs as $i => $d): ?>
-                <tr <?php echo $d['OVERLAP'] != 0 ? 'class="screen"' : '' ?>>
+                <tr <?php echo $d['OVERLAP'] == 0 ? 'class="dc"' : '' ?>>
                     <td><?php echo $d['NAME'] ?></td>
                     <!--<td><?php echo $d['DIR'].$d['IMAGEPREFIX'].'_'.$d['DATACOLLECTIONNUMBER'] ?></td>-->
                     <td><?php echo $d['NUMBEROFIMAGES'] ?></td>
