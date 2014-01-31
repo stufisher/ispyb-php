@@ -201,7 +201,7 @@
 }
 
 
-.table.dewars,.table.history,.table.sample {
+.table.history {
     @extend .table.tw;
 }
 
@@ -212,7 +212,15 @@ html[xmlns] .dataTables_wrapper { display: block; }
 
 
 .reflow {
+    .top {
+        display: none;
+    }
+    
     @media (max-width: $breakpoint-vsmall) {
+        .top {
+            display: inline-block;
+        }
+        
         tr.innerShell {
             display: none;
         }
@@ -271,7 +279,7 @@ html[xmlns] .dataTables_wrapper { display: block; }
             td:nth-of-type(2):before { content: "Observations"; }
             td:nth-of-type(3):before { content: "Unique"; }
             td:nth-of-type(4):before { content: "Resolution"; }
-            td:nth-of-type(5):before { content: "Rmerge"; }
+            td:nth-of-type(5):before { content: "Rmeas"; }
             td:nth-of-type(6):before { content: "I/sig(I)"; }
             td:nth-of-type(7):before { content: "Completeness"; }
             td:nth-of-type(8):before { content: "Multiplicity"; }
