@@ -16,7 +16,7 @@
 
 
     <?php if ($active): ?>
-    <h1 class="status">Beamline Status</h1>
+    <h1 class="status"><?php echo $bl ?> Beamline Status</h1>
     <div class="status">
         <div class="pvs"></div>
 
@@ -36,10 +36,12 @@
             <li id="flag">Favourite</li>
         </ul>
 
-        <?php if ($this->staff && $is_visit): ?>
+        <?php if ($is_visit): ?>
         <div class="ra">
             <a href="/vstat/bag/<?php echo $vid ?>/visit/<?php echo $vno ?>" title="Visit Statistics" class="vstat">Visit Stats</a>
-            <a href="/status/bl/<?php echo $bl ?>" title="Beamline Status" class="blstat">Beamline Status</a>
+            <?php if ($this->staff): ?>
+                <a href="/status/bl/<?php echo $bl ?>" title="Beamline Status" class="blstat">Beamline Status</a>
+            <?php endif; ?>
         </div>
         <?php endif; ?>
     </div>
