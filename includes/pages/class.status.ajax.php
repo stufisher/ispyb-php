@@ -30,7 +30,7 @@
             if (!$this->has_arg('bl')) $this->_error('No beamline specified');
             
             $ring_pvs = array('Ring Current' => 'SR-DI-DCCT-01:SIGNAL',
-                              'Ring State' => 'CS-CS-MSTAT-01:MODE',
+                              //'Ring State' => 'CS-CS-MSTAT-01:MODE',
                               'Refill' => 'SR-CS-FILL-01:COUNTDOWN'
                               );
             
@@ -39,16 +39,22 @@
                                            'Port Shutter' => 'FE02I-PS-SHTR-01:STA',
                                            'Expt Shutter' => 'BL02I-PS-SHTR-01:STA',
                                            'Fast Shutter' => 'BL02I-EA-SHTR-01:SHUTTER_STATE',
+                                           'Wavelength' => 'BL03I-OP-DCM-01:WLRB',
+                                           'Transmission' => 'BL03I-EA-ATTN-01:CONV_TRANS_RBV',
                                            ),
                             'i03' => array('Hutch' => 'BL03I-PS-IOC-01:M14:LOP',
                                            'Port Shutter' => 'FE03I-PS-SHTR-01:STA',
                                            'Expt Shutter' => 'BL03I-PS-SHTR-01:STA',
                                            'Fast Shutter' => 'BL03I-EA-SHTR-01:SHUTTER_STATE',
+                                           'Wavelength' => 'BL03I-OP-DCM-01:WLRB',
+                                           'Transmission' => 'BL03I-EA-ATTN-01:CONV_TRANS_RBV',
                                            ),
                             'i04' => array('Hutch' => 'BL04I-PS-IOC-01:M14:LOP',
                                            'Port Shutter' => 'FE04I-PS-SHTR-01:STA',
                                            'Expt Shutter' => 'BL04I-PS-SHTR-01:STA',
                                            'Fast Shutter' => 'BL04I-EA-SHTR-01:SHUTTER_STATE',
+                                           'Wavelength' => 'BL04I-OP-DCM-01:WLRB',
+                                           'Transmission' => 'BL04I-EA-ATTN-01:CONV_TRANS_RBV',
                                            ),
                             'i04-1' => array('Hutch' => 'BL04J-PS-IOC-01:M14:LOP',
                                            'Port Shutter' => 'FE04I-PS-SHTR-01:STA',
@@ -59,6 +65,8 @@
                                            'Port Shutter' => 'FE24I-PS-SHTR-01:STA',
                                            'Expt Shutter' => 'BL24I-PS-SHTR-01:STA',
                                            'Fast Shutter' => 'BL24I-EA-SHTR-01:EQU:POSN',
+                                           'Wavelength' => 'BL24I-OP-DCM-01:LAMBDA.RBV',
+                                           'Transmission' => 'BL24I-OP-ATTN-01:MATCH',
                                            ),
                             );
             
