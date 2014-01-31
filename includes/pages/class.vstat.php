@@ -1,8 +1,4 @@
 <?php
-    require_once('xmlrpc/xmlrpc.inc');
-    require_once('xmlrpc/xmlrpcs.inc');
-    require_once('xmlrpc/xmlrpc_wrappers.inc');
-    
     
     class Vstat extends Page {
         
@@ -430,47 +426,7 @@
             
             $this->render('vstat_visit');
         }
-        
-        
-        // Talk to channel archiver to get a pv
-        function _get_archive($pv, $s, $e, $n=100) {
-            $m = new xmlrpcmsg('archiver.values', array(
-                    new xmlrpcval(1000, 'int'),
-                    new xmlrpcval(array(new xmlrpcval($pv,'string')), 'array'),
-                    new xmlrpcval($s,'int'),
-                    new xmlrpcval(0,'int'),
-                    new xmlrpcval($e,'int'),
-                    new xmlrpcval(0,'int'),
-                    new xmlrpcval($n,'int'),
-                    new xmlrpcval(2,'int'),
-                    ));
-            $c = new xmlrpc_client("/archive/cgi/ArchiveDataServer.cgi", "archiver.pri.diamond.ac.uk", 80);
-            
-            $r = $c->send($m);
-            $val = $r->value();
-            
-            if ($val) {
-                $str = $val->arrayMem(0);
-                $vals = $str->structMem('values');
-                
-                $ret = array();
-                for ($i = 0; $i < $vals->arraySize(); $i++) {
-                    $vs = $vals->arrayMem($i);
-                    $v = $vs->structMem('value')->arrayMem(0)->scalarVal();
-                    $t = $vs->structMem('secs')->scalarVal()-3600;
-                                    
-                    $inputTZ = new DateTimeZone('Europe/London');
-                    $transitions = $inputTZ->getTransitions($t, $t);
-                    if ($transitions[0]['isdst']) $t += 3600;
-                                    
-                    array_push($ret, array($t,$v));
-                }
-            
-                return $ret;
-            }
-        }
     
-
     }
 
 ?>
