@@ -57,7 +57,12 @@ table.border tr td {
     padding: 3px;
 }
 
-table tr.head th {
+table.pad tr td {
+    padding: 9px;
+}
+
+
+table tr th {
     background: #cdcdcd;
 }
 
@@ -102,7 +107,7 @@ table tr.head th {
 }
 
 table {
-    margin: 20px;
+    margin-top: 10px;
 }
 
 .grey {

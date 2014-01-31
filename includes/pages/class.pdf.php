@@ -16,9 +16,14 @@
         var $arg_list = array('visit' => '\w+\d+\-\d+',
                               'sid' => '\d+',
                               'p' => '\d',
+                              'cid' => '\d+',
+                              'did' => '\d+',
+                              'sid' => '\d+',
                               );
+        
         var $dispatch = array('shipment' => '_shipment_label',
                               'report' => '_visit_report',
+                              'container' => '_container_report',
                               );
         var $def = 'shipment';
 
@@ -57,17 +62,134 @@
         function _visit_report() {
             if (!$this->has_arg('visit')) $this->error('No visit specified', 'You need to specify a visit to view this page');
             
-            $info = $this->db->pq("SELECT (s.enddate - s.startdate)*24 as len, s.sessionid as sid, s.beamlinename, TO_CHAR(s.startdate, 'DD_MM_YYYY') as st, TO_CHAR(s.enddate, 'DD_MM_YYYY') as en, p.proposalcode||p.proposalnumber||'-'||s.visit_number as visit, p.proposalcode||p.proposalnumber as prop FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE p.proposalcode||p.proposalnumber||'-'||s.visit_number LIKE :1", array($this->arg('visit')));
+            $info = $this->db->pq("SELECT (s.enddate - s.startdate)*24 as len, s.sessionid as sid, s.beamlinename, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st, TO_CHAR(s.enddate, 'DD-MM-YYYY HH24:MI') as en, p.proposalcode||p.proposalnumber||'-'||s.visit_number as visit, p.proposalcode||p.proposalnumber as prop FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE p.proposalcode||p.proposalnumber||'-'||s.visit_number LIKE :1", array($this->arg('visit')));
             
             if (!sizeof($info)) $this->error('No such visit', 'The specified visit doesnt exist');
             else $info = $info[0];
             
             $this->info = $info;
             
-            $rows = $this->db->pq("SELECT dc.imageprefix,s.beamlinename,dc.datacollectionnumber,TO_CHAR(dc.starttime, 'DD/MM/YYYY HH24:MI:SS'), sa.name, p.name as protein, dc.numberofimages, dc.wavelength, dc.detectordistance, dc.exposuretime, dc.axisstart, dc.axisrange, dc.xbeam, dc.ybeam, dc.resolution, dc.comments FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid = dc.sessionid LEFT OUTER JOIN ispyb4a_db.blsample sa ON dc.blsampleid = sa.blsampleid LEFT OUTER JOIN ispyb4a_db.crystal c ON sa.crystalid = c.crystalid LEFT OUTER JOIN ispyb4a_db.protein p ON c.proteinid = p.proteinid WHERE dc.sessionid=:1 ORDER BY dc.starttime", array($info['SID']));
+            $this->users = $this->db->pq("SELECT u.name,u.fullname FROM investigation@DICAT_RO i INNER JOIN investigationuser@DICAT_RO iu on i.id = iu.investigation_id INNER JOIN user_@DICAT_RO u on u.id = iu.user_id WHERE lower(i.visit_id)=:1 AND iu.role='NORMAL_USER'", array($info['VISIT']));
+            
+            $lc = $this->lc_lookup($info['SID']);
+            $this->lc = $lc ? $lc->name : 'N/A';
+            
+            $rows = $this->db->pq("SELECT dc.datacollectionid as id, dc.overlap,dc.imageprefix,dc.imagedirectory as dir,dc.datacollectionnumber,TO_CHAR(dc.starttime, 'DD/MM/YYYY HH24:MI:SS'), sa.name, p.name as protein, dc.numberofimages, dc.wavelength, dc.detectordistance, dc.exposuretime, dc.axisstart, dc.axisrange, dc.xbeam, dc.ybeam, dc.resolution, dc.comments FROM ispyb4a_db.datacollection dc LEFT OUTER JOIN ispyb4a_db.blsample sa ON dc.blsampleid = sa.blsampleid LEFT OUTER JOIN ispyb4a_db.crystal c ON sa.crystalid = c.crystalid LEFT OUTER JOIN ispyb4a_db.protein p ON c.proteinid = p.proteinid WHERE dc.sessionid=:1 ORDER BY dc.starttime", array($info['SID']));
+            
+            $screen = array();
+            $dcs = array();
+            foreach ($rows as $dc) {
+                if ($dc['OVERLAP'] == 0) array_push($dcs, 'api.datacollectionid='.$dc['ID']);
+                else array_push($screen, 'datacollectionid='.$dc['ID']);
+            }
+            
+            $screen = implode(' OR ', $screen);
+            $dcs = implode(' OR ', $dcs);
+            
+            $aps = $this->db->pq("SELECT api.datacollectionid as id, app.autoprocprogramid,app.processingcommandline as type, apss.ntotalobservations as ntobs, apss.ntotaluniqueobservations as nuobs, apss.resolutionlimitlow as rlow, apss.resolutionlimithigh as rhigh, apss.scalingstatisticstype as shell, apss.rmeasalliplusiminus as rmeas, apss.rmerge, apss.completeness, apss.anomalouscompleteness as anomcompleteness, apss.anomalousmultiplicity as anommultiplicity, apss.multiplicity, apss.meanioversigi as isigi, ap.spacegroup as sg, ap.refinedcell_a as cell_a, ap.refinedcell_b as cell_b, ap.refinedcell_c as cell_c, ap.refinedcell_alpha as cell_al, ap.refinedcell_beta as cell_be, ap.refinedcell_gamma as cell_ga FROM ispyb4a_db.autoprocintegration api INNER JOIN ispyb4a_db.autoprocscaling_has_int aph ON api.autoprocintegrationid = aph.autoprocintegrationid INNER JOIN ispyb4a_db.autoprocscaling aps ON aph.autoprocscalingid = aps.autoprocscalingid INNER JOIN ispyb4a_db.autoproc ap ON aps.autoprocid = ap.autoprocid INNER JOIN ispyb4a_db.autoprocscalingstatistics apss ON apss.autoprocscalingid = aph.autoprocscalingid INNER JOIN ispyb4a_db.autoprocprogram app ON api.autoprocprogramid = app.autoprocprogramid WHERE $dcs", array($this->arg('id')));
+            
+            $types = array('fast_dp' => 1, '-3da ' => 3, '-2da ' => 2, '-3daii ' => 4);
+            $dts = array('cell_a', 'cell_b', 'cell_c', 'cell_al', 'cell_be', 'cell_ga');
+            $dts2 = array('rlow', 'rhigh');
+            
+            $ap = array();
+            foreach ($aps as &$a) {
+                foreach ($types as $id => $name) {
+                    if (strpos($a['TYPE'], $id)) {
+                        $a['TYPE'] = $name;
+                        break;
+                    }
+                }
+                
+                foreach ($dts as $d) {
+                    $a[strtoupper($d)] = number_format($a[strtoupper($d)], 2);
+                }
+                
+                
+                if (!array_key_exists($a['ID'], $ap)) $ap[$a['ID']] = array();
+                if (!array_key_exists($a['TYPE'], $ap[$a['ID']])) $ap[$a['ID']][$a['TYPE']] = array();
+                
+                $a['ISIGI'] = number_format($a['ISIGI'], 1);
+                $a['RMEAS'] = number_format($a['RMEAS'], 3);
+                $a['COMPLETENESS'] = number_format($a['COMPLETENESS'], 1);
+                
+                $ap[$a['ID']][$a['TYPE']][$a['SHELL']] = $a;
+            }
+
+            foreach ($rows as &$dc) {
+                if (array_key_exists($dc['ID'], $ap)) {
+                    $a = $ap[$dc['ID']][max(array_keys($ap[$dc['ID']]))];
+                    
+                    $o = $a['overall'];
+                    $dc['SG'] = $o['SG'];
+                    $dc['CELL'] = $o['CELL_A'].', '.$o['CELL_B'].', '.$o['CELL_C'].'<br/>'.$o['CELL_AL'].', '.$o['CELL_BE'].', '.$o['CELL_GA'];
+                    
+                    $dc['AP'] = array($o,$a['innerShell'],$a['outerShell']);
+                    
+                } else {
+                    $dc['SG'] = '';
+                    $dc['CELL'] = '';
+                    $dc['AP'] = array();
+                }
+                
+                $dc['DIR'] = preg_replace('/.*\/\d\d\d\d\/\w\w\d+-\d+\//', '', $dc['DIR']);
+            }
             
             $this->dcs = $rows;
             
+            $rows = $this->db->pq("SELECT sa.name, p.name as protein, es.element, es.peakfprime, es.exposuretime, es.peakfdoubleprime, TO_CHAR(es.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, es.transmissionfactor as transmission, es.inflectionfprime, es.inflectionfdoubleprime, es.comments, es.peakenergy, es.inflectionenergy FROM ispyb4a_db.energyscan es LEFT OUTER JOIN blsample_has_energyscan she ON she.energyscanid = es.energyscanid LEFT OUTER JOIN ispyb4a_db.blsample sa ON she.blsampleid = sa.blsampleid LEFT OUTER JOIN ispyb4a_db.crystal c ON sa.crystalid = c.crystalid LEFT OUTER JOIN ispyb4a_db.protein p ON c.proteinid = p.proteinid WHERE es.sessionid=:1 ORDER BY es.starttime", array($info['SID']));
+            
+            foreach ($rows as &$r) $r['TRANSMISSION']*= 100;
+            
+            $this->ess = $rows;
+            
+            $rows = $this->db->pq("SELECT sa.name, p.name as protein, xrf.filename as dir, xrf.exposuretime, TO_CHAR(xrf.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, xrf.beamtransmission as transmission, xrf.energy, xrf.comments FROM ispyb4a_db.xfefluorescencespectrum xrf LEFT OUTER JOIN ispyb4a_db.blsample sa ON xrf.blsampleid = sa.blsampleid LEFT OUTER JOIN ispyb4a_db.crystal c ON sa.crystalid = c.crystalid LEFT OUTER JOIN ispyb4a_db.protein p ON c.proteinid = p.proteinid WHERE xrf.sessionid=:1 ORDER BY xrf.starttime", array($info['SID']));
+            
+            foreach ($rows as &$r) {
+                $results = str_replace('.mca', '.results.dat', preg_replace('/(data\/\d\d\d\d\/\w\w\d+-\d+)/', '\1/processed/pymca', $r['DIR']));
+                    
+                $elements = array();
+                if (file_exists($results)) {
+                    $dat = explode("\n",file_get_contents($results));
+                    foreach ($dat as $i => $d) {
+                        $l = explode(' ', $d);
+                        if ($i < 5) array_push($elements, $l[0]);
+                    }
+                }
+                
+                $r['ELEMENTS'] = $elements;
+            }
+
+            $this->fls = $rows;
+            
+            
+            // Beam status
+            $bs = $this->_get_archive('SR-DI-DCCT-01:SIGNAL', strtotime($info['ST']), strtotime($info['EN']), 200);
+            if (!sizeof($bs)) $bs = array();
+            
+            $lastv = 0;
+            $ex = 3600*1000;
+            $bd = False;
+            $total_no_beam = 0;
+            foreach ($bs as $i => $b) {
+                $v = $b[1] < 5 ? 1 : 0;
+                $c = $b[0]*1000;
+                
+                if (($v != $lastv) && $v) {
+                    $bd = True;
+                    $st = $c;
+                }
+                
+                if ($lastv && ($v != $lastv)) {
+                    array_push($data, array('data' => array(
+                            array($st+$ex, 4, $st+$ex),
+                            array($c+$ex, 4, $st+$ex)), 'color' => 'black', 'status' => ' Beam Dump'));
+                    $bd = False;
+                    $total_no_beam += ($c - $st) / 1000;
+                }
+                
+                $lastv = $v;
+            }
             
             # Percentage breakdown of time used
             list($dc) = $this->db->pq("SELECT TO_CHAR(MAX(dc.endtime), 'DD-MM-YYYY HH24:MI') as last, SUM(dc.endtime - dc.starttime)*24 as dctime, GREATEST((max(s.enddate)-max(dc.endtime))*24,0) as rem, GREATEST((min(dc.starttime)-min(s.startdate))*24,0) as sup  FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON dc.sessionid=s.sessionid WHERE dc.sessionid=:1 ORDER BY min(s.startdate)", array($info['SID']));
@@ -83,19 +205,62 @@
             $fa = array_key_exists('DCTIME', $fa) ? $fa['DCTIME'] : 0;
             $t = max($info['LEN'] - $dc['SUP'] - $dc['DCTIME'] - $dc['REM'] - $rb - $ed,0);
             
-            $pie = array();
-            array_push($pie, array('label'=>'Startup', 'color'=>'grey', 'data'=>$dc['SUP']));
-            array_push($pie, array('label'=>'Data Collection', 'color'=> 'green', 'data'=>$dc['DCTIME']));
-            array_push($pie, array('label'=>'Energy Scans', 'color'=> 'orange', 'data'=>$ed));
-            array_push($pie, array('label'=>'Robot Actions', 'color'=> 'blue', 'data'=>$rb));
-            array_push($pie, array('label'=>'Thinking', 'color'=> 'purple', 'data'=>$t));
-            array_push($pie, array('label'=>'Remaining', 'color'=> 'red', 'data'=>$dc['REM']));
-            array_push($pie, array('label'=>'Beam Dump', 'color'=> 'black', 'data'=>$total_no_beam/3600));
-            array_push($pie, array('label'=>'Faults', 'color'=> 'black', 'data'=>$fa));
+            $this->br = array(
+                'Startup' => $dc['SUP'],
+                'Data Collection' => $dc['DCTIME'],
+                'Energy Scans' => $ed,
+                'Robot Actions' => $rb,
+                'Thinking' => $t,
+                'Remaining' => $dc['REM'],
+                'Beam Dump' => $total_no_beam/3600,
+                'Faults' => $fa,
+            );
             
             $this->_render('visit_report', 'L');
         }
         
+        
+        # ------------------------------------------------------------------------
+        # Report of containers from a dewar
+        function _container_report() {
+            if (!($this->has_arg('cid') || $this->has_arg('did') || $this->has_arg('sid'))) $this->error('No container, dewar, or shipment', 'No container, dewar, or shipment was specified');
+            if (!$this->has_arg('prop')) $this->error('No proposal specified', 'No proposal was specified');
+            
+            if ($this->has_arg('cid')) {
+                $where = 'c.containerid=:2';
+                $args = $this->arg('cid');
+            }
+            
+            if ($this->has_arg('did')) {
+                $where = 'd.dewarid=:2';
+                $args = $this->arg('did');
+            }
+            
+            if ($this->has_arg('sid')) {
+                $where = 's.shippingid=:2';
+                $args = $this->arg('sid');
+            }
+            
+            
+            $containers = $this->db->pq("SELECT p.proposalcode||p.proposalnumber as prop, c.containerid,c.code as container, d.code as dewar, s.shippingname as shipment FROM ispyb4a_db.container c INNER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid INNER JOIN ispyb4a_db.shipping s ON s.shippingid = d.shippingid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE p.proposalid=:1 AND $where", array($this->proposalid, $args));
+            
+            
+            foreach ($containers as &$c) {
+                $c['SAMPLES'] = $this->db->pq("SELECT sp.code, sp.comments, sp.name, to_number(sp.location) as location, pr.acronym, cr.spacegroup FROM blsample sp INNER JOIN crystal cr ON sp.crystalid = cr.crystalid INNER JOIN protein pr ON cr.proteinid = pr.proteinid INNER JOIN container c ON sp.containerid = c.containerid INNER JOIN dewar d ON d.dewarid = c.dewarid INNER JOIN shipping s ON s.shippingid = d.shippingid WHERE pr.proposalid=:1 AND c.containerid = :2 ORDER BY to_number(sp.location)", array($this->proposalid,$c['CONTAINERID']));
+                
+                $used = array();
+                foreach($c['SAMPLES'] as $r) array_push($used, $r['LOCATION']);
+                $tot = array();
+                for ($i = 1; $i < 17; $i++) array_push($tot, $i);
+                
+                foreach (array_diff($tot, $used) as $i => $d) {
+                    array_splice($c['SAMPLES'], $d-1, 0, array(array('COMMENTS' => '', 'NAME' => '', 'LOCATION' => $d, 'ACRONYM' => '', 'SPACEGROUP' => '', 'CODE' => '')));
+                }
+            }
+            
+            $this->containers = $containers;
+            $this->_render('container', 'L');            
+        }
         
         
         

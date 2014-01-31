@@ -31,7 +31,7 @@
             <br />
             <br />
 
-            <table class="center pad px500">
+            <table class="center px500">
                 <tr>
                     <td class="grey px150">Label</td>
                     <td><?php echo $d['CODE'] ?></td>
@@ -50,7 +50,7 @@
                 </tr>
             </table>
 
-            <table class="center pad px500">
+            <table class="center px500">
                 <tr>
                     <td class="grey px150">Proposal</td>
                     <td><?php echo $ship['PROP'] ?></td>
