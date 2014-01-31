@@ -4,7 +4,10 @@
     <p class="help excl">Shipments need to have an outgoing and return home lab contact before shipment labels can be printed</p>
 
     <?php if ($ship['LCOUT'] && $ship['LCRET']): ?>
-    <div class="ra"><a href="/pdf/sid/<?php echo $ship['SHIPPINGID'] ?>" class="label" title="Print Shipment Labels">Print Shipment Labels</a></div>
+    <div class="ra">
+        <a href="/pdf/container/sid/<?php echo $ship['SHIPPINGID'] ?>" class="label" title="Print Shipment Contents">Print Shipment Contents</a>
+        <a href="/pdf/sid/<?php echo $ship['SHIPPINGID'] ?>" class="label" title="Print Shipment Labels">Print Shipment Labels</a>
+    </div>
     <?php endif; ?>
 
     <div class="form">
