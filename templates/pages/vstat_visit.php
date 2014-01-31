@@ -18,11 +18,11 @@
                 <li>Beamline: <?php echo $info['BL'] ?></li>
                 <li>Length: <?php echo $info['LEN'] ?> hours</li>
 
-                <li>Last Data Collection: <?php echo $last ?></li>
+                <li>Last Data: <?php echo $last ?></li>
 
-                <li>Number of Data Collections: <?php echo $info['DC_TOT'] ?></li>
-                <li>Number of Energy Scans: <?php echo $info['E_TOT'] ?></li>
-                <li>Number of Robot Actions: <?php echo $info['R_TOT'] ?></li>
+                <li>Data Collections: <?php echo $info['DC_TOT'] ?></li>
+                <li>Energy Scans: <?php echo $info['E_TOT'] ?></li>
+                <li>Robot Actions: <?php echo $info['R_TOT'] ?></li>
             </ul>
         </div>
 
