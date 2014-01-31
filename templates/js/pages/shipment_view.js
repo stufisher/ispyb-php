@@ -1,6 +1,8 @@
 $(function() {
   
   $('a.label').button({ icons: { primary: 'ui-icon-print' } })
+  $('a.prints').button({ icons: { primary: 'ui-icon-print' } })
+  
   
   // Bind links / buttons
   $('#add_dewar').button({ icons: { primary: 'ui-icon-plusthick' } }).click(function() {
@@ -92,7 +94,7 @@ $(function() {
                     '<td>'+d['DEWARSTATUS']+'</td>'+
                     '<td>'+(d['STORAGELOCATION'] ? d['STORAGELOCATION'] : '')+'</td>'+
                     '<td>'+d['CCOUNT']+'</td>'+
-                    '<td><a class="add" title="Click to add a container" href="/shipment/addc/did/'+d['DEWARID']+'">Add Container</a></td>'+
+                    '<td><a class="print" title="Click to print dewar contents" href="/pdf/container/did/'+d['DEWARID']+'">Print Dewar Report</a> <a class="add" title="Click to add a container" href="/shipment/addc/did/'+d['DEWARID']+'">Add Container</a></td>'+
                 '</tr>'
           })
            
@@ -101,6 +103,7 @@ $(function() {
           $('table.dewars tbody').html(d_out)
           
           $('a.add').button({ icons: { primary: 'ui-icon-plus' }, text: false })
+          $('a.print').button({ icons: { primary: 'ui-icon-print' }, text: false })
           $('a.track').button({ icons: { primary: 'ui-icon-extlink' }, text: false })
            
           $('.dewars tbody tr').unbind('click').click(function() {
@@ -129,7 +132,7 @@ $(function() {
         success: function(json){
           var c_out = ''
           $.each(json, function(i,c) {
-            c_out += '<li cid="'+c['CONTAINERID']+'">'+c['CODE']+' ('+c['SCOUNT']+' samples) <span class="r"><a class="view" title="Click to View Container" href="/shipment/cid/'+c['CONTAINERID']+'">View Container</a></span></li>'
+            c_out += '<li cid="'+c['CONTAINERID']+'">'+c['CODE']+' ('+c['SCOUNT']+' samples) <span class="r"><a class="print" title="Click to print container contents" href="/pdf/container/cid/'+c['CONTAINERID']+'">Print Dewar Report</a> <a class="view" title="Click to View Container" href="/shipment/cid/'+c['CONTAINERID']+'">View Container</a></span></li>'
             //<button class="delete">Delete Container</button>
                  
           })
@@ -250,7 +253,8 @@ $(function() {
   
   function _map_callbacks() {
       $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false })
-       
+      $('a.print').button({ icons: { primary: 'ui-icon-print' }, text: false })
+  
       $('button.delete').button({ icons: { primary: 'ui-icon-closethick' }, text: false }).unbind('click').click(function() {
       })
   
