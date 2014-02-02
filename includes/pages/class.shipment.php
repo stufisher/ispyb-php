@@ -150,7 +150,7 @@
         function _view_container() {
             if (!$this->has_arg('cid')) $this->error('No container specified', 'No containerid specified to view');
             
-            $cont = $this->db->pq('SELECT s.shippingid, c.code as name, d.code as dewar, s.shippingname as shipment FROM ispyb4a_db.container c INNER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid INNER JOIN ispyb4a_db.shipping s ON s.shippingid = d.shippingid INNER JOIN ispyb4a_db.proposal p ON s.proposalid = p.proposalid WHERE p.proposalcode || p.proposalnumber LIKE :1 AND c.containerid=:2', array($this->arg('prop'), $this->arg('cid')));
+            $cont = $this->db->pq('SELECT c.containerstatus,s.shippingid, c.code as name, d.code as dewar, s.shippingname as shipment FROM ispyb4a_db.container c INNER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid INNER JOIN ispyb4a_db.shipping s ON s.shippingid = d.shippingid INNER JOIN ispyb4a_db.proposal p ON s.proposalid = p.proposalid WHERE p.proposalcode || p.proposalnumber LIKE :1 AND c.containerid=:2', array($this->arg('prop'), $this->arg('cid')));
             
             
             if (!sizeof($cont)) $this->error('No such container', 'A container with that id doesnt exist');
@@ -158,6 +158,7 @@
             
             $this->template('View Container', array($cont['SHIPMENT'], $cont['DEWAR'], $cont['NAME']), array('/sid/'.$cont['SHIPPINGID'], '', ''));
             $this->t->cont = $cont;
+            $this->t->js_var('in_use', $cont['CONTAINERSTATUS'] == 'processing');
             $this->t->js_var('cid', $this->arg('cid'));
             $this->t->js_var('sg_ops', $this->sg_opts());
             

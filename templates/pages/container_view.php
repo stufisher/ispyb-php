@@ -2,6 +2,10 @@
 
     <p class="help">This page shows the contents of the selected container. Samples can be added and edited by clicking the pencil icon, and removed by clicking the x</p>
 
+    <?php if ($cont['CONTAINERSTATUS'] == 'processing'): ?>
+    <p class="help">This container is currently assigned and in use on a beamline sample changer. Unassign it to make it editable</p>
+    <?php endif; ?>
+
     <div class="form">
         <ul>
             <li>
