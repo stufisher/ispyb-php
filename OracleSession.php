@@ -7,7 +7,7 @@
         private $db;
 
         public function __construct(){
-            
+            date_default_timezone_set('Europe/London');
         }
 
         public function _open(){
