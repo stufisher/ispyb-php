@@ -334,7 +334,13 @@
                                
             if (sizeof($ds) > 0) {
                 $this->_update_history($this->arg('did'), 'unprocessing');
+                                
+                $conts = $this->db->pq("SELECT containerid as id FROM ispyb4a_db.container WHERE dewarid=:1", array($this->arg('did')));
+                foreach ($conts as $c) {
+                    $this->db->pq("UPDATE ispyb4a_db.container SET containerstatus='at DLS' WHERE containerid=:1", array($c['ID']));
+                }
                 $this->_output(1);
+                                
             }
             $this->_output(0);
         }
