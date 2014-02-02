@@ -152,14 +152,14 @@ $(document).on('pageinit', '#allocation', function() {
   // Retrieve shipments for visit
   function _get_shipments(fn) {
     $.ajax({
-      url: '/samples/ajax/ship/visit/' + visit,
+      url: '/samples/ajax/ship/visit/'+visit+'/pp/5',
       type: 'GET',
       dataType: 'json',
       timeout: 5000,
       success: function(json){
         var ship_opts = ''
            
-        $.each(json, function(i,s) {
+        $.each(json[1], function(i,s) {
             ship_opts += '<option value="'+s['SHIPPINGID']+'">'+s['SHIPPINGNAME']+'</option>';
                
             if ($.inArray(s['SHIPPINGID'], shipments) == -1) {

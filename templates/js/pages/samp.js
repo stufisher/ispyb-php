@@ -3,6 +3,8 @@ $(function() {
   var shipments = []
   var dewars = []
 
+  var ship = 1
+  
   $('.error').dialog({ autoOpen: false, buttons: { 'Close': function() { $(this).dialog('close') } } });  
   $('.confirm').dialog({ autoOpen: false, modal: true })
   
@@ -32,8 +34,10 @@ $(function() {
     var t = $('.shipment[sid='+ui.draggable.attr('sid')+']').children('.dewar[did='+ui.draggable.attr('did')+']').children('.containers')
     _confirm('Unassign Container', 'Are you sure you want to unassign this container?', function() {
 
-      ui.draggable.appendTo(t).position({ my: 'left top', at: 'left top', of: t})
-      ui.draggable.removeClass('assigned')
+      if (t.length) {
+        ui.draggable.appendTo(t).position({ my: 'left top', at: 'left top', of: t})
+        ui.draggable.removeClass('assigned')
+      } else ui.draggable.remove()
   
       // assign db callback
       console.log('remove container id ' + ui.draggable.attr('cid'))
@@ -61,6 +65,9 @@ $(function() {
       p.children('div').html('')
       ui.draggable.appendTo(p.children('div')).position({ my: 'left top', at: 'left top', of: p.children('div')}).addClass('assigned').attr('loc', p.data('blcid'))
 
+      // set dewar as active
+      $('div.dewar[did='+ui.draggable.attr('did')+']').addClass('active')
+               
   
       // assign db callback & refresh
       console.log('add container id ' + ui.draggable.attr('cid') + ' to ' + bl +'-'+ p.data('blcid'))
@@ -99,18 +106,32 @@ $(function() {
   // Retrieve shipments for visit
   function _get_shipments(fn) {
     $.ajax({
-      url: '/samples/ajax/ship/visit/' + visit,
+      url: '/samples/ajax/ship/visit/'+visit+'/pp/5'+(ship ? ('/p/'+ship) : ''),
       type: 'GET',
       dataType: 'json',
       timeout: 5000,
       success: function(json){
-        var ship_opts = ''
+        var pgs = []
+        var pc = json[0] == 0 ? 1 : json[0]
+        for (var i = 0; i < pc; i++) pgs.push('<li><a href="#'+(i+1)+'">'+(i+1)+'</a></li>')
+        $('.pages').html('<ul>'+pgs.join('')+'</ul>')
+        $('.pages li').removeClass('selected').unbind('click').click(function() {
+          ship = parseInt($(this).children('a').attr('href').replace('#', ''))
+                                                                     
+          $('#unassigned').empty()
+          shipments = []
+          dewars = []
+          containers = {}
+          $('#assigned .container').each(function(i,e) { containers[$(this).attr('cid')] = 0 })
+                                                                     
+          _get_shipments()
+        }).eq(ship-1).addClass('selected')
            
-        $.each(json, function(i,s) {
+        var ship_opts = ''
+        $.each(json[1], function(i,s) {
             ship_opts += '<option value="'+s['SHIPPINGID']+'">'+s['SHIPPINGNAME']+'</option>';
             if ($.inArray(s['SHIPPINGID'], shipments) == -1) {
-               
-              $('<div sid="'+s['SHIPPINGID']+'" class="shipment"><h1>'+s['SHIPPINGNAME']+'</h1></div>').hide().appendTo('#unassigned').slideDown()
+              $('<div sid="'+s['SHIPPINGID']+'" class="shipment"><h1>'+s['SHIPPINGNAME']+(s['CREATED'] ? (' [Created: '+s['CREATED']+']') : '')+'</h1></div>').hide().appendTo('#unassigned').slideDown()
                
               shipments.push(s['SHIPPINGID'])
             }
@@ -134,14 +155,29 @@ $(function() {
       success: function(json){   
         $.each(json, function(i,d) {
             if ($.inArray(d['DEWARID'], dewars) == -1) { 
-               $('<div did="'+d['DEWARID']+'" class="dewar"><h1>'+d['CODE']+'</h1><div class="containers clearfix"></div></div>').hide().appendTo('div[sid='+d['SHIPPINGID']+']').addClass(d['DEWARSTATUS'] == 'processing' ? 'active' : '')
+              $('<div did="'+d['DEWARID']+'" class="dewar"><h1 class="clearfix">'+d['CODE']+'<span class="r deactivate"><button class="deact">Deactivate Dewar</button></span></h1><div class="containers clearfix"></div></div>').hide().appendTo('div.shipment[sid='+d['SHIPPINGID']+']').addClass(d['DEWARSTATUS'] == 'processing' ? 'active' : '').slideDown()
                
-               if (d['DEWARSTATUS'] == 'processing') $('div[did='+d['DEWARID']+']').slideDown()
+              // if (d['DEWARSTATUS'] == 'processing' || 1) $('div[did='+d['DEWARID']+']').slideDown()
                
               dewars.push(d['DEWARID'])
             }
         })
-         
+           
+        $('div.dewar button.deact').button({ icons: { primary: 'ui-icon-cross' } }).unbind('click').click(function() {
+          var d = $(this).closest('div.dewar')
+          $.ajax({
+            url: '/samples/ajax/deact/visit/'+visit+'/did/'+d.attr('did'),
+            type: 'GET',
+            dataType: 'json',
+            timeout: 5000,
+            success: function(json){
+              d.removeClass('active')
+              _get_dewars()
+            }
+          })
+          return false
+        })
+           
         if (fn) fn()
         _get_containers()
       }
@@ -174,16 +210,20 @@ $(function() {
             if (!(c['CONTAINERID'] in containers)) {
               sc = $('div[sid='+c['SHIPPINGID']+']').children('div[did='+c['DEWARID']+']').children('div.containers')
                
-               $('<div cid="'+c['CONTAINERID']+'" sid='+c['SHIPPINGID']+' did="'+c['DEWARID']+'" loc="'+c['SAMPLECHANGERLOCATION']+'" class="container"><span class="r"><a title="Click to view container contents" href="/shipment/cid/'+c['CONTAINERID']+'">View Container</a></span><h1>'+c['CODE']+'</h1></div>').appendTo(assigned ? ($('#blp'+a).children('div')) : sc).addClass(assigned ? 'assigned' : '').draggable(drag)
-              containers[c['CONTAINERID']] = a
+              if (!assigned || (assigned && !$('#blp'+a).children('div').children('div[cid='+c['CONTAINERID']+']').length)) {
+               
+                $('<div cid="'+c['CONTAINERID']+'" sid='+c['SHIPPINGID']+' did="'+c['DEWARID']+'" loc="'+c['SAMPLECHANGERLOCATION']+'" class="container"><span class="r"><a title="Click to view container contents" href="/shipment/cid/'+c['CONTAINERID']+'">View Container</a></span><h1>'+c['CODE']+'</h1></div>').appendTo(assigned ? ($('#blp'+a).children('div')) : sc).addClass(assigned ? 'assigned' : '').draggable(drag)
+                containers[c['CONTAINERID']] = a
+              }
                
                
             } else {
                d = $('div[cid='+c['CONTAINERID']+']')
                var state = c['SAMPLECHANGERLOCATION'] == d.attr('loc') && c['BEAMLINELOCATION'] == bl && c['DEWARSTATUS'] == 'processing'
                if (!state) {
-                 if (c['SAMPLECHANGERLOCATION'] && c['BEAMLINELOCATION'] == bl && c['DEWARSTATUS'] == 'processing') d.appendTo($('#blp'+a).children('div')).addClass('assigned')
-                 else d.appendTo($('div[sid='+c['SHIPPINGID']+']').children('div[did='+c['DEWARID']+']').children('div.containers')).removeClass('assigned')
+               if (c['SAMPLECHANGERLOCATION'] && c['BEAMLINELOCATION'] == bl && c['DEWARSTATUS'] == 'processing') {
+                   d.appendTo($('#blp'+a).children('div')).addClass('assigned')
+               } else d.appendTo($('div[sid='+c['SHIPPINGID']+']').children('div[did='+c['DEWARID']+']').children('div.containers')).removeClass('assigned')
                }
                
             }
@@ -214,10 +254,10 @@ $(function() {
   
   // Map callbacks to containers
   function map_callbacks() {
-    $('.shipment > h1').unbind('click').click(function() {
-      $(this).siblings('.dewar').slideToggle()
-      return false
-    })
+    //$('.shipment > h1').unbind('click').click(function() {
+    //  $(this).siblings('.dewar').slideToggle()
+    //  return false
+    //})
   
     $('.container a').button({ icons: { primary: 'ui-icon-search' }, text: false })
   }
