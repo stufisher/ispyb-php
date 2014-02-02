@@ -41,6 +41,18 @@
         padding: 0.2%;
         margin: 0.5% 0;
         display: none;
+        
+        .deactivate {
+            display: none;
+        }
+        
+        &.active {
+            background: $content-active;
+            
+            .deactivate {
+                display: inline;
+            }
+        }
     }
     
     .unassigned_drag & {
