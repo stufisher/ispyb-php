@@ -2,7 +2,7 @@
 
     class Ajax extends AjaxBase {
         
-        var $arg_list = array('visit' => '\w+\d+-\d+', 'cid' => '\d+', 'sid' => '\d+', 'pos' => '\d+', 'name' => '\w+', 'array'=>'\d+', 't' => '\w+', 'container' => '[a-zA-Z0-9_\-: ]+', 'dewar' => '\d+','shipment'=> '\d+');
+        var $arg_list = array('visit' => '\w+\d+-\d+', 'cid' => '\d+', 'sid' => '\d+', 'pos' => '\d+', 'name' => '\w+', 'array'=>'\d+', 't' => '\w+', 'container' => '[a-zA-Z0-9_\-: ]+', 'dewar' => '\d+','shipment'=> '\d+', 'p' => '\d+', 'pp' => '\d+', 'did' => '\d+');
         var $dispatch = array('smp' => '_samples',
                               'dwr' => '_dewars',
                               'cnt' => '_containers',
@@ -14,6 +14,7 @@
                               'addd' => '_add_dewar',
                               'unassign' => '_unassign',
                               'assign' => '_assign',
+                              'deact' => '_deactivate',
                               );
         
         var $def = 'smp';
@@ -26,9 +27,22 @@
         function _shipments() {
             if (!$this->has_arg('visit')) $this->_error('No visit specified');
             
-            $rows = $this->db->pq("SELECT sh.shippingid, sh.shippingname FROM shipping sh INNER JOIN blsession bl ON bl.proposalid = sh.proposalid INNER JOIN proposal p ON sh.proposalid = p.proposalid WHERE p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE :1 ORDER BY sh.shippingid DESC", array($this->arg('visit')));
-                                 
-            $this->_output($rows);          
+            $tot = $this->db->pq("SELECT count(sh.shippingid) as tot FROM shipping sh INNER JOIN blsession bl ON bl.proposalid = sh.proposalid INNER JOIN proposal p ON sh.proposalid = p.proposalid WHERE p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE :1", array($this->arg('visit')));
+            
+            $tot = $tot[0]['TOT'];
+            
+            $pp = $this->has_arg('pp') ? $this->arg('pp') : 999;
+            $pg = $this->has_arg('p') ? $this->arg('p') - 1 : 0;
+            
+            $start = $pg*$pp;
+            $end = $pg*$pp+$pp;
+            
+            $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (SELECT sh.shippingid, sh.shippingname, TO_CHAR(sh.creationdate, 'DD-MM-YYYY') as created FROM shipping sh INNER JOIN blsession bl ON bl.proposalid = sh.proposalid INNER JOIN proposal p ON sh.proposalid = p.proposalid WHERE p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE :1 ORDER BY sh.shippingid DESC) inner) outer WHERE outer.rn > :2 AND outer.rn <= :3", array($this->arg('visit'), $start, $end));
+            
+            $pgs = intval($tot/$pp);
+            if ($tot % $pp != 0) $pgs++;
+            
+            $this->_output(array($pgs, $rows));
         }
         
                                  
@@ -300,6 +314,26 @@
                 $this->db->pq("UPDATE container SET samplechangerlocation='' WHERE containerid=:1",array($c['CONTAINERID']));                
                 //$this->_update_history($c['DEWARID'], 'unprocessing');
                                 
+                $this->_output(1);
+            }
+            $this->_output(0);
+        }
+              
+        
+        # ------------------------------------------------------------------------
+        # Deactivate a dewar
+        function _deactivate() {
+            if (!$this->has_arg('visit')) $this->_error('No visit specified');
+            if (!$this->has_arg('did')) $this->_error('No dewar id specified');
+                                
+            $ds = $this->db->pq("SELECT d.dewarid FROM dewar d
+                                INNER JOIN shipping s ON s.shippingid = d.shippingid
+                                INNER JOIN blsession bl ON bl.proposalid = s.proposalid
+                                INNER JOIN proposal p ON s.proposalid = p.proposalid
+                                WHERE p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE :1 AND d.dewarid=:2", array($this->arg('visit'), $this->arg('did')));
+                               
+            if (sizeof($ds) > 0) {
+                $this->_update_history($this->arg('did'), 'unprocessing');
                 $this->_output(1);
             }
             $this->_output(0);
