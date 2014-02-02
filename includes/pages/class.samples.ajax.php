@@ -272,7 +272,7 @@
                 $c = $cs[0];
                 $this->db->pq("UPDATE dewar SET dewarstatus='processing' WHERE dewarid=:1", array($c['DEWARID']));
                                
-                $this->db->pq("UPDATE container SET beamlinelocation=:1,samplechangerlocation=:2 WHERE containerid=:3", array($c['BEAMLINENAME'], $this->arg('pos'), $c['CONTAINERID']));        
+                $this->db->pq("UPDATE container SET beamlinelocation=:1,samplechangerlocation=:2,containerstatus='processing' WHERE containerid=:3", array($c['BEAMLINENAME'], $this->arg('pos'), $c['CONTAINERID']));        
                 $this->_update_history($c['DEWARID'], 'processing');
                                 
                 $this->_output(1);
@@ -297,7 +297,7 @@
             if (sizeof($cs) > 0) {
                 $c = $cs[0];
                                
-                $this->db->pq("UPDATE container SET samplechangerlocation='' WHERE containerid=:1",array($c['CONTAINERID']));                
+                $this->db->pq("UPDATE container SET samplechangerlocation='',containerstatus='at DLS' WHERE containerid=:1",array($c['CONTAINERID']));                
                 //$this->_update_history($c['DEWARID'], 'unprocessing');
                                 
                 $this->_output(1);
