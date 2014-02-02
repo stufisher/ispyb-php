@@ -17,7 +17,7 @@
 
     <form method="post" id="add_container">
 
-    <div class="form clearfix">
+    <div class="form clearfix puck_wrap">
         <button class="pf no_mobile" title="Paste container contents from clipboard"><i class="fa fa-paste"></i> Paste from Spreadsheet</button>
 
         <div class="puck" title="Click to jump to a position in the puck">
