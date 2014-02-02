@@ -137,6 +137,20 @@ div.log {
         white-space: nowrap;
         
         ul {
+            
+            &:before {
+                content: 'Page';
+                background: $content-page-background;
+                color: lighten($content-page-color, 5%);
+                display: inline-block;
+                padding: 3px 5px;
+                margin-right: 2px;
+                
+                @media (max-width: $breakpoint-vsmall) {
+                    padding: 8px;
+                }
+            }
+            
             list-style: none;
             
             li {
@@ -157,7 +171,7 @@ div.log {
                     }
                     
                     @media (max-width: $breakpoint-vsmall) {
-                        padding: 20% 3px;
+                        padding: 8px 5px;
                     }
                 }
                 
