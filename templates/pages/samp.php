@@ -14,7 +14,11 @@
             <div class="clear"></div>
         </div>
 
-        <div class="ra"><a id="add" href="/shipment/addc/visit/<?php echo $vis ?>" title="Click to create a new container">Add New Container</a></div>
+        <div class="page_wrap clearfix">
+            <div class="pages" title="Click to change pages"></div>
+        </div>
+
+        <div class="r"><a id="add" href="/shipment/addc/visit/<?php echo $vis ?>" title="Click to create a new container">Add New Container</a></div>
 
         <div class="c_holder">
             <h1>Unassigned Containers</h1>
