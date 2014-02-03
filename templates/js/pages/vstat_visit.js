@@ -119,18 +119,19 @@ $(function() {
         return "<div style='font-size:8pt; text-align:center; padding:2px; color:white;'>" + label + "<br/>" + Math.round(series.percent) + "%</div>";
     }
   
-    if ($(window).width() <= 600) {
-      $('.robot_actions.robot').dataTable({
-        'sPaginationType': 'full_numbers',
-        'bScrollCollapse': true,
-        'sScrollX': '100%',
-        'aaSorting': [[0,'desc']]
-      });
-    } else {
-      $('.robot_actions.robot').dataTable({
+    var dt = $('.robot_actions.robot').dataTable({
         'sPaginationType': 'full_numbers',
         'aaSorting': [[0,'desc']]
-      });
+    });
+  
+    $(window).resize(function() { _resize() })
+  
+    function _resize() {
+      $.each([1,2,3,4,5,6],function(i,n) {
+        dt.fnSetColumnVis(n, !($(window).width() <= 600))
+      })
     }
+  
+    _resize()
 
 });
