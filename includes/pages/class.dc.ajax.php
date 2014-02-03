@@ -11,7 +11,7 @@
                               'mca' => '_mca',
                               'aps' => '_ap_status',
                               'chi' => '_chk_image',
-                              'sdf' => '_get_sample_flux',
+                              'sf' => '_get_sample_flux',
                               'imq' => '_image_qi',
                               'rd' => '_rd',
                               'flag' => '_flag',
@@ -418,6 +418,47 @@
             $this->_output($out);
         }
         
+
+        # ------------------------------------------------------------------------
+        # Get sample
+        function _get_sample_flux() {
+            $ids = array();
+            if (array_key_exists('ids', $_POST)) {
+                foreach ($_POST['ids'] as $n => $i) {
+                    if (preg_match('/^\d+$/', $i)) {
+                        array_push($ids,array($i, $_POST['tys'][$n]));
+                    }
+                }
+            }
+                   
+            if (!sizeof($ids)) {
+                $this->_output(array());
+                return;
+            }
+            
+            $tables = array('data' => array('datacollection','datacollectionid'),
+                            'mca' => array('xfefluorescencespectrum','xfefluorescencespectrumid'),
+                            'edge' => array('blsample_has_energyscan', 'energyscanid'),
+                            'robot' => array('robotaction', 'robotactionid'),
+                            );
+                          
+            $smps = array();
+            foreach ($ids as $r) {
+                list($id, $ty) = $r;
+                
+                if (array_key_exists($ty, $tables)) {
+                    $c = $tables[$ty];
+                    $smp = $this->db->pq("SELECT bls.blsampleid as sid, c.samplechangerlocation as scon, bls.location as spos, bls.name as san FROM $c[0] d INNER JOIN ispyb4a_db.blsample bls ON d.blsampleid = bls.blsampleid INNER JOIN ispyb4a_db.container c ON bls.containerid = c.containerid WHERE d.$c[1]=:1", array($id));
+                            
+                    $smps[$id] = sizeof($smp) ? $smp[0] : array('SCON' => '', 'SPOS' => '', 'SAN' => '', 'SID' => '');
+                    $smps[$id]['TY'] = $ty;
+                }
+                                   
+            }
+                                   
+            $this->_output($smps);
+        }
+        
         
         # ------------------------------------------------------------------------
         # Autoprocessing Status
@@ -481,22 +522,6 @@
                 
                 $dc['FLUX'] =  sizeof($flx) ? $flx[0]['FLUX'] : 'N/A';
                 $this->profile('flux query');
-                                   
-                if ($dc['BLSAMPLEID']) {
-                    $smp = $this->db->pq("SELECT c.samplechangerlocation as scon, bls.location as spos, bls.name as san FROM ispyb4a_db.blsample bls INNER JOIN ispyb4a_db.container c ON bls.containerid = c.containerid WHERE bls.blsampleid=:1", array($dc['BLSAMPLEID']));
-                    if (sizeof($smp)) {
-                        $s = $smp[0];
-                        $dc['SCON'] = $s['SCON'];
-                        $dc['SPOS'] = $s['SPOS'];
-                        $dc['SAN'] = $s['SAN'];
-                    }
-                } else {
-                    $dc['SCON'] = '';
-                    $dc['SPOS'] = '';
-                    $dc['SAN'] = '';
-                }
-                $this->profile('samp query');
-                
 
                 $this->profile('qend');
 
@@ -537,7 +562,7 @@
                 if ($dc['OVERLAP'] != 0) for ($i = 0; $i < 5; $i++) array_push($apr, 0);
                 $this->profile('fileend');
                 
-                array_push($out, array($dc['ID'], $apr, array('FLUX' => $dc['FLUX'] ? sprintf('%.2e', $dc['FLUX']) : 'N/A', 'SCON' => $dc['SCON'], 'SPOS' => $dc['SPOS'], 'SAN' => $dc['SAN'], 'SID' => $dc['BLSAMPLEID'])));
+                array_push($out, array($dc['ID'], $apr, array('FLUX' => $dc['FLUX'] ? sprintf('%.2e', $dc['FLUX']) : 'N/A')));
             }
         
             $this->profile('end');
@@ -629,6 +654,8 @@
             $el_to_en = json_decode(file_get_contents('tables/energies.json'), true);
             $elements = array();
             $el_no_match = array();
+            $max_counts = 0;
+            
             if (file_exists($results)) {
                 $dat = explode("\n",file_get_contents($results));
                 foreach ($dat as $i => $d) {

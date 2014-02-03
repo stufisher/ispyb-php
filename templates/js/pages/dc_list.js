@@ -275,7 +275,7 @@ $(function() {
                        
                          // Robot loads
                          } else {
-                           $('<div class="data_collection" dcid="'+r['ID']+'">' +
+                           $('<div class="data_collection" dcid="'+r['ID']+'" type="robot">' +
                              '<h1>'+r['ST']+' - Robot '+r['IMP'].toLowerCase()+'ing puck ' + r['EXPOSURETIME'] +' pin ' + r['RESOLUTION'] + ' (Barcode: '+r['DIR']+') Status: '+r['SPOS']+' - '+r['SAN']+' (Took '+r['BSX']+'s)</h1>' +
                              '</div>').data('apr', r['AP']).hide().prependTo('.data_collections').slideDown(100)
                        
@@ -416,12 +416,6 @@ $(function() {
                }
            }
            $(md).data('apr', res)
-
-                
-           // Update sample details
-           if (dcv['SAN'] && !$(md).find('.sample').length) {
-             $('<li class="sample"><span class="wrap">Sample: <a href="/sample/sid/'+dcv['SID']+'">' + dcv['SAN'] + ' (m' + dcv['SCON'] + 'p' + dcv['SPOS']+')</a></span></li>').prependTo($(md).children('ul'))
-           }
                 
            // Add flux if available
            if (!$(md).find('.flux').length) {
@@ -567,10 +561,46 @@ $(function() {
         })
   }
   
+  
+  // Get samples for each data collection
+  function _get_sample() {
+    var ids = [], tys = []
+    $('.data_collection').each(function(i,dc) {
+      if (!$(dc).attr('sample')) {
+        ids.push($(dc).attr('dcid'))
+        tys.push($(dc).attr('type'))
+      }
+    })
+  
+    if (ids.length) {
+      $.ajax({
+        url: '/dc/ajax/sf' + (is_visit ? ('/visit/'+visit) : ''),
+        type: 'POST',
+        data: { ids: ids, tys: tys },
+        dataType: 'json',
+        timeout: 20000,
+        success: function(list) {
+          $.each(list, function(id,dc) {
+            var d = $('.data_collection[dcid='+id+'][type='+dc['TY']+']')
+            if (d.length) {
+              if (dc['SID'] && !$(d).find('.sample').length) {
+                if (dc['TY'] == 'robot') $('<span class="sample"> <span class="wrap">Sample: <a href="/sample/sid/'+dc['SID']+'">' + dc['SAN'] + ' (m' + dc['SCON'] + 'p' + dc['SPOS']+')</a></span></span>').appendTo($(d).children('h1'))
+                else $('<li class="sample"><span class="wrap">Sample: <a href="/sample/sid/'+dc['SID']+'">' + dc['SAN'] + ' (m' + dc['SCON'] + 'p' + dc['SPOS']+')</a></span></li>').prependTo($(d).children('ul'))
+              
+              }
+              $(d).attr('sample', true)
+            }
+          })
+        }
+      })
+    }
+  }
+  
+  
   function map_callbacks() {
       update_aps()
-  
       _show_images()
+      _get_sample()
   
       $('.data_collection a.sn').unbind('click').click(function() {
         $(this).parent('div').siblings('.snapshots').children('a').eq(0).trigger('click')
