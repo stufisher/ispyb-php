@@ -14,10 +14,10 @@ $(function() {
   }
   
   
-  if ($(window).width() <= 600) dt = $.extend({
+  /*if ($(window).width() <= 600) dt = $.extend({
         'bScrollCollapse': true,
         'sScrollX': '100%',
-  }, dt)
+  }, dt)*/
   
   $('.robot_actions').dataTable(dt)
   $('.table input').focus()
