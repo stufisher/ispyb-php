@@ -639,8 +639,10 @@
                     if ($i >2 && $d) {
                         list($e, $v) = preg_split('/\s+/', trim($d));
                         if ($i % 2 == 1) {
-                            if (floatval($e) > ($info['ENERGY'] - 1100)) array_push($data[1], array(floatval($e), floatval($v)));
-                            else array_push($data[0], array(floatval($e), floatval($v)));
+                            if (floatval($e) <= $info['ENERGY']) {
+                                if (floatval($e) > ($info['ENERGY'] - 1100)) array_push($data[1], array(floatval($e), floatval($v)));
+                                else array_push($data[0], array(floatval($e), floatval($v)));
+                            }
                         }
                     }
                 }
@@ -662,8 +664,11 @@
                     if ($i < 5) {
                         $l = explode(' ', $d);
                         if ($i == 0) $max_counts = floatval($l[1]);
-                        if (array_key_exists($l[0], $el_to_en)) $elements[$l[0]] = array(array_map('floatval', $el_to_en[$l[0]]), floatval($l[1]), floatval($l[2]));
-                        else array_push($el_no_match, $l[0]);
+                        if (array_key_exists($l[0], $el_to_en)) {
+                            $els = $el_to_en[$l[0]];
+                            if (($els[sizeof($els)-1]*1000) < ($info['ENERGY'] - 1000))
+                                $elements[$l[0]] = array(array_map('floatval', $els), floatval($l[1]), floatval($l[2]));
+                        } else array_push($el_no_match, $l[0]);
                     }
                 }
             }
