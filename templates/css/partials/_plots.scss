@@ -74,6 +74,16 @@
     padding: 2px;
 }
 
+.annote {
+    position: absolute;
+    color: $body-color;
+    font-size: smaller;
+    
+    sub {
+        vertical-align: sub;
+        font-size: smaller;
+    }
+}
 
 @media (max-width: $breakpoint-vsmall) {
     #system_pie,
