@@ -101,8 +101,8 @@
             }
             
             if ($this->has_arg('pdb')) {
-                if (file_exists('pdbs.json')) {
-                    $pdbs = json_decode(file_get_contents('pdbs.json'));
+                if (file_exists('tables/pdbs.json')) {
+                    $pdbs = json_decode(file_get_contents('tables/pdbs.json'));
                 } else $pdbs = new stdClass();
 
                 //if (!property_exists($pdbs,$this->arg('pdb'))) {
@@ -144,7 +144,7 @@
                     
                     $p = $this->arg('pdb');
                     $pdbs->$p = $d;
-                    file_put_contents('pdbs.json', json_encode($pdbs));
+                    file_put_contents('tables/pdbs.json', json_encode($pdbs));
                 }
             }
             
@@ -167,8 +167,8 @@
             
             foreach (array('No Results', 'No Match', 'Mismatch', 'Matched') as $k) $stats[$k] = 0;
             
-            if (file_exists('pdbs.json')) {
-                $pdbs = json_decode(file_get_contents('pdbs.json'));
+            if (file_exists('tables/pdbs.json')) {
+                $pdbs = json_decode(file_get_contents('tables/pdbs.json'));
                 $tot = sizeof(get_object_vars($pdbs));
                 
                 foreach ($pdbs as $pdb => $d) {
