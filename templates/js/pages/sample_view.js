@@ -39,15 +39,15 @@ $(function() {
 
           } else if (e['TYPE'] == 'mca') {
              
-             var st = 'AutoPyMCA ' + (e['ELEMENTS'].length ? val[2] : val[3])
+             /*var st = 'AutoPyMCA ' + (e['ELEMENTS'].length ? val[2] : val[3])
              var el = []
              $.each (e['ELEMENTS'], function(i,e) {
                el.push(e.split(' ')[0])
-             })
+             })*/
                
              var desc = 'Energy: '+e['WAVELENGTH']+'eV, Exp: '+e['EXPOSURETIME']+'s, Trn: '+e['TRANSMISSION']+'%'
                
-             r = [e['ST'], 'Fluorescence Spectrum', desc, st, el.join(', '), '<a href="/dc/visit/'+e['VIS']+'/id/'+e['ID']+'" class="view" title="View full details for the selected data collection">View Spectrum</a>']
+             r = [e['ST'], 'Fluorescence Spectrum', desc, '', '', '<a href="/dc/visit/'+e['VIS']+'/id/'+e['ID']+'" class="view" title="View full details for the selected data collection">View Spectrum</a>']
                
           } else if (e['TYPE'] == 'load') {
              if (e['IMP'] == 'LOAD' || e['IMP'] == 'UNLOAD' || e['IMP'] == 'DISPOSE')
@@ -88,6 +88,7 @@ $(function() {
         timeout: 10000,
         success: function(list) {
          $.each(list, function(i, r) {
+           if (i == 'profile') return
            var id = r[0]
            var res = r[1]
            var img = r[2]
