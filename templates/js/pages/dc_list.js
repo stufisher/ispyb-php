@@ -240,7 +240,7 @@ $(function() {
                                  '</span><span class="spacer"> - </span><span class="temp">MCA Spectrum</span>'+
                                  '</h1>'+
 
-                             '<ul class="clearfix">'+
+                             '<ul class="clearfix half">'+
                                  '<li>Energy: '+r['WAVELENGTH']+'eV</li>'+
                                  '<li>Exposure: '+r['EXPOSURETIME']+'s</li>'+
                                  '<li>Transmission: '+r['TRANSMISSION']+'%</li>'+
