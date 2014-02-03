@@ -471,22 +471,30 @@ $(function() {
              dataType: 'json',
              timeout: 5000,
              success: function(j){
-                 var data = [{ label: 'XRF', data: j[0], color: 'rgb(100,100,100)' }, { label: 'Elastic', data: j[1], color: 'rgb(200,200,200)' }]
+                 var data = [{ label: 'XRF', data: j[0], color: 'rgb(100,100,100)' }, { label: 'Compton', data: j[1], color: 'rgb(200,200,200)' }]
 
                  var pl = $.plot(div, data, { grid: { borderWidth: 0 }, yaxis: { max: j[5]*1.1 } })
                  var max = j[5]
+                 var plot_x_max = pl.getAxes().xaxis.datamax
              
+                 var el_count = 0
                  $.each(j[2], function(e,d) {
+                   el_count++
                    var inten = e[e.length-1] ==  'K' ? [1,0.2] : [0.9,0.1,0.5,0.05,0.05]
+                   var elines = ['&alpha;', '&beta;', '&gamma;']
                    var mp = d[1]/j[4]
                    $.each(d[0], function(i,en) {
-                     if (inten[i] > 0.1 & mp > 0.1) {
-                       var o = pl.pointOffset({ x: en*1000, y: max*inten[i]*mp+(0.15*max)});
-                       div.append('<div style="position:absolute;left:' + (o.left + 4) + 'px;top:' + o.top + 'px;color:#666;font-size:smaller">'+e+'</div>');
+                     if (inten[i] > 0.1 & mp > 0.01) {
+                       var o = pl.pointOffset({ x: en*1000-(plot_x_max*0.03), y: max*inten[i]*mp+(0.18*max)});
+                          div.append('<div class="annote" style="left:' + (o.left + 4) + 'px;top:' + o.top + 'px;">'+e+'<sub>'+elines[i]+'</sub></div>');
                      }
                    })
                  })
              
+                 var date = _date_to_unix($(div).parent().children('h1').find('span.date').html())
+                 if (el_count == 0 && ((new Date() - date) < 900*1000)) {
+                   setTimeout(function() { plot_mca(div, id) }, 10000)
+                 }
              }
       })
   }
@@ -541,13 +549,8 @@ $(function() {
                    var nimg = $('.data_collection[dcid="'+id+'"]').data('nimg')
                    if (nimg == $(j[0]).last()[0][0]) refresh_imq = false
              
-                   var strtime = $('.data_collection[dcid="'+id+'"]').children('h1').children('span.date').html()
-                   var dt = strtime.split(' ')
-                   var dmy = dt[0].split('-')
-                   var hms = dt[1].split(':')
-                   var date = new Date(dmy[2], dmy[1]-1, dmy[0], hms[0], hms[1], hms[2], 0)
-                   var now = new Date()
-                   if (now - date > 900*1000) refresh_imq = false             
+                   var date = _date_to_unix($('.data_collection[dcid="'+id+'"]').find('span.date').html())
+                   if ((new Date() - date) > (900*1000)) refresh_imq = false
                }
              
                if (refresh_imq) {
@@ -559,6 +562,15 @@ $(function() {
                if (success) success()
              }
         })
+  }
+  
+  
+  function _date_to_unix(strtime) {
+    var dt = strtime.trim().split(' ')
+    var dmy = dt[0].split('-')
+    var hms = dt[1].split(':')
+    var date = new Date(dmy[2], dmy[1]-1, dmy[0], hms[0], hms[1], hms[2], 0)
+    return date
   }
   
   
