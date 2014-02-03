@@ -34,6 +34,11 @@
         border-radius: 5px;
         color: $content-help-color;
         background: $content-help-background;
+        
+        &.alert {
+            background: $content-inactive;
+            color: $body-color;
+        }
     }
 
 }
