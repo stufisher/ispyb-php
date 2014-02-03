@@ -56,7 +56,7 @@ $(function() {
   
   // Add a new protein
   function _add_protein(ui,val) {
-    var safe = val.replace(/\W+/, '')
+    var safe = val.replace(/\W/g, '')
     _confirm('Add new protein', 'Do you want to add a new protein called: ' + safe, function() {
       $.ajax({
         url: '/shipment/ajax/addp/name/'+safe,
@@ -219,12 +219,14 @@ $(function() {
            
         if (cols[0] > 0 && cols[0] <= 16) {
           if (cols[2]) {
+            cols[2] = cols[2].replace(/\W/g, '')
+           
             var cb = $('select.protein').eq(cols[0]-1)
             var val = cb.children('option').filter(function() { return $(this).text() == cols[2] }).attr('value');
            
             if (val) cb.combobox('value', val)
             else {
-              var safe = cols[2].replace(/\W+/, '')
+              var safe = cols[2].replace(/\W/g, '')
               $.ajax({
                 url: '/shipment/ajax/addp/name/'+safe,
                 type: 'GET',
@@ -259,7 +261,6 @@ $(function() {
   //   enter scrolls down a row, shift+enter up
   $.each(['.ui-combobox input', 'input.sname', 'input.comment', 'input.code', 'select.sg'], function(i,el) {
     $(el).keypress(function(e) {
-      console.log(e)
       var idx = $(el).index($(this))
       if(e.which == 13) {
         var dir = e.shiftKey ? -1 : 1
