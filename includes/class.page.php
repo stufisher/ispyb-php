@@ -466,7 +466,8 @@
         # ------------------------------------------------------------------------
         # Log Action
         function log_action($act=1,$com='') {
-            if(get_class($this) == 'Image') return;
+            if (get_class($this) == 'Image') return;
+            if (get_class($this) == 'Download') return;
             
             $action = $act ? 'LOGON' : 'LOGOFF';
             $u = class_exists('phpCAS') ? phpCAS::getUser() : '';
