@@ -190,7 +190,7 @@
                     foreach ($_POST['p'] as $i => $s) {
                         if ($s > -1) {
                             $val = True;
-                            foreach (array('p' => '\d+', 'n' => '\w+','c'=> '[a-zA-Z0-9_]+', 'sg' => '\w+', 'b' => '\w+') as $k => $m) {
+                            foreach (array('p' => '\d+', 'n' => '[\w-]+','c'=> '.*', 'sg' => '\w+', 'b' => '\w+') as $k => $m) {
                                 if ($_POST[$k][$i] && !preg_match('/^'.$m.'$/', $_POST[$k][$i])) $val = False;
                             }
                                              

@@ -148,7 +148,7 @@ $(function() {
           $('input.comment').eq(i).prop('disabled', false).removeClass('disabled')
           $('input.code').eq(i).prop('disabled', false).removeClass('disabled')
          
-          if (!$('input.sname').eq(i).val().match(/^\w+$/)) {
+          if (!$('input.sname').eq(i).val().match(/^([\w-])+$/)) {
             $('input.sname').eq(i).removeClass('fvalid').addClass('ferror')
             ret = false
             samp = false
@@ -156,13 +156,13 @@ $(function() {
                              
           } else $('input.sname').eq(i).removeClass('ferror').addClass('fvalid')
                              
-          if ($('input.comment').eq(i).val() && !$($('input.comment')[i]).val().match(/^[a-zA-Z0-9_ ]+$/)) {
+          /*if ($('input.comment').eq(i).val() && !$($('input.comment')[i]).val().match(/^[a-zA-Z0-9_ ]+$/)) {
             $('input.comment').eq(i).removeClass('fvalid').addClass('ferror')
             ret = false
             samp = false
             msg = 'Your comment contains special characters. Comments may only contain letters, numbers, spaces, and underscores.'
                              
-          } else $('input.comment').eq(i).removeClass('ferror').addClass('fvalid')
+          } else $('input.comment').eq(i).removeClass('ferror').addClass('fvalid')*/
 
           if ($('input.code').eq(i).val() && !$($('input.code')[i]).val().match(/^\w+$/)) {
             $('input.code').eq(i).removeClass('fvalid').addClass('ferror')
