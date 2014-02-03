@@ -224,18 +224,18 @@ $(function() {
                        // MCA Scans
                        } else if (r['TYPE'] == 'mca') {
                            var f = r['COMMENTS'] ? (r['COMMENTS'].indexOf('_FLAG_') > -1 ? 'ui-state-highlight' : '') : ''
-                           el = ''
+                           /*el = ''
                            for (var i = 0; i < r['ELEMENTS'].length;i++) {
                               el += '<tr><td>' + r['ELEMENTS'][i].split(' ').join('</td><td>') + '</td></tr>'
                            }
                            el = '<table>'+el+'</table>'
                        
-                           if (r['ELEMENTS'].length == 0) el = '<p>PyMCA didnt run for this spectrum</p>'
+                           if (r['ELEMENTS'].length == 0) el = '<p>PyMCA didnt run for this spectrum</p>'*/
                        
                        
                            d = $('<div class="data_collection" dcid="'+r['ID']+'" type="mca">' +
                              '<div class="mca"></div>'+
-                             '<div class="elements">'+el+'</div>'+
+                             //'<div class="elements">'+el+'</div>'+
                              '<h1><button class="atp" ty="mca" iid="'+r['ID']+'" name="Fluorescence Spectrum">Add to Project</button> <button class="flag '+f+'">Favourite</button> <a class="perm" href="/dc/visit/'+prop+'-'+r['VN']+'/t/mca/id/'+r['ID']+'">Permalink</a><span class="date">'+vis_link +' '+r['ST']+
                                  '</span><span class="spacer"> - </span><span class="temp">MCA Spectrum</span>'+
                                  '</h1>'+
@@ -477,9 +477,21 @@ $(function() {
              dataType: 'json',
              timeout: 5000,
              success: function(j){
-                 var data = [{ data: j, color: 'rgb(100,100,100)' }]
+                 var data = [{ label: 'XRF', data: j[0], color: 'rgb(100,100,100)' }, { label: 'Elastic', data: j[1], color: 'rgb(200,200,200)' }]
 
-                 $.plot(div, data, { grid: { borderWidth: 0 }, yaxes: [{}, { position: 'right' }] })
+                 var pl = $.plot(div, data, { grid: { borderWidth: 0 }, yaxis: { max: j[5]*1.1 } })
+                 var max = j[5]
+             
+                 $.each(j[2], function(e,d) {
+                   var inten = e[e.length-1] ==  'K' ? [1,0.2] : [0.9,0.1,0.5,0.05,0.05]
+                   var mp = d[1]/j[4]
+                   $.each(d[0], function(i,en) {
+                     if (inten[i] > 0.1 & mp > 0.1) {
+                       var o = pl.pointOffset({ x: en*1000, y: max*inten[i]*mp+(0.15*max)});
+                       div.append('<div style="position:absolute;left:' + (o.left + 4) + 'px;top:' + o.top + 'px;color:#666;font-size:smaller">'+e+'</div>');
+                     }
+                   })
+                 })
              
              }
       })
@@ -873,7 +885,7 @@ $(function() {
           var tab = ''
           $.each(aps, function(aid,ap) {
             out += '<div id="' + aid + '" aid="'+aid+'" did="'+id+'">'+
-                     '<p class="r downloads"><a class="dll" href="/download/id/'+id+'/aid/'+aid+'">MTZ file</a> <a class="view" href="/download/id/'+id+'/aid/'+aid+'/log/1">Log file</a>'+(ap[0]=='Fast DP' ? ' <a href="#" class="view rd_link">Radiation Damage</a>':'')+'</p>'+
+                     '<p class="r downloads"><a class="dll" href="/download/id/'+id+'/aid/'+aid+'">MTZ file</a> <a class="view" href="/download/id/'+id+'/aid/'+aid+'/log/1/1">Log file</a>'+(ap[0]=='Fast DP' ? ' <a href="#" class="view rd_link">Radiation Damage</a>':'')+'</p>'+
                      ap[1]+
                      '<table class="reflow shell">'+dt+ap[2].join(' ')+'</table></div>'
             tab += '<li><a href="#' + aid + '">'+ap[0]+'</a></li>'

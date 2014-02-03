@@ -327,7 +327,7 @@
                 // MCA Scans
                 } else if ($dc['TYPE'] == 'mca') {
                     # -- Move to ajax
-                    $results = str_replace('.mca', '.results.dat', preg_replace('/(data\/\d\d\d\d\/\w\w\d+-\d+)/', '\1/processed/pymca', $dc['DIR']));
+                    /*$results = str_replace('.mca', '.results.dat', preg_replace('/(data\/\d\d\d\d\/\w\w\d+-\d+)/', '\1/processed/pymca', $dc['DIR']));
                     
                     $elements = array();
                     if (file_exists($results)) {
@@ -337,7 +337,7 @@
                         }
                     }
                     
-                    $dc['ELEMENTS'] = $elements;
+                    $dc['ELEMENTS'] = $elements;*/
                     $nf = array(2 => array('EXPOSURETIME', 'WAVELENGTH'), 3 => array('TRANSMISSION'));
                     
                 // Robot loads
@@ -597,7 +597,7 @@
                 return;
             }
             
-            $info = $this->db->pq('SELECT scanfilefullpath as dat FROM ispyb4a_db.xfefluorescencespectrum WHERE xfefluorescencespectrumid=:1', array($this->arg('id')));
+            $info = $this->db->pq('SELECT filename as dir,energy,scanfilefullpath as dat FROM ispyb4a_db.xfefluorescencespectrum WHERE xfefluorescencespectrumid=:1', array($this->arg('id')));
             if (sizeof($info) == 0) {
                 $this->_error('No data for that spectrum id');
                 return;
@@ -605,18 +605,51 @@
             
             $info = $info[0];
             
-            $data = array();
+            
+            $data = array(array(),array());
             if (file_exists($info['DAT'])) {
                 $dat = explode("\n",file_get_contents($info['DAT']));
-                
+
                 foreach ($dat as $i => $d) {
                     if ($i >2 && $d) {
                         list($e, $v) = preg_split('/\s+/', trim($d));
-                        if ($i % 2 == 1) array_push($data, array(floatval($e), floatval($v)));
+                        if ($i % 2 == 1) {
+                            if (floatval($e) > ($info['ENERGY'] - 1100)) array_push($data[1], array(floatval($e), floatval($v)));
+                            else array_push($data[0], array(floatval($e), floatval($v)));
+                        }
                     }
                 }
                 
             }
+            
+            
+            # pymca
+            $results = str_replace('.mca', '.results.dat', preg_replace('/(data\/\d\d\d\d\/\w\w\d+-\d+)/', '\1/processed/pymca', $info['DIR']));
+            
+            $el_to_en = json_decode(file_get_contents('tables/energies.json'), true);
+            $elements = array();
+            $el_no_match = array();
+            if (file_exists($results)) {
+                $dat = explode("\n",file_get_contents($results));
+                foreach ($dat as $i => $d) {
+                    if ($i < 5) {
+                        $l = explode(' ', $d);
+                        if ($i == 0) $max_counts = floatval($l[1]);
+                        if (array_key_exists($l[0], $el_to_en)) $elements[$l[0]] = array(array_map('floatval', $el_to_en[$l[0]]), floatval($l[1]), floatval($l[2]));
+                        else array_push($el_no_match, $l[0]);
+                    }
+                }
+            }
+            array_push($data, $elements);
+            array_push($data, $el_no_match);
+            array_push($data, $max_counts);
+            
+            $max = 0;
+            foreach ($data[0] as $d) {
+                if ($d[1] > $max) $max = $d[1];
+            }
+            
+            array_push($data, $max);
             
             $this->_output($data);
         }
