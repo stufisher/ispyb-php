@@ -9,6 +9,7 @@
                               'u' => '\w+\d+',
                               's' => '\d',
                               'log' => '\d',
+                              'LogFiles' => '([\w|\.])+',
                               );
         
         var $dispatch = array('ap' => '_auto_processing',
@@ -31,9 +32,16 @@
             foreach ($rows as $r) {
                 if ($this->has_arg('log')) {
                     if ($r['FILETYPE'] == 'Log') {
-                        $f = $r['FILEPATH'].'/'.$r['FILENAME'];
-                        //$this->_header($this->arg('aid').'_'.$r['FILENAME']);
-                        if ($r['FILENAME'] == 'fast_dp.log') header("Content-Type: text/plain");
+                        if ($this->has_arg('LogFiles')) {
+                            $f = $r['FILEPATH'].'/LogFiles/'.$this->arg('LogFiles');
+                            header("Content-Type: text/plain");
+                            
+                        } else {
+                        
+                            $f = $r['FILEPATH'].'/'.$r['FILENAME'];
+                            if ($r['FILENAME'] == 'fast_dp.log') header("Content-Type: text/plain");
+                        }
+                            
                         readfile($f);
                     }
                 
@@ -47,6 +55,7 @@
                             
                         } $this->error('No such file', 'The specified auto processing file doesnt exist');
                         
+                    // FastDP
                     } else if ($r['FILETYPE'] == 'Log' && $r['FILENAME'] == 'fast_dp.log') {
                         $f = $r['FILEPATH'].'/fast_dp.mtz';
                         if (file_exists($f)) {
