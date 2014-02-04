@@ -31,7 +31,6 @@ $(function() {
     $('<tr class="new">'+
       '<td><input name="title" /></td>'+
       '<td><input name="acronym" /></td>'+
-      '<td colspan="3">&nbsp;</td>'+
       '<td><button class="save">Add</button> <button class="cancel">Cancel</button></td>'+
       '</tr>').appendTo('table.projects tbody')
                  
