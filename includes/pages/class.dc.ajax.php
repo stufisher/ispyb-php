@@ -193,9 +193,13 @@
             
             # If not staff check they have access to data collection
             if (!$this->has_arg('visit') && !$this->staff) {
+                $where .= " AND u.name=:".(sizeof($args)+1);
+                $where2 .= " AND u.name=:".(sizeof($args)+2);
+                $where3 .= " AND u.name=:".(sizeof($args)+3);
+                $where4 .= " AND u.name=:".(sizeof($args)+4);
+                
                 for ($i = 0; $i < 4; $i++) {
-                    $extj[$i] .= " INNER JOIN investigation@DICAT_RO i ON lower(i.visit_id) LIKE :".(sizeof($args)+1)." || '-' || ses.visit_number INNER JOIN investigationuser@DICAT_RO iu on i.id = iu.investigation_id INNER JOIN user_@DICAT_RO u on u.id = iu.user_id ".$where." AND u.name=:".(sizeof($args)+2);
-                    array_push($args, $this->arg('prop'));
+                    $extj[$i] .= " INNER JOIN ispyb4a_db.proposal p ON p.proposalid = ses.proposalid INNER JOIN investigation@DICAT_RO i ON lower(i.visit_id) LIKE p.proposalcode||p.proposalnumber||'-'||ses.visit_number INNER JOIN investigationuser@DICAT_RO iu on i.id = iu.investigation_id INNER JOIN user_@DICAT_RO u on u.id = iu.user_id";
                     array_push($args, phpCAS::getUser());
                 }
             }

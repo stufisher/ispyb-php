@@ -35,10 +35,12 @@
             
             $args = array(phpCAS::getUser());
             $where = "WHERE p.owner LIKE :1";
+            " OR phu.username LIKE :2";
             
             $sta = $this->has_arg('iDisplayStart') ? $this->arg('iDisplayStart') : 0;
             $len = $this->has_arg('iDisplayLength') ? $this->arg('iDisplayLength') : 20;
             
+            " INNER JOIN ispyb4a_db.project_has_user phu ON phu.projectid = p.projectid";
             $tot = $this->db->pq("SELECT count(projectid) as tot FROM ispyb4a_db.project p $where");
             $tot = $tot[0]['TOT'];
             
@@ -56,7 +58,7 @@
             } else {
                 $data = array();
                 foreach ($rows as $r) {
-                    array_push($data, array($r['TITLE'], $r['ACRONYM'], 0, 0, 0, '<a href="/projects/pid/'.$r['PROJECTID'].'" title="View Project" class="view">View</a>'));
+                    array_push($data, array($r['TITLE'], $r['ACRONYM'], '<a href="/projects/pid/'.$r['PROJECTID'].'" title="View Project" class="view">View</a>'));
                 }
             
                 $this->_output(array('iTotalRecords' => $tot,

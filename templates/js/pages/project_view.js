@@ -99,14 +99,8 @@ $(function() {
                 })
             }
   })
-  
-  if ($(window).width() <= 600) dt = $.extend({
-        'bScrollCollapse': true,
-        'sScrollX': '100%',
-  }, dt)
-  
   var proteins = $('.robot_actions.proteins').dataTable(dt).fnSetFilteringDelay();
-  
+
   
   // Sample List
   var dt = $.extend(dtops, {
@@ -122,12 +116,6 @@ $(function() {
                 })
             },
   })
-  
-  if ($(window).width() <= 600) dt = $.extend({
-        'bScrollCollapse': true,
-        'sScrollX': '100%',
-  }, dt)
-  
   var samples = $('.robot_actions.samples').dataTable(dt).fnSetFilteringDelay();
   
   
@@ -190,7 +178,7 @@ $(function() {
                 $.getJSON( sSource, _pages(aoData), function (json) {
                   var p = []
                   $.each(json[1], function(i, e) {
-                    p.push([e['ST'], e['DIR'], e['SAMPLE'] ? e['SAMPLE'] : 'N/A', e['TRANSMISSION'], e['EXPOSURETIME'], e['EPK']+'ev, f&rsquo;'+e['RESOLUTION']+'e, f&rsquo;&rsquo;:'+e['AXISSTART'], e['EIN']+'ev, f&rsquo;:'+e['AXISRANGE']+'e, f&rsquo;&rsquo;:'+e['WAVELENGTH']+'e', e['COMMENTS'], '<a class="view" href="/dc/visit/'+e['VIS']+'/id/'+e['ID']+'">View Scan</a>'])
+                    p.push([e['ST'], e['DIR'], e['SAMPLE'] ? e['SAMPLE'] : 'N/A', e['TRANSMISSION'], e['EXPOSURETIME'], e['EPK']+'ev, f&rsquo;'+e['RESOLUTION']+'e, f&rsquo;&rsquo;:'+e['AXISSTART'], e['EIN']+'ev, f&rsquo;:'+e['AXISRANGE']+'e, f&rsquo;&rsquo;:'+e['WAVELENGTH']+'e', e['COMMENTS'], '<a class="view" href="/dc/visit/'+e['VIS']+'/t/edge/id/'+e['ID']+'">View Scan</a>'])
                   })
                           
                   fnCallback({ iTotalRecords: _pp(aoData)*json[0], iTotalDisplayRecords: _pp(aoData)*json[0], aaData: p })
@@ -220,12 +208,12 @@ $(function() {
                 $.getJSON( sSource, _pages(aoData), function (json) {
                   var p = []
                   $.each(json[1], function(i, e) {
-                    var el = []
+                    /*var el = []
                     $.each (e['ELEMENTS'], function(i,e) {
                       el.push(e.split(' ')[0])
-                    })
+                    })*/
                          
-                    p.push([e['ST'], e['SAMPLE'] ? e['SAMPLE'] : 'N/A', e['WAVELENGTH'], e['TRANSMISSION'], e['EXPOSURETIME'], el.join(', '), e['COMMENTS'], '<a class="view" href="/dc/visit/'+e['VIS']+'/id/'+e['ID']+'">View Spectrum</a>'])
+                    p.push([e['ST'], e['SAMPLE'] ? e['SAMPLE'] : 'N/A', e['WAVELENGTH'], e['TRANSMISSION'], e['EXPOSURETIME'], '', e['COMMENTS'], '<a class="view" href="/dc/visit/'+e['VIS']+'/t/mca/id/'+e['ID']+'">View Spectrum</a>'])
                   })
                           
                   fnCallback({ iTotalRecords: _pp(aoData)*json[0], iTotalDisplayRecords: _pp(aoData)*json[0], aaData: p })
@@ -240,6 +228,24 @@ $(function() {
   }, dt)
   
   var fl = $('.robot_actions.mca').dataTable(dt)
+  
+  
+  // Repsonsive tables
+  $(window).resize(function() { _resize() })
+  function _resize() {
+    $.each([2,3],function(i,n) {
+      proteins.fnSetColumnVis(n, !($(window).width() <= 600))
+    })
+  
+    $.each([0,3,4,5,6,7],function(i,n) {
+      samples.fnSetColumnVis(n, !($(window).width() <= 600))
+    })
+  }
+  
+  _resize()
+  
+  
+  
   
   $.each({'title': 'wwsdash', 'acronym': 'wwdash'}, function(e,t) {
     $('.'+e).editable('/projects/ajax/update/pid/'+pid+'/ty/'+e+'/', {

@@ -12,9 +12,6 @@
                     <tr>
                         <th>Name</th>
                         <th>Acronym</th>
-                        <th>Proteins</th>
-                        <th>Samples</th>
-                        <th>Data Collections</th>
                         <th>&nbsp;</th>
                     </tr>
                 </thead>
