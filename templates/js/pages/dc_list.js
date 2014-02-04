@@ -98,6 +98,19 @@ $(function() {
   });
   
   
+  // Allow users to change number of data collections per page
+  var pp = $(window).width() <= 600 ? 5 : ($(window).width() <= 1024 ? 10 : 15)
+  $('select[name=pp]').val(pp).change(function() {
+    pp = $(this).val()
+    $('select[name=pp]').val(pp)
+    clearTimeout(auto_load_thread)
+    page = 1
+    first = true
+    $('.data_collection').remove()
+    load_datacollection()
+  })
+  
+  
   // Async load of data collections
   function load_datacollection() {
       var dcids = []
@@ -110,7 +123,7 @@ $(function() {
       //console.log('fn '+new Date())
   
       $.ajax({
-             url: '/dc/ajax' + (is_sample ? ('/sid/'+sid) : '') + (is_visit ? ('/visit/' + visit) : '') + (page ? ('/page/' + page) : '') + (search ? ('/s/'+search) : '') + (type ? ('/t/'+type) : '') + ($(window).width() <= 600 ? '/pp/5' : ($(window).width() <= 1024 ? '/pp/10' : '')) + (dcid ? ('/id/'+dcid) : ''),
+             url: '/dc/ajax' + (is_sample ? ('/sid/'+sid) : '') + (is_visit ? ('/visit/' + visit) : '') + (page ? ('/page/' + page) : '') + (search ? ('/s/'+search) : '') + (type ? ('/t/'+type) : '') + ('/pp/'+pp) + (dcid ? ('/id/'+dcid) : ''),
              type: 'GET',
              dataType: 'json',
              timeout: 10000,
