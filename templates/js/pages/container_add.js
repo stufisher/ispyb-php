@@ -193,7 +193,12 @@ $(function() {
   
   
   $('#add_container').submit(function(e) {
-    if (_validate_container(true)) return
+    if (_validate_container(true)) {
+      $('input.sname').prop('disabled', false)
+      $('input.comment').prop('disabled', false)
+      $('input.code').prop('disabled', false)
+      return
+    }
                              
     e.preventDefault();
   })
