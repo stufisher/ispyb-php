@@ -323,14 +323,22 @@
         # ------------------------------------------------------------------------
         # Deactivate a dewar
         function _deactivate() {
-            if (!$this->has_arg('visit')) $this->_error('No visit specified');
+            if (!$this->has_arg('visit') && !$this->has_arg('prop')) $this->_error('No visit or proposal specified');
             if (!$this->has_arg('did')) $this->_error('No dewar id specified');
+                            
+            if ($this->has_arg('visit')) {
+                $where = "p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE :1";
+                $arg = $this->arg('visit');
+            } else {
+                $where = "p.proposalid=:1";
+                $arg = $this->proposalid;
+            }
                                 
             $ds = $this->db->pq("SELECT d.dewarid FROM dewar d
                                 INNER JOIN shipping s ON s.shippingid = d.shippingid
                                 INNER JOIN blsession bl ON bl.proposalid = s.proposalid
                                 INNER JOIN proposal p ON s.proposalid = p.proposalid
-                                WHERE p.proposalcode || p.proposalnumber || '-' || bl.visit_number LIKE :1 AND d.dewarid=:2", array($this->arg('visit'), $this->arg('did')));
+                                WHERE $where AND d.dewarid=:2", array($arg, $this->arg('did')));
                                
             if (sizeof($ds) > 0) {
                 $this->_update_history($this->arg('did'), 'unprocessing');

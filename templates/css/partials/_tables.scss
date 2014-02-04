@@ -48,6 +48,20 @@
                 }
             }
             
+            tr {
+                .deactivate {
+                    display: none;
+                }
+                
+                &.active td, &.active:nth-child(odd) td {
+                    background: $content-active;
+                    
+                    .deactivate {
+                        display: inline;
+                    }
+                }
+            }
+            
             tr:nth-child(odd) td,
             tr.odd td {
                 background: $table-body-background-odd;

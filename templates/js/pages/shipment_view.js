@@ -84,7 +84,7 @@ $(function() {
         success: function(json){
           var d_out = ''
           $.each(json, function(i,d) {
-            d_out += '<tr did="'+d['DEWARID']+'" name="'+d['CODE']+'">'+
+            d_out += '<tr did="'+d['DEWARID']+'" name="'+d['CODE']+'" '+(d['DEWARSTATUS'] == 'processing' ? 'class="active"' :'')+'>'+
                     '<td title="Click to edit the dewar name"><span class="code">'+d['CODE']+'</span></td>'+
                     '<td>'+d['BARCODE']+'</td>'+
                     '<td><span class="facilitycode">'+(d['FACILITYCODE'] ? d['FACILITYCODE'] : '')+'</span></td>'+
@@ -94,7 +94,7 @@ $(function() {
                     '<td>'+d['DEWARSTATUS']+'</td>'+
                     '<td>'+(d['STORAGELOCATION'] ? d['STORAGELOCATION'] : '')+'</td>'+
                     '<td>'+d['CCOUNT']+'</td>'+
-                    '<td><a class="print" title="Click to print dewar contents" href="/pdf/container/did/'+d['DEWARID']+'">Print Dewar Report</a> <a class="add" title="Click to add a container" href="/shipment/addc/did/'+d['DEWARID']+'">Add Container</a></td>'+
+                    '<td><span class="deactivate"><button class="deact">Deactivate Dewar</button></span> <a class="print" title="Click to print dewar contents" href="/pdf/container/did/'+d['DEWARID']+'">Print Dewar Report</a> <a class="add" title="Click to add a container" href="/shipment/addc/did/'+d['DEWARID']+'">Add Container</a></td>'+
                 '</tr>'
           })
            
@@ -252,6 +252,21 @@ $(function() {
   
   
   function _map_callbacks() {
+          $('button.deact').button({ icons: { primary: 'ui-icon-cross' }, text: false }).unbind('click').click(function() {
+          var d = $(this).closest('tr')
+          $.ajax({
+            url: '/samples/ajax/deact/did/'+d.attr('did'),
+            type: 'GET',
+            dataType: 'json',
+            timeout: 5000,
+            success: function(json){
+              d.removeClass('active')
+              _get_dewars()
+            }
+          })
+          return false
+        })
+  
       $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false })
       $('a.print').button({ icons: { primary: 'ui-icon-print' }, text: false })
   
