@@ -68,7 +68,7 @@
             </select>
         </div>
 
-        <div class="pages" title="Click to change pages"></div>
+        <div class="pages pp" title="Click to change pages"></div>
     </div>
 
     <?php if ($dcid): ?>
@@ -86,6 +86,6 @@
             </select>
         </div>
 
-        <div class="pages"></div>
+        <div class="pages pp"></div>
     </div>
 
