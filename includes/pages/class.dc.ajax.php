@@ -325,7 +325,7 @@
                     # Transmission factor rather than transmission :(
                     $dc['TRANSMISSION'] *= 100;
                     
-                    $nf = array(2 => array('EXPOSURETIME'), 2 => array('AXISSTART', 'RESOLUTION'), 3 => array('TRANSMISSION'));
+                    $nf = array(2 => array('EXPOSURETIME'), 2 => array('AXISSTART', 'RESOLUTION', 'TRANSMISSION'));
                     $this->profile('edge');  
                 
                 // MCA Scans
@@ -342,7 +342,7 @@
                     }
                     
                     $dc['ELEMENTS'] = $elements;*/
-                    $nf = array(2 => array('EXPOSURETIME', 'WAVELENGTH'), 3 => array('TRANSMISSION'));
+                    $nf = array(2 => array('EXPOSURETIME', 'WAVELENGTH', 'TRANSMISSION'));
                     
                 // Robot loads
                 } else if ($dc['TYPE'] == 'load') $nf = array();
