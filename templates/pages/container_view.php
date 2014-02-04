@@ -6,7 +6,11 @@
     <p class="help alert">This container is currently assigned and in use on a beamline sample changer. Unassign it to make it editable</p>
     <?php endif; ?>
 
-    <div class="form">
+    <div class="form clearfix puck_wrap">
+        <div class="puck" title="Click to jump to a position in the puck">
+            <canvas></canvas>
+        </div>
+
         <ul>
             <li>
                 <span class="label">Shipment</span>
