@@ -142,6 +142,10 @@ div.log {
         float: left;
         padding: 3px 3px 3px 0;
         position: absolute;
+        
+        @media (max-width: $breakpoint-vsmall) {
+            display: none;
+        }
     }
     
     .pages {
@@ -149,6 +153,10 @@ div.log {
         
         &.pp {
             margin-left: 60px;
+            
+            @media (max-width: $breakpoint-vsmall) {
+                margin-left: 0;
+            }
         }
         
         ul {
