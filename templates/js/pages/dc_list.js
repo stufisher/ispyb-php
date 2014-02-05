@@ -542,7 +542,7 @@ $(function() {
                         //tickColor: 'transparent'
              
                     },
-                    yaxes: [{}, { position: 'right' }],
+                    yaxes: [{}, { position: 'right', transform: function (v) { return -v; } }],
                     grid: {
                         borderWidth: 0,
                     },
