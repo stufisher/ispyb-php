@@ -1,4 +1,6 @@
 $(function() {
+  var page = 1
+  var refresh = false
 
   $('button[name=get_pdb]').button({ icons: { primary: 'ui-icon-arrowthick-1-s' } }).click(function() {
                                
@@ -60,8 +62,10 @@ $(function() {
   
   
   // Get data collections for a particular cell
-  $('button[name=lookup]').button({ icons: { primary: 'ui-icon-search' } }).click(function() {
-    var uc = {}
+  $('button[name=lookup]').button({ icons: { primary: 'ui-icon-search' } }).click(function() { refresh = true; _lookup() })
+  
+  function _lookup() {
+    var uc = { page: page }
     $.each(['a', 'b', 'c', 'al', 'be', 'ga'], function(i,e) {
         uc[e] = $('input[name='+e+']').val()
     })
@@ -73,21 +77,54 @@ $(function() {
     uc['tol'] = $('input[name=tol]').val()
                   
     if ($('.pdb_details .date').html()) uc['year'] = $('.pdb_details .date').html()
-                     
-    $('.count').html('Searching...')
+  
+    if (refresh) {
+      page = 1
+      $('.count').html('<img width="16" height="16" style="vertical-align: middle" src="/templates/images/ajax-loader.gif" alt="Loading..." /> Searching...')
+      refresh = false
+    }
     $('.data_collections').empty()
-                                                                                  
+  
     $.ajax({
         url: '/cell/ajax/',
         type: 'GET',
         data: uc,
         dataType: 'json',
-        timeout: 20000,
+        timeout: 120000,
+           
+        error: function() {
+           $('.count').html('Search Timed Out')
+        },
+           
         success: function(json){
             $('.count').html(json[0])
            
+            var pgs = []
+            var pgs_to_show = 20
+            var pc = json[1] == 0 ? 1 : json[1]
+            var st = Math.max(0, Math.min(json[1]-pgs_to_show,page-pgs_to_show/2))
+            var en = Math.min(json[1],Math.max(page+pgs_to_show/2,pgs_to_show))
+           
+            for (var i = st; i < en; i++) pgs.push('<li nid="'+(i+1)+'"><a href="#'+(i+1)+'">'+(i+1)+'</a></li>')
+            if (st > 0) pgs.unshift('<li id="1"><a href="#1">1</a></li><li>...</li>')
+            if (en < json[1]) pgs.push('<li>...</li><li nid="'+json[1]+'"><a href="#'+json[1]+'">'+json[1]+'</a></li>')
+           
+            $('.pages').html('<ul>'+pgs.join('')+'</ul>')
+           
+            $('.pages ul').each(function(i,e) {
+              $(this).children('li').removeClass('selected').filter('[nid='+page+']').addClass('selected')
+            })
+            $('.pages a').unbind('click').click(function() {
+              page = parseInt($(this).attr('href').replace('#', ''))
+              $('.data_collections').empty()
+              url = window.location.pathname.replace(/\/page\/\d+/, '')+'/page/'+page
+              window.history.pushState({}, '', url)
+              _lookup()
+              return false
+            })
+           
             $('.data_collections').empty()
-            $.each(json[1], function(i,r) {
+            $.each(json[2], function(i,r) {
                   var us = []
                   $.each(r['USERS'], function(i,u) {
                     var last = $(u.split(' ')).get(-1)
@@ -144,9 +181,8 @@ $(function() {
             })
         }
     })
-                                 
-                                 
-  })
+                              
+  }
   
   
   if (pdb) {
