@@ -2,7 +2,8 @@ $(function() {
 
   // Check for ios
   function isOld() {
-    return false
+    var old = navigator.userAgent.indexOf('Firefox/17.0') != -1
+    return old
   }
   
   $('button[name=reset]').button({ icons: { primary: 'ui-icon-refresh' }, text: false }).click(function() {
@@ -55,6 +56,10 @@ $(function() {
   
   if (!isOld())
     var c = Caman('#img')
+  else {
+    $('.im_col').eq(0).hide()
+    $('.im_col').eq(1).hide()
+  }
   
   // Set canvas size to parent element
   function resize() {
@@ -207,6 +212,8 @@ $(function() {
   // Apply image adjustments
   function adjust() {
     if (isOld()) return
+    if (brightness == 0 && contrast == 0) return
+  
     c.revert()
     if ($('input[name=invert]').is(':checked')) {
       c.invert()
