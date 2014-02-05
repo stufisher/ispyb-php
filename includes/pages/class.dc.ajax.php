@@ -1090,12 +1090,11 @@
                 
             $file = $info['FILEPATH'].'/'.str_replace('fast_dp.log', 'xdsstat.log', $info['FILENAME']);
             
+            $rows = array();
             if (file_exists($file)) {
                 $log = file_get_contents($file);
                 
                 $start = 0;
-                $rows = array();
-                
                 foreach (explode("\n", $log) as $l) {
                     if (strpos(trim($l), 'Framediff #refs R_d n-notfriedel Rd-notfriedel n-friedel Rd-friedel dummy $$') !== False) {
                         $start = 1;
