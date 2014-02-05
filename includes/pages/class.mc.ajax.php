@@ -225,7 +225,7 @@
                     $remote = "module load xia2/4479\necho 'xds.colspot.minimum_pixels_per_spot=3' > spot.phil\nxia2 -failover -3daii $sg $cell $res -xinfo xia.xinfo -phil spot.phil";
                     file_put_contents($root.'/x2'.$r['ID'].'.sh', $remote);
                     
-                    $ret = exec('module load global/cluster;qsub x2'.$r['ID'].'.sh');
+                    $ret = exec('module load global/cluster;qsub -l h_rt=02:00 x2'.$r['ID'].'.sh');
                     
                     
                 }
