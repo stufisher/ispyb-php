@@ -59,6 +59,7 @@ $(function() {
   else {
     $('.im_col').eq(0).hide()
     $('.im_col').eq(1).hide()
+    $('.toggles label').eq(2).hide()
   }
   
   // Set canvas size to parent element
