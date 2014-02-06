@@ -781,7 +781,7 @@ $(function() {
         var id = $(this).parent().parent().parent('div').attr('dcid')
         var t = $(this).parent().parent().parent('div').attr('type')
         $(this).editable('/dc/ajax/comment/t/'+t+'/id/'+id, {
-                                                width: '90px',
+                                                width: '65%',
                                                 height: '20px',
                                                 type: 'text',
                                                 submit: 'Ok',
