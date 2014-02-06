@@ -211,6 +211,8 @@ $(function() {
   $('button.pf').button().click(function() {
     $('.paste textarea').val('')
     $('.paste').dialog('open')
+                                
+    return false
   })
   
   function _insert() {
