@@ -10,9 +10,13 @@ $(function() {
     $('#brightness').slider('value', 0)
     $('#contrast').slider('value', 0)
     $('#zoom').slider('value', 0)
-    draw()
-    _recache()
-    adjust()
+    $('input[name=invert]').prop('checked', false)
+    setTimeout(function() {
+      _clamp_offset()
+      draw()
+      _recache()
+      adjust()
+    },300)
   })
   
   $('#zoom').slider({min: 0, max: 200, step: 5})
@@ -45,6 +49,8 @@ $(function() {
   var recache_thread = null
   var resize_thread = null
   var redraw_thread = null
+  
+  var invert_change = false
   
   var img = new Image()
   var cache = new Image()
@@ -213,13 +219,14 @@ $(function() {
   // Apply image adjustments
   function adjust() {
     if (isOld()) return
-    if (brightness == 0 && contrast == 0) return
+    if (brightness == 0 && contrast == 0 && !(invert_change || $('input[name=invert]').is(':checked'))) return
   
     c.revert()
     if ($('input[name=invert]').is(':checked')) {
       c.invert()
       //_plot_profiles(lastx, lasty)
     }
+    invert_change = false
   
     c.brightness(brightness).contrast(contrast).render(function() {
         $('.im_progress').fadeOut(100)
@@ -407,6 +414,9 @@ $(function() {
       // i
       case 105:
         $('input[name=invert]').prop('checked', !$('input[name=invert]').is(':checked'))
+        invert_change = true
+        draw()
+        _recache()
         adjust()
         break
             
@@ -664,6 +674,9 @@ $(function() {
   })
 
   $('input[name=invert]').click(function() {
+    invert_change = true
+    draw()
+    _recache()
     adjust()
   })
   
