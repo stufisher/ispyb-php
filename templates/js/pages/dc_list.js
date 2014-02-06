@@ -275,7 +275,7 @@ $(function() {
                                   '<a href="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'/f/1" title="Crystal Snapshot Before"><img class="lazy" data-src="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'" alt="Crystal Snapshot Before" /></a>'+
                                '</div>'+
                                '<div class="snapshots">'+
-                                  '<a href="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'/f/1" title="Crystal Snapshot After"><img class="lazy" data-src="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'" alt="Crystal Snapshot After" /></a>'+
+                                  '<a href="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'/n/2/f/1" title="Crystal Snapshot After"><img class="lazy" data-src="/image/ai/visit/'+prop+'-'+r['VN']+'/aid/'+r['ID']+'/n/2" alt="Crystal Snapshot After" /></a>'+
                                '</div>'+
                                '<h1><span class="date">'+vis_link+' '+r['ST']+'</span><span class="spacer"> - </span><span class="temp">Sample '+r['IMP'].toLowerCase()+'</span></h1>'+
                                  '<ul class="clearfix">'+
