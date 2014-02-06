@@ -71,6 +71,7 @@
                 } else $info = $info[0];
                 
                 $this->cookie($info['PROP']);
+                $this->args['prop'] = $info['PROP'];
                 $active = $info['ACTIVE'];
                 $is_visit = True;
                 
