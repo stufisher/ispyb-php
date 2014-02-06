@@ -665,6 +665,10 @@ div.log {
         
         //@include cols(2,1.25% 1%);
         
+        &.active {
+            box-shadow: 0 0 2px #82d180 inset;
+        }
+        
         &:hover {
             background: $content-light-background;
         }
