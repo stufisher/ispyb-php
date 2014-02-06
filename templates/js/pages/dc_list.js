@@ -917,7 +917,8 @@ $(function() {
                               '<td>'+ap['CELL']['CELL_BE']+'</td>' +
                               '<td>'+ap['CELL']['CELL_GA']+'</td>' +
                               '</tr>'
-            aps[aid] = [ap['TYPE'], '<table class="reflow cell">'+ct+cell+'</table>',[]]
+                 
+            aps[aid] = [ap['TYPE'], '<table class="reflow cell">'+ct+cell+'</table>',[], ap['CELL']]
             
             $.each(ap['SHELLS'], function(n,s) {
                aps[aid][2].push('<tr class="'+n+'">' +
@@ -940,7 +941,7 @@ $(function() {
           var tab = ''
           $.each(aps, function(aid,ap) {
             out += '<div id="' + aid + '" aid="'+aid+'" did="'+id+'">'+
-                     '<p class="r downloads"><a class="dll" href="/download/id/'+id+'/aid/'+aid+'">MTZ file</a> <a class="view" href="/download/id/'+id+'/aid/'+aid+'/log/1/1">Log file</a>'+(ap[0]=='Fast DP' ? ' <a href="#" class="view rd_link">Radiation Damage</a>':'')+'</p>'+
+                     '<p class="r downloads"><a class="dll" href="/download/id/'+id+'/aid/'+aid+'">MTZ file</a> <a class="view" href="/download/id/'+id+'/aid/'+aid+'/log/1/1">Log file</a>'+(ap[0]=='Fast DP' ? ' <a href="#" class="view rd_link">Radiation Damage</a>':'')+' <a class="view" title="Lookup Unit Cell" href="/cell/a/'+ap[3]['CELL_A']+'/b/'+ap[3]['CELL_B']+'/c/'+ap[3]['CELL_C']+'/al/'+ap[3]['CELL_AL']+'/be/'+ap[3]['CELL_BE']+'/ga/'+ap[3]['CELL_GA']+'">Lookup Cell</a></p>'+
                      ap[1]+
                      '<table class="reflow shell">'+dt+ap[2].join(' ')+'</table></div>'
             tab += '<li><a href="#' + aid + '">'+ap[0]+'</a></li>'
@@ -1028,8 +1029,10 @@ $(function() {
                 '</tr></thead>'
            
             $.each(rows, function(n,t) {
-                if (t['STRATS'].length) {   
+                if (t['STRATS'].length) {
                 var sect = '<h1>'+n+'</h1>'+
+                           '<span class="r"><a class="search" href="/cell/a/'+t['CELL']['A']+'/b/'+t['CELL']['B']+'/c/'+t['CELL']['C']+'/al/'+t['CELL']['AL']+'/be/'+t['CELL']['BE']+'/ga/'+t['CELL']['GA']+'">Lookup Cell</a></span>'+
+                   
                            '<table class="cell reflow">'+ch+
                             '<tr>'+
                             '<td>'+t['CELL']['SG']+'</td>' +
@@ -1076,6 +1079,7 @@ $(function() {
            if (count == 0) out = '<p>No strategies found for this data collection</p>'
 
            d.html(out)
+           $('a.search').button({ icons: { primary: 'ui-icon-search' } })
            $.each(json, function(i,r) {
                $('.data_collection[dcid="'+id+'"] tr[sid='+i+']').data('strat', r)
            })

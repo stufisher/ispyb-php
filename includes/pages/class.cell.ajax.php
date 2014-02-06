@@ -173,7 +173,7 @@
                     
                     $d['CLOSEST'] = sizeof($rows) ? $rows[0]['BL'] : '';
                     $d['DIST'] = sizeof($rows) ? $rows[0]['DIST'] : '';
-                    $d['RESULTS'] = sizeof($rows);
+                    $d['RESULTS'] = $tot;
                     
                     $d['BLS'] = array_keys($bls);
                     $d['DCIDS'] = array_keys($dcids);

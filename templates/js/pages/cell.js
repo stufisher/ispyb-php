@@ -185,9 +185,24 @@ $(function() {
   }
   
   
+  // Auto lookup passed pdb
   if (pdb) {
     $('input[name=pdb]').val(pdb)
     $('button[name=get_pdb]').trigger('click')
+  }
+  
+  // Auto lookup passed unit cell
+  if (a && b && c && al && be && ga) {
+    $('input[name=a]').val(a)
+    $('input[name=b]').val(b)
+    $('input[name=c]').val(c)
+    $('input[name=al]').val(al)
+    $('input[name=be]').val(be)
+    $('input[name=ga]').val(ga)
+  
+    if (res) $('input[name=res]').val(res)
+  
+    _lookup()
   }
 
 })

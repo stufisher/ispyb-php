@@ -2,7 +2,17 @@
 
     class Cell extends Page {
         
-        var $arg_list = array('pdb' => '\w+');
+        var $arg_list = array('pdb' => '\w+',
+                              'a' => '\d+(.\d+)?',
+                              'b' => '\d+(.\d+)?',
+                              'c' => '\d+(.\d+)?',
+                              'al' => '\d+(.\d+)?',
+                              'be' => '\d+(.\d+)?',
+                              'ga' => '\d+(.\d+)?',
+                              'res' => '\d+(.\d+)?',
+                              );
+        
+        
         var $dispatch = array('cells' => '_cells',
                               'batch' => '_batch',
                               );
@@ -20,7 +30,8 @@
         function _cells() {
             $this->template('Nearest Cell');
             
-            $this->t->js_var('pdb', $this->has_arg('pdb') ? $this->arg('pdb') : '');
+            foreach (array('a', 'b', 'c', 'al', 'be', 'ga', 'res', 'pdb')  as $a)
+                $this->t->js_var($a, $this->has_arg($a) ? $this->arg($a) : '');
             
             $this->render('cell');
         }

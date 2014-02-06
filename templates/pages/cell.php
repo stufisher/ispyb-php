@@ -52,7 +52,8 @@
 
     <h1>Search Results</h1>
 
-
-    <div class="data_collections">
-
+    <div class="page_wrap clearfix">
+        <div class="pages" title="Click to change pages"></div>
     </div>
+
+    <div class="data_collections"></div>
