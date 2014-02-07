@@ -926,7 +926,7 @@ $(function() {
                                 '<td>'+s['NTOBS']+'</td>' +
                                 '<td>'+s['NUOBS']+'</td>' +
                                 '<td>'+s['RHIGH']+' - '+s['RLOW']+'</td>' +
-                                '<td>'+s['RMEAS']+'</td>' +
+                                '<td>'+(ap['TYPE'] == 'Fast DP' ? s['RMERGE'] : s['RMEAS'])+'</td>' +
                                 '<td>'+s['ISIGI']+'</td>' +
                                 '<td>'+s['COMPLETENESS']+'</td>' +
                                 '<td>'+s['MULTIPLICITY']+'</td>' +
@@ -943,7 +943,7 @@ $(function() {
             out += '<div id="' + aid + '" aid="'+aid+'" did="'+id+'">'+
                      '<p class="r downloads"><a class="dll" href="/download/id/'+id+'/aid/'+aid+'">MTZ file</a> <a class="view" href="/download/id/'+id+'/aid/'+aid+'/log/1/1">Log file</a>'+(ap[0]=='Fast DP' ? ' <a href="#" class="view rd_link">Radiation Damage</a>':'')+' <a class="view" title="Lookup Unit Cell" href="/cell/a/'+ap[3]['CELL_A']+'/b/'+ap[3]['CELL_B']+'/c/'+ap[3]['CELL_C']+'/al/'+ap[3]['CELL_AL']+'/be/'+ap[3]['CELL_BE']+'/ga/'+ap[3]['CELL_GA']+'">Lookup Cell</a></p>'+
                      ap[1]+
-                     '<table class="reflow shell">'+dt+ap[2].join(' ')+'</table></div>'
+                     '<table class="reflow shell">'+(ap[0] == 'Fast DP' ? dt.replace('Rmeas', 'Rmerge') : dt)+ap[2].join(' ')+'</table></div>'
             tab += '<li><a href="#' + aid + '">'+ap[0]+'</a></li>'
           })
            
