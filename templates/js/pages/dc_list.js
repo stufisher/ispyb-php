@@ -186,7 +186,7 @@ $(function() {
                                  '<li>&Omega; Overlap: '+r['OVERLAP']+'&deg;</li>'+
                                  '<li>No. Images: '+r['NUMIMG']+'</li>'+
                                  (r['SI'] == 1 ? '' : ('<li>First Image: '+r['SI']+'</li>'))+
-                                 (r['KAPPA'] ==0 && r['PHI'] ==0 ? '' : ('<li>&kappa;: '+r['KAPPA']+' &phi;: '+r['PHI']+'</li>'))+
+                                 ((r['KAPPA'] && r['KAPPA'] !=0) || (r['PHI'] && r['PHI'] != 0) ? ('<li>&kappa;: '+r['KAPPA']+'&deg; &phi;: '+r['PHI']+'&deg;</li>') : '')+
                                  '<li>Resolution: '+r['RESOLUTION']+'&#197;</li>'+
                                  '<li>Wavelength: '+r['WAVELENGTH']+'&#197;</li>'+
                                  '<li>Exposure: '+r['EXPOSURETIME']+'s</li>'+
