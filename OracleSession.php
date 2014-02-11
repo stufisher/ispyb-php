@@ -27,7 +27,7 @@
 
         
         public function _read($id){
-            $rows = $this->db->pq("SELECT parametercomments as data FROM genericdata WHERE parametervaluestring = :1", array($id));
+            $rows = $this->db->pq("SELECT data FROM phpsession WHERE id = :1", array($id));
             
             if(sizeof($rows)){
                 return $rows[0]['DATA'];
@@ -38,15 +38,15 @@
 
 
         public function _write($id, $data){
-            $chk = $this->db->pq("SELECT parametercomments as data FROM genericdata WHERE parametervaluestring = :1", array($id));
+            $chk = $this->db->pq("SELECT data FROM phpsession WHERE id = :1", array($id));
             
             if (sizeof($chk)) {
-                $this->db->pq("UPDATE genericdata SET parametercomments=:1,parametervaluedate=SYSDATE WHERE parametervaluestring=:2", array($data,$id));
+                $this->db->pq("UPDATE phpsession SET data=:1,accessdate=SYSDATE WHERE id=:2", array($data,$id));
                 
                 return true;
                 
             } else {
-                $this->db->pq("INSERT INTO genericdata (genericdataid,parametervaluestring, parametervaluedate, parametercomments) VALUES (s_genericdata.nextval,:1,SYSDATE,:2)", array($id, $data));
+                $this->db->pq("INSERT INTO phpsession (id, accessdate, data) VALUES (:1,SYSDATE,:2)", array($id, $data));
                 
                 return true;
             }
@@ -56,14 +56,14 @@
 
         
         public function _destroy($id){
-            $this->db->pq("DELETE FROM genericdata WHERE parametervaluestring = :1", array($id));
+            $this->db->pq("DELETE FROM phpsession WHERE id = :1", array($id));
             return true;
         }
 
 
         public function _gc($max){
             $old = date('d-m-Y H:i', time() - $max);
-            $this->db->pq("DELETE FROM genericdata WHERE parametervaluedate < TO_DATE(:1, 'DD-MM-YYYY HH24:MI')", array($old));
+            $this->db->pq("DELETE FROM phpsession WHERE accessdate < TO_DATE(:1, 'DD-MM-YYYY HH24:MI')", array($old));
 
             return true;
         }
