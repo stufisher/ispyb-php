@@ -132,7 +132,7 @@ $(function() {
             '<td>'+(s['CODE']?s['CODE']:'')+'</td>'+
             '<td>'+(s['COMMENTS']?s['COMMENTS']:'')+'</td>'+
             '<td>'+(s['BLSAMPLEID'] ? (s['DCOUNT'] > 0 ? 'Yes' : 'No') : '')+'</td>'+
-            '<td>'+(in_use ? '' : '<button class="edit" title="Edit sample details">Edit Sample</button> ')+(s['BLSAMPLEID'] ? '<button class="delete">Delete Sample</button> &nbsp; <button class="view" title="View sample details">View Sample</button>' : '')+'</td>'+
+            '<td>'+(in_use ? '' : '<button class="edit" title="Edit sample details">Edit Sample</button> <button class="delete">Delete Sample</button>')+(s['BLSAMPLEID'] ? ' &nbsp; <button class="view" title="View sample details">View Sample</button>' : '')+'</td>'+
             '</tr>').appendTo($('.samples tbody'))
         })
         _map_callbacks()
