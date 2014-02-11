@@ -54,7 +54,7 @@
                         <ul>
                         <?php foreach ($vi as $v): ?>
                         <li class="<?php echo (time() > strtotime('23:59 '.($i - $first +1).'-'.$c_month.'-'.$c_year)) ? 'past' : '' ?>">
-                            <?php echo $v['BL'] ?> - <a href="/dc/visit/<?php echo $v['VIS'] ?>"><?php echo $v['VIS'] ?></a>
+                            <?php echo $v['BL'] ?> - <?php if ($v['REG']): ?><a class="bold" href="/dc/visit/<?php echo $v['VIS'] ?>"><?php echo $v['VIS'] ?></a><?php else: ?><?php echo $v['VIS'] ?><?php endif; ?>
                             <?php if ($v['LC']): ?>
                               <span class="short"><?php echo $v['LC'] ?></span>
                             <?php endif;?>

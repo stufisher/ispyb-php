@@ -48,14 +48,21 @@
             $day = mktime(0,0,0,$c_month,1,$c_year);
             $den = mktime(23,59,59,$c_month,$this->t->dim+1,$c_year);
             
-            $visits = $this->db->pq("SELECT p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis, p.proposalcode || p.proposalnumber as prop, s.beamlinename as bl, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st, s.sessionid FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE s.startdate BETWEEN TO_DATE(:1,'dd-mm-yyyy') AND TO_DATE(:2,'dd-mm-yyyy') AND (s.beamlinename LIKE 'i02' OR s.beamlinename LIKE 'i03' OR s.beamlinename LIKE 'i04' OR s.beamlinename LIKE 'i04-1' OR s.beamlinename LIKE 'i24') ORDER BY s.startdate, s.beamlinename", array(strtoupper(date('d-m-Y', $day)), strtoupper(date('d-m-Y', $den))));
+            $where = '';
+            $args = array(strtoupper(date('d-m-Y', $day)), strtoupper(date('d-m-Y', $den)));
+            
+            if ($prop) {
+                $where = 'AND p.proposalid=:'.(sizeof($args)+1);
+                array_push($args, $this->proposalid);
+            }
+            
+            $visits = $this->db->pq("SELECT p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis, p.proposalcode || p.proposalnumber as prop, s.beamlinename as bl, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st, s.sessionid FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE s.startdate BETWEEN TO_DATE(:1,'dd-mm-yyyy') AND TO_DATE(:2,'dd-mm-yyyy') AND (s.beamlinename LIKE 'i02' OR s.beamlinename LIKE 'i03' OR s.beamlinename LIKE 'i04' OR s.beamlinename LIKE 'i04-1' OR s.beamlinename LIKE 'i24') $where ORDER BY s.startdate, s.beamlinename", $args);
             
             $vbd = array();
             foreach ($visits as $v) {
-                if (!$this->staff)
-                    if (!in_array($v['VIS'], $this->visits)) continue;
+                $v['REG'] = $this->staff || in_array($v['VIS'], $this->visits) ? 1 : 0;
                 
-                if ($prop) if ($this->arg('prop') != $v['PROP']) continue;
+                if (!$this->staff && !$prop) if (!in_array($v['VIS'], $this->visits)) continue;
                 
                 $t = strtotime($v['ST']);
                 $k = date('j', $t);
