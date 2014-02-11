@@ -72,7 +72,7 @@ $(function() {
   
   if (typeof dewar !== 'undefined') {
     $.plot('#dc_hist', dewar[0], opts)
-    $.plot('#dc_hist2', dewar[1], opts)
+    if (dewar[1].length) $.plot('#dc_hist2', dewar[1], opts)
   }
   
   

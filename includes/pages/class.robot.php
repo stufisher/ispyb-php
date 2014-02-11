@@ -2,7 +2,7 @@
 
     class Robot extends Page {
         
-        var $arg_list = array('bl' => '\w\d\d(-\d)?', 'run' => '\d+', 'visit' => '\w+\d+-\d+');
+        var $arg_list = array('bl' => '\w\d\d(-\d)?', 'run' => '\d+', 'visit' => '\w+\d+-\d+', 'year' => '\d\d\d\d');
         var $dispatch = array('index' => '_index');
         var $def = 'index';
         
@@ -16,7 +16,7 @@
         # Internal dispatcher based on passed arguments
         function _index() {
             if ($this->has_arg('visit')) $this->_get_visit();
-            else if ($this->has_arg('bl') || $this->has_arg('run')) $this->_get_list();
+            else if ($this->has_arg('bl') || $this->has_arg('run') || $this->has_arg('year')) $this->_get_list();
             else $this->_get_root();
         }
         
@@ -79,9 +79,17 @@
                 array_push($where, 'vr.runid = :' . (sizeof($args)+1));
                 array_push($args, $this->arg('run'));
             }
+            
+            if ($this->has_arg('year')) {
+                array_push($where, "r.starttimestamp > TO_DATE(:".(sizeof($args)+1).", 'HH24:MI DD-MM-YYYY')");
+                array_push($where, "r.starttimestamp < TO_DATE(:".(sizeof($args)+2).", 'HH24:MI DD-MM-YYYY')");
+                array_push($args, '00:01 01-01-'.$this->arg('year'));
+                array_push($args, '23:59 31-12-'.($this->arg('year')));
+            }
+            
             $where = implode(' AND ', $where);
             
-            $q = "SELECT TO_CHAR(min(r.starttimestamp), 'DD-MM-YYYY HH24:MI:SS') as st, p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis, s.beamlinename as bl, r.status, count(r.robotactionid) as num, AVG(CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as avgt FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = s.sessionid) WHERE p.proposalcode <> 'cm' AND $where AND (r.actiontype = 'LOAD' OR r.actiontype='UNLOAD') GROUP BY p.proposalcode || p.proposalnumber || '-' || s.visit_number, r.status, s.beamlinename ORDER BY min(r.starttimestamp)";
+            $q = "SELECT TO_CHAR(min(r.starttimestamp), 'DD-MM-YYYY HH24:MI:SS') as st, p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis, s.beamlinename as bl, r.status, count(r.robotactionid) as num, AVG(CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as avgt FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.robotaction r ON (r.blsessionid = s.sessionid) WHERE p.proposalcode <> 'cm' AND $where AND (r.actiontype = 'LOAD') GROUP BY p.proposalcode || p.proposalnumber || '-' || s.visit_number, r.status, s.beamlinename ORDER BY min(r.starttimestamp)";
             
             $ticks = array();
             $avts = array();
@@ -175,7 +183,11 @@
                 array_push($p, $run);
                 array_push($l, 'run/' . $this->arg('run'));
             }
-            
+
+            if ($this->has_arg('year')) {
+                array_push($p, $this->arg('year'));
+                array_push($l, 'year/' . $this->arg('year'));
+            }
             
             $this->template(join(' > ', $p), $p, $l);
             
@@ -204,13 +216,33 @@
                 array_push($ticks, array(sizeof($rows) - 1 - $i, $r['ST']));
             }
 
-            list($info) = $this->db->pq("SELECT s.beamlinename as bl, vr.run, vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')));
+            
+            list($info) = $this->db->pq("SELECT s.sessionid, s.beamlinename as bl, vr.run, vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')));
+            
+            # Get breakdown of dewar usage for visit
+            $dp = $this->db->pq("SELECT count(case when r.status='CRITICAL' then 1 end) as ccount, count(case when r.status!='SUCCESS' then 1 end) as ecount, count(case when r.status!='SUCCESS' then 1 end)/count(r.status)*100 as epc, count(case when r.status='CRITICAL' then 1 end)/count(r.status)*100 as cpc, count(r.status) as total, r.dewarlocation from robotaction r INNER JOIN blsession s on r.blsessionid=s.sessionid INNER JOIN ispyb4a_db.v_run vr ON (s.startdate BETWEEN vr.startdate AND vr.enddate) WHERE s.sessionid=:1 AND r.actiontype LIKE 'LOAD' AND r.dewarlocation != 99 GROUP BY r.dewarlocation ORDER BY r.dewarlocation", array($info['SESSIONID']));
+            
+            
+            $profile = array(array(
+                                   array('label' => 'Total',  'data' => array()),
+                                   array('label' => '% Errors',  'data' => array(), 'yaxis' => 2),
+                                   array('label' => '% Critical',  'data' => array(), 'yaxis' => 2),
+                                   ),
+                             array());
+            
+            foreach ($dp as $e) {
+                array_push($profile[0][0]['data'], array($e['DEWARLOCATION'], $e['TOTAL']));
+                array_push($profile[0][2]['data'], array($e['DEWARLOCATION'], $e['CPC']));
+                array_push($profile[0][1]['data'], array($e['DEWARLOCATION'], $e['EPC']));
+            }
+            
             
             $p = array($info['BL'], $info['RUN'], $this->arg('visit'));
             $l = array('bl/' . $info['BL'], 'run/' .$info['RUNID'], '');
             
             $this->template('Visit: ' . $this->args['visit'], $p, $l);
 
+            $this->t->js_var('dewar', $profile);
             $this->t->js_var('avg_time', $times);
             $this->t->js_var('avg_ticks', $ticks);
             $this->t->js_var('url', 0);

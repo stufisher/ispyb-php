@@ -5,6 +5,13 @@
             <div id="avg_time"></div>
         </div>
 
+        <h1>Dewar Profile</h1>
+
+        <div class="plot_wrap">
+            <div class="plot_container">
+                <div id="dc_hist"></div>
+            </div>
+        </div>
 
         <div class="table">
             <table class="robot_actions">
