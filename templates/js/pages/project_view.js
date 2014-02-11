@@ -269,4 +269,57 @@ $(function() {
   })
   
   $('.tabs').tabs()
+  
+  
+  // Add new user
+  $('input[name=user]').autocomplete({source: '/fault/ajax/names/'}).keypress(function (e) {
+    var f = $(this)
+    if (e.which == 13) {
+        $.ajax({
+          url: '/projects/ajax/adduser/pid/'+pid+'/user/'+$(this).val(),
+          type: 'GET',
+          dataType: 'json',
+          timeout: 5000,
+          success: function(json){
+            _get_users()
+            $(f).val('')
+          }
+        })
+        return false
+    }
+  })
+  
+  
+  // Get list of users for project
+  function _get_users() {
+    $.ajax({
+      url: '/projects/ajax/users/pid/'+pid,
+      type: 'GET',
+      dataType: 'json',
+      timeout: 5000,
+      success: function(json){
+        var u_out = ''
+        $.each(json, function(i,p) {
+          u_out += '<li userid="'+p['PUID']+'">'+p['NAME']+(owner ? ' <span class="r"><button class="delete">Delete</button></span>' : '')+'</li>'
+        })
+           
+        if (!u_out) pdb_out = '<li>No users registered on this project</li>'
+           
+        $('.users ul').html(u_out)
+           
+        // Enable delete buttons
+        $('button.delete').button({ icons: { primary: 'ui-icon-closethick' }, text: false }).click(function(i,e) {
+          $.ajax({
+            url: '/projects/ajax/remuser/pid/'+pid+'/uid/'+$(this).parent('span').parent('li').attr('userid'),
+            type: 'GET',
+            dataType: 'json',
+            success: function(json){
+              _get_users()
+            }
+          })
+        })
+      }
+    })
+  }
+  _get_users()
 })

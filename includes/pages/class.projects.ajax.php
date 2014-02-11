@@ -10,12 +10,17 @@
                               'iid' => '\d+',
                               'rem' => '\d',
                               'value' => '.*',
+                              'user' => '\w+\d+',
+                              'uid' => '\d+',
                               );
         var $dispatch = array('projects' => '_projects',
                               'add' => '_add_project',
                               'check' => '_check_project',
                               'addto' => '_add_to_project',
                               'update' => '_update_project',
+                              'users' => '_project_users',
+                              'adduser' => '_add_user',
+                              'remuser' => '_del_user',
                               );
         
         var $def = 'projects';
@@ -31,24 +36,20 @@
         
         # List of projects
         function _projects() {
-            if (!$this->has_arg('prop')) $this->_error('No proposal specified');
-            
-            $args = array(phpCAS::getUser());
-            $where = "WHERE p.owner LIKE :1";
-            " OR phu.username LIKE :2";
+            $args = array(phpCAS::getUser(), phpCAS::getUser());
+            $where = "WHERE p.owner LIKE :1 OR pu.username LIKE :2";
             
             $sta = $this->has_arg('iDisplayStart') ? $this->arg('iDisplayStart') : 0;
             $len = $this->has_arg('iDisplayLength') ? $this->arg('iDisplayLength') : 20;
-            
-            " INNER JOIN ispyb4a_db.project_has_user phu ON phu.projectid = p.projectid";
-            $tot = $this->db->pq("SELECT count(projectid) as tot FROM ispyb4a_db.project p $where");
+
+            $tot = $this->db->pq("SELECT count(distinct p.projectid) as tot FROM ispyb4a_db.project p LEFT OUTER JOIN ispyb4a_db.project_has_user pu ON pu.projectid = p.projectid $where", $args);
             $tot = $tot[0]['TOT'];
             
             $st = sizeof($args) + 1;
             array_push($args, $sta);
             array_push($args, $sta+$len);
             
-            $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (SELECT p.title, p.projectid, p.acronym FROM ispyb4a_db.project p $where ORDER BY p.projectid) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
+            $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (SELECT p.title, p.projectid, p.acronym FROM ispyb4a_db.project p LEFT OUTER JOIN ispyb4a_db.project_has_user pu ON pu.projectid = p.projectid $where ORDER BY p.projectid) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
             
             if ($this->has_arg('array')) {
                 $data = array();
@@ -70,7 +71,6 @@
         
         
         function _add_project() {
-            if (!$this->has_arg('prop')) $this->_error('No proposal specified');
             if (!$this->has_arg('title')) $this->_error('No title specified');
             if (!$this->has_arg('acronym')) $this->_error('No acronym specified');
             
@@ -82,7 +82,6 @@
         
         # Add to / remove from project
         function _add_to_project() {
-            if (!$this->has_arg('prop')) $this->_error('No proposal specified');
             if (!$this->has_arg('pid')) $this->_error('No project id specified');
             if (!$this->has_arg('ty')) $this->_error('No item type specified');
             if (!$this->has_arg('iid')) $this->_error('No item id specified');
@@ -108,7 +107,6 @@
         
         # Check if item already exists
         function _check_project() {
-            if (!$this->has_arg('prop')) $this->_error('No proposal specified');
             if (!$this->has_arg('pid')) $this->_error('No project id specified');
             if (!$this->has_arg('ty')) $this->_error('No item type specified');
             if (!$this->has_arg('iid')) $this->_error('No item id specified');
@@ -130,7 +128,6 @@
         
         # Update project
         function _update_project() {
-            if (!$this->has_arg('prop')) $this->_error('No proposal specified');
             if (!$this->has_arg('pid')) $this->_error('No project id specified');
             if (!$this->has_arg('value')) $this->_error('No value specified');
             
@@ -155,7 +152,52 @@
                 
             } 
         }
+        
+        
+        # Users on project
+        function _project_users() {
+            if (!$this->has_arg('pid')) $this->_error('No project id specified');
+            
+            $pu = $this->db->pq("SELECT username,projecthasuserid as puid FROM ispyb4a_db.project_has_user WHERE projectid=:1", array($this->arg('pid')));
+            
+            foreach ($pu as &$p) {
+                $p['NAME'] = $this->_get_name($p['USERNAME']);
+            }
+            
+            $this->_output($pu);
+        }
+        
     
+        # Add a user to a project
+        function _add_user() {
+            if (!$this->has_arg('pid')) $this->_error('No project id specified');
+            if (!$this->has_arg('user')) $this->_error('No user specified');
+            
+            $proj = $this->db->pq("SELECT p.projectid FROM ispyb4a_db.project p WHERE p.owner LIKE :1 AND p.projectid=:2", array(phpCAS::getUser(),$this->arg('pid')));
+            
+            if (!sizeof($proj)) $this->_error('No such project');
+            $proj = $proj[0];
+            
+            $this->db->pq("INSERT INTO ispyb4a_db.project_has_user (projecthasuserid, projectid, username) VALUES (s_project_has_user.nextval, :1, :2)", array($this->arg('pid'), $this->arg('user')));
+            
+            $this->_output(1);
+        }
+        
+        
+        # Remove a user
+        function _del_user() {
+            if (!$this->has_arg('pid')) $this->_error('No project id specified');
+            if (!$this->has_arg('uid')) $this->_error('No user specified');
+            
+            $proj = $this->db->pq("SELECT p.projectid FROM ispyb4a_db.project p WHERE p.owner LIKE :1 AND p.projectid=:2", array(phpCAS::getUser(),$this->arg('pid')));
+            
+            if (!sizeof($proj)) $this->_error('No such project');
+            $proj = $proj[0];
+            
+            $this->db->pq("DELETE FROM ispyb4a_db.project_has_user WHERE projecthasuserid=:2 AND projectid=:1", array($this->arg('pid'), $this->arg('uid')));
+            
+            $this->_output(1);
+        }
     }
 
 ?>

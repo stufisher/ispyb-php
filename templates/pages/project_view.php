@@ -6,6 +6,10 @@
 
     <div class="form">
         <ul>
+            <li>
+                <span class="label">Owner</span>
+                <span class="owner"><?php echo $proj['OWNER_NAME'] ?></span>
+            </li>
 
             <li>
                 <span class="label">Name</span>
@@ -15,6 +19,16 @@
             <li>
                 <span class="label">Acronym</span>
                 <span class="acronym"><?php echo $proj['ACRONYM'] ?></span>
+            </li>
+
+            <li class="clearfix">
+                <span class="label">Users</span>
+                <span class="users floated">
+                    <?php if ($owner): ?>
+                    <input name="user" type="text" title="Start typing a name to autocomplete. Press enter to add a user" />
+                    <?php endif; ?>
+                    <ul class="visits clearfix"></ul>
+                </span>
             </li>
 
         </ul>

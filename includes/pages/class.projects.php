@@ -28,14 +28,18 @@
         # View a particular project
         function _view_project() {
             if (!$this->has_arg('pid')) $this->error('No project', 'No project was specified');
-            
-            $proj = $this->db->pq("SELECT p.title,p.acronym FROM ispyb4a_db.project p WHERE p.projectid=:1", array($this->arg('pid')));
-            
+
+            $proj = $this->db->pq("SELECT p.title,p.acronym,p.owner FROM ispyb4a_db.project p LEFT OUTER JOIN ispyb4a_db.project_has_user pu ON pu.projectid = p.projectid WHERE p.projectid=:1 AND (p.owner LIKE :2 OR pu.username LIKE :3)", array($this->arg('pid'), phpCAS::getUser(), phpCAS::getUser()));
+
             if (!sizeof($proj)) $this->error('No such project', 'The specified project doesnt exist');
             else $proj = $proj[0];
             
+            $proj['OWNER_NAME'] = $this->_get_name($proj['OWNER']);
+            
             $this->template('View Project', array($proj['TITLE']), array(''));
             $this->t->js_var('pid', $this->arg('pid'));
+            $this->t->js_var('owner', phpCAS::getUser() == $proj['OWNER']);
+            $this->t->owner = phpCAS::getUser() == $proj['OWNER'];
             $this->t->proj = $proj;
             $this->t->render('project_view');
         }
