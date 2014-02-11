@@ -388,14 +388,14 @@
             $en = strtotime($info['EN']);
                                     
             # Call out log
-            $calls = @simplexml_load_file('https://rdb.pri.diamond.ac.uk/php/elog/cs_logwscalloutinfo.php?startdate='.date('d/m/Y', $st).'&enddate='.date('d/m/Y', $en));
+            $calls = simplexml_load_file('https://rdb.pri.diamond.ac.uk/php/elog/cs_logwscalloutinfo.php?startdate='.date('d/m/Y', $st).'&enddate='.date('d/m/Y', $en));
             if (!$calls) $calls = array();
                                     
                                     
             //print_r($calls);
 
             # EHC log
-            $ehc_tmp = @simplexml_load_file('https://rdb.pri.diamond.ac.uk/php/elog/cs_logwscontentinfo.php?startdate='.date('d/m/Y', $en));
+            $ehc_tmp = simplexml_load_file('https://rdb.pri.diamond.ac.uk/php/elog/cs_logwscontentinfo.php?startdate='.date('d/m/Y', $en));
             if (!$ehc_tmp) $ehc_tmp = array();
                      
             $ehcs = array();
