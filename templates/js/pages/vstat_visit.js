@@ -8,19 +8,22 @@ $(function() {
   function getToolTip(x, y) {
     len = 0
     e = ''
+    var ty = ''
     for (i = 0; i < visit_info.length; i++) {
         v = visit_info[i]['data'][1]
 
         if (v[2] <= x && v[0] >= x && v[1] == y) {
             len = (v[0]-v[2])/1000
             if (y == 2 || y == 4) e = visit_info[i]['status']
+            if (y == 3) ty = visit_info[i]['type']
+  
             break
 
         }
         
     }
   
-     return (y == 1 ? 'Data Collection': (y == 2 ? 'Robot Action' : (y == 3 ? 'Edge Scan': 'Issue'))) + ': ' + len + 's ' + e
+     return (y == 1 ? 'Data Collection': (y == 2 ? 'Robot Action' : (y == 3 ? (ty == 'mca' ? 'MCA Spectrum' : 'Edge Scan'): 'Issue'))) + ': ' + len + 's ' + e
   }
   
   options = {

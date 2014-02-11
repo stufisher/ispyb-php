@@ -21,7 +21,9 @@
                 <li>Last Data: <?php echo $last ?></li>
 
                 <li>Data Collections: <?php echo $info['DC_TOT'] ?></li>
+                <li>Collections Stopped: <?php echo $info['DC_STOPPED'] ?></li>
                 <li>Energy Scans: <?php echo $info['E_TOT'] ?></li>
+                <li>MCA Spectra: <?php echo $info['FL_TOT'] ?></li>
                 <li>Robot Actions: <?php echo $info['R_TOT'] ?></li>
             </ul>
         </div>
