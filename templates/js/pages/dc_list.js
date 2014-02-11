@@ -99,13 +99,16 @@ $(function() {
   
   
   // Allow users to change number of data collections per page
-  var pp = $(window).width() <= 600 ? 5 : ($(window).width() <= 1024 ? 10 : 15)
+  if (!pp) pp = $(window).width() <= 600 ? 5 : ($(window).width() <= 1024 ? 10 : 15)
   $('select[name=pp]').val(pp).change(function() {
     pp = $(this).val()
     $('select[name=pp]').val(pp)
     clearTimeout(auto_load_thread)
     page = 1
     first = true
+    url = window.location.pathname.replace(/\/pp\/\d+/, '')+'/pp/'+pp
+    window.history.pushState({}, '', url)
+                                      
     $('.data_collection').remove()
     load_datacollection()
   })
@@ -183,6 +186,7 @@ $(function() {
                                  '<li>&Omega; Overlap: '+r['OVERLAP']+'&deg;</li>'+
                                  '<li>No. Images: '+r['NUMIMG']+'</li>'+
                                  (r['SI'] == 1 ? '' : ('<li>First Image: '+r['SI']+'</li>'))+
+                                 (r['KAPPA'] ==0 && r['PHI'] ==0 ? '' : ('<li>&kappa;: '+r['KAPPA']+' &phi;: '+r['PHI']+'</li>'))+
                                  '<li>Resolution: '+r['RESOLUTION']+'&#197;</li>'+
                                  '<li>Wavelength: '+r['WAVELENGTH']+'&#197;</li>'+
                                  '<li>Exposure: '+r['EXPOSURETIME']+'s</li>'+

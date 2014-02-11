@@ -2,7 +2,7 @@
 
     class Dc extends Page {
         
-        var $arg_list = array('visit' => '\w+\d+-\d+', 'page' => '\d+', 'id' => '\d+', 't' => '\w+', 'iframe' => '\d+', 'id' => '\d+', 'sid' => '\d+', 's' => '\w+');
+        var $arg_list = array('visit' => '\w+\d+-\d+', 'page' => '\d+', 'id' => '\d+', 't' => '\w+', 'iframe' => '\d+', 'id' => '\d+', 'sid' => '\d+', 's' => '\w+', 'pp' => '\d+');
         var $dispatch = array('dc' => '_data_collection', 'view' => '_viewer');
         var $def = 'dc';
         
@@ -124,6 +124,7 @@
             $this->t->js_var('prop', $this->has_arg('prop') ? $this->arg('prop') : '');
             
             $this->t->js_var('page', $this->has_arg('page') ? intval($this->arg('page')) : 1);
+            $this->t->js_var('pp', $this->has_arg('pp') ? intval($this->arg('pp')) : '');
             #$this->t->js_var('year', $info['YR']);
             $this->t->js_var('type', $this->has_arg('t') ? $this->arg('t') : '');
             $this->t->js_var('search', $this->has_arg('s') ? $this->arg('s') : '');

@@ -29,6 +29,8 @@
     <div class="filter clearfix" title="Click to filter the current list to specified data collection types">
         <ul>
             <li id="dc">Data Collections</li>
+            <li id="fc">Full Data</li>
+            <li id="sc">Screening</li>
             <li id="ed">Edge Scans</li>
             <li id="fl">MCA Spectra</li>
             <li id="rb">Robot Actions</li>
