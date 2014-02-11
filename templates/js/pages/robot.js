@@ -47,15 +47,13 @@ $(function() {
   });    
   
   $('#avg_time').bind("plotclick", function (event, pos, item) {
-    console.log(event, pos, item)
     var v = ''
     for (var i = 0; i < ticks.length; i++) {
-        if (ticks[i][0] == item.dataIndex) {
+        if (ticks[i][0] == item.datapoint[0]) {
             v = rids[ticks[i][1]];
             break;
         }
     }
-        
     if (v && url) window.location = '/robot/bl/'+item.series.label+'/run/'+v
   })
   
