@@ -89,7 +89,7 @@
                    'feedback',
                    'projects',
                    'tracking',
-                   //'stats',
+                   'stats',
                    );
     
     # Classes for each page, file is all lower case, the actual class
