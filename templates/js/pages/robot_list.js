@@ -61,13 +61,16 @@ $(function() {
   
   
   var opts = {
-     bars: {
-        show: true,
-     },
-     grid: {
-        borderWidth: 0,
-     },
-     yaxes: [{}, { position: 'right' }],
+    xaxis: {
+      tickDecimals: 0,
+    },
+    bars: {
+      show: true,
+    },
+    grid: {
+      borderWidth: 0,
+    },
+    yaxes: [{}, { position: 'right' }],
   }
   
   if (typeof dewar !== 'undefined') {
