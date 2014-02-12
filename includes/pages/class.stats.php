@@ -5,7 +5,9 @@
         var $arg_list = array(
                               );
         
-        var $dispatch = array('online' => '_online');
+        var $dispatch = array('online' => '_online'
+                              'samples' => '_sample_stats',
+                              );
         var $def = 'online';
         
         var $root = 'Usage Statistics';
@@ -16,6 +18,12 @@
         function _online() {
             $this->template('Whos Online', array('Online Users'), array('/online'));
             $this->t->render('stats_online');
+        }
+        
+        
+        # Sample Statistics
+        function _sample_stats() {
+            
         }
     }
 ?>
