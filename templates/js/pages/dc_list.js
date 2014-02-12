@@ -197,7 +197,7 @@ $(function() {
                              '</ul>'+
                          
                              '<div class="holder">'+
-                             (state ? (r['NI'] < 10 ?
+                             (state ? (r['OVERLAP'] != 0 ?
                                 ('<h1 title="Click to show EDNA/mosflm strategies">Strategies<span>'+load+'</span></h1>'+
                                  '<div class="strategies"></div>'):
                                 ('<h1 title="Click to show autoprocessing results such as Fast_DP and XIA2">Auto Processing<span>'+load+'</span></h1>'+
@@ -302,7 +302,11 @@ $(function() {
                        }
 
                        if ($('div.data_collection').length > json[1].length) {
-                           $('div.data_collection:last').slideUp().remove()
+                           var last_id = $('div.data_collection:last').attr('dcid')
+                           $('div.data_collection:last').slideUp()
+                           if (distl[last_id]) distl[id].destroy()
+                           delete distl[last_id]
+                           $('div.data_collection:last').remove()
                        }
                        
                    
@@ -462,7 +466,7 @@ $(function() {
   // Plot edge scan
   function plot_edge(div, id) {
       $.ajax({
-             url: '/dc/ajax/ed/id/' + id,
+             url: '/dc/ajax/ed/t/edge/id/' + id,
              type: 'GET',
              dataType: 'json',
              timeout: 5000,
@@ -483,7 +487,7 @@ $(function() {
   // Plot MCA scan
   function plot_mca(div, id) {
       $.ajax({
-             url: '/dc/ajax/mca/id/' + id,
+             url: '/dc/ajax/mca/t/mca/id/' + id,
              type: 'GET',
              dataType: 'json',
              timeout: 5000,
