@@ -178,6 +178,7 @@ $(function() {
           $('input.sname').eq(i).prop('disabled', true).addClass('disabled').removeClass('fvalid').removeClass('ferror')
           $('input.comment').eq(i).prop('disabled', true).addClass('disabled').removeClass('fvalid').removeClass('ferror')
           $('input.code').eq(i).prop('disabled', true).addClass('disabled').removeClass('fvalid').removeClass('ferror')
+          $(e).parent('td').parent('tr').removeClass('v').removeClass('iv')
         }
     })
   
