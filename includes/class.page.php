@@ -144,10 +144,13 @@
                             $vis = $this->db->pq('SELECT p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.'.$table.' dc ON s.sessionid = dc.sessionid WHERE dc.'.$col.' = :1', array($this->arg('id')));
                             
                             $vis = sizeof($vis) ? $vis[0]['VIS'] : '';
-                        
                             
                         } else if ($this->has_arg('visit')) {
                             $vis = $this->arg('visit');
+                            
+                            $visp = $this->db->pq("SELECT p.proposalid FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')));
+                                                  
+                            if (sizeof($visp)) $this->proposalid = $visp[0]['PROPOSALID'];
                             
                         // Check user is in this proposal
                         } else if ($this->has_arg('prop')) {
