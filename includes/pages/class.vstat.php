@@ -2,8 +2,11 @@
     
     class Vstat extends Page {
         
-        var $arg_list = array('bag' => '\w\w\d+', 'visit' => '\d+');
-        var $dispatch = array('index' => '_index', 'proposal' => '_show_proposal');
+        var $arg_list = array('prop' => '\w\w\d+', 'visit' => '\w+\d+-\d+');
+        var $dispatch = array('index' => '_index',
+                              'proposal' => '_show_proposal',
+                              'all' => '_get_root',
+                              );
         var $def = 'index';
         
         var $sidebar = True;
@@ -16,8 +19,8 @@
         
         # Internal dispatcher based on passed arguments
         function _index() {
-            if ($this->has_arg('bag') && $this->has_arg('visit')) $this->_get_visit();
-            else if ($this->has_arg('bag')) $this->_get_bag();
+            if ($this->has_arg('visit')) $this->_get_visit();
+            else if ($this->has_arg('prop')) $this->_get_bag();
             else $this->_get_root();
         }
         
@@ -134,20 +137,10 @@
         
         # Show list of visits for a BAG
         function _get_bag() {
-            $this->p($this->arg('bag'));
+            if (!$this->has_arg('prop')) $this->error('No proposal', 'No proposal was specified');
             
-            $prop = $this->db->pq('SELECT proposalid from proposal WHERE proposalcode||proposalnumber LIKE :1', array($this->arg('bag')));
-            if (sizeof($prop)) $prop = $prop[0];
-            
-            #$args = array($this->arg('bag'));
-            #$where = "WHERE p.proposalcode || p.proposalnumber LIKE :1";
-            
-            $args = array($prop['PROPOSALID']);
+            $args = array($this->proposalid);
             $where = ' WHERE p.proposalid=:1';
-            
-            if (!$this->staff) {
-                if ($this->arg('bag') != $this->arg('prop')) $this->error('Access Denied', 'You dont have access to that page');
-            }
             
             $dc = $this->db->pq("SELECT max(p.title) as title, TO_CHAR(MAX(dc.endtime), 'DD-MM-YYYY HH24:MI') as last, SUM(dc.endtime - dc.starttime)*24 as dctime, GREATEST((min(dc.starttime)-min(s.startdate))*24,0) as sup, GREATEST((max(s.enddate)-max(dc.endtime))*24,0) as rem, s.visit_number as visit, TO_CHAR(min(s.startdate), 'DD-MM-YYYY HH24:MI') as st, TO_CHAR(max(s.enddate), 'DD-MM-YYYY HH24:MI') as en, (max(s.enddate) - min(s.startdate))*24 as len FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.datacollection dc ON (dc.sessionid = s.sessionid) $where GROUP BY s.visit_number ORDER BY min(s.startdate) DESC", $args);
             
@@ -203,14 +196,14 @@
             }
             
 
-            $this->template('Visit: ' . $this->arg('bag'), array('Bag: '.$this->arg('bag')), array(''));
-            $this->t->bag = $this->arg('bag');
+            $this->template('Visit: ' . $this->arg('prop'), array('Proposal: '.$this->arg('prop')), array(''));
+            $this->t->prop = $this->arg('prop');
             $this->t->data = $dc;
             
             $this->t->js_var('vids', $vids);
             $this->t->js_var('visit_ticks', $plot_ticks);
             $this->t->js_var('visit_data', $plot);
-            $this->t->js_var('bag', $this->arg('bag'));
+            $this->t->js_var('prop', $this->arg('prop'));
             
             $this->render('vstat_list');
         }
@@ -218,17 +211,17 @@
         
         # List of actions for a particular visit
         function _get_visit() {
-            $args = array($this->arg('bag'), $this->arg('visit'));
-            $where = "WHERE p.proposalcode || p.proposalnumber LIKE :1 AND s.visit_number=:2";
+            $args = array($this->arg('visit'));
+            $where = "WHERE p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1";
             
             if (!$this->staff) {
                 if (!$this->has_arg('prop')) $this->error('No proposal selected', 'You need to select a proposal before viewing this page');
                 
-                $where .= ' AND p.proposalcode || p.proposalnumber LIKE :3';
-                array_push($args, $this->arg('prop'));
+                $where .= ' AND p.proposalid LIKE :2';
+                array_push($args, $this->proposalid);
             }
             
-            $info = $this->db->pq("SELECT s.beamlinename as bl, s.sessionid as sid, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st, TO_CHAR(s.enddate, 'DD-MM-YYYY HH24:MI') as en, (s.enddate - s.startdate)*24 as len FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) $where", $args);
+            $info = $this->db->pq("SELECT p.proposalcode || p.proposalnumber as prop, s.beamlinename as bl, s.sessionid as sid, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st, TO_CHAR(s.enddate, 'DD-MM-YYYY HH24:MI') as en, (s.enddate - s.startdate)*24 as len FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) $where", $args);
             
             if (!sizeof($info)) {
                 $this->msg('No such visit', 'That visit doesnt seem to exist');
@@ -400,6 +393,7 @@
             $en = strtotime($info['EN']);
                                     
             # Call out log
+            libxml_use_internal_errors(true);
             $calls = simplexml_load_file('https://rdb.pri.diamond.ac.uk/php/elog/cs_logwscalloutinfo.php?startdate='.date('d/m/Y', $st).'&enddate='.date('d/m/Y', $en));
             if (!$calls) $calls = array();
                                     
@@ -418,8 +412,8 @@
             //print_r($ehcs);
                                           
                                           
-            $this->template('Visit: ' . $this->arg('bag'), array('Bag: '.$this->arg('bag'), 'Visit: ' . $this->arg('visit')), array('/bag/'.$this->arg('bag'), ''));
-            $this->t->bag = $this->arg('bag');
+            $this->template('Visit: ' . $this->arg('visit'), array('Proposal: '.$info['PROP'], 'Visit: ' . $this->arg('visit')), array('/prop/'.$info['PROP'], ''));
+            //$this->t->bag = $this->arg('bag');
             $this->t->visit = $this->arg('visit');
             $this->t->info = $info;
             $this->t->last = $dc['LAST'];

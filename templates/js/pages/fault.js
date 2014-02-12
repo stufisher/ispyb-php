@@ -53,7 +53,7 @@ $(function() {
                         '<td class="la"><a href="/fault/fid/'+f['FAULTID']+'">'+f['TITLE']+'</a></td>'+
                         '<td>'+f['STARTTIME']+'</td>'+
                         '<td><a href="/fault/bl/'+f['BEAMLINE']+'">'+f['BEAMLINE']+'</a></td>'+
-                        '<td><a href="/vstat/bag/'+f['BAG']+'/visit/'+f['VISIT']+'">'+f['BAG']+'-'+f['VISIT']+'</a></td>'+
+                        '<td><a href="/vstat/visit/'+f['BAG']+'-'+f['VISIT']+'">'+f['BAG']+'-'+f['VISIT']+'</a></td>'+
                         '<td><a href="/fault/sid/'+f['SYSTEMID']+'">'+f['SYSTEM']+'</td>'+
                         '<td><a href="/fault/sid/'+f['SYSTEMID']+'/cid/'+f['COMPONENTID']+'">'+f['COMPONENT']+'</a> &raquo; <a href="/fault/sid/'+f['SYSTEMID']+'/cid/'+f['COMPONENTID']+'/scid/'+f['SUBCOMPONENTID']+'">'+f['SUBCOMPONENT']+'</a></td>'+
                         '<td>'+(f['RESOLVED'] != 0 ? (f['RESOLVED'] == 2 ? 'Partial' : 'Yes') : 'No')+'</td>'+

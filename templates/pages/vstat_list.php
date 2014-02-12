@@ -1,4 +1,4 @@
-        <h1><?php echo $bag ?>: <?php echo $data[0]['TITLE'] ?></h1>
+        <h1><?php echo $prop ?>: <?php echo $data[0]['TITLE'] ?></h1>
 
         <p class="help">This page shows statistics for the currently selected proposal. Click on a particular visit to see statistics for that visit.</p>
 
@@ -24,8 +24,10 @@
 
         <h1>Visit List</h1>
         -->
+        <div class="page_wrap clearfix">
+            <div class="pages"></div>
+        </div>
 
-        <div class="pages"></div>
         <div class="legend"></div>
         <div class="clear"></div>
 
@@ -53,7 +55,7 @@
 
                 <?php foreach (array() as $b => $d): ?>
                 <tr>
-                    <td><span class="sort"><?php echo $d['ID'] ?></span><a href="/vstat/bag/<?php echo $bag ?>/visit/<?php echo $d['VISIT'] ?>"><?php echo $d['VISIT'] ?></a></td>
+                    <td><span class="sort"><?php echo $d['ID'] ?></span><a href="/vstat/visit/<?php echo $prop ?>-<?php echo $d['VISIT'] ?>"><?php echo $d['VISIT'] ?></a></td>
                     <td><span class="sort"><?php echo strtotime($d['ST']) ?></span><?php echo $d['ST'] ?></td>
                     <td><span class="sort"><?php echo strtotime($d['EN']) ?></span><?php echo $d['EN'] ?></td>
                     <td><?php echo $d['LEN'] ?></td>

@@ -1,4 +1,4 @@
-        <h1>Breakdown for <?php echo $bag ?>-<?php echo $visit ?></h1>
+        <h1>Breakdown for <?php echo $visit ?></h1>
 
         <p class="help">This page shows statistics for the selected visit. The plots below show each action and when they happened. Drag to zoom in on the plot. Click the refresh icon to reset the zoom level</p>
 

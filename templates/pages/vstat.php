@@ -16,7 +16,11 @@
             <div class="clear"></div>
         </div>
 
-        <div class="pages"></div>
+        <div class="page_wrap clearfix">
+            <div class="pages"></div>
+        </div>
+
+
         <div class="legend"></div>
         <div class="clear"></div>
 

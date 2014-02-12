@@ -54,7 +54,7 @@ $(function() {
         var id = null
         id = vids.slice(page*pp, page*pp+pp)[item.dataIndex]
         console.log(id)
-        if (id) window.location = '/vstat/bag/'+id
+        if (id) window.location = '/vstat/prop/'+id
     })
   
   
