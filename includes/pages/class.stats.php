@@ -5,7 +5,7 @@
         var $arg_list = array(
                               );
         
-        var $dispatch = array('online' => '_online'
+        var $dispatch = array('online' => '_online',
                               'samples' => '_sample_stats',
                               );
         var $def = 'online';
