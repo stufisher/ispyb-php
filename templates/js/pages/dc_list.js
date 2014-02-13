@@ -158,7 +158,7 @@ $(function() {
                        
                            var state = r['RUNSTATUS'] == null ? 1 : (r['RUNSTATUS'].indexOf('Successful') > -1)
                        
-                       $('<div class="data_collection" dcid="'+r['ID']+'" type="data'+(state ? '' : '_stopped')+'" '+(state ? 'title="Click to view diffraction images"' : '')+'>' +
+                       $('<div class="data_collection" dcid="'+r['ID']+'" type="data'+(state ? '' : '_stopped')+'" ty="'+(r['AXISRANGE'] == 0 ? 'grid' : (r['OVERLAP'] != 0 ? 'screen' : ''))+'">' +
                              '<h1>'+
                                 '<button class="atp" ty="dc" iid="'+r['DCG']+'" name="'+r['DIR']+r['FILETEMPLATE']+'">Add to Project</button> <button class="flag '+f+'" title="Click to add this data collection to the list of favourite data collections">Favourite</button>  <a href="/dc/visit/'+prop+'-'+r['VN']+'/id/'+r['ID']+'" class="perm">Permalink</a> '+
                                 '<span class="date">'+vis_link+' '+r['ST']+'</span><span class="spacer"> - </span><span class="temp">'+r['DIR']+r['FILETEMPLATE']+'</span>'+
@@ -197,7 +197,7 @@ $(function() {
                              '</ul>'+
                          
                              '<div class="holder">'+
-                             (state ? (r['OVERLAP'] != 0 ?
+                             (state && r['AXISRANGE'] != 0 ? (r['OVERLAP'] != 0 ?
                                 ('<h1 title="Click to show EDNA/mosflm strategies">Strategies<span>'+load+'</span></h1>'+
                                  '<div class="strategies"></div>'):
                                 ('<h1 title="Click to show autoprocessing results such as Fast_DP and XIA2">Auto Processing<span>'+load+'</span></h1>'+
@@ -304,7 +304,7 @@ $(function() {
                        if ($('div.data_collection').length > json[1].length) {
                            var last_id = $('div.data_collection:last').attr('dcid')
                            $('div.data_collection:last').slideUp()
-                           if (distl[last_id]) distl[id].destroy()
+                           if (distl[last_id]) distl[last_id].destroy()
                            delete distl[last_id]
                            $('div.data_collection:last').remove()
                        }
@@ -346,7 +346,7 @@ $(function() {
   
   // Update AP status
   function update_aps() {
-    var ids = $('.data_collection[type=data]').map(function(i,e) { if (!$(e).attr('di') || !$(e).attr('sn')) return $(e).attr('dcid') }).get()
+    var ids = $('.data_collection[type=data]').map(function(i,e) { if (!$(e).attr('di') || !$(e).attr('sn') || ($(e).attr('ty') == 'grid' && !$(e).attr('gr'))) return $(e).attr('dcid') }).get()
     if (ids.length)
       $.ajax({
         url: '/dc/ajax/chi' + (is_visit ? ('/visit/'+visit) : ''),
@@ -369,7 +369,12 @@ $(function() {
                    $('div[dcid='+id+'] .snapshots img').attr('data-src', '/image/id/'+id).addClass('lazy')
                  }
                  sns = ''
-                 for (var i = 1; i < img[1].length; i++) sns += ('<a href="/image/id/'+id+'/f/1/n/'+(i+1)+'" title="Crystal Snapshot '+(i+1)+'"></a>')
+                 for (var i = 1; i < s; i++) sns += ('<a href="/image/id/'+id+'/f/1/n/'+(i+1)+'" title="Crystal Snapshot '+(i+1)+'"></a>')
+                 if (img[1].length > 1 && $('div[dcid='+id+']').attr('ty') == 'grid') {
+                   $('div[dcid='+id+'] .snapshots img').attr('data-src', '/image/id/'+id+'/f/1/n/2').addClass('lazy')
+                   $('div[dcid='+id+']').attr('gr',1)
+                 }
+                   
                  if ($('div[dcid='+id+'] .snapshots a').length == 1) $('div[dcid='+id+'] .snapshots').append(sns)
                     $('div[dcid='+id+'] .snapshots').magnificPopup({
                       delegate: 'a', type: 'image',
