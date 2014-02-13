@@ -88,10 +88,10 @@
                 else $pid = $pid[0]['PROPOSALID'];
                 
                 $sd = $this->has_arg('shippingdate') ? $this->arg('shippingdate') : '';
-                $dd = $this->has_arg('delverydate') ? $this->arg('deliverydate') : '';
+                $dd = $this->has_arg('deliverydate') ? $this->arg('deliverydate') : '';
                 $com = $this->has_arg('comment') ? $this->arg('comment') : '';
                 
-                $this->db->pq("INSERT INTO ispyb4a_db.shipping (shippingid, proposalid, shippingname, deliveryagent_agentname, deliveryagent_agentcode, deliveryagent_shippingdate, deliveryagent_deliverydate, bltimestamp, creationdate, comments, sendinglabcontactid, returnlabcontactid, shippingstatus, safetylevel) VALUES (s_shipping.nextval,:1,:2,:3,:4,:5,:6,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,:7,:8,:9,'opened',:10) RETURNING shippingid INTO :id", array($pid, $this->arg('shippingname'), $this->arg('couriername'), $this->arg('courierno'), $sd, $dd, $com, $this->arg('lcout'), $this->arg('lcret'), $this->arg('safety')));
+                $this->db->pq("INSERT INTO ispyb4a_db.shipping (shippingid, proposalid, shippingname, deliveryagent_agentname, deliveryagent_agentcode, deliveryagent_shippingdate, deliveryagent_deliverydate, bltimestamp, creationdate, comments, sendinglabcontactid, returnlabcontactid, shippingstatus, safetylevel) VALUES (s_shipping.nextval,:1,:2,:3,:4,TO_DATE(:5,'DD-MM-YYYY'), TO_DATE(:6,'DD-MM-YYYY'),CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,:7,:8,:9,'opened',:10) RETURNING shippingid INTO :id", array($pid, $this->arg('shippingname'), $this->arg('couriername'), $this->arg('courierno'), $sd, $dd, $com, $this->arg('lcout'), $this->arg('lcret'), $this->arg('safety')));
 
                 $sid = $this->db->id();
                 
