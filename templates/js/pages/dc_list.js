@@ -369,7 +369,7 @@ $(function() {
                    $('div[dcid='+id+'] .snapshots img').attr('data-src', '/image/id/'+id).addClass('lazy')
                  }
                  sns = ''
-                 for (var i = 1; i < s; i++) sns += ('<a href="/image/id/'+id+'/f/1/n/'+(i+1)+'" title="Crystal Snapshot '+(i+1)+'"></a>')
+                 for (var i = 1; i < img[1].length; i++) sns += ('<a href="/image/id/'+id+'/f/1/n/'+(i+1)+'" title="Crystal Snapshot '+(i+1)+'"></a>')
                  if (img[1].length > 1 && $('div[dcid='+id+']').attr('ty') == 'grid') {
                    $('div[dcid='+id+'] .snapshots img').attr('data-src', '/image/id/'+id+'/f/1/n/2').addClass('lazy')
                    $('div[dcid='+id+']').attr('gr',1)
