@@ -49,7 +49,7 @@ $(function() {
                             trackto: $('.new input[name=trackto]').val(),
                             trackfrom: $('.new input[name=trackfrom]').val(),
                             exp: $('.new select[name=exp]').val(),
-                            fcode: $('.new select[name=fcode]').val(),
+                            fcode: $('.new input[name=fcode]').val(),
                     },
                     dataType: 'json',
                     timeout: 5000,

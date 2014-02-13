@@ -98,12 +98,12 @@
                 $fc = array();
                 if (array_key_exists('fcodes', $_POST)) {
                     foreach ($_POST['fcodes'] as $i => $f) {
-                        if (preg_match('/^\w+$/', $f)) {
+                        if (preg_match('/^[\w-]+$/', $f)) {
                             $fc[$i] = $f;
                         } else $fc[$i] =  '';
                     }
                 }
-                
+
                 if ($this->has_arg('dewars')) {
                     if ($this->arg('dewars') > 0) {
                         $exp = $this->has_arg('exp') ? $this->arg('exp') : '';
