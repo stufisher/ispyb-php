@@ -568,7 +568,11 @@ $(function() {
                     },
                  }
              
-               distl[id] = $.plot($(div), data, options);
+               if (distl[id]) {
+                 distl[id].setData(data);
+                 distl[id].setupGrid();
+                 distl[id].draw();
+               } else distl[id] = $.plot($(div), data, options);
              
                var refresh_imq = true
                if (j[0].length > 0) {
