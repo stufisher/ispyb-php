@@ -2,6 +2,10 @@
 
         <p class="help">This page shows statistics for the selected visit. The plots below show each action and when they happened. Drag to zoom in on the plot. Click the refresh icon to reset the zoom level</p>
 
+        <p class="ra">
+            <a href="/dc/visit/<?php echo $visit ?>" class="dcs">Data Collections</a>
+        </p>
+
         <div class="plot_container border">
             <button name="reset" title="Reset the zoom level back to the full visit">Reset</button>
             <div id="overview"></div>
