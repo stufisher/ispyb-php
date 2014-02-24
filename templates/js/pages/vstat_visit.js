@@ -1,5 +1,7 @@
 $(function() {
   
+  $('a.dcs').button({ icons: { primary: 'ui-icon-search' } })
+  
   $('.logcontent').hide()
   $('tr.log').click(function() {
     $(this).next('.logcontent').fadeToggle()
