@@ -32,7 +32,11 @@ $(function() {
   _resize()
   
   function _map_callbacks() {
-    $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false })
+    $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false }).hide()
+  
+    $('table.samples tbody tr').unbind('click').click(function() {
+      window.location = $('td:last-child a.view', this).attr('href')
+    })
   }
 
   $.each({'name': 'wwdash', 'acronym': 'wwdash', 'mass': 'number'}, function(e,t) {
