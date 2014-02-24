@@ -36,7 +36,7 @@
             </li>
 
             <li>
-                <span class="label">Container Name</span>
+                <span class="label">Puck Name</span>
                 <span><input type="text" name="container" /></span>
             </li>
         </ul>
