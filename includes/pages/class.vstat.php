@@ -268,7 +268,7 @@
             foreach ($robot as $r) {
                 array_push($data, array('data' => array(
                         array($this->jst($r['ST']), 2, $this->jst($r['ST'])),
-                        array($this->jst($r['EN']), 2, $this->jst($r['ST']))), 'color' => $r['STATUS'] != 'SUCCESSm' ? 'purple' : 'blue', 'status' => ' ' . $r['ACTIONTYPE'] . ' (' . $r['STATUS'] . ')'));
+                        array($this->jst($r['EN']), 2, $this->jst($r['ST']))), 'color' => $r['STATUS'] != 'SUCCESS' ? 'purple' : 'blue', 'status' => ' ' . $r['ACTIONTYPE'] . ' (' . $r['STATUS'] . ')'));
             }
             
             foreach ($edge as $e) {
