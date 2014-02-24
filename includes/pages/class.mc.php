@@ -22,7 +22,7 @@
                 $this->msg('No such visit', 'That visit doesnt appear to exist');
             } else $info = $info[0];            
             
-            $this->template('Multi-Crystal Integration', array($this->arg('visit')), array('/visit/'.$this->arg('visit')));
+            $this->template('Multi-Crystal Integration', array($this->arg('visit')), array('visit/'.$this->arg('visit')));
             
             $this->t->visit = $this->arg('visit');
             $this->t->js_var('visit', $this->arg('visit'));
@@ -45,7 +45,7 @@
             $root = '/dls/'.$info['BL'].'/data/'.$info['YR'].'/'.$this->arg('visit').'/processing/auto_mc';
             $users = $this->dirs($root);
             
-            $this->template('Multi-Crystal Integration - Blend', array($this->arg('visit'), 'Blend'), array('/visit/'.$this->arg('visit'), ''));
+            $this->template('Multi-Crystal Integration - Blend', array($this->arg('visit'), 'Blend'), array('visit/'.$this->arg('visit'), ''));
             
             
             if ($this->has_arg('user')) {

@@ -7,7 +7,7 @@
         var $def = 'index';
         
         var $root = 'Robot Statistics';
-        var $root_link = '/robot/';
+        var $root_link = '/robot';
         
         var $require_staff = True;
         #var $debug = True;

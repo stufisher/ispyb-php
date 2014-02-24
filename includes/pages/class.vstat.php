@@ -412,7 +412,7 @@
             //print_r($ehcs);
                                           
                                           
-            $this->template('Visit: ' . $this->arg('visit'), array('Proposal: '.$info['PROP'], 'Visit: ' . $this->arg('visit')), array('/prop/'.$info['PROP'], ''));
+            $this->template('Visit: ' . $this->arg('visit'), array('Proposal: '.$info['PROP'], 'Visit: ' . $this->arg('visit')), array('prop/'.$info['PROP'], ''));
             //$this->t->bag = $this->arg('bag');
             $this->t->visit = $this->arg('visit');
             $this->t->info = $info;

@@ -16,7 +16,7 @@
         
         # Whos online
         function _online() {
-            $this->template('Whos Online', array('Online Users'), array('/online'));
+            $this->template('Whos Online', array('Online Users'), array('online'));
             $this->t->render('stats_online');
         }
         

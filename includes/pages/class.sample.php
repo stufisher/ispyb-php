@@ -60,7 +60,7 @@
                 if (file_exists($s['SN'])) array_push($sn, $s['ID']);
             }
             
-            $this->template('View Sample', array($samp['ACRONYM'], $samp['NAME']), array('/proteins/pid/'.$samp['PROTEINID'],''));
+            $this->template('View Sample', array($samp['ACRONYM'], $samp['NAME']), array('proteins/pid/'.$samp['PROTEINID'],''));
             
             $this->t->samp = $samp;
             $this->t->sn = $sn;
@@ -84,7 +84,7 @@
         # ------------------------------------------------------------------------
         # View list of proteins
         function _proteins() {
-            $this->template('Proteins', array('Proteins'), array('/proteins'));
+            $this->template('Proteins', array('Proteins'), array('proteins'));
             $this->t->render('protein');
         }
         
@@ -103,7 +103,7 @@
                 $prot['SEQUENCE'] = $prot['SEQUENCE']->read($prot['SEQUENCE']->size());
             }
             
-            $this->template('View Protein', array('Proteins', $prot['NAME'] ? $prot['NAME'] : $prot['ACRONYM']), array('/proteins', ''));
+            $this->template('View Protein', array('Proteins', $prot['NAME'] ? $prot['NAME'] : $prot['ACRONYM']), array('proteins', ''));
             $this->t->prot = $prot;
             $this->t->js_var('pid', $this->arg('pid'));
             $this->t->render('protein_view');
@@ -169,7 +169,7 @@
                 
                 
             } else {
-                $this->template('Add Protein', array('Proteins', 'Add Protein'), array('/proteins', ''));
+                $this->template('Add Protein', array('Proteins', 'Add Protein'), array('proteins', ''));
                 $this->t->render('protein_add');
             }
         }

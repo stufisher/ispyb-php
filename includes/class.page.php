@@ -256,7 +256,8 @@
         function template($title, $p=array(), $l=array(), $hf = 1) {
             $new = array();
             foreach ($l as $a) {
-                array_push($new, $a ? ($this->root_link . $a) : $a);
+                $rel = strpos($a, '/') !== 0;
+                array_push($new, $a ? ($rel ? $this->root_link .'/'. $a : $a) : $a);
             }
             
             $this->t = new Template($title, $this->nav($p, $new), $hf);

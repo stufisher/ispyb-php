@@ -156,7 +156,7 @@
             if (!sizeof($cont)) $this->error('No such container', 'A container with that id doesnt exist');
             else $cont = $cont[0];
             
-            $this->template('View Container', array($cont['SHIPMENT'], $cont['DEWAR'], $cont['NAME']), array('/sid/'.$cont['SHIPPINGID'], '', ''));
+            $this->template('View Container', array($cont['SHIPMENT'], $cont['DEWAR'], $cont['NAME']), array('sid/'.$cont['SHIPPINGID'], '', ''));
             $this->t->cont = $cont;
             $this->t->js_var('in_use', $cont['CONTAINERSTATUS'] == 'processing');
             $this->t->js_var('cid', $this->arg('cid'));
@@ -218,7 +218,7 @@
                 if (!sizeof($dewar)) $this->error('No such dewar', 'The dewar with the specified id doesnt exist');
                 else $dewar = $dewar[0];
                 
-                $this->template('Add Container', array($dewar['SHIPMENT'], $dewar['DEWAR']), array('/sid/'.$dewar['SHIPPINGID'], ''));
+                $this->template('Add Container', array($dewar['SHIPMENT'], $dewar['DEWAR']), array('sid/'.$dewar['SHIPPINGID'], ''));
                 $this->t->sgs = $this->sg_opts();
                 $this->t->dewar = $dewar;
                 

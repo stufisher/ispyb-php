@@ -33,7 +33,7 @@
             foreach (array('X', 'Y', 'DET', 'LAM', 'RES') as $k) $dc[$k] = floatval($dc[$k]);            
             
             $p = array($dc['VIS'], $dc['DIR'].$dc['FT']);
-            $l = array('/visit/'.$dc['VIS'], '');
+            $l = array('visit/'.$dc['VIS'], '');
             $this->template('Image Viewer: ' . $dc['VIS'] . ' - ' . $dc['DIR'].$dc['FT'], $p, $l, !$this->has_arg('iframe'));
             
             $this->t->d = $dc;
