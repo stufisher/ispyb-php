@@ -14,7 +14,16 @@
         function _prop_samples() {
             if (!$this->has_arg('prop')) $this->error('No proposal selected', 'You must select a proposal before viewing this page');
             
-            $visits = $this->db->pq("SELECT rownum,inner.* FROM (SELECT case when sysdate between s.startdate and s.enddate then 1 else 0 end as active, s.beamlinename as bl, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st, p.proposalcode||p.proposalnumber||'-'||s.visit_number as vis FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON s.proposalid = p.proposalid WHERE p.proposalcode||p.proposalnumber LIKE :1 AND startdate > SYSDATE-1 AND startdate < SYSDATE+14 ORDER BY s.startdate) inner WHERE rownum < 10", array($this->arg('prop')));
+            $re = preg_match('/([a-zA-Z]+)\d+/', $this->arg('prop'), $mat);
+            
+            if ($mat[1] == 'cm' || $mat[1] == 'nr') {
+                $where = "startdate > TO_DATE('01-01-".date('Y')."', 'DD-MM-YYYY') AND enddate < TO_DATE('31-12-".(date('Y')+1)."', 'DD-MM-YYYY')";
+            } else {
+                $where = 'startdate > SYSDATE-1 AND startdate < SYSDATE+14';
+            }
+            
+            
+            $visits = $this->db->pq("SELECT rownum,inner.* FROM (SELECT case when sysdate between s.startdate and s.enddate then 1 else 0 end as active, s.beamlinename as bl, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st, p.proposalcode||p.proposalnumber||'-'||s.visit_number as vis FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON s.proposalid = p.proposalid WHERE p.proposalcode||p.proposalnumber LIKE :1 AND $where ORDER BY s.startdate) inner WHERE rownum < 10", array($this->arg('prop')));
             
             $this->template('Container Allocation: ' . $this->arg('prop'), array($this->arg('prop')), array(''));
             $this->t->visits = $visits;
