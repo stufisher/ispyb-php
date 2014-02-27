@@ -18,7 +18,7 @@ $(function() {
         'sScrollX': '100%',
   }, dt)
   
-  var dt = $('.robot_actions').dataTable(dt)
+  var dt = $('.samples').dataTable(dt)
   $('.table input').focus()
   
   $(window).resize(function() { _resize() })
@@ -32,7 +32,8 @@ $(function() {
   _resize()
   
   function _map_callbacks() {
-    $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false }).hide()
+    $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false })
+    $('table.samples a.view').hide()
   
     $('table.samples tbody tr').unbind('click').click(function() {
       window.location = $('td:last-child a.view', this).attr('href')
@@ -172,4 +173,144 @@ $(function() {
     $('.progress').progressbar({ value: pc });
   }
   
+  
+  
+  // Work out pages
+  function _pages(aoData) {
+    var st = 0, pp = 10
+    $.each(aoData, function(i,d) {
+      if (d['name'] == 'iDisplayStart') st = d['value']
+      if (d['name'] == 'iDisplayLength') pp = d['value']
+           
+      if (d['name'] == 'sSearch') {
+        aoData.push({ name: 's', value: d['value'] })
+      }
+    })
+    aoData.push({ name: 'page', value: (st/pp)+1 })
+    aoData.push({ name: 'pp', value: pp })
+  
+    return aoData
+  }
+  
+  function _pp(aoData) {
+    $.each(aoData, function(i,d) {
+      if (d['name'] == 'iDisplayLength') return d['value']
+    })
+  
+    return 10
+  }
+  
+  // DataTables options
+  var dtops = {sPaginationType: 'full_numbers',
+               bProcessing: true,
+               bServerSide: true,
+               bAutoWidth:false ,
+               aaSorting: [[ 0, 'desc' ]],
+  }
+  
+  
+  // Data Collection List
+  var dctype = 'dc'
+  var dt = $.extend(dtops, {
+            bSort: false,
+            sAjaxSource: '/dc/ajax/',
+            fnServerParams: function ( aoData ) {
+              aoData.push( { 'name': 't', 'value': dctype } )
+              aoData.push( { 'name': 'pid', 'value': pid} )
+            },
+            fnServerData: function ( sSource, aoData, fnCallback ) {
+                $.getJSON( sSource, _pages(aoData), function (json) {
+                          
+                  var p = []
+                  $.each(json[1], function(i, e) {
+                    p.push([e['ST'], (e['DIR']+e['FILETEMPLATE']).replace('_####.cbf', ''), e['SAMPLE'] ? e['SAMPLE'] : 'N/A', e['AXISRANGE'], e['NUMIMG'], e['WAVELENGTH'], e['TRANSMISSION'], e['EXPOSURETIME'], e['COMMENTS'], '<a class="view" href="/dc/visit/'+e['VIS']+'/id/'+e['ID']+'">View Data Collection</a> <button class="atp" ty="dc" iid="'+e['DCG']+'" name="'+e['DIR']+e['FILETEMPLATE']+'">Add to/Remove from Project</button>'])
+                  })
+                          
+                  fnCallback({ iTotalRecords: _pp(aoData)*json[0], iTotalDisplayRecords: _pp(aoData)*json[0], aaData: p })
+                  _map_callbacks()
+                })
+            },
+  })
+  
+  if ($(window).width() <= 600) dt = $.extend({
+        'bScrollCollapse': true,
+        'sScrollX': '100%',
+  }, dt)
+  
+  var dcs = $('.robot_actions.dcs').dataTable(dt).fnSetFilteringDelay();
+
+  // Filter by type
+  $('.filter ul li').click(function() {
+    if ($(this).hasClass('current')) {
+        $(this).removeClass('current')
+        dctype = 'dc'
+    } else {
+        $('.filter ul li').removeClass('current')
+        $(this).addClass('current')
+        dctype = $(this).attr('id')
+    }
+    
+    dcs.fnDraw()
+  })
+  
+  
+
+  // Energy Scans
+  var dt = $.extend(dtops, {
+            bSort: false,
+            bFilter: false,
+            sAjaxSource: '/dc/ajax/t/ed/',
+            fnServerParams: function ( aoData ) {
+              aoData.push( { 'name': 'pid', 'value': pid } )
+            },
+            fnServerData: function ( sSource, aoData, fnCallback ) {
+                $.getJSON( sSource, _pages(aoData), function (json) {
+                  var p = []
+                  $.each(json[1], function(i, e) {
+                    p.push([e['ST'], e['DIR'], e['SAMPLE'] ? e['SAMPLE'] : 'N/A', e['TRANSMISSION'], e['EXPOSURETIME'], e['EPK']+'ev, f&rsquo;'+e['RESOLUTION']+'e, f&rsquo;&rsquo;:'+e['AXISSTART'], e['EIN']+'ev, f&rsquo;:'+e['AXISRANGE']+'e, f&rsquo;&rsquo;:'+e['WAVELENGTH']+'e', e['COMMENTS'], '<a class="view" href="/dc/visit/'+e['VIS']+'/t/edge/id/'+e['ID']+'">View Scan</a>'])
+                  })
+                          
+                  fnCallback({ iTotalRecords: _pp(aoData)*json[0], iTotalDisplayRecords: _pp(aoData)*json[0], aaData: p })
+                  _map_callbacks()
+                })
+            },
+  })
+  
+  if ($(window).width() <= 600) dt = $.extend({
+        'bScrollCollapse': true,
+        'sScrollX': '100%',
+  }, dt)
+  
+  var ed = $('.robot_actions.energy').dataTable(dt)
+
+  
+  // Fluorescence Spectra
+  var dt = $.extend(dtops, {
+            bSort: false,
+            bFilter: false,
+            sAjaxSource: '/dc/ajax/t/fl/',
+            fnServerParams: function ( aoData ) {
+              aoData.push( { 'name': 'pid', 'value': pid } )
+            },
+            fnServerData: function ( sSource, aoData, fnCallback ) {
+                $.getJSON( sSource, _pages(aoData), function (json) {
+                  var p = []
+                  $.each(json[1], function(i, e) {
+                    p.push([e['ST'], e['SAMPLE'] ? e['SAMPLE'] : 'N/A', e['WAVELENGTH'], e['TRANSMISSION'], e['EXPOSURETIME'], '', e['COMMENTS'], '<a class="view" href="/dc/visit/'+e['VIS']+'/t/mca/id/'+e['ID']+'">View Spectrum</a>'])
+                  })
+                          
+                  fnCallback({ iTotalRecords: _pp(aoData)*json[0], iTotalDisplayRecords: _pp(aoData)*json[0], aaData: p })
+                  _map_callbacks()
+                })
+            },
+  })
+  
+  if ($(window).width() <= 600) dt = $.extend({
+        'bScrollCollapse': true,
+        'sScrollX': '100%',
+  }, dt)
+  
+  var fl = $('.robot_actions.mca').dataTable(dt)  
+  
+  $('.tabs').tabs()
 })
