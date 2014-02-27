@@ -296,7 +296,7 @@ $(function() {
                              '<h1>'+r['ST']+' - Robot '+r['IMP'].toLowerCase()+'ing puck ' + r['EXPOSURETIME'] +' pin ' + r['RESOLUTION'] + ' (Barcode: '+r['DIR']+') Status: '+r['SPOS']+' - '+r['SAN']+' (Took '+r['BSX']+'s)</h1>' +
                              '</div>').data('apr', r['AP']).hide().prependTo('.data_collections').slideDown(100)
                        
-                           if (!first) log_message('New sample loaded', '<a href="#'+r['ID'] +'">Barcode: ' +r['DIR'] + '</a>')
+                           if (!first) log_message('New sample loaded', '<a href="#'+r['ID'] +'">Puck: ' + r['EXPOSURETIME'] +' Pin: ' + r['RESOLUTION']+ ' Barcode: ' +r['DIR'] + '</a>')
                          }
                        
                        }
