@@ -2,6 +2,10 @@ $(function() {
   var page = 1
   var refresh = false
 
+  $('input[name=pdb]').keypress(function(e) {
+    if(e.which == 13) $('button[name=get_pdb]').trigger('click')
+  })
+  
   $('button[name=get_pdb]').button({ icons: { primary: 'ui-icon-arrowthick-1-s' } }).click(function() {
                                
     $('.data_collections').empty()
