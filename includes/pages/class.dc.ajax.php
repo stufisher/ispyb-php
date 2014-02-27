@@ -141,8 +141,7 @@
                  
             # Projects
             } else if ($this->has_arg('pjid')) {
-                $info = $this->db->pq('SELECT p.title FROM ispyb4a_db.project p INNER JOIN ispyb4a_db.project_has_user pu ON pu.projectid = p.projectid WHERE p.projectid=:1 AND (p.owner=:2 or pu.username=:3)', array($this->arg('pjid'), phpCAS::getUser(), phpCAS::getUser()));
-                
+                $info = $this->db->pq('SELECT p.title FROM ispyb4a_db.project p LEFT OUTER JOIN ispyb4a_db.project_has_user pu ON pu.projectid = p.projectid WHERE p.projectid=:1 AND (p.owner=:2 or pu.username=:3)', array($this->arg('pjid'), phpCAS::getUser(), phpCAS::getUser()));
                 
                 $extc = 'bls.name as sample,bls.blsampleid,';
                 $tables = array(array('project_has_dcgroup', 'dc', 'datacollectiongroupid'),
