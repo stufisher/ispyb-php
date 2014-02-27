@@ -538,13 +538,13 @@ $(function() {
              success: function(j){
                 var data = [{
                             data: j[0],
-                            //label: 'Spots',
+                            label: 'Spots',
                          }, {
                             data: j[1],
-                            //label: 'Bragg',
+                            label: 'Bragg',
                          }, {
                             data: j[2],
-                            //label: 'Res',
+                            label: 'Res',
                             yaxis: 2
                          }]
              
@@ -627,7 +627,7 @@ $(function() {
             if (d.length) {
               if (dc['SID'] && !$(d).find('.sample').length) {
                 if (dc['TY'] == 'robot') $('<span class="sample"> <span class="wrap">Sample: <a href="/sample/sid/'+dc['SID']+'">' + dc['SAN'] + ' (m' + dc['SCON'] + 'p' + dc['SPOS']+')</a></span></span>').appendTo($(d).children('h1'))
-                else $('<li class="sample"><span class="wrap">Sample: <a href="/sample/sid/'+dc['SID']+'">' + dc['SAN'] + ' (m' + dc['SCON'] + 'p' + dc['SPOS']+')</a></span></li>').prependTo($(d).children('ul'))
+                else $('<li class="sample"><span class="wrap">Sample: <a href="/sample/sid/'+dc['SID']+'/visit/'+prop+'">' + dc['SAN'] + ' (m' + dc['SCON'] + 'p' + dc['SPOS']+')</a></span></li>').prependTo($(d).children('ul'))
               
               }
               $(d).attr('sample', true)
