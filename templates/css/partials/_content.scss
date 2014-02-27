@@ -91,10 +91,11 @@ div.log {
 .log ul li {
     display: block;
     padding: 2px;
+    color: $content-dark-background;
 }
 
 .log ul li span.title {
-    color: $content-dark-background;
+    color: $body-color;
 }
 
 
