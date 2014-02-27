@@ -2,7 +2,7 @@
 
     class Ajax extends AjaxBase {
         
-        var $arg_list = array('id' => '\d+', 'visit' => '\w+\d+-\d+', 'page' => '\d+', 's' => '\w+', 'pp' => '\d+', 't' => '\w+', 'bl' => '\w\d\d(-\d)?', 'value' => '.*', 'sid' => '\d+', 'aid' => '\d+', 'pjid' => '\d+', 'imp' => '\d');
+        var $arg_list = array('id' => '\d+', 'visit' => '\w+\d+-\d+', 'page' => '\d+', 's' => '[\w-\/]+', 'pp' => '\d+', 't' => '\w+', 'bl' => '\w\d\d(-\d)?', 'value' => '.*', 'sid' => '\d+', 'aid' => '\d+', 'pjid' => '\d+', 'imp' => '\d', 'pid' => '\d+');
         var $dispatch = array('strat' => '_dc_strategies',
                               'ap' => '_dc_auto_processing',
                               'dp' => '_dc_downstream',
@@ -32,7 +32,8 @@
         #   - a visit /visit/
         #   - a particular sample id /sid/
         #   - a project (explicit or implicit) /pjid/(imp/1/)
-        #   Its also searchable and filterable
+        #   - a protein /pid/
+        #   Its also searchable (A-z0-9-/) and filterable
         function _data_collections() {
             session_write_close();
             
@@ -177,7 +178,28 @@
                 if ($this->has_arg('imp'))
                     if ($this->arg('imp')) $n = 12;
                 for ($i = 0; $i < $n; $i++) array_push($args, $this->arg('pjid'));
-            
+        
+                
+            # Proteins
+            } else if ($this->has_arg('pid')) {
+                $info = $this->db->pq("SELECT proteinid FROM ispyb4a_db.protein p WHERE p.proteinid=:1", array($this->arg('pid')));
+                $extc = 'smp.name as sample,smp.blsampleid,';
+                
+                foreach (array('dc', 'es', 'r', 'xrf') as $i => $t) {
+                    if ($t == 'r') {
+                        $sess[$i] = 'r.robotactionid < 0';
+                        $extj[$i] = "INNER JOIN ispyb4a_db.blsample smp ON r.blsampleid = smp.blsampleid";
+                        
+                    } else {
+                        $ij = $t == 'es' ? "INNER JOIN ispyb4a_db.blsample_has_energyscan bes ON $t.energyscanid = bes.energyscanid INNER JOIN ispyb4a_db.blsample smp ON bes.blsampleid = smp.blsampleid"
+                        : "INNER JOIN ispyb4a_db.blsample smp ON $t.blsampleid = smp.blsampleid";
+                        
+                        $extj[$i] .= " $ij INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = smp.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid";
+                        $sess[$i] = 'pr.proteinid=:'.(sizeof($args)+1);
+                        array_push($args, $this->arg('pid'));
+                    }
+                }
+                
             # Proposal
             } else if ($this->has_arg('prop')) {
                 $info = $this->db->pq('SELECT proposalid FROM ispyb4a_db.proposal p WHERE p.proposalcode || p.proposalnumber LIKE :1', array($this->arg('prop')));
@@ -302,7 +324,7 @@
                 
                 // Data collections
                 if ($dc['TYPE'] == 'data') {
-                    $nf = array(1 => array('AXISSTART', 'AXISRANGE'), 2 => array('RESOLUTION', 'TRANSMISSION'), 3 => array('EXPOSURETIME'), 4 => array('WAVELENGTH'));
+                    $nf = array(1 => array('AXISSTART'), 2 => array('RESOLUTION', 'TRANSMISSION', 'AXISRANGE'), 3 => array('EXPOSURETIME'), 4 => array('WAVELENGTH'));
                     $dc['DIR'] = preg_replace('/.*\/\d\d\d\d\/\w\w\d+-\d+\//', '', $dc['DIR']);
                     
                     $dc['BSX'] = round($dc['BSX']*1000);
