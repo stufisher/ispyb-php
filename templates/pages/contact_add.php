@@ -73,7 +73,7 @@
                 <label>Courier Company
                     <span class="small">Courier company to use to return dewars to home lab</span>
                 </label>
-                <input type="text" name="courier" required />
+                <input type="text" name="courier" />
             </li>
 
 
@@ -81,7 +81,7 @@
                 <label>Courier Account No.
                 <span class="small">Courier account number for returning dewars to home lab</span>
                 </label>
-                <input type="text" name="courieraccount" required />
+                <input type="text" name="courieraccount" />
             </li>
 
             <li>
