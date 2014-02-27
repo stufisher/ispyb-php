@@ -99,7 +99,7 @@
             <?php if ($f['ELOGID']): ?>
             <li>
                 <span class="label">eLog Entry</span>
-                <span class="elogid"><a href="https://elog.pri.diamond.ac.uk/php/elog/cs_logentdtlret.php?log_entry_id=<?php echo $f['ELOGID'] ?>">Go to eLog</a></span>
+                <span class="elogid"><a target="_blank" href="https://elog.pri.diamond.ac.uk/php/elog/cs_logentdtlret.php?log_entry_id=<?php echo $f['ELOGID'] ?>">Go to eLog</a></span>
             </li>
             <?php endif; ?>
 
