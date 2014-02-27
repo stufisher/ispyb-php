@@ -14,6 +14,8 @@ $(function() {
   var thread1 = null
   var thread2 = null
   
+  $('a.export').button({ icons: { primary: 'ui-icon-extlink' } })
+  
   // Scroll details based on day
   $('.calendar_days').scroll(function(e) {
     if (disabled) return

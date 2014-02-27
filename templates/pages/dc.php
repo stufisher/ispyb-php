@@ -3,6 +3,12 @@
 
     <p class="help">Schedule of visits for the currently selected proposal</p>
 
+    <?php if ($purl): ?>
+        <p class="ra">
+            <a class="export" href="<?php echo $purl ?>">Export (Private URL)</a>
+        </p>
+    <?php endif; ?>
+
     <div class="calendar">
     <ul class="links clearfix">
         <li><a href="/cal/<?php echo $has_prop ? 'proposal/' : '' ?>mon/<?php echo $months[$c_month] ?>/year/<?php echo ($c_year-1) ?>"><?php echo ($c_year-1) ?></a></li>

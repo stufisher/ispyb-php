@@ -2,10 +2,12 @@
     
     class Cal extends Page {
         
-        var $arg_list = array('mon' => '\w+', 'year' => '\d\d\d\d', 'bl' => '\w\d\d(-\d)?');
+        var $arg_list = array('mon' => '\w+', 'year' => '\d\d\d\d', 'bl' => '\w\d\d(-\d)?', 'h' => '.*');
+        
         var $dispatch = array('cal' => '_calendar',
                               'proposal' => '_show_proposal',
                               'ics' => '_export_ics',
+                              'ext' => '_external_link',
                               );
         var $def = 'cal';
         
@@ -114,6 +116,22 @@
             $this->t->has_prop = $prop;
             $this->t->pr = $this->has_arg('prop') ? $this->arg('prop') : '';
             
+            # Generate private url
+            $this->t->purl = '';
+            if ($prop || $this->has_arg('bl')) {
+                $arg = $prop ? $this->arg('prop') : $this->arg('bl');
+                $args = $this->db->pq("SELECT parametercomments as p FROM ispyb4a_db.genericdata WHERE parametervaluestring LIKE :1", array($arg));
+                
+                if (sizeof($args)) {
+                    $this->t->purl = '/cal/ics/h/'.$args[0]['P'].'/calendar.ics';
+                } else {
+                    $h = md5(uniqid());
+                    $this->db->pq("INSERT INTO ispyb4a_db.genericdata (genericdataid,parametervaluestring,parametercomments) VALUES (s_genericdata.nextval, :1, :2)", array($arg, $h));
+                    
+                    $this->t->purl = '/cal/ics/h/'.$h.'/calendar.ics';
+                }
+            }
+            
             $this->render('dc');
         }
         
@@ -121,22 +139,36 @@
         # Calendar ics export
         function _export_ics() {
             $where = '';
-            $args = array('2012');
+            $args = array(date('Y'));
             
-            if (!$this->staff && !$this->has_arg('prop')) $this->error('No proposal', 'No proposal specified');
+            if (!$this->has_arg('h')) $this->error('No proposal specified', 'You must specify a proposal to view a calendar');
+
+            $hash = $this->db->pq("SELECT parametervaluestring as p FROM ispyb4a_db.genericdata WHERE parametercomments LIKE :1", array($this->arg('h')));
+            $bls = array('i02', 'i03', 'i04', 'i04-1', 'i24', 'i23');
             
-            if ($this->has_arg('prop')) {
-                $where = ' AND p.proposalid=:'.(sizeof($args)+1);
-                array_push($args, $this->proposalid);
-            }
             
-            if ($this->has_arg('bl')) {
+            if (!sizeof($hash)) $this->error('No proposal specified', 'The specified proposal doesnt appear to exist');
+            $arg = $hash[0]['P'];
+            
+            if (in_array($arg, $bls)) {
                 $where .= ' AND s.beamlinename LIKE :'.(sizeof($args)+1);
-                array_push($args, $this->arg('bl'));
+                array_push($args, $arg);
+                
+            } else {
+                $where = ' AND p.proposalcode||p.proposalnumber=:'.(sizeof($args)+1);
+                array_push($args, $arg);
             }
             
-            $visits = $this->db->pq("SELECT p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis, p.proposalcode || p.proposalnumber as prop, s.beamlinename as bl, TO_CHAR(s.startdate, 'DD-MM-YYYY') as d, TO_CHAR(s.startdate, 'HH24:MI') as st, TO_CHAR(s.enddate, 'HH24:MI') as en, s.sessionid FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE (s.beamlinename LIKE 'i02' OR s.beamlinename LIKE 'i03' OR s.beamlinename LIKE 'i04' OR s.beamlinename LIKE 'i04-1' OR s.beamlinename LIKE 'i24') AND s.startdate > TO_DATE(:1,'YYYY') $where ORDER BY s.startdate, s.beamlinename", $args);
+            $visits = $this->db->pq("SELECT p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis, p.proposalcode || p.proposalnumber as prop, s.beamlinename as bl, TO_CHAR(s.startdate, 'DD-MM-YYYY') as d, TO_CHAR(s.enddate, 'DD-MM-YYYY') as e, TO_CHAR(s.startdate, 'HH24:MI') as st, TO_CHAR(s.enddate, 'HH24:MI') as en, s.sessionid FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE (s.beamlinename LIKE 'i02' OR s.beamlinename LIKE 'i03' OR s.beamlinename LIKE 'i04' OR s.beamlinename LIKE 'i04-1' OR s.beamlinename LIKE 'i24') AND s.startdate > TO_DATE(:1,'YYYY') $where ORDER BY s.startdate, s.beamlinename", $args);
             
+            $user_tmp = $this->db->pq("SELECT u.name,u.fullname,s.sessionid FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN investigation@DICAT_RO i ON lower(i.visit_id) = p.proposalcode||p.proposalnumber||'-'||s.visit_number INNER JOIN investigationuser@DICAT_RO iu on i.id = iu.investigation_id INNER JOIN user_@DICAT_RO u on u.id = iu.user_id WHERE (s.beamlinename LIKE 'i02' OR s.beamlinename LIKE 'i03' OR s.beamlinename LIKE 'i04' OR s.beamlinename LIKE 'i04-1' OR s.beamlinename LIKE 'i24') AND s.startdate > TO_DATE(:1,'YYYY') AND iu.role='NORMAL_USER' $where", $args);
+            
+            $users = array();
+            foreach ($user_tmp as $u) {
+                if (!array_key_exists($u['SESSIONID'], $users)) $users[$u['SESSIONID']] = array();
+                
+                array_push($users[$u['SESSIONID']], $u);
+            }
             
             $output = '';
             foreach ($visits as $v) {
@@ -146,11 +178,11 @@
                 $v['TY'] = $lc ? $lc->type : '';
                 
                 if ($v['TY'] == 'Short Visit') {
+                    $v['EN'] = $v['E'] . ' ' . $this->short_visit[$v['ST']][1];
                     $v['ST'] = $v['D'] . ' ' . $this->short_visit[$v['ST']][0];
-                    $v['EN'] = $v['D'] . ' ' . $this->short_visit[$v['ST']][1];
                 } else {
                     $v['ST'] = $v['D'] . ' ' . $v['ST'];
-                    $v['EN'] = $v['D'] . ' ' . $v['EN'];
+                    $v['EN'] = $v['E'] . ' ' . $v['EN'];
                 }
                 
                 if ($v['TY']) $v['TY'] = ' ['.$v['TY'].']';
@@ -158,22 +190,23 @@
                 $st = strtotime($v['ST']);
                 $en = strtotime($v['EN']);
                 
-                $output .= 'BEGIN:VEVENT
-                DTSTAMP:'.date('dmY\THi',$st).'00Z
-                DTSTART:'.date('dmY\THi', $st).'00Z
-                DTSTEND:'.date('dmY\THi', $en).'00Z
-                SUMMARY: '.$v['BL'].': '.$v['VIS'].$v['TY'].($v['LC'] ? ' LC: '.$v['LC'] : '').($v['OC'] ? ' OC: '.$v['OC'] : '').'
-                END:VEVENT
-                ';
+                $title = $v['VIS'].$v['TY'].($v['LC'] ? ' LC: '.$v['LC'] : '').($v['OC'] ? ' OC: '.$v['OC'] : '');
+                if (!in_array($arg, $bls)) $title = $v['BL'].': '.$title;
+                
+                $us = '';
+                if (array_key_exists($v['SESSIONID'], $users)) {
+                    foreach ($users[$v['SESSIONID']] as $u) {
+                        $us .= 'ATTENDEE;CN="'.$u['FULLNAME']."\":MAILTO:".$u['NAME']."\r\n";
+                    }
+                }
+                
+                
+                $output .= "BEGIN:VEVENT\r\nDTSTAMP:".date('Ymd\THi',$st)."00Z\r\nDTSTART:".date('Ymd\THi', $st)."00Z\r\nDTEND:".date('Ymd\THi', $en)."00Z\r\nSUMMARY:".$title."\r\n".$us."\r\nEND:VEVENT\r\n";
             }
             
-            #header("Content-type: text/calendar; charset=utf-8");
+            header("Content-type: text/calendar; charset=utf-8");
             #header('Content-Disposition: inline; filename=calendar.ics');
-            print "BEGIN:VCALENDAR
-            VERSION:2.0
-            $output
-            END:VCALENDAR
-            ";
+            print "BEGIN:VCALENDAR\r\nVERSION:2.0\r\n$output\r\nEND:VCALENDAR\r\n";
         }
         
     }
