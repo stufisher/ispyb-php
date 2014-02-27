@@ -1,7 +1,8 @@
 
     <div id="rd">
         <div class="rd_plot"></div>
-        Plot of R_d vs frame difference.
+        Plot of R_d vs frame difference.<br />
+        See <a href="http://journals.iucr.org/d/issues/2006/01/00/ba5081/index.html">Diederichs, 2006, Acta D62, 96-101</a>
     </div>
 
     <div id="distl_full">
