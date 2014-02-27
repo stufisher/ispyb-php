@@ -12,6 +12,7 @@
                               'mass' => '\d+(.\d+)',
                               'submit' => '\d',
                               'pdb_codes' => '([\w\s,])+',
+                              'visit' => '\w+\d+-\d+',
                               );
         var $dispatch = array('samples' => '_sample_dispatch',
                               'proteins' => '_protein_dispatch',
@@ -60,7 +61,15 @@
                 if (file_exists($s['SN'])) array_push($sn, $s['ID']);
             }
             
-            $this->template('View Sample', array($samp['ACRONYM'], $samp['NAME']), array('proteins/pid/'.$samp['PROTEINID'],''));
+            
+            $p = array($samp['ACRONYM'], $samp['NAME']);
+            $l = array('proteins/pid/'.$samp['PROTEINID'],'');
+            if ($this->has_arg('visit')) {
+                array_push($p, $this->arg('visit'));
+                array_push($l, '/dc/visit/'.$this->arg('visit'));
+            }
+            
+            $this->template('View Sample', $p, $l);
             
             $this->t->samp = $samp;
             $this->t->sn = $sn;
@@ -103,7 +112,15 @@
                 $prot['SEQUENCE'] = $prot['SEQUENCE']->read($prot['SEQUENCE']->size());
             }
             
-            $this->template('View Protein', array('Proteins', $prot['NAME'] ? $prot['NAME'] : $prot['ACRONYM']), array('proteins', ''));
+            $p = array('Proteins', $prot['NAME'] ? $prot['NAME'] : $prot['ACRONYM']);
+            $l = array('proteins', '');
+            
+            if ($this->has_arg('visit')) {
+                array_push($p, $this->arg('visit'));
+                array_push($l, '/dc/visit/'.$this->arg('visit'));
+            }
+            
+            $this->template('View Protein', $p, $l);
             $this->t->prot = $prot;
             $this->t->js_var('pid', $this->arg('pid'));
             $this->t->render('protein_view');
