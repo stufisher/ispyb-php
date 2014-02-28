@@ -31,24 +31,3 @@
     <div class="log gda">
         <ul></ul>
     </div>
-
-
-    <h1>User Schedule</h1>
-
-    <div class="table">
-        <table class="schedule">
-            <thead>
-                <tr>
-                    <th>Start</th>
-                    <th>End</th>
-                    <th>Visit</th>
-                    <th>Local Contact</th>
-                    <th>On Call</th>
-                    <th>Type</th>
-                </tr>
-            </thead>
-
-            <tbody>
-            </tbody>
-        </table>
-    </div>
