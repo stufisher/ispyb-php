@@ -200,22 +200,5 @@ $(function() {
         _gda_log(true, p)
     }
   })
-  
-  
-  // Local contact schedule
-  var dt = {sPaginationType: 'full_numbers',
-            bProcessing: true,
-            bServerSide: true,
-            sAjaxSource: '/status/ajax/sch/bl/'+bl+'/',
-            bAutoWidth:false ,
-            fnServerData: function ( sSource, aoData, fnCallback ) {
-                $.getJSON( sSource, aoData, function (json) { 
-                   fnCallback(json)
-                   //_map_callbacks()
-                })
-            }
-  }
-  
-  var dt = $('table.schedule').dataTable(dt)
 
 })
