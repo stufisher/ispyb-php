@@ -740,10 +740,13 @@ $(function() {
           var d = distl[id].getData()
           var data = [{
                     data: d[0].data,
+                    label: 'Spots',
                  }, {
                     data: d[1].data,
+                    label: 'Bragg',
                  }, {
                     data: d[2].data,
+                    label: 'Res',
                     yaxis: 2
                  }]
                                                         
