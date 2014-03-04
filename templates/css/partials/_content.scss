@@ -27,8 +27,7 @@
         }
     }
     
-    p.help {
-        display: none;
+    p.message {
         padding: 1%;
         margin-bottom: 1%;
         border-radius: 5px;
@@ -39,6 +38,11 @@
             background: $content-inactive;
             color: $body-color;
         }
+    }
+    
+    p.help {
+        @extend p.message;
+        display: none;
     }
 
 }
