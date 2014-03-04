@@ -27,7 +27,7 @@
     # Work around to allow beamline sample registration without CAS authentication
     # For use on the touchscreen computers in the hutch
     if (sizeof($parts) >= 2) {
-        if (($parts[0] == 'samples' && ($parts[1] == 'bl' || $parts[1] == 'ajax') && in_array($_SERVER["REMOTE_ADDR"], $blsr))) {
+        if (($parts[0] == 'samples' && ($parts[1] == 'bl' || $parts[1] == 'ajax') && in_array($_SERVER["REMOTE_ADDR"], $blsr)) || ($parts[0] == 'cal' && $parts[1] == 'ics' && $parts[2] == 'h')) {
             
         } else {
             require_once 'CAS/CAS.php';
