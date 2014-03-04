@@ -108,6 +108,8 @@ $(function() {
   function load(n) {
     img.src = '/image/'+(low ? 'diff/f/1' : 'di')+'/id/'+id+'/n/'+n
     img.onload = function() {
+        if (img.width == 0) return
+  
         width = img.width
         height = img.height
         imscale = width/(dc['BL'] == 'i04-1' ? 1679 : 2527);
@@ -125,7 +127,12 @@ $(function() {
         $('.message_box').html('<p class="message alert">These images dont look to be on disk any more. Using low resolution jpegs instead</p>')
         if (!low) {
             low = 1;
-            load(n)
+            img.src = ''
+  
+            setTimeout(function() {
+              load(n)
+            }, 500)
+  
         }
     }
   }
