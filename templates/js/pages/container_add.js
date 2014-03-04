@@ -77,7 +77,7 @@ $(function() {
   
   
   // Get protein acronyms
-  function _get_proteins(fn) {
+  function _get_proteins(fn,sync) {
     var old = $('select.protein').map(function(i,e) { return $(e).combobox('value') }).get()
 
     $.ajax({
@@ -85,6 +85,7 @@ $(function() {
       type: 'GET',
       dataType: 'json',
       timeout: 5000,
+      async: !sync,
       success: function(json){
         var opts = '<option value="-1"></option>'
         $.each(json, function(i,p) {
@@ -240,11 +241,12 @@ $(function() {
                 type: 'GET',
                 dataType: 'json',
                 timeout: 5000,
+                async: false,
                 success: function(pid){
                   if (pid) {
                     _get_proteins(function() {
                       cb.combobox('value', pid)
-                    })
+                    },true)
                   }
                 }
               })
