@@ -487,6 +487,8 @@
                 } else {
                     $this->db->pq("INSERT INTO ispyb4a_db.adminactivity (adminactivityid, username, action, comments, datetime) VALUES (s_adminactivity.nextval, :1, :2, :3, SYSDATE)", array($u, $action, $com));
                 }
+                
+                $this->db->pq("INSERT INTO ispyb4a_db.log4stat (id,priority,log4jtimestamp,msg,detail) VALUES (s_log4stat.nextval, 'ISPYB2_STAT', SYSDATE, 'LOGON', :1)", array($u));
             }
             
             return true;
