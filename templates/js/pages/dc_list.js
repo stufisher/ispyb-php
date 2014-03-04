@@ -117,10 +117,10 @@ $(function() {
   // Async load of data collections
   function load_datacollection() {
       var dcids = []
-      var apr = new Array()
+      //var apr = new Array()
       $('.data_collection').each(function() {
           dcids.push($(this).attr('dcid'))
-          apr[$(this).attr('dcid')] = $(this).data('apr')
+          //apr[$(this).attr('dcid')] = $(this).data('apr')
       })
   
       //console.log('fn '+new Date())
@@ -306,7 +306,7 @@ $(function() {
                            $('div.data_collection:last').slideUp()
                            if (distl[last_id]) distl[last_id].destroy()
                            delete distl[last_id]
-                           $('div.data_collection:last').remove()
+                           $('div.data_collection:last').removeData().remove()
                        }
                        
                    
@@ -325,14 +325,26 @@ $(function() {
              
                 map_callbacks()
                 first = false
+             
+                json = null
+             
+                  if (auto_load) {
+                    auto_load_thread = setTimeout(function() {
+                        load_datacollection()
+                    }, 8000)
+                  }
+             },
+             
+             error: function() {
+                  if (auto_load) {
+                    auto_load_thread = setTimeout(function() {
+                        load_datacollection()
+                    }, 8000)
+                  }
              }
       })
   
-      if (auto_load) {
-        auto_load_thread = setTimeout(function() {
-            load_datacollection()
-        }, 8000)
-      }
+
   }
   
   load_datacollection()
@@ -340,7 +352,7 @@ $(function() {
 
   
   function _show_images() {
-    $('.lazy').unveil(0,function() { $(this).load(function() {$(this).addClass('show')}) })
+    $('.lazy').not('.enabled').unveil(0,function() { $(this).load(function() {$(this).addClass('show')}) }).addClass('enabled')
   }
   
   
@@ -368,7 +380,7 @@ $(function() {
                    $('div[dcid='+id+']').attr('sn',1)
                    $('div[dcid='+id+'] .snapshots img').attr('data-src', '/image/id/'+id).addClass('lazy')
                  }
-                 sns = ''
+                 var sns = ''
                  for (var i = 1; i < img[1].length; i++) sns += ('<a href="/image/id/'+id+'/f/1/n/'+(i+1)+'" title="Crystal Snapshot '+(i+1)+'"></a>')
                  if (img[1].length > 1 && $('div[dcid='+id+']').attr('ty') == 'grid') {
                    $('div[dcid='+id+'] .snapshots img').attr('data-src', '/image/id/'+id+'/f/1/n/2').addClass('lazy')
@@ -390,6 +402,7 @@ $(function() {
           }
       })
 
+
     $.ajax({
         url: '/dc/ajax/aps' + (is_visit ? ('/visit/'+visit) : ''),
         type: 'POST',
@@ -408,13 +421,13 @@ $(function() {
            var div = $(md).children('.holder')
            var ld = $(md).data('apr')
                 
-           val = ['<img src="/templates/images/info.png" alt="N/A"/>',
+           var val = ['<img src="/templates/images/info.png" alt="N/A"/>',
                   '<img src="/templates/images/run.png" alt="Running"/>',
                   '<img src="/templates/images/ok.png" alt="Completed"/>',
                   '<img src="/templates/images/cancel.png" alt="Failed"/>']
            
            if (div.children('div').hasClass('autoproc')) {
-               sp = div.children('h1').eq(0).children('span')
+               var sp = div.children('h1').eq(0).children('span')
                sp.html('Fast DP: ' + val[res[2]] +
                          ' Xia2: ' + val[res[3]] + ' ' +val[res[4]] + ' ' +val[res[5]])
             
@@ -431,7 +444,7 @@ $(function() {
                }
            
            } else {
-               sp = div.children('h1').eq(0).children('span')
+               var sp = div.children('h1').eq(0).children('span')
                sp.html('Mosflm: ' + val[res[0]] + ' EDNA: ' + val[res[1]])
            
                if (!$(md).data('first') && ((res[0] == 2 && res[0] != ld[0]) || (res[1] == 2 && res[1] != ld[1]))) {
@@ -449,6 +462,7 @@ $(function() {
            }
           })
 
+          list = null
         }
     })
   }
@@ -456,9 +470,9 @@ $(function() {
   
   // Log messages
   function log_message(title, msg) {
-    now = new Date()
-    t = [now.getHours(), now.getMinutes(), now.getSeconds()]
-    for (i = 0; i < t.length; i++) {
+    var now = new Date()
+    var t = [now.getHours(), now.getMinutes(), now.getSeconds()]
+    for (var i = 0; i < t.length; i++) {
         if (t[i] < 10) t[i] = '0'+t[i]
     }
 
@@ -633,6 +647,8 @@ $(function() {
               $(d).attr('sample', true)
             }
           })
+             
+          list = null
         }
       })
     }
