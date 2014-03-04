@@ -19,15 +19,15 @@
             color: $table-header-color;
             
             &.sorting_asc {
-                background-image: url('images/sort_asc.png') no-repeat right center;
+                background: $table-header-background url('images/sort_asc.png') no-repeat right center;
             }
             
             &.sorting_desc {
-                background-image: url('images/sort_desc.png') no-repeat right center;
+                background: $table-header-background url('images/sort_desc.png') no-repeat right center;
             }
             
             &.sorting {
-                background-image: url('images/sort_both.png') no-repeat right center;
+                background: $table-header-background url('images/sort_both.png') no-repeat right center;
             }
         }
 
