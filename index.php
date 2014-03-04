@@ -64,7 +64,10 @@
     $db = new Oracle($isb['user'], $isb['pass'], $isb['db']);
     register_shutdown_function(array(&$db, '__destruct'));
     
-    if ($parts[0] == 'logout') phpCAS::logout();
+    if ($parts[0] == 'logout') {
+        $this->db->pq("INSERT INTO ispyb4a_db.log4stat (id,priority,log4jtimestamp,msg,detail) VALUES (s_log4stat.nextval, 'ISPYB2_STAT', SYSDATE, 'LOGOFF', :1)", array(phpCAS::getUser()));
+        phpCAS::logout();
+    }
     
     # New pages need to be added to this array in order for them to be
     # parsed
