@@ -47,6 +47,7 @@
                 
             } else {
                 $this->db->pq("INSERT INTO phpsession (id, accessdate, data) VALUES (:1,SYSDATE,:2)", array($id, $data));
+                if (array_key_exists('phpCAS', $_SESSION)) $this->db->pq("INSERT INTO ispyb4a_db.log4stat (id,priority,log4jtimestamp,msg,detail) VALUES (s_log4stat.nextval, 'ISPYB2_STAT', SYSDATE, 'LOGON', :1)", array($_SESSION['phpCAS']['user']));
                 
                 return true;
             }
