@@ -2,7 +2,7 @@
 
     class Dc extends Page {
         
-        var $arg_list = array('visit' => '\w+\d+-\d+', 'page' => '\d+', 'id' => '\d+', 't' => '\w+', 'iframe' => '\d+', 'id' => '\d+', 'sid' => '\d+', 's' => '\w+', 'pp' => '\d+');
+        var $arg_list = array('visit' => '\w+\d+-\d+', 'page' => '\d+', 'id' => '\d+', 't' => '\w+', 'iframe' => '\d+', 'id' => '\d+', 'sid' => '\d+', 's' => '\w+', 'pp' => '\d+', 'low' => '\d');
         var $dispatch = array('dc' => '_data_collection', 'view' => '_viewer');
         var $def = 'dc';
         
@@ -18,7 +18,7 @@
                 $this->error('No data collection id specified', 'You need to specify a data collection id in order to view diffraction images');
             }
             
-            $dc = $this->db->pq('SELECT dc.transmission, dc.axisrange, dc.exposuretime, dc.resolution as res, dc.ybeam as y, dc.xbeam as x,dc.wavelength as lam, dc.detectordistance as det, dc.numberofimages as num, dc.filetemplate as ft, dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE dc.datacollectionid=:1', array($this->arg('id')));
+            $dc = $this->db->pq('SELECT dc.transmission, dc.axisrange, dc.exposuretime, dc.resolution as res, dc.ybeam as y, dc.xbeam as x,dc.wavelength as lam, dc.detectordistance as det, dc.numberofimages as num, dc.filetemplate as ft, dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis, s.beamlinename as bl FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE dc.datacollectionid=:1', array($this->arg('id')));
             
             if (!sizeof($dc)) {
                 $this->_index();
@@ -38,6 +38,7 @@
             
             $this->t->d = $dc;
             
+            $this->t->js_var('low', $this->has_arg('low') ? 1 : 0);
             $this->t->js_var('id', $this->arg('id'));
             $this->t->js_var('ni', floatval($dc['NUM']));
             $this->t->js_var('dc', $dc);

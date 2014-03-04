@@ -44,6 +44,8 @@ $(function() {
   var lasty = 0
   var lastv = 0
   
+  var imscale = 1;
+  
   var moved = false
   
   var recache_thread = null
@@ -104,22 +106,27 @@ $(function() {
   
   // Load image from remote source
   function load(n) {
-    img.src = '/image/di/id/'+id+'/n/'+n
+    img.src = '/image/'+(low ? 'diff/f/1' : 'di')+'/id/'+id+'/n/'+n
     img.onload = function() {
         width = img.width
         height = img.height
+        imscale = width/(dc['BL'] == 'i04-1' ? 1679 : 2527);
         _calc_zoom()
         draw()
         _recache()
         $('#img').fadeIn(100);
         _plot_profiles(20,10)
   
-        // Precache next image
-        //if (n < ni) cache.src = '/image/di/id/'+id+'/n/'+(n+1)
-  
         // Set cache point
         ci = n+1
         precache()
+    }
+    img.onerror = function(e) {
+        $('.message_box').html('<p class="message alert">These images dont look to be on disk any more. Using low resolution jpegs instead</p>')
+        if (!low) {
+            low = 1;
+            load(n)
+        }
     }
   }
   
@@ -141,7 +148,7 @@ $(function() {
     }
   
     $.ajax({
-        url: '/image/di/id/'+id+'/n/'+ci,
+        url: '/image/'+(low ? 'diff/f/1' : 'di')+'/id/'+id+'/n/'+ci,
         type: 'GET',
         timeout: 5000,
         success: pro,
@@ -257,23 +264,23 @@ $(function() {
     ctx.strokeStyle='blue';
     for (var i = 0; i < rings.length; i++) {
       ctx.beginPath();
-      rad = _res_to_dist(rings[i])/0.172
-      ctx.arc(dc['Y']/0.172,dc['X']/0.172,rad,0,2*Math.PI);
+      rad = _res_to_dist(rings[i])/0.172*imscale
+      ctx.arc(dc['Y']/0.172*imscale,dc['X']/0.172*imscale,rad,0,2*Math.PI);
       ctx.stroke();
     }
   }
   
   // Draw resolution rings
   function _draw_res_rings() {
-    ctx.strokeStyle='black';
-    ctx.font='30px Arial';
+    ctx.strokeStyle = 'black';
+    ctx.font = imscale < 1 ? '10px Arial' : '30px Arial';
   
     for (var i = 0; i < 5; i++) {
       rad = (((height-10)/2)/5)*(i+1)
       ctx.beginPath();
-      ctx.arc(dc['Y']/0.172,dc['X']/0.172,rad,0,2*Math.PI);
+      ctx.arc(dc['Y']/0.172*imscale,dc['X']/0.172*imscale,rad,0,2*Math.PI);
       ctx.stroke();
-      ctx.fillText(_dist_to_res(rad*0.172).toFixed(2) + 'A',dc['Y']/0.172-40,dc['X']/0.172-rad+40);
+      ctx.fillText(_dist_to_res(rad*0.172/imscale).toFixed(2) + 'A',dc['Y']/0.172*imscale-(low ? 10 : 40 ),dc['X']/0.172*imscale-rad+(low ? 10 : 40));
     }
   }
   
@@ -292,7 +299,7 @@ $(function() {
      // assume everyone is using a pilatus
      var ps = 0.172
   
-     return Math.sqrt(Math.pow(Math.abs(x*ps-dc['Y']),2)+Math.pow(Math.abs(y*ps-dc['X']),2))
+     return Math.sqrt(Math.pow(Math.abs(x*ps/imscale-dc['Y']),2)+Math.pow(Math.abs(y*ps/imscale-dc['X']),2))
   }
   
   

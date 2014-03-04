@@ -117,6 +117,9 @@
                 $this->_browser_cache();
                 header('Content-Type:image/jpeg');
                 readfile($out);
+            } else {
+                header('HTTP/1.0 404 Not Found');
+                print 'That image is no longer available';
             }
         }
         

@@ -41,6 +41,10 @@
         </div>
     </div>
 
+    <div class="message_box"></div>
+
+    </div>
+
     <div class="image_container border">
         <div class="im_highlight"></div>
         <div class="im_progress"></div>
