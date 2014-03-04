@@ -17,6 +17,11 @@
         //var $require_staff = True;
         //var $debug = True;
         
+        var $short_visit = array('09:00' => array('14:00', '19:00'),
+                                 '17:00' => array('21:00', '02:00'),
+                                 '01:00' => array('04:00', '09:00'),
+                                 );
+        
         # Internal dispatcher based on passed arguments
         function _index() {
             if ($this->has_arg('visit')) $this->_get_visit();
@@ -227,6 +232,15 @@
                 $this->msg('No such visit', 'That visit doesnt seem to exist');
             } else $info = $info[0];
             
+            $lc = $this->lc_lookup($info['SID']);
+            if ($lc->type == 'Short Visit') {
+                $t = strtotime($info['ST']);
+                $info['ST'] = date('d-m-Y', $t).' '.$this->short_visit[date('H:i', $t)][0];
+                $e = strtotime($info['EN']);
+                $info['EN'] = date('d-m-Y', $e).' '.$this->short_visit[date('H:i', $t)][1];
+                $info['LEN'] = (strtotime($info['EN']) - strtotime($info['ST'])) / 3600;
+            }
+            
             
             # Visit breakdown
             $dc = $this->db->pq("SELECT TO_CHAR(dc.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(dc.endtime, 'DD-MM-YYYY HH24:MI:SS') as en, (dc.endtime - dc.starttime)*86400 as dctime, dc.runstatus FROM ispyb4a_db.datacollection dc WHERE dc.sessionid=:1 ORDER BY dc.endtime DESC", array($info['SID']));
@@ -362,7 +376,7 @@
             
             
             # Percentage breakdown of time used
-            list($dc) = $this->db->pq("SELECT TO_CHAR(MAX(dc.endtime), 'DD-MM-YYYY HH24:MI') as last, SUM(dc.endtime - dc.starttime)*24 as dctime, GREATEST((max(s.enddate)-max(dc.endtime))*24,0) as rem, GREATEST((min(dc.starttime)-min(s.startdate))*24,0) as sup  FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON dc.sessionid=s.sessionid WHERE dc.sessionid=:1 ORDER BY min(s.startdate)", array($info['SID']));
+            list($dc) = $this->db->pq("SELECT TO_CHAR(MAX(dc.endtime), 'DD-MM-YYYY HH24:MI') as last, TO_CHAR(MIN(dc.starttime), 'DD-MM-YYYY HH24:MI') as first, SUM(dc.endtime - dc.starttime)*24 as dctime, GREATEST((max(s.enddate)-max(dc.endtime))*24,0) as rem, GREATEST((min(dc.starttime)-min(s.startdate))*24,0) as sup  FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON dc.sessionid=s.sessionid WHERE dc.sessionid=:1 ORDER BY min(s.startdate)", array($info['SID']));
             
             list($rb) = $this->db->pq("SELECT SUM(CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*24 as dctime FROM ispyb4a_db.robotaction r WHERE r.blsessionid=:1", array($info['SID']));
             
@@ -370,6 +384,9 @@
             
             list($fa) = $this->db->pq("SELECT SUM(f.beamtimelost_endtime-f.beamtimelost_starttime)*24 as dctime FROM ispyb4a_db.bf_fault f WHERE f.sessionid=:1", array($info['SID']));
             
+            $dc['SUP'] = max(0,(strtotime($dc['FIRST']) - strtotime($info['ST'])) / 3600);
+            $dc['REM'] = max(0,(strtotime($info['EN']) - strtotime($dc['LAST'])) / 3600);
+                                    
             $rb = array_key_exists('DCTIME', $rb) ? $rb['DCTIME'] : 0;
             $ed = array_key_exists('DCTIME', $ed) ? $ed['DCTIME'] : 0;
             $fa = array_key_exists('DCTIME', $fa) ? $fa['DCTIME'] : 0;
@@ -422,9 +439,9 @@
             $this->t->fault = $faultl;
             $this->t->calls = $calls;
             $this->t->ehcs = $ehcs;
-                                    
+
             $this->t->js_var('visit_info', $data);
-            $this->t->js_var('start', $this->jst($info['ST']));
+            $this->t->js_var('start', $this->jst(strtotime($info['ST']) > strtotime($dc['FIRST']) ? $dc['FIRST'] : $info['ST']));
             $this->t->js_var('end', $this->jst(strtotime($info['EN']) < strtotime($dc['LAST']) ? $dc['LAST'] : $info['EN']));
             $this->t->js_var('dc_hist', $dcht);
             $this->t->js_var('dc_hist2', $dcht2);
