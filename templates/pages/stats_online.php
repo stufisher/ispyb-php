@@ -1,3 +1,10 @@
+    <div class="filter clearfix">
+        <ul>
+            <li><a href="/stats">Logon Stats</a></li>
+            <li class="current">Online Stats</li>
+        </ul>
+    </div>
+
     <h1>Online Users</h1>
 
     <div class="table">
