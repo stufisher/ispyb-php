@@ -36,7 +36,7 @@ $(function() {
   
   $('a.pull').addClass('enable').click(function() { $('body').toggleClass('active'); return false })
   
-  $('#sidebar ul li.help a').click(function() {
+  $('#sidebar ul > li.help > a').click(function() {
     help = help == 1 ? 0 : 1;
     $.cookie('ispyb_help', help);
     _toggle_help()
