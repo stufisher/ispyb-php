@@ -1319,4 +1319,39 @@ $(function() {
   }
   
   
+  
+  // Guided Tour
+  /*
+  function startIntro(){
+  var intro = introJs();
+    intro.setOptions({
+      showStepNumbers: false,
+      showBullets: false,
+      steps: [
+        {element: '.search', intro: 'Search through data collections from this box', position: 'left'},
+        {element: '#dc', intro: 'Filter data collections by experiment type', position: 'right'},
+        {element: $('.diffraction:first')[0], intro: 'Click for an interactive diffraction image viewer'},
+        {element: $('.distl:first')[0], intro: 'The DISTL plot shows a graph of image number vs nuber of spots. Click to view a larger version'},
+        {element: $('li.sample')[0], intro: 'Click to view the history for this particular sample'},
+        {element: $('.strategies:first').prev('h1')[0], intro: 'Click to view autoindexing results from EDNA and Mosflm'},
+        {element: $('.strategies:first').children('table.cell')[0], intro: 'Cell parameters determined from autoindexing'},
+        {element: $('.autoproc:first').prev('h1')[0], intro: 'Click to view results from the Fast DP and XIA2 integration pipelines'},
+        {element: $('.downstream:first').prev('h1')[0], intro: 'Click to view results from the Fast EP and DIMPLE pipelines'},
+        {element: '.content', intro: 'Did you know you can view this page on your mobile device?', position: 'top'}
+      ]
+    });
+
+    intro.onafterchange(function(targetElement) {
+      if (targetElement == $('.strategies:first').prev('h1')[0]) $('.strategies:first').prev('h1').trigger('click')
+      if (targetElement == $('.autoproc:first').prev('h1')[0]) $('.autoproc:first').prev('h1').trigger('click')
+      if (targetElement == $('.downstream:first').prev('h1')[0]) $('.downstream:first').prev('h1').trigger('click')
+    });
+  
+    intro.start();
+  }
+  
+  $('.help ul').append('<li id="tour"><a href="#">Feature Tour</a></li>')
+  $('#tour').click(function() { startIntro(); return false })
+  */
+  
 });
