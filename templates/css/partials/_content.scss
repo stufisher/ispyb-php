@@ -38,6 +38,11 @@
             background: $content-inactive;
             color: $body-color;
         }
+        
+        &.notify {
+            background: $content-active;
+            color: $body-color;
+        }
     }
     
     p.help {
@@ -45,6 +50,22 @@
         display: none;
     }
 
+    
+    p.inset {
+        width: 70%;
+        display: block;
+        margin: auto;
+        
+        img {
+            width: 100%;
+            box-shadow: 3px 3px 3px 1px grey;
+            margin: 5px;
+            
+            &.match {
+                width: auto;
+            }
+        }
+    }
 }
 
 
@@ -239,17 +260,19 @@ div.log {
         position: relative;
         z-index: 1;
         text-shadow: 0 1px 0 rgba(255,255,255,.5);
-        border-radius: .4em 0 0 .4em;
-        //padding: .7em 0.5em .7em 1em;
-        padding: .5em 0.2em .5em 0.6em;
-        margin: 0 2em 0 0;
+        //border-radius: .4em 0 0 .4em;
+        border-radius: .4em;
+        //padding: .5em 0.2em .5em 0.6em;
+        padding: .5em 0.6em .5em 0.6em;
+        //margin: 0 2em 0 0;
+        margin: 0 0.5em 0 0;
         transition: background .3s ease-out;
         
         &:hover, &:hover:after, &.current, &.current:after {
             background: $content-filter-current-background;
         }
         
-        &:after{
+        /*&:after{
             background: $content-filter-background;
             content: "";
             height: 2.5em;
@@ -262,10 +285,64 @@ div.log {
             @include rotate;
             border-radius: .4em;
             transition: background .3s ease-out;
-        }
+        }*/
         
 
     }
+}
+
+
+// Rounded numbered lists
+ol.rounded {
+    @include clearfix;
+    counter-reset: li;
+    list-style: none;
+    *list-style: decimal;
+    font: 18px $content-header-font;
+    padding: 0;
+    text-shadow: 0 1px 0 rgba(255,255,255,.5);
+    
+    li {
+        float:left;
+        position: relative;
+        display: block;
+        padding: .4em .7em .4em 3em;
+        *padding: .4em;
+        margin: 0em .5em .5em 0;
+        color: $content-filter-color;
+        background: $content-filter-background;
+        text-decoration: none;
+        border-radius: .3em;
+        transition: all .3s ease-out;
+        
+        &:before{
+            content: counter(li);
+            counter-increment: li;
+            position: absolute;
+            left: -0.3em;
+            top: 50%;
+            margin-top: -1.3em;
+            background: $content-active;
+            height: 2em;
+            width: 2em;
+            line-height: 2em;
+            border: .3em solid $content-background;
+            text-align: center;
+            border-radius: 2em;
+            transition: all .3s ease-out;
+        }
+
+        &:hover{
+            background: $content-filter-current-background;
+            
+            &:before{
+                transform: rotate(360deg);
+            }
+
+        }
+
+    }
+
 }
 
 
