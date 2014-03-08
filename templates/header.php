@@ -88,6 +88,10 @@
 
     <div class="content">
 
+    <p class="message notify">
+    This is the new interface to ISPyB at Diamond. If you want to escape to the old version click <a href="https://ispyb.diamond.ac.uk">here</a>
+    </p>
+
 <?php endif; ?>
 
 
