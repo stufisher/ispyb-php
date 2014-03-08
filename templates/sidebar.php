@@ -1,7 +1,12 @@
+
     <div id="sidebar">
 
         <ul class="clearfix">
-            <li class="help"><a href="#" title="Click to toggle help on and off">Help</a></li>
+            <li class="help"><a href="#" title="Click to toggle help on and off">Help</a>
+                <ul>
+                    <li><a href="/docs">Tutorials</a></li>
+                </ul>
+            </li>
             <li class="feedback"><a href="/feedback">Feedback</a></li>
 
             <li><a href="/proposal">Proposals</a></li>
