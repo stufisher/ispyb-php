@@ -167,7 +167,7 @@
                     if ($lc->type) $r['COMMENTS'] = $lc->type.' | '.$r['COMMENTS'];
                 }
                 
-                array_push($data, array($r['ST'], $r['EN'], $r['VIS'], $r['BL'], $r['LC'], $r['COMMENTS'], $dc, '<a class="view" title="View Data Collections" href="/dc/visit/'.$this->arg('prop').'-'.$r['VIS'].'">View Data</a> <a class="stats" title="View Statistics" href="/vstat/bag/'.$this->arg('prop').'/visit/'.$r['VIS'].'">View Statistics</a> <a class="report" title="Download PDF Report" href="/pdf/report/visit/'.$this->arg('prop').'-'.$r['VIS'].'">Download Report</a> <a class="export" title="Export Data Collections to CSV" href="/download/csv/visit/'.$this->arg('prop').'-'.$r['VIS'].'">Download CSV</a>'));
+                array_push($data, array($r['ST'], $r['EN'], $r['VIS'], $r['BL'], $r['LC'], $r['COMMENTS'], $dc, '<a class="view" title="View Data Collections" href="/dc/visit/'.$this->arg('prop').'-'.$r['VIS'].'">View Data</a> <a class="stats" title="View Statistics" href="/vstat/visit/'.$this->arg('prop').'-'.$r['VIS'].'">View Statistics</a> <a class="report" title="Download PDF Report" href="/pdf/report/visit/'.$this->arg('prop').'-'.$r['VIS'].'">Download Report</a> <a class="export" title="Export Data Collections to CSV" href="/download/csv/visit/'.$this->arg('prop').'-'.$r['VIS'].'">Download CSV</a>'));
                 
                 #<a class="process" title="Reprocess Data Collections" href="/mc/visit/'.$this->arg('prop').'-'.$r['VIS'].'">Reprocess Data</a>
             }
