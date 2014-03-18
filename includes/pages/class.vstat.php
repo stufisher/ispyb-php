@@ -233,23 +233,25 @@
             } else $info = $info[0];
             
             $lc = $this->lc_lookup($info['SID']);
-            if ($lc->type == 'Short Visit') {
-                $t = strtotime($info['ST']);
-                $info['ST'] = date('d-m-Y', $t).' '.$this->short_visit[date('H:i', $t)][0];
-                $e = strtotime($info['EN']);
-                $info['EN'] = date('d-m-Y', $e).' '.$this->short_visit[date('H:i', $t)][1];
-                $info['LEN'] = (strtotime($info['EN']) - strtotime($info['ST'])) / 3600;
+            if ($lc) {
+                if ($lc->type == 'Short Visit') {
+                    $t = strtotime($info['ST']);
+                    $info['ST'] = date('d-m-Y', $t).' '.$this->short_visit[date('H:i', $t)][0];
+                    $e = strtotime($info['EN']);
+                    $info['EN'] = date('d-m-Y', $e).' '.$this->short_visit[date('H:i', $t)][1];
+                    $info['LEN'] = (strtotime($info['EN']) - strtotime($info['ST'])) / 3600;
+                }
             }
             
             
             # Visit breakdown
-            $dc = $this->db->pq("SELECT TO_CHAR(dc.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(dc.endtime, 'DD-MM-YYYY HH24:MI:SS') as en, (dc.endtime - dc.starttime)*86400 as dctime, dc.runstatus FROM ispyb4a_db.datacollection dc WHERE dc.sessionid=:1 ORDER BY dc.endtime DESC", array($info['SID']));
+            $dc = $this->db->pq("SELECT dc.datacollectionid as id, TO_CHAR(dc.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(dc.endtime, 'DD-MM-YYYY HH24:MI:SS') as en, (dc.endtime - dc.starttime)*86400 as dctime, dc.runstatus FROM ispyb4a_db.datacollection dc WHERE dc.sessionid=:1 ORDER BY dc.endtime DESC", array($info['SID']));
             
             $robot = $this->db->pq("SELECT r.status, r.actiontype, TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(r.endtimestamp, 'DD-MM-YYYY HH24:MI:SS') as en, (CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as dctime FROM ispyb4a_db.robotaction r WHERE r.blsessionid=:1 ORDER BY r.endtimestamp DESC", array($info['SID']));
 
-            $edge = $this->db->pq("SELECT TO_CHAR(e.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(e.endtime, 'DD-MM-YYYY HH24:MI:SS') as en, (e.endtime - e.starttime)*86400 as dctime FROM ispyb4a_db.energyscan e WHERE e.sessionid=:1 ORDER BY e.endtime DESC", array($info['SID']));
+            $edge = $this->db->pq("SELECT e.energyscanid as id, TO_CHAR(e.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(e.endtime, 'DD-MM-YYYY HH24:MI:SS') as en, (e.endtime - e.starttime)*86400 as dctime FROM ispyb4a_db.energyscan e WHERE e.sessionid=:1 ORDER BY e.endtime DESC", array($info['SID']));
 
-            $fl = $this->db->pq("SELECT TO_CHAR(f.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(f.endtime, 'DD-MM-YYYY HH24:MI:SS') as en, (f.endtime - f.starttime)*86400 as dctime FROM ispyb4a_db.xfefluorescencespectrum f WHERE f.sessionid=:1 ORDER BY f.endtime DESC", array($info['SID']));
+            $fl = $this->db->pq("SELECT f.xfefluorescencespectrumid as id, TO_CHAR(f.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(f.endtime, 'DD-MM-YYYY HH24:MI:SS') as en, (f.endtime - f.starttime)*86400 as dctime FROM ispyb4a_db.xfefluorescencespectrum f WHERE f.sessionid=:1 ORDER BY f.endtime DESC", array($info['SID']));
             
             # Get Faults
             $faultl = $this->db->pq("SELECT f.faultid, bl.beamlinename as beamline, f.owner, s.name as system, c.name as component, sc.name as subcomponent, TO_CHAR(f.starttime, 'DD-MM-YYYY HH24:MI') as starttime, f.beamtimelost, round((f.beamtimelost_endtime-f.beamtimelost_starttime)*24,2) as lost, f.title, f.resolved, TO_CHAR(f.beamtimelost_starttime, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(f.beamtimelost_endtime, 'DD-MM-YYYY HH24:MI:SS') as en
@@ -276,7 +278,7 @@
                 if ($d['ST'] && $d['EN'])
                     array_push($data, array('data' => array(
                         array($this->jst($d['ST']), 1, $this->jst($d['ST'])),
-                        array($this->jst($d['EN']), 1, $this->jst($d['ST']))), 'color' => 'green'));
+                        array($this->jst($d['EN']), 1, $this->jst($d['ST']))), 'color' => 'green', 'id' => intval($d['ID']), 'type' => 'dc'));
             }
             
             foreach ($robot as $r) {
@@ -288,13 +290,13 @@
             foreach ($edge as $e) {
                 array_push($data, array('data' => array(
                         array($this->jst($e['ST']), 3, $this->jst($e['ST'])),
-                        array($this->jst($e['EN']), 3, $this->jst($e['ST']))), 'color' => 'orange'));
+                        array($this->jst($e['EN']), 3, $this->jst($e['ST']))), 'color' => 'orange', 'id' => $e['ID'], 'type' => 'ed'));
             }
 
             foreach ($fl as $e) {
                 array_push($data, array('data' => array(
                         array($this->jst($e['ST']), 3, $this->jst($e['ST'])),
-                        array($this->jst($e['EN']), 3, $this->jst($e['ST']))), 'color' => 'red', 'type' => 'mca'));
+                        array($this->jst($e['EN']), 3, $this->jst($e['ST']))), 'color' => 'red', 'type' => 'mca', 'id' => $e['ID'], 'type' => 'mca'));
             }
                                     
             foreach ($faultl as $f) {
@@ -446,6 +448,7 @@
             $this->t->js_var('dc_hist', $dcht);
             $this->t->js_var('dc_hist2', $dcht2);
             $this->t->js_var('pie', $pie);
+            $this->t->js_var('visit', $this->arg('visit'));
             
             $this->render('vstat_visit');
         }

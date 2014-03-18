@@ -59,6 +59,7 @@ $(function() {
   options2 = $.extend(true, {}, options);
   options2.tooltip = true;
   options2.grid.hoverable = true
+  options2.grid.clickable = true
   options2.tooltipOpts = { content: getToolTip }
   
   var main = $.plot('#avg_time', visit_info, options2);
@@ -70,6 +71,13 @@ $(function() {
                       
     overview.setSelection(ranges, true);
   });
+  
+  $('#avg_time').bind("plotclick", function (event, pos, item) {
+    console.log(item.series.id, item.series.type, item.datapoint[1])
+    if (item.datapoint[1] == 1 || item.datapoint[1] == 3) {
+        window.location.href = '/dc/visit/'+visit+'/t/'+item.series.type+'/id/'+item.series.id
+    }
+  })
   
   
   var overview = $.plot('#overview', visit_info, options);
@@ -132,6 +140,7 @@ $(function() {
     $(window).resize(function() { _resize() })
   
     function _resize() {
+      if (!$('.robot_actions.robot').length) return
       $.each([1,2,3,4,5,6],function(i,n) {
         dt.fnSetColumnVis(n, !($(window).width() <= 600))
       })
