@@ -54,6 +54,7 @@ $(function() {
     $('.data_collection').remove()
     $('.log ul li').remove()
     first = true
+    distl = {}
     clearTimeout(auto_load_thread)
     load_datacollection()
                       
@@ -94,6 +95,7 @@ $(function() {
     $('.data_collection').remove()
     $('.log ul li').remove()
     first = true
+    distl = {}
     page = 1
                            
     url = window.location.pathname.replace(/\/t\/\w+/, '')+(type ? ('/t/'+type) : '')
