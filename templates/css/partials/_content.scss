@@ -175,7 +175,7 @@ div.log {
     }
     
     .pages {
-        white-space: nowrap;
+        @extend .block-nos;
         
         &.pp {
             margin-left: 60px;
@@ -186,7 +186,6 @@ div.log {
         }
         
         ul {
-            
             &:before {
                 content: 'Page';
                 background: $content-page-background;
@@ -199,40 +198,61 @@ div.log {
                     padding: 8px;
                 }
             }
-            
-            list-style: none;
-            
-            li {
-                display: inline-block;
-                
-                a {
-                    text-decoration: none;
-                    display: block;
-                    width: 25px;
-                    padding: 3px 0;
-                    text-align: center;
-                    background: $content-page-background;
-                    color: $content-page-color;
-                    margin: 2px;
-                    
-                    &:hover {
-                        color: $content-page-hover-color;
-                    }
-                    
-                    @media (max-width: $breakpoint-vsmall) {
-                        padding: 8px 5px;
-                    }
-                }
-                
-                &.selected a {
-                    background: $content-page-selected-background;
-                }
-            }
 
         }
     }
 }
 
+// Time filter
+.time_wrap {
+    overflow: auto;
+    margin: 5px;
+    
+    .times {
+        @extend .block-nos;
+        ul > li > a {
+            width: 40px !important;
+        }
+    }
+}
+
+
+// Block numbered list
+.block-nos {
+    white-space: nowrap;
+        
+    ul {
+        list-style: none;
+        
+        li {
+            display: inline-block;
+            
+            a {
+                text-decoration: none;
+                display: block;
+                width: 25px;
+                padding: 3px 0;
+                text-align: center;
+                background: $content-page-background;
+                color: $content-page-color;
+                margin: 2px;
+                
+                &:hover {
+                    color: $content-page-hover-color;
+                }
+                
+                @media (max-width: $breakpoint-vsmall) {
+                    padding: 8px 5px;
+                }
+            }
+            
+            &.selected a {
+                background: $content-page-selected-background;
+            }
+        }
+
+    }
+}
 
 
 // Page Filters
