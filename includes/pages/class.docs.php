@@ -12,8 +12,8 @@
         var $sidebar = True;
     
         function _index() {
-            $pages = array('proposal', 'contact', 'shipment', 'samples', 'prepare', 'data');
-            $page_name = array('Select Proposal', 'Register Contact', 'Create Shipment', 'Register Samples', 'Prepare Experiment', 'View Your Data');
+            $pages = array('proposal', 'contact', 'shipment', 'samples', 'prepare', 'data', 'mobile');
+            $page_name = array('Select Proposal', 'Register Contact', 'Create Shipment', 'Register Samples', 'Prepare Experiment', 'View Your Data', 'Mobile Access');
             
             $t = $this->has_arg('tut') ? ($this->arg('tut') - 1) : 0;
             if ($t < sizeof($pages)) {
