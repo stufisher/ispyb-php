@@ -2,7 +2,7 @@
 
     class Ajax extends AjaxBase {
         
-        var $arg_list = array('id' => '\d+', 'visit' => '\w+\d+-\d+', 'page' => '\d+', 's' => '[\w-\/]+', 'pp' => '\d+', 't' => '\w+', 'bl' => '\w\d\d(-\d)?', 'value' => '.*', 'sid' => '\d+', 'aid' => '\d+', 'pjid' => '\d+', 'imp' => '\d', 'pid' => '\d+');
+        var $arg_list = array('id' => '\d+', 'visit' => '\w+\d+-\d+', 'page' => '\d+', 's' => '[\w-\/]+', 'pp' => '\d+', 't' => '\w+', 'bl' => '\w\d\d(-\d)?', 'value' => '.*', 'sid' => '\d+', 'aid' => '\d+', 'pjid' => '\d+', 'imp' => '\d', 'pid' => '\d+', 'h' => '\d\d', 'dmy' => '\d\d\d\d\d\d\d\d');
         var $dispatch = array('strat' => '_dc_strategies',
                               'ap' => '_dc_auto_processing',
                               'dp' => '_dc_downstream',
@@ -58,12 +58,6 @@
             $extj = array('','','','');
             # Extra columns
             $extc = '';
-            
-            
-            # View a project
-            if ($this->has_arg('pjid')) {
-                //$this->db->set_stats(true);
-            }
             
             
             # Filter by types
@@ -125,7 +119,7 @@
             $info = array();
             # Visits
             if ($this->has_arg('visit')) {
-                list($info,) = $this->db->pq("SELECT s.sessionid, s.beamlinename as bl, vr.run, vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')));
+                list($info,) = $this->db->pq("SELECT TO_CHAR(s.startdate, 'HH24') as sh, TO_CHAR(s.startdate, 'DDMMYYYY') as dmy, s.sessionid, s.beamlinename as bl, vr.run, vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')));
             
                 $sess = array('dc.sessionid=:1', 'es.sessionid=:2', 'r.blsessionid=:3', 'xrf.sessionid=:4');
                 for ($i = 0; $i < 4; $i++) array_push($args, $info['SESSIONID']);
@@ -210,6 +204,39 @@
             }
             
             if (!sizeof($info)) $this->_error('The specified visit, sample, or project doesnt exist');
+            
+            
+            # Filter by time for visits
+            if (($this->has_arg('h') && ($this->has_arg('visit') || $this->has_arg('dmy'))) || $this->has_arg('dmy')) {
+                $where .= "AND dc.starttime > TO_DATE(:".(sizeof($args)+1).", 'HH24:MI:SS DDMMYYYY') AND dc.starttime < TO_DATE(:".(sizeof($args)+2).", 'HH24:MI:SS DDMMYYYY')";
+                $where2 .= "AND es.starttime > TO_DATE(:".(sizeof($args)+3).", 'HH24:MI:SS DDMMYYYY') AND es.starttime < TO_DATE(:".(sizeof($args)+4).", 'HH24:MI:SS DDMMYYYY')";
+                $where3 .= "AND r.starttimestamp > TO_DATE(:".(sizeof($args)+5).", 'HH24:MI:SS DDMMYYYY') AND r.starttimestamp < TO_DATE(:".(sizeof($args)+6).", 'HH24:MI:SS DDMMYYYY')";
+                $where4 .= "AND xrf.starttime > TO_DATE(:".(sizeof($args)+7).", 'HH24:MI:SS DDMMYYYY') AND xrf.starttime < TO_DATE(:".(sizeof($args)+8).", 'HH24:MI:SS DDMMYYYY')";
+                
+                if ($this->has_arg('dmy')) {
+                    $my = $this->arg('dmy');
+                } else {
+                    $my = $info['DMY'];
+                    if ($this->arg('h') < $info['SH']) {
+                        $sd = mktime(0,0,0,substr($my,2,2), substr($my,0,2), substr($my,4,4))+(3600*24);
+                        $my = date('dmY', $sd);
+                    }
+                }
+                
+                
+                if ($this->has_arg('h')) {
+                    $st = $this->arg('h').':00:00 ';
+                    $en = $this->arg('h').':59:59 ';
+                } else {
+                    $st = '00:00:00';
+                    $en = '23:59:59 ';
+                }
+                
+                for ($i = 0; $i < 4; $i++) {
+                    array_push($args, $st.$my);
+                    array_push($args, $en.$my);
+                }
+            }
             
             
             # If not staff check they have access to data collection

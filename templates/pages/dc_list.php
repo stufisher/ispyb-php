@@ -58,6 +58,11 @@
     <?php endif; ?>
 
 
+    <div class="time_wrap clearfix">
+        <div class="times" title="Click to filter by time"></div>
+    </div>
+
+
     <div class="search hide" title="Search the current data collections">
         <input type="text" name="search" placeholder="&#xf002;" />
     </div>

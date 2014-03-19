@@ -2,7 +2,7 @@
 
     class Dc extends Page {
         
-        var $arg_list = array('visit' => '\w+\d+-\d+', 'page' => '\d+', 'id' => '\d+', 't' => '\w+', 'iframe' => '\d+', 'id' => '\d+', 'sid' => '\d+', 's' => '\w+', 'pp' => '\d+', 'low' => '\d');
+        var $arg_list = array('visit' => '\w+\d+-\d+', 'page' => '\d+', 'id' => '\d+', 't' => '\w+', 'iframe' => '\d+', 'id' => '\d+', 'sid' => '\d+', 's' => '\w+', 'pp' => '\d+', 'low' => '\d', 'h' => '\d\d', 'dmy' => '\d\d\d\d\d\d\d\d');
         var $dispatch = array('dc' => '_data_collection', 'view' => '_viewer');
         var $def = 'dc';
         
@@ -11,6 +11,11 @@
         var $root = 'Data Collections';
         var $root_link = '/dc';
         
+        
+        var $short_visit = array('09:00' => array('14:00', '19:00'),
+                                 '17:00' => array('21:00', '02:00'),
+                                 '01:00' => array('04:00', '09:00'),
+                                 );
         
         # Diffraction image viewer
         function _viewer() {
@@ -65,11 +70,28 @@
             $is_sample = False;
             
             if ($this->has_arg('visit')) {
-                $info = $this->db->pq("SELECT case when sysdate between s.startdate and s.enddate then 1 else 0 end as active, s.sessionid, s.beamlinename as bl, vr.run, vr.runid, TO_CHAR(s.startdate, 'YYYY') as yr, p.proposalcode||p.proposalnumber as prop FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')));
+                $info = $this->db->pq("SELECT (s.enddate - s.startdate)*24 as len, TO_CHAR(s.startdate, 'HH24') as sh, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st, TO_CHAR(s.enddate, 'DD-MM-YYYY HH24:MI') as en, case when sysdate between s.startdate and s.enddate then 1 else 0 end as active, s.sessionid, s.beamlinename as bl, vr.run, vr.runid, TO_CHAR(s.startdate, 'YYYY') as yr, p.proposalcode||p.proposalnumber as prop FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')));
                 
                 if (!sizeof($info)) {
                     $this->msg('No such visit', 'That visit doesnt appear to exist');
                 } else $info = $info[0];
+                
+                $info['LEN'] = intval($info['LEN']);
+                
+                # Correct short visit times
+                $lc = $this->lc_lookup($info['SESSIONID']);
+                if ($lc) {
+                    if ($lc->type == 'Short Visit') {
+                        $t = strtotime($info['ST']);
+                        $info['ST'] = date('d-m-Y', $t).' '.$this->short_visit[date('H:i', $t)][0];
+                        $info['SH'] = substr($this->short_visit[date('H:i', $t)][0],0,2);
+                        $e = strtotime($info['EN']);
+                        $info['EN'] = date('d-m-Y', $e).' '.$this->short_visit[date('H:i', $t)][1];
+                        $info['LEN'] = (strtotime($info['EN']) - strtotime($info['ST'])) / 3600;
+                    }
+                }
+                
+                $info['ACTIVE'] = time() >= strtotime($info['ST']) && time() <= strtotime($info['EN']);
                 
                 $this->cookie($info['PROP']);
                 $this->args['prop'] = $info['PROP'];
@@ -119,6 +141,10 @@
                 
             $this->t->active = $active;
             $this->t->is_visit = $is_visit;
+            
+            if ($is_visit) $this->t->js_var('sh', intval($info['SH']));
+            if ($is_visit) $this->t->js_var('len', $info['LEN']);
+            
             $this->t->is_sample = $is_sample;
             $this->t->js_var('is_visit', $is_visit);
             $this->t->js_var('is_sample', $is_sample);
@@ -130,6 +156,10 @@
             $this->t->js_var('type', $this->has_arg('t') ? $this->arg('t') : '');
             $this->t->js_var('search', $this->has_arg('s') ? $this->arg('s') : '');
             $this->t->js_var('dcid', $this->has_arg('id') ? $this->arg('id') : '');
+            
+            $this->t->js_var('h', $this->has_arg('h') ? $this->arg('h') : '');
+            $this->t->js_var('dmy', $this->has_arg('dmy') ? $this->arg('dmy') : '');
+            
             $this->t->dcid = $this->has_arg('id') ? $this->arg('id') : '';
             
             

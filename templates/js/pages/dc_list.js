@@ -33,6 +33,35 @@ $(function() {
   
   //if (active == 0) $('div.log').hide()
   
+  // Time filters
+  if (is_visit) {
+    var out = ''
+    for (var i = sh; i < (sh+len); i++) {
+      var hr = i%24
+      if (hr < 10) hr = '0'+hr
+      out += '<li hr="'+hr+'"><a href="#'+hr+'">'+hr+':00</a></li>'
+    }
+    $('.times').html('<ul>'+out+'</ul>')
+  }
+  $('.times li[hr="'+h+'"]').addClass('selected')
+
+  $('.times a').click(function() {
+    if ($(this).parent('li').hasClass('selected')) h = ''
+    else h = $(this).attr('href').replace('#', '')
+                      
+    $('.times li').removeClass('selected').filter('[hr="'+h+'"]').addClass('selected')
+                      
+    $('.data_collection').remove()
+    $('.log ul li').remove()
+    first = true
+    clearTimeout(auto_load_thread)
+    load_datacollection()
+                      
+    url = window.location.pathname.replace(/\/h\/\d+/, '')+(h !== '' ? ('/h/'+h) : '')
+    window.history.pushState({}, '', url)
+    return false
+  })
+  
   
   var dragImg = document.createElement('img');
   dragImg.src = '/templates/images/drag.png'
@@ -126,7 +155,7 @@ $(function() {
       //console.log('fn '+new Date())
   
       $.ajax({
-             url: '/dc/ajax' + (is_sample ? ('/sid/'+sid) : '') + (is_visit ? ('/visit/' + visit) : '') + (page ? ('/page/' + page) : '') + (search ? ('/s/'+search) : '') + (type ? ('/t/'+type) : '') + ('/pp/'+pp) + (dcid ? ('/id/'+dcid) : ''),
+             url: '/dc/ajax' + (is_sample ? ('/sid/'+sid) : '') + (is_visit ? ('/visit/' + visit) : '') + (page ? ('/page/' + page) : '') + (search ? ('/s/'+search) : '') + (type ? ('/t/'+type) : '') + ('/pp/'+pp) + (dcid ? ('/id/'+dcid) : '') + (h ? ('/h/'+h) : '') + (dmy ? ('/dmy/'+dmy) : ''),
              type: 'GET',
              dataType: 'json',
              timeout: 10000,
