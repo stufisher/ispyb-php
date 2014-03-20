@@ -894,7 +894,8 @@
                         $shell[$k] = $v;
                     }
                 }
-                    
+                
+                $output[$r['AUTOPROCPROGRAMID']]['AID'] = $r['AUTOPROCPROGRAMID'];
                 $output[$r['AUTOPROCPROGRAMID']]['SHELLS'][$r['SHELL']] = $shell;
             }
                   
