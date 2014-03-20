@@ -41,6 +41,7 @@
 
         <?php if ($is_visit): ?>
         <div class="ra">
+            <a href="/dc/summary/visit/<?php echo $vis ?>" title="Data Summary" class="summary">Summary</a>
             <a href="/vstat/visit/<?php echo $vis ?>" title="Visit Statistics" class="vstat">Visit Stats</a>
             <?php if ($this->staff): ?>
                 <a href="/status/bl/<?php echo $bl ?>" title="Beamline Status" class="blstat">Beamline Status</a>
