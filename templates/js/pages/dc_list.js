@@ -13,7 +13,8 @@ $(function() {
   
   $('a.vstat').button({ icons: { primary: 'ui-icon-image' }, text: true })
   $('a.blstat').button({ icons: { primary: 'ui-icon-check' }, text: true })
-  
+  $('a.summary').button({ icons: { primary: 'ui-icon-document' }, text: true })  
+
   $('input[name=search]').focus()
   
   $('input.search-mobile').focus().keyup(function() {
