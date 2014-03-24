@@ -500,9 +500,9 @@
                 
                 if (array_key_exists($ty, $tables)) {
                     $c = $tables[$ty];
-                    $smp = $this->db->pq("SELECT bls.blsampleid as sid, c.samplechangerlocation as scon, bls.location as spos, bls.name as san FROM $c[0] d INNER JOIN ispyb4a_db.blsample bls ON d.blsampleid = bls.blsampleid INNER JOIN ispyb4a_db.container c ON bls.containerid = c.containerid WHERE d.$c[1]=:1", array($id));
+                    $smp = $this->db->pq("SELECT cr.spacegroup as sg, bls.blsampleid as sid, c.samplechangerlocation as scon, bls.location as spos, bls.name as san FROM $c[0] d INNER JOIN ispyb4a_db.blsample bls ON d.blsampleid = bls.blsampleid INNER JOIN ispyb4a_db.container c ON bls.containerid = c.containerid INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = bls.crystalid WHERE d.$c[1]=:1", array($id));
                             
-                    $smps[$id] = sizeof($smp) ? $smp[0] : array('SCON' => '', 'SPOS' => '', 'SAN' => '', 'SID' => '');
+                    $smps[$id] = sizeof($smp) ? $smp[0] : array('SCON' => '', 'SPOS' => '', 'SAN' => '', 'SID' => '', 'SG' => '');
                     $smps[$id]['TY'] = $ty;
                 }
                                    
