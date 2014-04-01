@@ -410,17 +410,15 @@
         
             $st = strtotime($info['ST']);
             $en = strtotime($info['EN']);
-                                    
+            
             # Call out log
-            libxml_use_internal_errors(true);
-            $calls = simplexml_load_file('https://rdb.pri.diamond.ac.uk/php/elog/cs_logwscalloutinfo.php?startdate='.date('d/m/Y', $st).'&enddate='.date('d/m/Y', $en));
+            $bls =  array('i02' => 'BLI02', 'i03' => 'BLI03', 'i04' => 'BLI04', 'i04-1' => 'BLI04J', 'i24' => 'BLI24');
+            $calls = $this->_get_remote_xml('https://rdb.pri.diamond.ac.uk/php/elog/cs_logwscalloutinfo.php?startdate='.date('d/m/Y', $st).'&enddate='.date('d/m/Y', $en).'selgroupid='.$bls[$info['BL']]);
             if (!$calls) $calls = array();
-                                    
-                                    
-            //print_r($calls);
+
 
             # EHC log
-            $ehc_tmp = simplexml_load_file('https://rdb.pri.diamond.ac.uk/php/elog/cs_logwscontentinfo.php?startdate='.date('d/m/Y', $en));
+            $ehc_tmp = $this->_get_remote_xml('https://rdb.pri.diamond.ac.uk/php/elog/cs_logwscontentinfo.php?startdate='.date('d/m/Y', $en));
             if (!$ehc_tmp) $ehc_tmp = array();
                      
             $ehcs = array();
@@ -451,6 +449,20 @@
             $this->t->js_var('visit', $this->arg('visit'));
             
             $this->render('vstat_visit');
+        }
+                 
+                                    
+        // Return xml from external link without using url_fopen
+        function _get_remote_xml($url) {
+            libxml_use_internal_errors(true);
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            $xml = curl_exec($ch);
+            curl_close($ch);
+                                    
+            return simplexml_load_string($xml);
         }
     
     }
