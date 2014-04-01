@@ -4,6 +4,25 @@ $(function() {
   $('a.prints').button({ icons: { primary: 'ui-icon-print' } })
   
   
+  // Send shipment to DLS
+  $('button[name=send]').button({ icons: { primary: 'ui-icon-extlink' } }).click(function() {
+    $.ajax({
+        url: '/shipment/ajax/send/sid/'+sid,
+        type: 'GET',
+        dataType: 'json',
+        timeout: 5000,
+        success: function(json){
+           if (json) {
+             $('button[name=send]').hide()
+             $('span.stat').html('sent to DLS')
+           }
+        }
+    })
+
+    return false
+  })
+  
+  
   // Bind links / buttons
   $('#add_dewar').button({ icons: { primary: 'ui-icon-plusthick' } }).click(function() {
     if ($('table.dewars tbody tr.new').length) return

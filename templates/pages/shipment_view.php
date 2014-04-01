@@ -5,6 +5,10 @@
 
     <?php if ($ship['LCOUT'] && $ship['LCRET']): ?>
     <div class="ra">
+        <?php if ($ship['SHIPPINGSTATUS'] == 'opened'): ?>
+            <button name="send">Send to DLS</button>
+        <?php endif; ?>
+
         <a href="/pdf/container/sid/<?php echo $ship['SHIPPINGID'] ?>" class="label" title="Print Shipment Contents">Print Shipment Contents</a>
         <a href="/pdf/sid/<?php echo $ship['SHIPPINGID'] ?>" class="label" title="Print Shipment Labels">Print Shipment Labels</a>
     </div>
@@ -16,6 +20,11 @@
             <li>
                 <span class="label">Created</span>
                 <span class="created"><?php echo $ship['CREATED'] ?></span>
+            </li>
+
+            <li>
+                <span class="label">Status</span>
+                <span class="stat"><?php echo $ship['SHIPPINGSTATUS'] ?></span>
             </li>
 
             <li>

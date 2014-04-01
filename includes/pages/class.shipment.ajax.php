@@ -40,6 +40,8 @@
                               'update' => '_update_shipment',
                               'updated' => '_update_dewar',
                               'updates' => '_update_sample',
+                              
+                              'send' => '_send_shipment',
                               );
         
         var $def = 'containers';
@@ -340,6 +342,37 @@
         }
         
         
+        
+        # Update shipping status to sent, email for CL3
+        function _send_shipment() {
+            if (!$this->has_arg('prop')) $this->_error('No proposal specified');
+            if (!$this->has_arg('sid')) $this->_error('No shipping id specified');
+            
+            $ship = $this->db->pq("SELECT p.proposalcode || p.proposalnumber as prop, s.safetylevel, s.shippingid, s.deliveryagent_agentname, TO_CHAR(s.deliveryagent_shippingdate, 'DD-MM-YYYY') as shippingdate, TO_CHAR(s.deliveryagent_deliverydate, 'DD-MM-YYYY') as deliverydate, s.shippingname, s.comments, c.cardname as lcout FROM ispyb4a_db.shipping s INNER JOIN ispyb4a_db.proposal p ON s.proposalid = p.proposalid LEFT OUTER JOIN ispyb4a_db.labcontact c ON s.sendinglabcontactid = c.labcontactid WHERE p.proposalcode || p.proposalnumber LIKE :1 AND s.shippingid = :2", array($this->arg('prop'),$this->arg('sid')));
+            
+            if (!sizeof($ship)) $this->_error('No such shipment');
+            $ship = $ship[0];
+            
+            $this->db->pq("UPDATE ispyb4a_db.shipping SET shippingstatus='sent to DLS' where shippingid=:1", array($ship['SHIPPINGID']));
+            
+            # Send email if CL3
+            if ($ship['SAFETYLEVEL'] == 'Red') {
+                $dewars = $this->db->pq("SELECT s.visit_number as vn, s.beamlinename as bl, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as startdate FROM ispyb4a_db.dewar d INNER JOIN ispyb4a_db.blsession s ON s.sessionid = d.firstexperimentid WHERE d.shippingid=:1", array($ship['SHIPPINGID']));
+                
+                $exps = array();
+                foreach ($dewars as $d) {
+                    array_push($exps, $ship['PROP'].'-'.$d['VN'].' on '.$d['BL'].' starting '.$d['STARTDATE']);
+                }
+                
+                $subject = "RED safety level shipment sent to DLS for ". $ship['PROP'];
+                $message = "Shipment Name: ". $ship['SHIPPINGNAME']."\nVisit(s): ".implode(', ', $exps)."\nShipment Sent: ".$ship['SHIPPINGDATE']."\nShipment Expected at Synchrotron: ".$ship['DELIVERYDATE']."\nShipment Courier: ".$ship['DELIVERYAGENT_AGENTNAME']."\nShipment Lab Contact: ".$ship['LCOUT']."\nShipment Comments: ".($ship['COMMENTS'] ? $ship['COMMENTS'] : 'None');
+                
+                mail('stuart.fisher@diamond.ac.uk, mark.williams@diamond.ac.uk, katherine.mcauley@diamond.ac.uk, goodshandling@diamond.ac.uk', $subject, $message);
+            }
+            
+            $this->_output(1);
+            
+        }
         
     }
 

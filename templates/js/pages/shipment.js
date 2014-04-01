@@ -34,6 +34,25 @@ $(function() {
     $('a.view').button({ icons: { primary: 'ui-icon-search' }, text: false }).hide()
     $('a.label').button({ icons: { primary: 'ui-icon-print' }, text: false })
   
+    // Send shipment to DLS
+    $('button[name=send]').button({ icons: { primary: 'ui-icon-extlink' }, text: false }).click(function() {
+      var b = $(this)
+      var r = $(b).parent('td').parent('tr')
+      $.ajax({
+        url: '/shipment/ajax/send/sid/'+$(b).attr('sid'),
+        type: 'GET',
+        dataType: 'json',
+        timeout: 5000,
+        success: function(json){
+           if (json) {
+             $('button[name=send]', r).hide()
+             $(r).children('td').eq(4).html('sent to DLS')
+           }
+        }
+      })
+      return false
+    })
+  
     $('table.shipments tbody tr').unbind('click').click(function() {
       window.location = $('td:last-child a.view', this).attr('href')
     })

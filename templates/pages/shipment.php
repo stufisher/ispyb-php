@@ -32,6 +32,10 @@
                         <td><?php echo $r['DCOUNT'] ?></td>
                         <td><?php echo $r['COMMENTS'] ?></td>
                         <td>
+                            <?php if ($r['SHIPPINGSTATUS'] == 'opened'): ?>
+                                <button name="send" sid="<?php echo $r['SHIPPINGID'] ?>" title="Send Shipment to DLS">Send to DLS</button>
+                            <?php endif; ?>
+
                             <a class="view" href="/shipment/sid/<?php echo $r['SHIPPINGID'] ?>" title="View Shipment">View Shipment</a>
                             <?php if ($r['LCOUT'] && $r['LCRET']): ?>
                             <a class="label" href="/pdf/sid/<?php echo $r['SHIPPINGID'] ?>" title="Print Shipment Labels">Print Shipment Label</a>
