@@ -31,7 +31,7 @@
         <div class="plot_container right">
             <div id="pdbs"></div>
             <div id="pdbs2"></div>
-            <p>Depositions by beamline / year (Top: ISpyB, Bottom: PDB)</p>
+            <p>Depositions by beamline / year (Top: ISPyB, Bottom: PDB)</p>
         </div>
     </div>
 

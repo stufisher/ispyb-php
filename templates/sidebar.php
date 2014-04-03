@@ -41,7 +41,7 @@
             <li><a href="/cell">Unit Cell Search</a>
                 <?php if ($this->staff): ?>
                 <ul>
-                    <li><a href="/cell/batch">RSCB vs ISpyB</a></li>
+                    <li><a href="/cell/batch">RSCB vs ISPyB</a></li>
                 </ul>
                 <?php endif; ?>
             </li>

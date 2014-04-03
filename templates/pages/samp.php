@@ -3,7 +3,7 @@
 
         <h1>Container Allocation for <?php echo $vis ?> on <?php echo $bl ?></h1>
 
-        <p class="help">This page allows you to allocate samples from ISpyB to the beamline sample changer. Drag and drop containers on to the locations on the beamline. Shipments and Dewars can be expanded by clicking on their titles</p>
+        <p class="help">This page allows you to allocate samples from ISPyB to the beamline sample changer. Drag and drop containers on to the locations on the beamline. Shipments and Dewars can be expanded by clicking on their titles</p>
 
 
         <div class="drag_container">

@@ -1,4 +1,4 @@
 ispyb-php
 =========
 
-PHP Implemention of some of the basic ISpyB pages
+PHP Implemention of some of the basic ISPyB pages

@@ -21,7 +21,7 @@
                 if (!($this->has_arg('name') && $this->has_arg('email') && $this->has_arg('feedback'))) $this->error('Missing Fields', 'One of more fields was missing');
 
                 # Email people
-                mail('stuart.fisher@diamond.ac.uk', 'ISpyB-PHP Feedback', "Feedback from the ISpyB-PHP webappliction\n\nName: ".$this->arg('name')."\nEmail: ".$this->arg('email')."\nMessage:\n".$this->arg('feedback')."\n");
+                mail('stuart.fisher@diamond.ac.uk', 'ISPyB-PHP Feedback', "Feedback from the ISPyB-PHP webappliction\n\nName: ".$this->arg('name')."\nEmail: ".$this->arg('email')."\nMessage:\n".$this->arg('feedback')."\n");
                 
                 $this->msg('Feedback Sent', 'You feedback has been sent to the relevent developers');
                 
