@@ -1284,5 +1284,38 @@ textarea[name=pasted] {
 }
 
 
+// Dialog contents
+.ui-dialog-content {
+    
+    ol {
+        list-style: decimal;
+        margin-left: 15px
+    }
+    
+    ol ul {
+        list-style: lower-roman;
+        margin-left: 30px
+    }
+    
+    li {
+        padding: 0 0 1px 0;
+    }
+    
+    h1 {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    p {
+        margin-bottom: 5px;
+    }
+    
+    .bold {
+        font-weight: bold;
+    }
+    
+    .ul {
+        text-decoration: underline;
+    }
 
-
+}
