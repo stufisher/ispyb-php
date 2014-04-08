@@ -10,6 +10,9 @@
                               's' => '\d',
                               'log' => '\d',
                               'LogFiles' => '([\w|\.])+',
+                              'ty' => '\w+',
+                              'pdb' => '\d',
+                              'map' => '\d',
                               );
         
         var $dispatch = array('ap' => '_auto_processing',
@@ -17,6 +20,7 @@
                               'ep' => '_ep_mtz',
                               'dimple' => '_dimple_mtz',
                               'csv' => '_csv_report',
+                              'map' => '_map',
                               );
         var $def = 'ap';
 
@@ -168,6 +172,70 @@
                 
                 
             } else $this->error('File not found', 'Dimple files were not found');
+        }
+        
+        
+        # ------------------------------------------------------------------------
+        # Return maps and pdbs for dimple / fast ep
+        function _map() {
+            if (!$this->has_arg('id')) $this->error('No id specified', 'No id was specified');
+            if (!$this->has_arg('ty')) $this->error('No type specified', 'No type was specified');
+            
+            $info = $this->db->pq('SELECT dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE dc.datacollectionid=:1', array($this->arg('id')));
+            
+            if (!sizeof($info)) $this->error('No such data collection', 'The specified data collection does not exist');
+            else $info = $info[0];
+            
+            $info['DIR'] = $this->ads($info['DIR']);
+
+            if ($this->arg('ty') == 'ep') {
+                $root = str_replace($info['VIS'], $info['VIS'] . '/processed', $info['DIR']).$info['IMP'].'_'.$info['RUN'].'_'.'/fast_ep/';
+                $file_name = 'sad';
+                $file = $root . $file_name;
+                
+            } else if ($this->arg('ty') == 'dimple') {
+                $root = str_replace($info['VIS'], $info['VIS'] . '/processed', $info['DIR']).$info['IMP'].'_'.$info['RUN'].'_'.'/fast_dp/dimple/';
+                $file_name = 'final';
+                $file = $root . $file_name;
+                
+            } else $this->error('No file type specified');
+            
+            $ext = $this->has_arg('pdb') ? 'pdb' : 'mtz';
+            
+            if ($this->has_arg('pdb')) {
+                $out = $file.'.'.$ext;
+            } else {
+                if ($this->arg('ty') == 'dimple') {
+                    $map = $this->has_arg('map') ? 'fofc' : '2fofc';
+                    $out = '/tmp/'.$this->arg('id').'_'.$this->arg('ty').'_'.$map.'.map.gz';
+                    
+                } else $out = '/tmp/'.$this->arg('id').'_'.$this->arg('ty').'.map.gz';
+            }
+ 
+            if ($ext == 'mtz') {
+                # convert mtz to map
+                if (!file_exists($out)) {
+                    exec('./mtz2map.sh '.$file.'.'.$ext.' '.$this->arg('id').' '.$this->arg('ty').' '.$file.'.pdb');
+                }
+                
+                $ext = 'map';
+            }
+            
+            if (file_exists($out)) {
+                if ($this->arg('ty') == 'ep' && $this->has_arg('pdb')) {
+                    $lines = explode("\n", file_get_contents($out));
+                    
+                    foreach ($lines as $l) {
+                        #$l = str_replace('PDB= PDB  ', ' S   ALA A', $l);
+                        $l = str_replace('ATOM  ', 'HETATM', $l);
+                        print $l."\n";
+                    }
+                    
+                    
+                    
+                    
+                } else readfile($out);
+            } else $this->error('File not found', 'Fast EP / Dimple files were not found');
         }
         
         
