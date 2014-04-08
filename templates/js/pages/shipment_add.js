@@ -58,10 +58,14 @@ $(function() {
       }
     }
   
-  
+    $('input[name^=fcodes]').unbind('change').change(function() {
+      if ($(this).val().match(/DLS-\d+-\d+/i) && $('input[name=shippingname]').val()) $('button[name="dls"]').fadeIn()
+      
+    })
   }
   
   _update_fcodes()
+
   
   function _get_exps() {
     $.ajax({
@@ -86,7 +90,8 @@ $(function() {
   var accepted = false
   $('.terms').dialog({ title: 'Terms & Conditions', autoOpen: false, height: 'auto', width: 'auto', buttons: { 'Accept': function() {
       $.ajax({
-        url: '/shipment/ajax/termsaccept',
+        url: '/shipment/ajax/termsaccept/',
+        data: { title: $('input[name=shippingname]').val() },
         type: 'GET',
         dataType: 'json',
         timeout: 5000,
@@ -104,7 +109,7 @@ $(function() {
                      
   });
   
-  $('button[name="dls"]').button({ icons: { primary: 'ui-icon-contact' } }).click(function() {
+  $('button[name="dls"]').button({ icons: { primary: 'ui-icon-contact' } }).hide().click(function() {
     $.ajax({
         url: '/shipment/ajax/terms',
         type: 'GET',

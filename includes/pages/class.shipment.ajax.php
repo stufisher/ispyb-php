@@ -11,6 +11,7 @@
                               'value' => '.*',
                               'code' => '([\w-])+',
                               'fcode' => '([\w-])+',
+                              'title' => '([\w-])+',
                               'trackto' => '\w+',
                               'trackfrom' => '\w+',
                               'array' => '\d',
@@ -25,7 +26,8 @@
                               'b' => '\w+',
                               );
         
-        var $dispatch = array('containers' => '_get_containers',
+        var $dispatch = array('shipments' => '_get_shipments',
+                              'containers' => '_get_containers',
                               'samples' => '_get_samples',
                               'dewars' => '_get_dewars',
                               'addd' => '_add_dewar',
@@ -42,6 +44,9 @@
                               'updates' => '_update_sample',
                               
                               'send' => '_send_shipment',
+                              
+                              'terms' => '_get_terms',
+                              'termsaccept' => '_accept_terms',
                               );
         
         var $def = 'containers';
@@ -49,6 +54,14 @@
         //var $debug = True;
         #var $explain = True;
         
+        
+        function _get_shipments() {
+            if (!$this->has_arg('prop')) $this->_error('No proposal specified', 'Please select a proposal first');
+            
+            $rows = $this->db->pq("SELECT s.safetylevel, count(d.dewarid) as dcount,c.cardname as lcout, c2.cardname as lcret, s.shippingid, s.shippingname, s.shippingstatus,TO_CHAR(s.creationdate, 'DD-MM-YYYY') as created, s.isstorageshipping, s.shippingtype, s.comments FROM ispyb4a_db.proposal p INNER JOIN ispyb4a_db.shipping s ON p.proposalid = s.proposalid LEFT OUTER JOIN ispyb4a_db.labcontact c ON s.sendinglabcontactid = c.labcontactid LEFT OUTER JOIN ispyb4a_db.labcontact c2 ON s.returnlabcontactid = c2.labcontactid LEFT OUTER JOIN ispyb4a_db.dewar d ON d.shippingid = s.shippingid WHERE p.proposalcode || p.proposalnumber = :1 GROUP BY s.safetylevel, c.cardname, c2.cardname, s.shippingid, s.shippingname, s.shippingstatus,TO_CHAR(s.creationdate, 'DD-MM-YYYY'), s.isstorageshipping, s.shippingtype, s.comments", array($this->arg('prop')));
+            
+            $this->_output($rows);
+        }
         
         
         function _get_containers() {
@@ -372,6 +385,23 @@
             
             $this->_output(1);
             
+        }
+        
+        
+        # Show and accept terms to use diamonds shipping account
+        function _get_terms() {
+            $this->_output(file_get_contents('/dls_sw/dasc/ispyb2/shipping/terms.html'));
+        }
+        
+        function _accept_terms() {
+            if (!$this->has_arg('prop')) $this->_error('No proposal specified');
+            if (!$this->has_arg('title')) $this->_error('No shipment name specified');
+            
+            # Register acceptance in db
+            $this->db->pq("INSERT INTO ispyb4a_db.genericdata (genericdataid,parametervaluedate,parametervaluestring,parametercomments) VALUES (s_genericdata.nextval, SYSDATE, 'terms_accepted', :1)", array($this->arg('prop').','.$this->arg('title').','.phpCAS::getUser()));
+            
+            $root = '/dls_sw/dasc/ispyb2/shipping';
+            $this->_output(array(file_get_contents($root.'/instructions.html'), file_get_contents($root.'/pin.txt'), file_get_contents($root.'/account.txt')));
         }
         
     }
