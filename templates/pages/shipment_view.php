@@ -1,3 +1,11 @@
+    <div class="move_container">
+        <p><span class="b">Container:</span> <span class="title"></span></p>
+        <p><span class="b">Select a Shipment:</span>
+        <select name="shipment"></select></p>
+        <p><span class="b">Select a Dewar:</span>
+        <select name="dewar"></select></p>
+    </div>
+
     <h1>Shipment: <span class="title"><?php echo $ship['SHIPPINGNAME'] ?></span></h1>
 
     <p class="help">This page shows details and contents of the selected shipment. Most parameters can be edited by simply clicking on them.</p>
