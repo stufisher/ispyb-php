@@ -83,4 +83,40 @@ $(function() {
   
   _get_exps()
   
+  var accepted = false
+  $('.terms').dialog({ title: 'Terms & Conditions', autoOpen: false, height: 'auto', width: 'auto', buttons: { 'Accept': function() {
+      $.ajax({
+        url: '/shipment/ajax/termsaccept',
+        type: 'GET',
+        dataType: 'json',
+        timeout: 5000,
+        success: function(json){
+          accepted = true;
+          $('input[name="couriername"]').val('DHL')
+          $('input[name="courierno"]').val(json[2])
+          $('.terms').html('<p>Pin Code: <b>'+json[1]+'</b></p>'+json[0])
+          $('.terms').dialog('option', 'buttons', {'Close': function() { $(this).dialog('close') }})
+          $('.terms').dialog('option', 'title', 'Instructions')
+        }
+           
+      })
+    }, 'Close': function() { $(this).dialog('close') }}
+                     
+  });
+  
+  $('button[name="dls"]').button({ icons: { primary: 'ui-icon-contact' } }).click(function() {
+    $.ajax({
+        url: '/shipment/ajax/terms',
+        type: 'GET',
+        dataType: 'json',
+        timeout: 5000,
+        success: function(json){
+          if (!accepted) $('.terms').html(json)
+          $('.terms').dialog('open')
+        }
+    })
+
+    return false
+  })
+  
 })

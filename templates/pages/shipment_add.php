@@ -1,4 +1,6 @@
 
+    <div class="terms"></div>
+
     <h1>Add New Shipment</h1>
 
     <form method="post" id="add_shipment">
@@ -87,7 +89,7 @@
                 <label>Courier Name
                     <span class="small">Courier name for the return shipment</span>
                 </label>
-                <input type="text" name="couriername" required />
+                <input type="text" name="couriername" required /> <button name="dls">Use Diamond Account</button>
             </li>
 
             <li>
