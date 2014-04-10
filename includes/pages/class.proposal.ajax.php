@@ -107,6 +107,8 @@
         # ------------------------------------------------------------------------
         # Get visits for a proposal
         function _get_visits() {
+            global $short_visit;
+            
             if (!$this->has_arg('prop')) $this->_error('No proposal specified');
             
             $props = $this->db->pq('SELECT proposalid as id FROM ispyb4a_db.proposal WHERE proposalcode || proposalnumber LIKE :1', array($this->arg('prop')));
@@ -165,6 +167,13 @@
                 if (!$r['LC'] && $lc) $r['LC'] = $lc->name;
                 if ($lc) {
                     if ($lc->type) $r['COMMENTS'] = $lc->type.' | '.$r['COMMENTS'];
+                    
+                    if ($lc->type == 'Short Visit') {
+                        $t = strtotime($r['ST']);
+                        $r['ST'] = $short_visit[date('H:i', $t)][0].' '.date('d-m-Y', $t);
+                        $e = strtotime($r['EN']);
+                        $r['EN'] = $short_visit[date('H:i', $t)][1].' '.date('d-m-Y', $e);
+                    }
                 }
                 
                 array_push($data, array($r['ST'], $r['EN'], $r['VIS'], $r['BL'], $r['LC'], $r['COMMENTS'], $dc, '<a class="view" title="View Data Collections" href="/dc/visit/'.$this->arg('prop').'-'.$r['VIS'].'">View Data</a> <a class="stats" title="View Statistics" href="/vstat/visit/'.$this->arg('prop').'-'.$r['VIS'].'">View Statistics</a> <a class="report" title="Download PDF Report" href="/pdf/report/visit/'.$this->arg('prop').'-'.$r['VIS'].'">Download Report</a> <a class="export" title="Export Data Collections to CSV" href="/download/csv/visit/'.$this->arg('prop').'-'.$r['VIS'].'">Download CSV</a>'));

@@ -16,11 +16,6 @@
         var $root = 'Calendar';
         var $root_link = '/cal';
         
-        var $short_visit = array('09:00' => array('14:00', '19:00'),
-                                 '17:00' => array('21:00', '02:00'),
-                                 '01:00' => array('04:00', '09:00'),
-                                 );
-        
         
         # Only show visits for a propsoal
         function _show_proposal() {
@@ -91,7 +86,8 @@
                 $v['TY'] = $lc ? $lc->type : '';
                 
                 if ($v['TY'] == 'Short Visit') {
-                    $k2 = $this->short_visit[$k2][0];
+                    global $short_visit;
+                    $k2 = $short_visit[$k2][0];
                 }
                 
                 if (!array_key_exists($k, $vbd)) $vbd[$k] = array();
@@ -178,8 +174,9 @@
                 $v['TY'] = $lc ? $lc->type : '';
                 
                 if ($v['TY'] == 'Short Visit') {
-                    $v['EN'] = $v['E'] . ' ' . $this->short_visit[$v['ST']][1];
-                    $v['ST'] = $v['D'] . ' ' . $this->short_visit[$v['ST']][0];
+                    global $short_visit;
+                    $v['EN'] = $v['E'] . ' ' . $short_visit[$v['ST']][1];
+                    $v['ST'] = $v['D'] . ' ' . $short_visit[$v['ST']][0];
                 } else {
                     $v['ST'] = $v['D'] . ' ' . $v['ST'];
                     $v['EN'] = $v['E'] . ' ' . $v['EN'];

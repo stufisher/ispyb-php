@@ -13,12 +13,6 @@
         var $root = 'Data Collections';
         var $root_link = '/dc';
         
-        
-        var $short_visit = array('09:00' => array('14:00', '19:00'),
-                                 '17:00' => array('21:00', '02:00'),
-                                 '01:00' => array('04:00', '09:00'),
-                                 );
-        
         # Diffraction image viewer
         function _viewer() {
             if (!$this->has_arg('id')) {
@@ -84,11 +78,13 @@
                 $lc = $this->lc_lookup($info['SESSIONID']);
                 if ($lc) {
                     if ($lc->type == 'Short Visit') {
+                        global $short_visit;
+                        
                         $t = strtotime($info['ST']);
-                        $info['ST'] = date('d-m-Y', $t).' '.$this->short_visit[date('H:i', $t)][0];
-                        $info['SH'] = substr($this->short_visit[date('H:i', $t)][0],0,2);
+                        $info['ST'] = date('d-m-Y', $t).' '.$short_visit[date('H:i', $t)][0];
+                        $info['SH'] = substr($short_visit[date('H:i', $t)][0],0,2);
                         $e = strtotime($info['EN']);
-                        $info['EN'] = date('d-m-Y', $e).' '.$this->short_visit[date('H:i', $t)][1];
+                        $info['EN'] = date('d-m-Y', $e).' '.$short_visit[date('H:i', $t)][1];
                         $info['LEN'] = (strtotime($info['EN']) - strtotime($info['ST'])) / 3600;
                     }
                 }

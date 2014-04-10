@@ -17,11 +17,6 @@
         //var $require_staff = True;
         //var $debug = True;
         
-        var $short_visit = array('09:00' => array('14:00', '19:00'),
-                                 '17:00' => array('21:00', '02:00'),
-                                 '01:00' => array('04:00', '09:00'),
-                                 );
-        
         # Internal dispatcher based on passed arguments
         function _index() {
             if ($this->has_arg('visit')) $this->_get_visit();
@@ -235,10 +230,11 @@
             $lc = $this->lc_lookup($info['SID']);
             if ($lc) {
                 if ($lc->type == 'Short Visit') {
+                    global $short_visit;
                     $t = strtotime($info['ST']);
-                    $info['ST'] = date('d-m-Y', $t).' '.$this->short_visit[date('H:i', $t)][0];
+                    $info['ST'] = date('d-m-Y', $t).' '.$short_visit[date('H:i', $t)][0];
                     $e = strtotime($info['EN']);
-                    $info['EN'] = date('d-m-Y', $e).' '.$this->short_visit[date('H:i', $t)][1];
+                    $info['EN'] = date('d-m-Y', $e).' '.$short_visit[date('H:i', $t)][1];
                     $info['LEN'] = (strtotime($info['EN']) - strtotime($info['ST'])) / 3600;
                 }
             }
