@@ -489,7 +489,7 @@ $(function() {
            $(md).data('apr', res)
                 
            // Add flux if available
-           if (!$(md).find('.flux').length) {
+           if (!$(md).find('.flux').length && dcv['FLUX'] != '0.00e+0' && dcv['FLUX'] != 'N/A') {
               $('<li class="flux">Flux: '+dcv['FLUX']+'</li>').prependTo($(md).children('ul'))
            }
           })
