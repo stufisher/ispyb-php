@@ -15,6 +15,8 @@
         
         # Dewar tracking / shipping from barcode reader
         function _index() {
+            if (!$this->bcr()) $this->error('Access Denied', 'You need to be using a hand held scanner to access this page');
+            
             $this->template('Dewar Tracking');
             $this->t->minimal();
             $this->t->error = '';

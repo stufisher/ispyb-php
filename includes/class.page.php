@@ -408,6 +408,12 @@
             return in_array($_SERVER['REMOTE_ADDR'], $blsr);
         }
         
+        # Barcode Scanner Machines
+        function bcr() {
+            global $bcr;
+            return in_array($_SERVER['REMOTE_ADDR'], $bcr);
+        }
+        
         
         # ------------------------------------------------------------------------
         # LDAP: Return a name for a fedid
