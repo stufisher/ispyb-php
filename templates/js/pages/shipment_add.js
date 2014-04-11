@@ -59,7 +59,7 @@ $(function() {
     }
   
     $('input[name^=fcodes]').unbind('change').change(function() {
-      //if ($(this).val().match(/DLS-\d+-\d+/i) && $('input[name=shippingname]').val()) $('button[name="dls"]').fadeIn()
+      //if ($(this).val().match(/DLS-MX-\d\d\d\d/i) && $('input[name=shippingname]').val()) $('button[name="dls"]').fadeIn()
     })
   }
   
