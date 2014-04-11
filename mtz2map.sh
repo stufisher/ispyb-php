@@ -62,9 +62,9 @@ F1=F SIG1=SIGF PHI=PHI W=FOM
 end
 eof
 
-$mm MAPIN "/tmp/$2_ep.map.tmp" MAPOUT "/tmp/$2_ep.map" XYZIN "$4" << eof
-BORDER 5
-eof
+#$mm MAPIN "/tmp/$2_ep.map.tmp" MAPOUT "/tmp/$2_ep.map" XYZIN "$4" << eof
+#BORDER 5
+#eof
 
 gzip "/tmp/$2_ep.map"
 
