@@ -1,12 +1,14 @@
 $(function() {
 
-  $('.image_container .image').height($(window).height()*0.65)
+  $('.image_container .image').height(600) //$(window).height()*0.65)
   
   $('#glmol01').width($('.image_container .image').width())
   $('#glmol01').height($('.image_container .image').height())
   
   
 var glmol01 = new GLmol('glmol01', true);
+glmol01.maps = []
+  
 $('#loading').hide();
 
 function download() {
@@ -21,15 +23,28 @@ function download() {
       $('#loading').hide();
       var gunzip = new Zlib.Gunzip(new Uint8Array(this.response));
       var plain = gunzip.decompress();
-      parseCCP4(plain.buffer);
+      parseCCP4(plain.buffer, 0x5555AA);
    };
    xhr.open('GET', '/download/map/ty/'+ty+'/id/'+id);
    xhr.responseType = 'arraybuffer';
-   xhr.send(); 
+   xhr.send();
+  
+   /*if (ty == 'dimple') {
+     var xhr2 = new XMLHttpRequest();
+     xhr2.onload = function() {
+       $('#loading').hide();
+       var gunzip = new Zlib.Gunzip(new Uint8Array(this.response));
+       var plain = gunzip.decompress();
+       parseCCP4(plain.buffer, 0x33CC33, 3);
+     };
+     xhr2.open('GET', '/download/map/ty/'+ty+'/id/'+id+'/map/2');
+     xhr2.responseType = 'arraybuffer';
+     xhr2.send();
+   }*/
 }
 
 
-function parseCCP4(data) {
+function parseCCP4(data, color, sig) {
    var t = new Date();   
    header_int = new Int32Array(data, 0, 56);
    header_float = new Float32Array(data, 0, 56);
@@ -57,15 +72,17 @@ function parseCCP4(data) {
    map_header.AMEAN = header_float[21];
    map_header.ARMS = header_float[54];
 
-   glmol01.map_header = map_header;
-   glmol01.map_data = new Float32Array(data, 256 * 4 + map_header.NSYMBT, map_header.NC * map_header.NR * map_header.NS);
+   var map = {}
+  
+   map.map_header = map_header;
+   map.map_data = new Float32Array(data, 256 * 4 + map_header.NSYMBT, map_header.NC * map_header.NR * map_header.NS);
 
-   glmol01.mc = new THREE.MarchingCubes(glmol01.map_data,
+   map.mc = new THREE.MarchingCubes(map.map_data,
                   map_header.NC, map_header.NR, map_header.NS,
                   map_header.NCSTART, map_header.NRSTART, map_header.NSSTART);
-   geo = glmol01.mc.generateGeometry(0, 0, 0, 0, map_header.AMEAN + 1.5 * map_header.ARMS); // dummy
+   geo = map.mc.generateGeometry(0, 0, 0, 0, map_header.AMEAN + (sig ? sig : 1.5) * map_header.ARMS); // dummy
 
-   mesh = new THREE.Line(geo, new THREE.LineBasicMaterial({color:0x5555AA, linewidth: 1}));
+   mesh = new THREE.Line(geo, new THREE.LineBasicMaterial({color: (color ? color : 0x5555AA), linewidth: 1}));
    mesh.type = THREE.LinePieces;
 
    basis_a = [map_header.a, 0, 0];
@@ -91,9 +108,11 @@ function parseCCP4(data) {
 
   mesh.matrixAutoUpdate = false;
 
-  glmol01.mesh = mesh;
+  map.mesh = mesh;
   console.log("Generate map mesh: ", +new Date() - t);
 
+  glmol01.maps.push(map)
+  
   glmol01.rebuildScene();
   glmol01.rotationGroup.position.z = -80; // dirty hack!
   gotoNext(1);
@@ -121,7 +140,13 @@ function defineRepFromController() {
    var nonBonded = this.getNonbonded(all);
    this.drawAsCross(this.modelGroup, nonBonded, 0.3, true);
 
-   if (glmol01.mesh) glmol01.modelGroup.add(glmol01.mesh);
+  
+   $.each(glmol01.maps, function(i,m) {
+     glmol01.modelGroup.add(m.mesh);
+   })
+  
+  console.log('models', glmol01.modelGroup.children)
+  // if (glmol01.mesh) glmol01.modelGroup.add(glmol01.mesh);
 
    this.slabNear = -8; this.slabFar = 8;
    updateMesh();
@@ -133,14 +158,16 @@ glmol01.current = 1;
 glmol01.translate_callback = updateMesh
 
 function updateMesh() {
-   if (!glmol01.mesh) return; // no map
-
-   var ortho_to_frac = new THREE.Matrix4().getInverse(glmol01.mesh.matrix);
-   var center = ortho_to_frac.multiplyVector3(glmol01.modelGroup.position.clone());
-   var mc = glmol01.mc;
-   mc.generateGeometry(Math.floor(-center.x) - mc.ncstart, 
-                       Math.floor(-center.y) - mc.nrstart, 
-                       Math.floor(-center.z) - mc.nsstart, 10, mc.isol);
+  //if (!glmol01.mesh) return; // no map
+  
+  $.each(glmol01.maps, function(i,m) {
+    var ortho_to_frac = new THREE.Matrix4().getInverse(m.mesh.matrix);
+    var center = ortho_to_frac.multiplyVector3(glmol01.modelGroup.position.clone());
+    var mc = m.mc;
+    mc.generateGeometry(Math.floor(-center.x) - mc.ncstart,
+                     Math.floor(-center.y) - mc.nrstart,
+                     Math.floor(-center.z) - mc.nsstart, 10, mc.isol);
+  })
 }
 
 function gotoNext(delta) {
@@ -166,7 +193,7 @@ function gotoNext(delta) {
 //$(glmol01.renderer.domElement).bind('keydown', function(ev) {
 $('body').bind('keydown', function(ev) {
    var keyCode = ev.keyCode;
-   var mc = glmol01.mc;
+   var mc = glmol01.maps[0].mc;
 
    if (!mc) return;
    if (keyCode == 38) {
