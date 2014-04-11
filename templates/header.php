@@ -58,7 +58,7 @@
     <a class="icon pull"><i class="fa fa-bars fa-2x"></i> <span class="icon-label">Menu</span></a>
     <a class="icon" href="/"><i class="fa fa-home fa-2x"></i> <span class="icon-label">Home</span></a>
     <?php if ($this->staff): ?>
-        <a class="icon" href="/cal"><i class="fa fa-calendar fa-2x"></i> <span class="icon-label">Calendar</span></a></li>
+        <a class="icon" href="/cal"><i class="fa fa-calendar fa-2x"></i> <span class="icon-label">Calendar</span></a>
     <?php endif; ?>
 
     <span class="search-mobile">
