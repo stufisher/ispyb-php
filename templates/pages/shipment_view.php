@@ -106,7 +106,10 @@
     </div>
 
 
-    <h1>Dewar Details: <span class="dewar_name"></span></h1>
+    <h1>
+        Dewar Details: <span class="dewar_name"></span>
+        <span class="r padded_button add_container"></span>
+    </h1>
 
     <p class="help">This section shows contents and history for the selected dewar. Click the spyglass icon to view the contents of the container</p>
 

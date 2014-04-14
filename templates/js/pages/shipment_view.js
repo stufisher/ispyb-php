@@ -151,12 +151,14 @@ $(function() {
         success: function(json){
           var c_out = ''
           $.each(json, function(i,c) {
-            c_out += '<li cid="'+c['CONTAINERID']+'">'+c['CODE']+' ('+c['SCOUNT']+' samples) <span class="r"><a class="print" title="Click to print container contents" href="/pdf/container/cid/'+c['CONTAINERID']+'">Print Container Report</a> <a class="view" title="Click to View Container" href="/shipment/cid/'+c['CONTAINERID']+'">View Container</a> <button class="move">Move Container</button></span></li>'
+            c_out += '<li cid="'+c['CONTAINERID']+'">'+c['CODE']+' ('+c['SCOUNT']+' samples) <span class="r"><a class="print" title="Click to print container contents" href="/pdf/container/cid/'+c['CONTAINERID']+'">Print Container Report</a> <a class="view" title="Click to View Container" href="/shipment/cid/'+c['CONTAINERID']+'">View Container</a> <!--<button class="move">Move Container</button>--></span></li>'
             //<button class="delete">Delete Container</button>
                  
           })
            
           if (!c_out) c_out = '<li>No containers in this dewar</li>'
+          $('.add_container').html('<a class="add" title="Click to add a container" href="/shipment/addc/did/'+did+'">Add Container</a>')
+          $('a.add').button({ icons: { primary: 'ui-icon-plus' }, height: 25 })
            
           $('.containers').html(c_out)
            
