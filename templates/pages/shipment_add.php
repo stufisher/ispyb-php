@@ -89,7 +89,7 @@
                 <label>Courier Name
                     <span class="small">Courier name for the return shipment</span>
                 </label>
-                <input type="text" name="couriername" required /> <button name="dls">Use Diamond Account</button>
+                <input type="text" name="couriername" required /> <button name="dls">Use Diamond Account (UK ONLY)</button>
             </li>
 
             <li>

@@ -59,8 +59,25 @@ $(function() {
     }
   
     $('input[name^=fcodes]').unbind('change').change(function() {
-      //if ($(this).val().match(/DLS-MX-\d\d\d\d/i) && $('input[name=shippingname]').val()) $('button[name="dls"]').fadeIn()
+      $(this).val($(this).val().toUpperCase())
+      _check_shipping()
     })
+  }
+  
+  $('input[name=shippingname]').change(function() {
+    _check_shipping()
+  })
+  
+  function _check_shipping() {
+    return
+  
+    valid_fc = false
+    $('input[name^=fcodes]').each(function(i,e) {
+      if ($(this).val().match(/DLS-MX-\d\d\d\d/i)) valid_fc = true
+    })
+  
+    if (valid_fc && $('input[name=shippingname]').val()) $('button[name="dls"]').fadeIn()
+    else $('button[name="dls"]').hide()
   }
   
   _update_fcodes()
