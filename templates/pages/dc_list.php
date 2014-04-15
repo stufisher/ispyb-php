@@ -17,7 +17,7 @@
 
 
     <?php if ($active): ?>
-    <h1 class="status"><?php echo $bl ?> Beamline Status</h1>
+    <h1 class="status"><?php echo $bl ?> Webcams &amp; Beamline Status</h1>
     <div class="status">
         <div class="pvs"></div>
 
