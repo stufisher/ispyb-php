@@ -1,17 +1,19 @@
 $(function() {
 
+  $('#peaks').hide()
+  
   $('.image_container .image').height(600) //$(window).height()*0.65)
   
   $('#glmol01').width($('.image_container .image').width())
   $('#glmol01').height($('.image_container .image').height())
   
   
-var glmol01 = new GLmol('glmol01', true);
-glmol01.maps = []
+  var glmol01 = new GLmol('glmol01', true);
+  glmol01.maps = []
   
-$('#loading').hide();
+  $('#loading').hide();
 
-function download() {
+  function download() {
    $('#loading').show();
    $.get('/download/map/pdb/1/ty/'+ty+'/id/'+id, function(ret) {
       $("#glmol01_src").val(ret);
@@ -23,32 +25,76 @@ function download() {
       $('#loading').hide();
       var gunzip = new Zlib.Gunzip(new Uint8Array(this.response));
       var plain = gunzip.decompress();
-      parseCCP4(plain.buffer, 0x5555AA);
+      parseCCP4(plain.buffer, 0x5555AA, '2fofc', 1.5);
+  
+       if (ty == 'dimple') {
+         var xhr2 = new XMLHttpRequest();
+         xhr2.onload = function() {
+           $('#loading').hide();
+           var gunzip = new Zlib.Gunzip(new Uint8Array(this.response));
+           var plain = gunzip.decompress();
+           parseCCP4(plain.buffer, 0x33CC33, 'fofc', 2.5);
+  
+           glmol01.rebuildScene();
+           glmol01.rotationGroup.position.z = -80;
+  
+           _load_peaks()
+         };
+         xhr2.open('GET', '/download/map/ty/'+ty+'/id/'+id+'/map/2');
+         xhr2.responseType = 'arraybuffer';
+         xhr2.send();
+       } else {
+          glmol01.rebuildScene();
+          glmol01.rotationGroup.position.z = -80;
+          gotoNext(1);
+       }
    };
    xhr.open('GET', '/download/map/ty/'+ty+'/id/'+id);
    xhr.responseType = 'arraybuffer';
    xhr.send();
-  
-   /*if (ty == 'dimple') {
-     var xhr2 = new XMLHttpRequest();
-     xhr2.onload = function() {
-       $('#loading').hide();
-       var gunzip = new Zlib.Gunzip(new Uint8Array(this.response));
-       var plain = gunzip.decompress();
-       parseCCP4(plain.buffer, 0x33CC33, 3);
-     };
-     xhr2.open('GET', '/download/map/ty/'+ty+'/id/'+id+'/map/2');
-     xhr2.responseType = 'arraybuffer';
-     xhr2.send();
-   }*/
 }
 
+  function _load_peaks() {
+    $.ajax({
+      url: '/download/map/ty/'+ty+'/id/'+id+'/pks/1',
+      type: 'GET',
+      timeout: 5000,
+      success: function(text) {
+        $('#peaks table tbody').empty()
+        $.each(text.split('\n'), function(i, l) {
+            if (l.indexOf('ATOM') == 0) {
+              var det = l.split(/\s+/)
+              $('<tr><td>'+det[5]+'</td><td>'+det[6]+'</td><td>'+det[7]+'</td><td>'+det[8]+'</td></tr>').appendTo($('#peaks table tbody'))
+            }
+        })
+           
+        $('#peaks tbody tr').unbind('click').click(function(e) {
+          _goto_peak($('#peaks tbody tr').index($(this)))
+        })
+           
+        if ($('#peaks table tbody tr').length) $('#peaks').show()
+        _goto_peak(0)
+      }
+    })
+  }
+  
+  
+  function _goto_peak(num) {
+    var r = $('#peaks table tbody tr').eq(num)
+    glmol01.modelGroup.position.x = -parseFloat($('td', r).eq(0).html());
+    glmol01.modelGroup.position.y = -parseFloat($('td', r).eq(1).html());
+    glmol01.modelGroup.position.z = -parseFloat($('td', r).eq(2).html());
 
-function parseCCP4(data, color, sig) {
+    updateMesh();
+    glmol01.show();
+  }
+  
+
+  function parseCCP4(data, color, name, sig) {
    var t = new Date();   
-   header_int = new Int32Array(data, 0, 56);
-   header_float = new Float32Array(data, 0, 56);
-   map_header = {};
+   var header_int = new Int32Array(data, 0, 56);
+   var header_float = new Float32Array(data, 0, 56);
+   var map_header = {};
    map_header.NC = header_int[0];
    map_header.NR = header_int[1];
    map_header.NS = header_int[2];
@@ -72,7 +118,7 @@ function parseCCP4(data, color, sig) {
    map_header.AMEAN = header_float[21];
    map_header.ARMS = header_float[54];
 
-   var map = {}
+   var map = {name: name}
   
    map.map_header = map_header;
    map.map_data = new Float32Array(data, 256 * 4 + map_header.NSYMBT, map_header.NC * map_header.NR * map_header.NS);
@@ -80,16 +126,16 @@ function parseCCP4(data, color, sig) {
    map.mc = new THREE.MarchingCubes(map.map_data,
                   map_header.NC, map_header.NR, map_header.NS,
                   map_header.NCSTART, map_header.NRSTART, map_header.NSSTART);
-   geo = map.mc.generateGeometry(0, 0, 0, 0, map_header.AMEAN + (sig ? sig : 1.5) * map_header.ARMS); // dummy
+   var geo = map.mc.generateGeometry(0, 0, 0, 0, map_header.AMEAN + (sig ? sig : 1.5) * map_header.ARMS); // dummy
 
-   mesh = new THREE.Line(geo, new THREE.LineBasicMaterial({color: (color ? color : 0x5555AA), linewidth: 1}));
+   var mesh = new THREE.Line(geo, new THREE.LineBasicMaterial({color: (color ? color : 0x5555AA), linewidth: 1}));
    mesh.type = THREE.LinePieces;
 
-   basis_a = [map_header.a, 0, 0];
-   basis_b = [map_header.b * Math.cos(Math.PI / 180.0 * map_header.gamma),
+   var basis_a = [map_header.a, 0, 0];
+   var basis_b = [map_header.b * Math.cos(Math.PI / 180.0 * map_header.gamma),
               map_header.b * Math.sin(Math.PI / 180.0 * map_header.gamma),
               0];
-   basis_c = [map_header.c * Math.cos(Math.PI / 180.0 * map_header.beta),
+   var basis_c = [map_header.c * Math.cos(Math.PI / 180.0 * map_header.beta),
               map_header.c * (Math.cos(Math.PI / 180.0 * map_header.alpha)
                - Math.cos(Math.PI / 180.0 * map_header.gamma) 
                * Math.cos(Math.PI / 180.0 * map_header.beta))
@@ -97,9 +143,9 @@ function parseCCP4(data, color, sig) {
    basis_c[2] = Math.sqrt(map_header.c * map_header.c * Math.sin(Math.PI / 180.0 * map_header.beta)
                * Math.sin(Math.PI / 180.0 * map_header.beta) - basis_c[1] * basis_c[1]);
 
-   basis = [0, basis_a, basis_b, basis_c];
-   nxyz = [0, map_header.NX, map_header.NY, map_header.NZ];
-   mapcrs = [0, map_header.MAPC, map_header.MAPR, map_header.MAPS];
+   var basis = [0, basis_a, basis_b, basis_c];
+   var nxyz = [0, map_header.NX, map_header.NY, map_header.NZ];
+   var mapcrs = [0, map_header.MAPC, map_header.MAPR, map_header.MAPS];
 
    mesh.matrix.set(basis[mapcrs[1]][0] / nxyz[mapcrs[1]], basis[mapcrs[2]][0] / nxyz[mapcrs[2]], basis[mapcrs[3]][0] / nxyz[mapcrs[3]], 0,
                    basis[mapcrs[1]][1] / nxyz[mapcrs[1]], basis[mapcrs[2]][1] / nxyz[mapcrs[2]], basis[mapcrs[3]][1] / nxyz[mapcrs[3]], 0,
@@ -112,10 +158,6 @@ function parseCCP4(data, color, sig) {
   console.log("Generate map mesh: ", +new Date() - t);
 
   glmol01.maps.push(map)
-  
-  glmol01.rebuildScene();
-  glmol01.rotationGroup.position.z = -80; // dirty hack!
-  gotoNext(1);
 }
 
 function saveImage() {
@@ -133,40 +175,44 @@ function defineRepFromController() {
    var idHeader = "#" + this.id + '_';
 
    var all = this.getAllAtoms();
-   this.colorByAtom(all, {});  
-   this.drawBondsAsLine(this.modelGroup, all, this.lineWidth * 2);
+   if (ty == 'dimple') {
+     this.colorByAtom(all, {});
+     var asu = new THREE.Object3D();
+     this.drawBondsAsLine(asu, all, this.lineWidth * 2);
+     this.drawSymmetryMatesWithTranslation2(this.modelGroup, asu, this.protein.symMat);
+     this.modelGroup.add(asu)
+  
+   }
    this.drawUnitcell(this.modelGroup);
 
    var nonBonded = this.getNonbonded(all);
    this.drawAsCross(this.modelGroup, nonBonded, 0.3, true);
 
-  
    $.each(glmol01.maps, function(i,m) {
      glmol01.modelGroup.add(m.mesh);
    })
   
-  console.log('models', glmol01.modelGroup.children)
-  // if (glmol01.mesh) glmol01.modelGroup.add(glmol01.mesh);
-
    this.slabNear = -8; this.slabFar = 8;
-   updateMesh();
+   //updateMesh();
 };
 
 glmol01.defineRepresentation = defineRepFromController;
 
 glmol01.current = 1;
-glmol01.translate_callback = updateMesh
+glmol01.translate_callback = function() {
+  updateMesh()
+  glmol01.show()
+}
 
 function updateMesh() {
-  //if (!glmol01.mesh) return; // no map
-  
   $.each(glmol01.maps, function(i,m) {
     var ortho_to_frac = new THREE.Matrix4().getInverse(m.mesh.matrix);
     var center = ortho_to_frac.multiplyVector3(glmol01.modelGroup.position.clone());
-    var mc = m.mc;
+    var mc = m.mc
+         
     mc.generateGeometry(Math.floor(-center.x) - mc.ncstart,
                      Math.floor(-center.y) - mc.nrstart,
-                     Math.floor(-center.z) - mc.nsstart, 10, mc.isol);
+                     Math.floor(-center.z) - mc.nsstart, ty == 'dimple' ? 15 : 50, mc.isol);
   })
 }
 
@@ -190,7 +236,7 @@ function gotoNext(delta) {
    glmol01.show();
 }
 
-//$(glmol01.renderer.domElement).bind('keydown', function(ev) {
+  
 $('body').bind('keydown', function(ev) {
    var keyCode = ev.keyCode;
    var mc = glmol01.maps[0].mc;
