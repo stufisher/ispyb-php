@@ -1203,7 +1203,7 @@ $(function() {
                                '</tr></thead>'
 
                   types[r['TYPE']].push('<div class="plot_fastep"></div>')
-                  types[r['TYPE']].push('<p class="r"><a class="dll" href="/download/ep/id/'+id+'">PDB/MTZ file</a> <a class="view" href="/download/ep/id/'+id+'/log/1">Log file</a></p>')
+                  types[r['TYPE']].push('<p class="r"><!--<a class="view" href="/dc/map/id/'+id+'/ty/ep">Map / Model Viewer</a>--> <a class="dll" href="/download/ep/id/'+id+'">PDB/MTZ file</a> <a class="view" href="/download/ep/id/'+id+'/log/1">Log file</a></p>')
                   types[r['TYPE']].push('<ul><li>Figure of Merit: '+r['FOM']+'</li><li>Pseudo-free CC: '+r['CC']+'</li></ul>')
                   types[r['TYPE']].push('<table class="atoms">'+thead+table+'</table>')
 
@@ -1234,7 +1234,7 @@ $(function() {
                     }
                   
                     types[r['TYPE']].push('<div class="blobs">'+blobs+'</div>' +
-                                          '<p class="r"><a class="dll" href="/download/dimple/id/'+id+'">PDB/MTZ file</a> <a class="view" href="/download/dimple/id/'+id+'/log/1">Log file</a></p>'+
+                                          '<p class="r"><!--<a class="view" href="/dc/map/id/'+id+'">Map / Model Viewer</a>--> <a class="dll" href="/download/dimple/id/'+id+'">PDB/MTZ file</a> <a class="view" href="/download/dimple/id/'+id+'/log/1">Log file</a></p>'+
                                           '<table class="rstats"><tr>' + stats.join('</tr><tr>') + '</tr></table>' +
                                           '<div class="plot_dimple"></div>')
                   }
