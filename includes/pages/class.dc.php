@@ -240,7 +240,7 @@
             $this->t->d = $dc;
             
             $this->t->js_var('id', $this->arg('id'));
-            $this->t->js_var('ty', $this->arg('ty'));
+            $this->t->js_var('ty', $this->has_arg('ty') ? $this->arg('ty') : 'dimple');
             
             $this->render('map_viewer');
         }
