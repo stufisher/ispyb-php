@@ -12,6 +12,23 @@
 
     <div class="image_container border">
         <div class="image">
+            <div id="peaks" class="table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>X</th>
+                            <th>Y</th>
+                            <th>Z</th>
+                            <th>Height</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div id="controls">
+
+            </div>
+
             <div id="glmol01" style="background: #000"></div>
         </div>
     </div>
