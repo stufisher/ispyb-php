@@ -6,30 +6,58 @@
 
     <h1 class="no_mobile"><span class="visit"><?php echo $d['VIS']?>: </span><?php echo $d['DIR'] ?><?php echo $d['FT'] ?></h1>
 
-    <p class="help">This page is a full scale diffraction image viewer. Mousehweel zooms in and out, drag click to pan around the image. Press &gt; to go to the next image and &lt; the previous.</p>
+    <p class="help">This page is an interactive map and model viewer. You can rotate the view using left mouse. Mousewheel zooms in and out. You can navigate through residues by pressing space or shift+space. Toggle fullscreen with the icon in the top right. CTRL+ left click to translate</p>
 
     <textarea wrap="off" id="glmol01_src" style="display:none; width: 100%; height: 8em; overflow:scroll;"></textarea>
 
-    <div class="image_container border">
+    <div class="image_container border" id="map_model">
         <div class="image">
-            <div id="peaks" class="table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>X</th>
-                            <th>Y</th>
-                            <th>Z</th>
-                            <th>Height</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-            <div id="controls">
-
+            <div class="fullscreen">
+                <a href="#" class="fullscreen" title="Click to go fullscreen"><i class=" fa fa-arrows-alt fa-2x"></i></a>
             </div>
 
-            <div id="glmol01" style="background: #000"></div>
+            <div class="status_bar"></div>
+
+            <div class="controls">
+                <div class="residues">
+                    <div class="navigate">
+                        <select name="chain"></select> <select name="residue"></select> <button name="previous">Prev</button> <button name="next">Next</button>
+                    </div>
+                    <div class="buttons">
+                        
+                    </div>
+                </div>
+
+                <div class="maps">
+                    <span class="wrap">Map 1: <span class="value">1.5</span>rms<div class="m1"></div></span>
+                </div>
+
+                <div class="mousemode">
+                    Mousemode:<br />
+                    <input type="radio" name="glmol01_mouseMode" value="0" checked="checked" />Rotate</br>
+                    <input type="radio" name="glmol01_mouseMode" value="1" />Translate</br>
+                    <input type="radio" name="glmol01_mouseMode" value="2" />Zoom</br>
+                    <input type="radio" name="glmol01_mouseMode" value="3" />Slab</br>
+                </div>
+
+                <div class="table peaks">
+                    <table class="peaks">
+                        <thead>
+                            <tr>
+                                <th>X</th>
+                                <th>Y</th>
+                                <th>Z</th>
+                                <th>Height</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="glmol01" style="background: #000">
+            </div>
+
         </div>
     </div>
 

@@ -1,28 +1,24 @@
 $(function() {
 
-  $('#peaks').hide()
+  $('.peaks').hide()
+  //$('.image_container .image').height(600)
+  $('#glmol01').height(600)
   
-  $('.image_container .image').height(600) //$(window).height()*0.65)
-  
-  $('#glmol01').width($('.image_container .image').width())
-  $('#glmol01').height($('.image_container .image').height())
-  
-  
+
   var glmol01 = new GLmol('glmol01', true);
   glmol01.maps = []
+  var chains = {}
   
-  $('#loading').hide();
-
   function download() {
-   $('#loading').show();
    $.get('/download/map/pdb/1/ty/'+ty+'/id/'+id, function(ret) {
       $("#glmol01_src").val(ret);
       glmol01.loadMolecule();
+      _generate_chains()
    })
+
 
    var xhr = new XMLHttpRequest();
    xhr.onload = function() {
-      $('#loading').hide();
       var gunzip = new Zlib.Gunzip(new Uint8Array(this.response));
       var plain = gunzip.decompress();
       parseCCP4(plain.buffer, 0x5555AA, '2fofc', 1.5);
@@ -30,7 +26,6 @@ $(function() {
        if (ty == 'dimple') {
          var xhr2 = new XMLHttpRequest();
          xhr2.onload = function() {
-           $('#loading').hide();
            var gunzip = new Zlib.Gunzip(new Uint8Array(this.response));
            var plain = gunzip.decompress();
            parseCCP4(plain.buffer, 0x33CC33, 'fofc', 2.5);
@@ -39,54 +34,198 @@ $(function() {
            glmol01.rotationGroup.position.z = -80;
   
            _load_peaks()
+           $('.status_bar').hide()
          };
+  
+         xhr2.addEventListener('progress', function(e) {
+           $('.status_bar').html('Loading Map 2 ' + ((e.loaded/e.total)*100).toFixed(0) + '%')
+         })
          xhr2.open('GET', '/download/map/ty/'+ty+'/id/'+id+'/map/2');
          xhr2.responseType = 'arraybuffer';
          xhr2.send();
        } else {
           glmol01.rebuildScene();
           glmol01.rotationGroup.position.z = -80;
-          gotoNext(1);
+          _goto_residue()
+          $('.status_bar').hide()
        }
    };
+ 
+  
+   xhr.addEventListener('progress', function(e) {
+    $('.status_bar').html('Loading Map 1 ' + ((e.loaded/e.total)*100).toFixed(0) + '%')
+   })
+  
    xhr.open('GET', '/download/map/ty/'+ty+'/id/'+id);
    xhr.responseType = 'arraybuffer';
    xhr.send();
 }
+  
+  
+  function _generate_chains() {
+    chains = {}
+    $.each(glmol01.atoms, function(i,a) {
+      if (a) {
+        if (a.chain == ' ') a.chain = 'A'
+        if (!(a.chain in chains)) chains[a.chain] = {}
+        if (!(a.resi in chains[a.chain])) chains[a.chain][a.resi] = {name: a.resn, atoms: {}}
+           
+        chains[a.chain][a.resi].atoms[a.atom] = a
+      }
+    })
 
+    $('select[name=chain]').empty()
+    $.each(chains, function(n,c) {
+      $('<option value="'+n+'">'+n+'</option>').appendTo($('select[name=chain]'))
+    })
+  
+    _refresh_residues()
+  }
+  
+  $('select[name=chain]').change(function() {
+    _refresh_residues()
+  })
+               
+  function _refresh_residues() {
+    var c = $('select[name=chain]').val()
+  
+    $('select[name=residue]').empty()
+      if (c in chains) {
+        $.each(chains[c], function(i, r) {
+          $('<option value="'+i+'">'+i+' '+r.name+'</option>').appendTo($('select[name=residue]'))
+        })
+      }
+  }
+  
+  $('select[name=residue]').change(function() { _goto_residue() })
+  
+  //.button({ icons: { primary: 'ui-icon-carat-1-e' } }).
+  $('button[name=next]').click(function() { _goto_next() })
+  //.button({ icons: { primary: 'ui-icon-carat-1-w' } })
+  $('button[name=previous]').click(function() { _goto_next(1) })
+  
+  function _goto_next(prev) {
+    var cur = $('select[name=residue]').val()
+    var idx = $('select[name=residue] option').index($('select[name=residue] option[value="'+cur+'"]'))
+    var nidx = prev ? (idx - 1) : (idx + 1)
+    var val = $('select[name=residue] option').eq(nidx).val()
+    $('select[name=residue]').val(val).trigger('change')
+  }
+  
+  $('a.fullscreen').click(function() {
+  var element = $('#map_model')[0]
+                          
+  if(element.requestFullscreen) {
+    element.requestFullscreen();
+  } else if(element.mozRequestFullScreen) {
+    element.mozRequestFullScreen();
+  } else if(element.webkitRequestFullscreen) {
+    element.webkitRequestFullscreen();
+  } else if(element.msRequestFullscreen) {
+    element.msRequestFullscreen();
+  }
+    return false
+  })
+                                  
+  function _goto_residue() { 
+    var c = $('select[name=chain]').val()
+    var r = $('select[name=residue]').val()
+                                  
+    if (c in chains) {
+        var ch = chains[c]
+        if (r in ch) {
+            var res = ch[r]
+  
+            if ('CA' in res.atoms) atom = res.atoms['CA']
+            else {
+                $.each(res.atoms, function(i,a){
+                    atom = a
+                    return false
+                })
+            }
+  
+            glmol01.rotationGroup.position.z = -110
+            glmol01.modelGroup.position.x = -atom.x;
+            glmol01.modelGroup.position.y = -atom.y;
+            glmol01.modelGroup.position.z = -atom.z;
+
+            updateMesh();
+            glmol01.show();
+        }
+    }
+  }
+
+  
+  $('.maps .m1').slider({
+      step: 0.1,
+      value: 1.5,
+      min: 0.5,
+      max: 3,
+      slide: function( event, ui ) {
+        _map_sigma(0, ui.value)
+        $(this).siblings('span').html(ui.value)
+      }
+  });
+  
+  if (ty == 'dimple') {
+    $('.maps').append('<span class="wrap">Map 2: <span class="value">3</span>&sigma;<div class="m2"></div></span>')
+    $('.maps .m2').slider({
+      step: 0.1,
+      value: 3,
+      min: 2,
+      max: 6,
+      slide: function( event, ui ) {
+        _map_sigma(1, ui.value)
+        $(this).siblings('span').html(ui.value)
+      }
+    });
+  }
+  
+  
   function _load_peaks() {
     $.ajax({
-      url: '/download/map/ty/'+ty+'/id/'+id+'/pks/1',
+      url: '/dc/ajax/dp/id/'+id,
       type: 'GET',
       timeout: 5000,
-      success: function(text) {
-        $('#peaks table tbody').empty()
-        $.each(text.split('\n'), function(i, l) {
-            if (l.indexOf('ATOM') == 0) {
-              var det = l.split(/\s+/)
-              $('<tr><td>'+det[5]+'</td><td>'+det[6]+'</td><td>'+det[7]+'</td><td>'+det[8]+'</td></tr>').appendTo($('#peaks table tbody'))
-            }
+      success: function(json) {
+        $('.peaks table tbody').empty()
+           
+        $.each(json, function(i, t) {
+          if (t['TYPE'] == 'Dimple') {
+            $.each(t['PKLIST'], function(i,pk) {
+              $('<tr><td>'+pk[0]+'</td><td>'+pk[1]+'</td><td>'+pk[2]+'</td><td>'+pk[3]+'</td></tr>').appendTo($('.peaks table tbody'))
+            })
+          }
         })
            
-        $('#peaks tbody tr').unbind('click').click(function(e) {
-          _goto_peak($('#peaks tbody tr').index($(this)))
+        $('.peaks tbody tr').unbind('click').click(function(e) {
+          _goto_peak($('.peaks tbody tr').index($(this)))
         })
            
-        if ($('#peaks table tbody tr').length) $('#peaks').show()
-        _goto_peak(0)
+        if ($('.peaks table tbody tr').length) {
+           $('.peaks').show()
+           _goto_peak(0)
+        } else _goto_residue()
       }
     })
   }
   
   
   function _goto_peak(num) {
-    var r = $('#peaks table tbody tr').eq(num)
+    var r = $('.peaks table tbody tr').eq(num)
     glmol01.modelGroup.position.x = -parseFloat($('td', r).eq(0).html());
     glmol01.modelGroup.position.y = -parseFloat($('td', r).eq(1).html());
     glmol01.modelGroup.position.z = -parseFloat($('td', r).eq(2).html());
 
     updateMesh();
     glmol01.show();
+  }
+  
+  function _map_sigma(id, sigma) {
+    var m = glmol01.maps[id]
+    var abs = m.map_header.AMEAN + sigma * m.map_header.ARMS
+    m.mc.generateGeometry(m.mc.cc, m.mc.cr, m.mc.cs, ty == 'dimple' ? 15 : 50, abs);
+  
   }
   
 
@@ -149,7 +288,7 @@ $(function() {
 
    mesh.matrix.set(basis[mapcrs[1]][0] / nxyz[mapcrs[1]], basis[mapcrs[2]][0] / nxyz[mapcrs[2]], basis[mapcrs[3]][0] / nxyz[mapcrs[3]], 0,
                    basis[mapcrs[1]][1] / nxyz[mapcrs[1]], basis[mapcrs[2]][1] / nxyz[mapcrs[2]], basis[mapcrs[3]][1] / nxyz[mapcrs[3]], 0,
-                   basis[mapcrs[1]][2] / nxyz[mapcrs[1]],  basis[mapcrs[2]][2] / nxyz[mapcrs[2]], basis[mapcrs[3]][2] / nxyz[mapcrs[3]], 0,
+                   basis[mapcrs[1]][2] / nxyz[mapcrs[1]], basis[mapcrs[2]][2] / nxyz[mapcrs[2]], basis[mapcrs[3]][2] / nxyz[mapcrs[3]], 0,
                    0, 0, 0, 1);
 
   mesh.matrixAutoUpdate = false;
@@ -179,7 +318,7 @@ function defineRepFromController() {
      this.colorByAtom(all, {});
      var asu = new THREE.Object3D();
      this.drawBondsAsLine(asu, all, this.lineWidth * 2);
-     this.drawSymmetryMatesWithTranslation2(this.modelGroup, asu, this.protein.symMat);
+     //this.drawSymmetryMatesWithTranslation2(this.modelGroup, asu, this.protein.symMat);
      this.modelGroup.add(asu)
   
    }
@@ -211,43 +350,17 @@ function updateMesh() {
     var mc = m.mc
          
     mc.generateGeometry(Math.floor(-center.x) - mc.ncstart,
-                     Math.floor(-center.y) - mc.nrstart,
-                     Math.floor(-center.z) - mc.nsstart, ty == 'dimple' ? 15 : 50, mc.isol);
+                        Math.floor(-center.y) - mc.nrstart,
+                        Math.floor(-center.z) - mc.nsstart, ty == 'dimple' ? 15 : 50, mc.isol);
   })
-}
-
-function gotoNext(delta) {
-   var resi = glmol01.atoms[glmol01.current].resi, i = glmol01.current, ilim = glmol01.atoms.length;
-
-   while (true) {
-      i += delta;
-      if (i == 0) i = ilim - 1;
-      if (i == ilim) i = 1;
-      if (glmol01.atoms[i] == undefined) continue;
-      if (glmol01.atoms[i].resi == resi) continue;
-      break;
-   }
-   glmol01.current = i;
-   glmol01.modelGroup.position.x = -glmol01.atoms[i].x;
-   glmol01.modelGroup.position.y = -glmol01.atoms[i].y;
-   glmol01.modelGroup.position.z = -glmol01.atoms[i].z;
-
-   updateMesh();
-   glmol01.show();
 }
 
   
 $('body').bind('keydown', function(ev) {
    var keyCode = ev.keyCode;
-   var mc = glmol01.maps[0].mc;
 
-   if (!mc) return;
-   if (keyCode == 38) {
-      mc.generateGeometry(mc.cc, mc.cr, mc.cs, 10, glmol01.mc.isol + 0.1 * glmol01.map_header.ARMS);
-   } else if (keyCode == 40) {
-      mc.generateGeometry(mc.cc, mc.cr, mc.cs, 10, glmol01.mc.isol - 0.1 * glmol01.map_header.ARMS);
-   } else if (keyCode == 32) {
-      gotoNext((ev.shiftKey) ? -1 : 1);
+   if (keyCode == 32) {
+      _goto_next(ev.shiftKey)
    }
    glmol01.show();
 

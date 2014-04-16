@@ -1329,9 +1329,73 @@ textarea[name=pasted] {
 
 
 // Map Viewer
-#peaks {
-    height: 250px;
-    overflow-y: auto;
-    position: absolute;
-    margin: 5px;
+#map_model {
+    position: relative;
+    
+    #glmol01 {
+
+    }
+    
+    &:-webkit-full-screen {
+        width: 100%;
+        height: 100%;
+        
+        #glmol01 {
+            height: 100% !important;
+        }
+
+    }
+    
+    .controls {
+        position: absolute;
+        margin: 5px;
+
+        .navigate {
+            button {
+                padding: 2px 3px;
+            }
+        }
+        
+        .mousemode {
+            color: #fff;
+            padding: 3% 0;
+        }
+        
+        .maps {
+            color: #fff;
+            padding: 3% 0;
+            
+            span {
+                padding: 2% 0;
+            }
+        }
+        
+        .residues {
+            padding: 0 0 3% 0;
+            //text-align: center;
+            
+            .buttons {
+                padding: 3% 0 0 0;
+            }
+
+        }
+        
+        div.peaks {
+            height: 150px;
+            overflow-y: auto;
+        }
+    }
+    
+    .fullscreen {
+        top: 5px;
+        right: 5px;
+        position: absolute;
+    }
+    
+    .status_bar {
+        bottom: 5px;
+        left: 5px;
+        position: absolute;
+        color: #fff;
+    }
 }
