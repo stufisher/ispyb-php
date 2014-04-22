@@ -1040,9 +1040,25 @@
                                 array_push($plts['FVC'], array($p[0], $p[2]));
                             }
                             
+                            $peaks = glob($root . '/dimple/*find-blobs.log');
+                            $pklist = array();
+                            if (sizeof($peaks)) {
+                                $pk = $peaks[0];
+                                if (file_exists($pk)) {
+                                    $pks = explode("\n", file_get_contents($pk));
+                                    foreach ($pks as $p) {
+                                        if (strpos($p, '#') === 0) {
+                                            array_push($pklist, array(floatval(substr($p, 40,7)), floatval(substr($p, 48,7)), floatval(substr($p, 56,7)), floatval(substr($p, 29,5))));
+                                        }
+                                    }
+                                }
+                                
+                            }
+                            
                             array_unshift($stats[0], 'Parameter');
                             $dat['STATS'] = $stats;
                             $dat['PLOTS'] = $plts;
+                            $dat['PKLIST'] = $pklist;
                             
                             $blobs = glob($root .'/dimple/blob*v*.png');
                             $dat['BLOBS'] = sizeof($blobs)/3;
