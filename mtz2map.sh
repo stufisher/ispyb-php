@@ -31,23 +31,6 @@ F1=F SIG1=SIGF PHI=PHFOFCWT W=FOM
 end
 eof
 
-$root/peakmax MAPIN "/tmp/$2_dimple_fofc.map.tmp" XYZOUT "/tmp/$2_dimple.peaks.tmp" << eof
-threshhold -
-rms -
-3.0
-numpeaks 50
-output brookhaven frac
-residue WAT
-atname OW
-chain X
-eof
-
-export SG=`awk '/^CRYST/{print substr($0,56,12)}' $4 | head -1 | sed 's/ //g'`
-$root/watpeak XYZIN "$4" PEAKS "/tmp/$2_dimple.peaks.tmp" XYZOUT "/tmp/$2_dimple.peaks" << eof
-distance 5.0
-symm $SG
-eof
-
 
 $root/mapmask MAPIN "/tmp/$2_dimple_fofc.map.tmp" MAPOUT "/tmp/$2_dimple_fofc.map" XYZIN "$4" << eof
 BORDER 5
