@@ -10,25 +10,40 @@ $(function() {
   var chains = {}
   
   function download() {
-   $.get('/download/map/pdb/1/ty/'+ty+'/id/'+id, function(ret) {
-      $("#glmol01_src").val(ret);
-      glmol01.loadMolecule();
-      _generate_chains()
+    $.ajax({url: '/download/map/pdb/1/ty/'+ty+'/id/'+id,
+            type: 'GET',
+            xhr: function() {
+              var xhr = new window.XMLHttpRequest();
+              xhr.addEventListener('progress', function(e) {
+                $('.status_bar').html('Downloading Model ' + ((e.loaded/e.total)*100).toFixed(0) + '%')
+              })
+              return xhr
+            },
+          
+            success:function(ret) {
+              $("#glmol01_src").val(ret);
+              glmol01.loadMolecule();
+              _generate_chains()
+              _load_maps()
+            }
    })
+  }
 
 
-   var xhr = new XMLHttpRequest();
-   xhr.onload = function() {
+  function _load_maps() {
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function() {
       var gunzip = new Zlib.Gunzip(new Uint8Array(this.response));
       var plain = gunzip.decompress();
-      parseCCP4(plain.buffer, 0x5555AA, '2fofc', 1.5);
+      parseCCP4(plain.buffer, 0x5555aa, '2fofc', 1.5);
   
        if (ty == 'dimple') {
          var xhr2 = new XMLHttpRequest();
          xhr2.onload = function() {
            var gunzip = new Zlib.Gunzip(new Uint8Array(this.response));
            var plain = gunzip.decompress();
-           parseCCP4(plain.buffer, 0x33CC33, 'fofc', 2.5);
+           parseCCP4(plain.buffer, 0x33cc33, 'fofc', 2.8);
+           parseCCP4(plain.buffer, 0xcc3333, 'fofc', -2.8);
   
            glmol01.rebuildScene();
            glmol01.rotationGroup.position.z = -80;
@@ -38,7 +53,7 @@ $(function() {
          };
   
          xhr2.addEventListener('progress', function(e) {
-           $('.status_bar').html('Loading Map 2 ' + ((e.loaded/e.total)*100).toFixed(0) + '%')
+           $('.status_bar').html('Downloading Map 2 ' + ((e.loaded/e.total)*100).toFixed(0) + '%')
          })
          xhr2.open('GET', '/download/map/ty/'+ty+'/id/'+id+'/map/2');
          xhr2.responseType = 'arraybuffer';
@@ -49,17 +64,16 @@ $(function() {
           _goto_residue()
           $('.status_bar').hide()
        }
-   };
- 
+    }
   
-   xhr.addEventListener('progress', function(e) {
-    $('.status_bar').html('Loading Map 1 ' + ((e.loaded/e.total)*100).toFixed(0) + '%')
-   })
+    xhr.addEventListener('progress', function(e) {
+     $('.status_bar').html('Downloading Map 1 ' + ((e.loaded/e.total)*100).toFixed(0) + '%')
+    })
   
-   xhr.open('GET', '/download/map/ty/'+ty+'/id/'+id);
-   xhr.responseType = 'arraybuffer';
-   xhr.send();
-}
+    xhr.open('GET', '/download/map/ty/'+ty+'/id/'+id);
+    xhr.responseType = 'arraybuffer';
+    xhr.send();
+  }
   
   
   function _generate_chains() {
@@ -168,14 +182,15 @@ $(function() {
   });
   
   if (ty == 'dimple') {
-    $('.maps').append('<span class="wrap">Map 2: <span class="value">3</span>&sigma;<div class="m2"></div></span>')
+    $('.maps').append('<span class="wrap">Map 2: <span class="value">2.8</span>&sigma;<div class="m2"></div></span>')
     $('.maps .m2').slider({
       step: 0.1,
-      value: 3,
+      value: 2.8,
       min: 2,
       max: 6,
       slide: function( event, ui ) {
         _map_sigma(1, ui.value)
+        _map_sigma(2, -ui.value)
         $(this).siblings('span').html(ui.value)
       }
     });
