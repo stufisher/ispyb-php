@@ -4,6 +4,7 @@
 #module load mosflm
 
 cd /tmp
+find /tmp -mtime +3 -delete
 
 export CCP4_MASTER=/dls_sw/apps/ccp4/x86_64/6.4.0/11oct2013/
 export CINCL=$CCP4_MASTER/ccp4-6.4.0/include
