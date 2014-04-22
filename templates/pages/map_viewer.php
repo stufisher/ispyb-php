@@ -34,10 +34,10 @@
 
                 <div class="mousemode">
                     Mousemode:<br />
-                    <input type="radio" name="glmol01_mouseMode" value="0" checked="checked" />Rotate</br>
-                    <input type="radio" name="glmol01_mouseMode" value="1" />Translate</br>
-                    <input type="radio" name="glmol01_mouseMode" value="2" />Zoom</br>
-                    <input type="radio" name="glmol01_mouseMode" value="3" />Slab</br>
+                    <label><input type="radio" name="glmol01_mouseMode" value="0" checked="checked" /> Rotate</label></br>
+                    <label><input type="radio" name="glmol01_mouseMode" value="1" /> Translate</label></br>
+                    <label><input type="radio" name="glmol01_mouseMode" value="2" /> Zoom</label></br>
+                    <label><input type="radio" name="glmol01_mouseMode" value="3" /> Slab</label></br>
                 </div>
 
                 <div class="table peaks">
