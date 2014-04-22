@@ -12,7 +12,6 @@
                               'LogFiles' => '([\w|\.])+',
                               'ty' => '\w+',
                               'pdb' => '\d',
-                              'pks' => '\d',
                               'map' => '\d',
                               );
         
@@ -205,8 +204,6 @@
             
             if ($this->has_arg('pdb')) {
                 $out = $file.'.'.$ext;
-            } else if ($this->has_arg('pks')) {
-                $out = '/tmp/'.$this->arg('id').'_'.$this->arg('ty').'.peaks';
             } else {
                 if ($this->arg('ty') == 'dimple') {
                     $map = $this->has_arg('map') ? 'fofc' : '2fofc';
@@ -237,7 +234,11 @@
                     
                     
                     
-                } else readfile($out);
+                } else {
+                    $size = filesize($out);
+                    header("Content-length: $size");
+                    readfile($out);
+                }
             } else $this->error('File not found', 'Fast EP / Dimple files were not found');
         }
         
