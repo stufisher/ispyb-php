@@ -42,6 +42,10 @@
         </ul>
     </div>
 
+
+    <button class="clone_puck" title="Clone entire puck from first sample">Clone Puck</button>
+    <button class="clear_puck" title="Clear entire puck">Clear Puck</button>
+
     <div class="table sample">
         <table class="robot_actions samples form reflow">
             <thead>

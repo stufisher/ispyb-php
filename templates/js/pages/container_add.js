@@ -14,6 +14,16 @@ $(function() {
     _clone($(this))
   })
   
+  $('button.clone_puck').button({ icons: { primary: 'ui-icon-circle-plus' } }).click(function(e) {
+    for (var i = 0; i< 15; i++) $('button.clone').eq(i).trigger('click')
+    return false
+  })
+
+  $('button.clear_puck').button({ icons: { primary: 'ui-icon-close' } }).click(function(e) {
+    for (var i = 0; i< 16; i++) $('button.delete').eq(i).trigger('click')
+    return false
+  })  
+  
   $('table.samples tr td .top a').button({ icons: { primary: 'ui-icon-triangle-1-n' } })
 
   $('table.samples tr td button.delete').button({ icons: { primary: 'ui-icon-close' }, text: false }).click(function(e) {
