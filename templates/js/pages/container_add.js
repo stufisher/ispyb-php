@@ -114,7 +114,7 @@ $(function() {
         var snt = sn.val().replace(/\d+$/, '')
         var nx = $('input.sname').filter(function(i) { return i > sidx && !$(this).val() }).first()
         var rx = new RegExp(snt)
-        var nxn = $('input.sname').filter(function() { return $(this).val().match(rx) }).last().val()
+        var nxn = $('input.sname').filter(function() { return snt == ""  ? $(this).val() : $(this).val().match(rx) }).last().val()
       
         var no = nxn.match(/\d+$/)
   
