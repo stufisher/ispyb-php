@@ -27,6 +27,16 @@
     <?php endif ?>
 
 
+    <?php if ($is_visit): ?>
+    <div class="ra">
+        <a href="/dc/summary/visit/<?php echo $vis ?>" title="Data Summary" class="summary">Summary</a>
+        <a href="/vstat/visit/<?php echo $vis ?>" title="Visit Statistics" class="vstat">Visit Stats</a>
+        <?php if ($this->staff): ?>
+            <a href="/status/bl/<?php echo $bl ?>" title="Beamline Status" class="blstat">Beamline Status</a>
+        <?php endif; ?>
+    </div>
+    <?php endif; ?>
+
     <div class="filter clearfix" title="Click to filter the current list to specified data collection types">
         <ul>
             <li id="dc">Data Collections</li>
@@ -38,16 +48,6 @@
             <li id="ac">Sample Actions</li>
             <li id="flag">Favourite</li>
         </ul>
-
-        <?php if ($is_visit): ?>
-        <div class="ra">
-            <a href="/dc/summary/visit/<?php echo $vis ?>" title="Data Summary" class="summary">Summary</a>
-            <a href="/vstat/visit/<?php echo $vis ?>" title="Visit Statistics" class="vstat">Visit Stats</a>
-            <?php if ($this->staff): ?>
-                <a href="/status/bl/<?php echo $bl ?>" title="Beamline Status" class="blstat">Beamline Status</a>
-            <?php endif; ?>
-        </div>
-        <?php endif; ?>
     </div>
 
 
