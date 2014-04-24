@@ -19,7 +19,13 @@ $(function() {
         window.location.href = '/sample/sid/'+$(this).parent('td').parent('tr').attr('sid')
       })
   
-      $('button.edit').button({ icons: { primary: 'ui-icon-pencil' }, text: false }).unbind('click').click(function() {
+      $('button.edit').button({ icons: { primary: 'ui-icon-pencil' }, text: false }).unbind('click').click(function(e) {
+        if ($('select.protein').length) {
+            var bid = $('table.samples tbody tr').index($(this).parent('td').parent('tr'))
+            _get_samples(function() { $('button.edit', $('table.samples tbody tr').eq(bid)).trigger('click') })
+            return
+        }
+
         var r = $(this).parent('td').parent('tr')
         var sid = r.attr('sid')
         var p = r.children('td').eq(1).attr('pid')
@@ -42,7 +48,7 @@ $(function() {
                                        
         $('select.protein, input[name=n]').change(function() { _validate(r) })                             
                                                                                                            
-        $('button.save', r).button({ icons: { primary: 'ui-icon-check' }, text: false }).click(function() {                                                                   
+        $('button.save', r).button({ icons: { primary: 'ui-icon-check' }, text: false }).click(function() {
             var r = $(this).parent('td').parent('tr')
             
             if (_validate(r))
@@ -115,7 +121,7 @@ $(function() {
   
   
   // Get sample list for container
-  function _get_samples() {
+  function _get_samples(fn) {
     $.ajax({
       url: '/shipment/ajax/samples/cid/'+cid,
       type: 'GET',
@@ -136,6 +142,7 @@ $(function() {
             '</tr>').appendTo($('.samples tbody'))
         })
         _map_callbacks()
+        if (fn) { fn() }
       }
     })
   }
