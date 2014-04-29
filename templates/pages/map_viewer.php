@@ -40,6 +40,12 @@
                     <label><input type="radio" name="glmol01_mouseMode" value="3" /> Slab</label></br>
                 </div>
 
+                <!--
+                <div class="mousemode">
+                    <label><input type="checkbox" name="symmat" value="1" /> Show Symmetry Mates</label>
+                </div>
+                -->
+
                 <div class="table peaks">
                     <table class="peaks">
                         <thead>
