@@ -4,7 +4,7 @@
         
         var $arg_list = array('visit' => '\w+\d+-\d+', 'page' => '\d+', 'id' => '\d+', 't' => '\w+', 'iframe' => '\d+', 'id' => '\d+', 'sid' => '\d+', 's' => '\w+', 'pp' => '\d+', 'low' => '\d', 'h' => '\d\d', 'dmy' => '\d\d\d\d\d\d\d\d', 'ty' => '\w+');
         var $dispatch = array('dc' => '_data_collection', 'view' => '_viewer', 'summary' => '_summary',
-                              //'map' => '_map_viewer'
+                              'map' => '_map_viewer'
                               );
         var $def = 'dc';
         
