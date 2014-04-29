@@ -183,11 +183,11 @@
             if (!$this->has_arg('bl')) return;
             
             $bls = array(
-                         'i02' => 'http://i02-firewire01:8080/OAV.MJPG.mjpg',
-                         'i03' => 'http://i03-firewire01:8080/OAV.MJPG.mjpg',
-                         'i04' => 'http://i04-firewire01:8080/OAV.MJPG.mjpg',
-                         'i04-1' => 'http://i04-1-firewire01:8080/OAV.MJPG.mjpg',
-                         'i24' => 'http://i24-control:8081/oav.MJPG.mjpg'
+                         'i02' => 'http://172.23.102.204:8080/OAV.MJPG.mjpg',
+                         'i03' => 'http://172.23.103.204:8080/OAV.MJPG.mjpg',
+                         'i04' => 'http://172.23.104.204:8080/OAV.MJPG.mjpg',
+                         'i04-1' => 'http://172.23.73.204:8081/OAV.MJPG.mjpg',
+                         'i24' => 'http://172.23.124.200:8080/FL1.MJPG.mjpg'
                          );
             
             if (!array_key_exists($this->arg('bl'), $bls)) return;
