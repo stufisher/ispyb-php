@@ -2,7 +2,15 @@
 
     class Ajax extends AjaxBase {
         
-        var $arg_list = array('id' => '\d+', 'visit' => '\w+\d+-\d+', 'page' => '\d+', 's' => '[\w-\/]+', 'pp' => '\d+', 't' => '\w+', 'bl' => '\w\d\d(-\d)?', 'value' => '.*', 'sid' => '\d+', 'aid' => '\d+', 'pjid' => '\d+', 'imp' => '\d', 'pid' => '\d+', 'h' => '\d\d', 'dmy' => '\d\d\d\d\d\d\d\d');
+        var $arg_list = array('id' => '\d+', 'visit' => '\w+\d+-\d+', 'page' => '\d+', 's' => '[\w-\/]+', 'pp' => '\d+', 't' => '\w+', 'bl' => '\w\d\d(-\d)?', 'value' => '.*', 'sid' => '\d+', 'aid' => '\d+', 'pjid' => '\d+', 'imp' => '\d', 'pid' => '\d+', 'h' => '\d\d', 'dmy' => '\d\d\d\d\d\d\d\d',
+                              'a' => '\d+(.\d+)?',
+                              'b' => '\d+(.\d+)?',
+                              'c' => '\d+(.\d+)?',
+                              'al' => '\d+(.\d+)?',
+                              'be' => '\d+(.\d+)?',
+                              'ga' => '\d+(.\d+)?',
+                              'sg' => '\w+',
+                              );
         var $dispatch = array('strat' => '_dc_strategies',
                               'ap' => '_dc_auto_processing',
                               'dp' => '_dc_downstream',
@@ -16,6 +24,7 @@
                               'rd' => '_rd',
                               'flag' => '_flag',
                               'comment' => '_set_comment',
+                              'sym' => '_get_symmetry',
                               );
         
         var $def = 'dc';
@@ -1194,6 +1203,24 @@
             
         }
         
+        
+        
+        function _get_symmetry() {
+            if (!($this->has_arg('a') && $this->has_arg('b') && $this->has_arg('c') && $this->has_arg('al') && $this->has_arg('be') && $this->has_arg('ga') && $this->has_arg('sg'))) $this->_error('Missing parameters');
+            
+            exec('./symtry.sh '.$this->arg('a').' '.$this->arg('b').' '.$this->arg('c').' '.$this->arg('al').' '.$this->arg('be').' '.$this->arg('ga').' '.$this->arg('sg'), $ret);
+            
+            $matrices = array();
+            foreach ($ret as $l) {
+                $parts = array_map('floatval', explode(' ', $l));
+                array_push($matrices, array(array_slice($parts, 0, 4),
+                                            array_slice($parts, 4, 4),
+                                            array_slice($parts, 8, 4))
+                           );
+            }
+            
+            $this->_output($matrices);
+        }
     }
 
 ?>
