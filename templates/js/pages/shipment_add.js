@@ -69,8 +69,6 @@ $(function() {
   })
   
   function _check_shipping() {
-    return
-  
     valid_fc = false
     $('input[name^=fcodes]').each(function(i,e) {
       if ($(this).val().match(/DLS-MX-\d\d\d\d/i)) valid_fc = true
