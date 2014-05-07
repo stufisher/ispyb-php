@@ -24,10 +24,17 @@
                               'p' => '\d+',
                               'pos' => '\d+',
                               'b' => '\w+',
+                              
+                              'iDisplayStart' => '\d+',
+                              'iDisplayLength' => '\d+',
+                              'iSortCol_0' => '\d+',
+                              'sSortDir_0' => '\w+',
+                              'sSearch' => '\w+',
                               );
         
         var $dispatch = array('shipments' => '_get_shipments',
                               'containers' => '_get_containers',
+                              'containersall' => '_get_all_containers',
                               'samples' => '_get_samples',
                               'dewars' => '_get_dewars',
                               'addd' => '_add_dewar',
@@ -402,6 +409,64 @@
             
             $root = '/dls_sw/dasc/ispyb2/shipping';
             $this->_output(array(file_get_contents($root.'/instructions.html'), file_get_contents($root.'/pin.txt'), file_get_contents($root.'/account.txt')));
+        }
+        
+        
+        
+        function _get_all_containers() {
+            #$this->db->set_debug(True);
+            if (!$this->has_arg('prop')) $this->_error('No proposal specified');
+            
+            $args = array($this->proposalid);
+            $where = 'sh.proposalid=:1';
+            
+            $sta = $this->has_arg('iDisplayStart') ? $this->arg('iDisplayStart') : 0;
+            $len = $this->has_arg('iDisplayLength') ? $this->arg('iDisplayLength') : 20;
+            
+            $tot = $this->db->pq("SELECT count(c.containerid) as tot FROM ispyb4a_db.container c INNER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid INNER JOIN ispyb4a_db.shipping sh ON sh.shippingid = d.shippingid WHERE $where", $args);
+            $tot = $tot[0]['TOT'];
+            
+            if ($this->has_arg('sSearch')) {
+                $st = sizeof($args) + 1;
+                $where .= " AND lower(c.code) LIKE lower('%'||:".$st."||'%')";
+                array_push($args, $this->arg('sSearch'));
+            }
+            
+            $flt = $this->db->pq("SELECT count(c.containerid) as tot FROM ispyb4a_db.container c INNER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid INNER JOIN ispyb4a_db.shipping sh ON sh.shippingid = d.shippingid WHERE $where", $args);
+            $flt = $flt[0]['TOT'];
+            
+            
+            $st = sizeof($args) + 1;
+            array_push($args, $sta);
+            array_push($args, $sta+$len);
+            
+            $order = 'c.code DESC';
+            
+            
+            if ($this->has_arg('iSortCol_0')) {
+                $cols = array('c.code', 'd.code', 'sh.shippingname', '');
+                $dir = $this->has_arg('sSortDir_0') ? ($this->arg('sSortDir_0') == 'asc' ? 'ASC' : 'DESC') : 'ASC';
+                if ($this->arg('iSortCol_0') < sizeof($cols)) $order = $cols[$this->arg('iSortCol_0')].' '.$dir;
+            }
+            
+            $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (
+                                  SELECT c.containerstatus, c.containerid, c.code as name, d.code as dewar, sh.shippingname as shipment, d.dewarid, sh.shippingid, count(s.blsampleid) as samples
+                                  FROM ispyb4a_db.container c INNER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid INNER JOIN ispyb4a_db.shipping sh ON sh.shippingid = d.shippingid LEFT OUTER JOIN ispyb4a_db.blsample s ON s.containerid = c.containerid
+                                  WHERE $where
+                                  GROUP BY c.containerstatus, c.containerid, c.code, d.code, sh.shippingname, d.dewarid, sh.shippingid
+                                  ORDER BY $order
+                                  ) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
+            
+            $data = array();
+            foreach ($rows as $r) {
+                array_push($data, array($r['NAME'], $r['DEWAR'], '<a href="/shipment/sid/'.$r['SHIPPINGID'].'">'.$r['SHIPMENT'].'</a>', $r['SAMPLES'], $r['CONTAINERSTATUS'], '<a class="view" title="View Conainer Details" href="/shipment/cid/'.$r['CONTAINERID'].'">View Container</a>'));
+            }
+            
+            $this->_output(array('iTotalRecords' => $tot,
+                                 'iTotalDisplayRecords' => $flt,
+                                 'aaData' => $data,
+                                 ));   
+        
         }
         
     }

@@ -22,6 +22,7 @@
         var $dispatch = array('dispatch' => '_dispatch',
                               'add' => '_add_shipment',
                               'addc' => '_add_container',
+                              'containers' => '_view_containers',
                               );
         var $def = 'dispatch';
         
@@ -258,6 +259,15 @@
             return $did;
         }
     
+        
+        
+        
+        function _view_containers() {
+            if (!$this->has_arg('prop')) $this->error('No proposal specified', 'Please select a proposal first');
+
+            $this->template('View Containers', array('Containers'), array(''));
+            $this->t->render('containers');
+        }
     }
 
 ?>
