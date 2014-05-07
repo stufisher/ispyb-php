@@ -25,6 +25,8 @@
 
                     <li><a href="/shipment">Shipments</a></li>
 
+                    <li><a href="/shipment/containers">Containers</a></li>
+
                     <li><a href="/sample">Samples</a></li>
 
                     <li><a href="/sample/proteins">Proteins</a></li>
