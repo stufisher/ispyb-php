@@ -61,11 +61,13 @@ $(function() {
     $('input[name^=fcodes]').unbind('change').change(function() {
       $(this).val($(this).val().toUpperCase())
       _check_shipping()
+      return false
     })
   }
   
   $('input[name=shippingname]').change(function() {
     _check_shipping()
+    return false
   })
   
   function _check_shipping() {
