@@ -64,7 +64,7 @@
                         $f = $r['FILEPATH'].'/fast_dp.mtz';
                         if (file_exists($f)) {
                             $this->_header($this->arg('aid').'_fast_dp.mtz');
-                            readfile();
+                            readfile($f);
                             
                         } $this->error('No such file', 'The specified auto processing file doesnt exist');
                     }
