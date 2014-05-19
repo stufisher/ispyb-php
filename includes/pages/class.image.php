@@ -72,7 +72,7 @@
             list($row) = $this->db->pq('SELECT dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4 FROM ispyb4a_db.datacollection dc WHERE dc.datacollectionid=:1', array($this->arg('id')));
             
             $images = array();
-            foreach (array('X1', 'X2', 'X3', 'X4') as $i) {
+            foreach (array_reverse(array('X1', 'X2', 'X3', 'X4')) as $i) {
                 if (file_exists($row[$i])) {
                     array_push($images, $row[$i]);
                 }
