@@ -50,7 +50,7 @@ $(function() {
             dataType: 'text',
             timeout: 5000,
             success: function(json){
-               window.location = '/proposal/visits'
+               window.location = prep ? '/samples/proposal' : '/proposal/visits'
             }
                
         })

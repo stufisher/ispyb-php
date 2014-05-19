@@ -2,7 +2,7 @@
 
     class Proposal extends Page {
         
-        var $arg_list = array('prop' => '\w\w\d+')
+        var $arg_list = array('prop' => '\w\w\d+', 'prep' => '\d')
         ;
         var $dispatch = array('list' => '_get_proposals',
                               'visits' => '_get_visits',
@@ -20,6 +20,7 @@
         function _get_proposals() {
             
             $this->template('Proposals');
+            $this->t->js_var('prep', $this->has_arg('prep'));
             $this->t->render('proposal');
             
         }
