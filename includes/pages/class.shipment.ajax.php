@@ -46,6 +46,8 @@
                               'lc' => '_get_contacts',
                               'lcd' => '_get_lc_details',
                               
+                              'move' => '_move_container',
+                              
                               'update' => '_update_shipment',
                               'updated' => '_update_dewar',
                               'updates' => '_update_sample',
@@ -467,6 +469,23 @@
                                  'aaData' => $data,
                                  ));   
         
+        }
+        
+        
+        
+        # Move Container
+        function _move_container() {
+            if (!$this->has_arg('cid')) $this->_error('No container specified');
+            if (!$this->has_arg('did')) $this->_error('No dewar specified');
+            
+            $chkd = $this->db->pq("SELECT d.dewarid FROM ispyb4a_db.dewar d INNER JOIN ispyb4a_db.shipping s ON s.shippingid = d.shippingid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE d.dewarid=:1 AND p.proposalid=:2", array($this->arg('did'), $this->proposalid));
+            $chkc = $this->db->pq("SELECT c.containerid FROM ispyb4a_db.container c INNER JOIN ispyb4a_db.dewar d ON c.dewarid = d.dewarid INNER JOIN ispyb4a_db.shipping s ON s.shippingid = d.shippingid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE c.containerid=:1 AND p.proposalid=:2", array($this->arg('cid'), $this->proposalid));
+            
+            if (sizeof($chkd) && sizeof($chkc)) {
+                $this->db->pq("UPDATE ispyb4a_db.container SET dewarid=:1 WHERE containerid=:2", array($this->arg('did'), $this->arg('cid')));
+                $this->_output(1);
+            }
+            
         }
         
     }

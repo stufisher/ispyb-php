@@ -1,5 +1,5 @@
     <div class="move_container">
-        <p><span class="b">Container:</span> <span class="title"></span></p>
+        <p><span class="b">Container:</span> <span class="puck_title"></span></p>
         <p><span class="b">Select a Shipment:</span>
         <select name="shipment"></select></p>
         <p><span class="b">Select a Dewar:</span>

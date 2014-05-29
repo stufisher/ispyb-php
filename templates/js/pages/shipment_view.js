@@ -151,7 +151,7 @@ $(function() {
         success: function(json){
           var c_out = ''
           $.each(json, function(i,c) {
-            c_out += '<li cid="'+c['CONTAINERID']+'">'+c['CODE']+' ('+c['SCOUNT']+' samples) <span class="r"><a class="print" title="Click to print container contents" href="/pdf/container/cid/'+c['CONTAINERID']+'">Print Container Report</a> <a class="view" title="Click to View Container" href="/shipment/cid/'+c['CONTAINERID']+'">View Container</a> <!--<button class="move">Move Container</button>--></span></li>'
+            c_out += '<li cid="'+c['CONTAINERID']+'"><span class="ctitle">'+c['CODE']+'</span> ('+c['SCOUNT']+' samples) <span class="r"><a class="print" title="Click to print container contents" href="/pdf/container/cid/'+c['CONTAINERID']+'">Print Container Report</a> <a class="view" title="Click to View Container" href="/shipment/cid/'+c['CONTAINERID']+'">View Container</a> <button class="move">Move Container</button></span></li>'
             //<button class="delete">Delete Container</button>
                  
           })
@@ -271,23 +271,35 @@ $(function() {
   }).addClass('editable');
   
   
-  $('.move_container').dialog({ title: 'Move Container', autoOpen: false, height: 'auto', width: 'auto' });
-  /*$('.move_container select[name=shipment]').change(function() {
+  $('.move_container').dialog({ title: 'Move Container', autoOpen: false, height: 'auto', width: 'auto', buttons: { 'Move': function() {
+    $.ajax({
+      url: '/shipment/ajax/move/cid/'+$(this).attr('cid')+'/did/'+$('.move_container select[name=dewar]').val(),
+      type: 'GET',
+      dataType: 'json',
+      timeout: 5000,
+      success: function(json){
+        $('.move_container').dialog('close')
+        _get_dewars()
+      }
+    })
+  }, 'Close': function() { $(this).dialog('close') } } });
+  
+  $('.move_container select[name=shipment]').change(function() {
     var sid = $(this).val()
     $.ajax({
-      url: '/shipments/ajax/dewars/sid/'+sid,
+      url: '/shipment/ajax/dewars/sid/'+sid,
       type: 'GET',
       dataType: 'json',
       timeout: 5000,
       success: function(json){
         var dwrs = ''
         $.each(json, function(i,d) {
-            
+            dwrs += '<option value="'+d['DEWARID']+'">'+d['CODE']+'</option>'
         })
         $('.move_container select[name=dewar]').html(dwrs)
       }
     })
-  })*/
+  })
   
   function _map_callbacks() {
           $('button.deact').button({ icons: { primary: 'ui-icon-cross' }, text: false }).unbind('click').click(function() {
@@ -311,7 +323,8 @@ $(function() {
       $('button.delete').button({ icons: { primary: 'ui-icon-closethick' }, text: false }).unbind('click').click(function() {
       })
   
-      /*$('button.move').button({ icons: { primary: 'ui-icon-arrow-4' }, text: false }).unbind('click').click(function() {
+      $('button.move').button({ icons: { primary: 'ui-icon-arrow-4' }, text: false }).unbind('click').click(function() {
+          var li = $(this).closest('li')
           $.ajax({
             url: '/shipment/ajax/shipments',
             type: 'GET',
@@ -323,11 +336,13 @@ $(function() {
                 opts += '<option value="'+e['SHIPPINGID']+'">'+e['SHIPPINGNAME']+'</option>'
               })
                  
-              $('.move_container select[name=shipment]').html(opts)
+              $('.move_container select[name=shipment]').html(opts).val(sid).trigger('change')
+              $('.move_container .puck_title').html($(li).closest('li').find('.ctitle').html())
+              $('.move_container').attr('cid', $(li).attr('cid'))
               $('.move_container').dialog('open')
             }
           })
-      })*/
+      })
   
   
       $('.code').each(function(i,e) {
