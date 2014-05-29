@@ -211,7 +211,10 @@
                     $this->db->pq("INSERT INTO blsample (blsampleid,crystalid,containerid,location,comments,name,code) VALUES (s_blsample.nextval,:1,:2,:3,:4,:5,:6)", array($crysid, $cid, $s['pos']+1, $s['c'], $s['n'], $s['b']));
                 }
                 
-                $this->msg('New Container Added', 'Your container was sucessfully added. Click <a href="/shipment/cid/'.$cid.'">here</a> to see to the container');
+                $shipid = $this->db->pq("SELECT shippingid FROM ispyb4a_db.dewar WHERE dewarid=:1", array($this->arg('did')));
+                $shipid = sizeof($shipid) ? $shipid[0]['SHIPPINGID'] : 0;
+                
+                $this->msg('New Container Added', 'Your container was sucessfully added. Click <a href="/shipment/cid/'.$cid.'">here</a> to see to the container. Click <a href="/shipment/addc/did/'.$this->arg('did').'">here</a> to add another container to the same shipment, or click <a href="/shipment/sid/'.$shipid.'">here</a> to view the shipment');
                 
             } else {
                 $dewar = $this->db->pq('SELECT d.code as dewar, s.shippingname as shipment, s.shippingid FROM ispyb4a_db.dewar d INNER JOIN ispyb4a_db.shipping s ON s.shippingid = d.shippingid INNER JOIN ispyb4a_db.proposal p ON s.proposalid = p.proposalid WHERE p.proposalcode || p.proposalnumber LIKE :1 AND d.dewarid=:2', array($this->arg('prop'), $this->arg('did')));
