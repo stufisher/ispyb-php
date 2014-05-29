@@ -2,19 +2,19 @@
         <div class="form">
         <form id="ap">
             <ul>
-                <li>
+                <li class="clearfix">
                     <label>File:
                         <input type="file" name="pdb_file" />
                     </label>
                 </li>
 
-                <li>
+                <li class="clearfix">
                     <label>PDB Code:
                         <input type="text" name="pdb_code" />
                     </label>
                 </li>
 
-                <li>
+                <li class="clearfix">
                     <label>Existing PDB:
                         <select name="existing_pdb"></select>
                     </label>
