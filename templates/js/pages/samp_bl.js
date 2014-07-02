@@ -245,7 +245,7 @@ $(document).on('pageinit', '#allocation', function() {
                
               $('<li cid="'+c['CONTAINERID']+'" sid='+c['SHIPPINGID']+' did="'+c['DEWARID']+'" loc="'+c['SAMPLECHANGERLOCATION']+'" class="container">'+
                 '<a href="#'+(assigned ? 'unassign' : 'assign')+'" class="'+(assigned ? 'unassign' : 'assign')+'" data-rel="dialog"><h3>'+c['CODE']+'</h3></a>'+
-                '<a href="#view" class="view">View</a>'+
+                //'<a href="#view" class="view">View</a>'+
                 '</li>').appendTo(assigned ? $('.blp'+a) : sc).addClass(assigned ? 'assigned' : '')
               containers[c['CONTAINERID']] = a
                
