@@ -11,7 +11,7 @@
                               'value' => '.*',
                               'code' => '([\w-])+',
                               'fcode' => '([\w-])+',
-                              'title' => '([\w-])+',
+                              'title' => '([\w\s-])+',
                               'trackto' => '\w+',
                               'trackfrom' => '\w+',
                               'array' => '\d',
