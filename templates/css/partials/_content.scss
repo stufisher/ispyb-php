@@ -642,6 +642,7 @@ ol.rounded {
         background: $content-inlay-background;
         padding: 0;
         margin: 0.25%;
+        overflow: hidden;
     }
     
     .snapshots {
