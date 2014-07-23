@@ -23,13 +23,16 @@
         
         function _base() {
             $rc = new ReflectionClass(get_class($this));
-            return 'includes/pages/'.basename($rc->getFileName(), '.php');
+            #return 'includes/pages/'.basename($rc->getFileName(), '.php');
+            return dirname($rc->getFileName()).'/'.basename($rc->getFileName(), '.php');
         }
 
         
-        function __construct($db, $args) {
+        function __construct($db, $args, $type) {
             global $sgs;
             $this->sgs = $sgs;
+            
+            $this->ptype = $type;
             
             $this->last_profile = microtime(True);
             $this->db = $db;
@@ -48,7 +51,7 @@
                         include_once('class.ajax.php');
                         include_once($aj);
                         
-                        $ajax = new Ajax($db, $args);
+                        $ajax = new Ajax($db, $args, $type);
                         return;
                     }
                     
@@ -60,7 +63,11 @@
             }
             
             $this->_parse_args($args);
-            if (!$this->_auth()) return;
+            #if (!$this->_auth()) return;
+            $this->ptype->set_args($this->args);
+            if (!$this->ptype->auth($this->require_staff)) return;
+            $this->staff = $this->ptype->is_staff();
+            $this->proposalid = $this->ptype->pid();
             
             #session_write_close();
             
@@ -69,7 +76,7 @@
             $this->$fn();
         }
         
-        
+        /* >> Moved this to proposal type auth
         # ------------------------------------------------------------------------
         # Check that users have access to the pages they are trying to access
         function _auth() {
@@ -185,7 +192,7 @@
             
             return $auth;
             
-        }
+        }*/
         
         
         # ------------------------------------------------------------------------
@@ -261,6 +268,8 @@
             }
             
             $this->t = new Template($title, $this->nav($p, $new), $hf);
+            $this->t->set_type($this->ptype);
+            
             if ($this->sidebar) $this->t->side();
             $this->t->prop = $this->has_arg('prop') ? $this->arg('prop') : '';
             $this->t->sass = $this->has_arg('sass');
@@ -483,7 +492,7 @@
             $u = class_exists('phpCAS') ? phpCAS::getUser() : '';
             
             if ($u) {
-                $com = $com ? $com : 'ISPyB2: '.$_SERVER['REQUEST_URI'];
+                $com = $com ? $com : substr('ISPyB2: '.$_SERVER['REQUEST_URI'],0,100);
                 $chk = $this->db->pq("SELECT comments FROM ispyb4a_db.adminactivity WHERE username LIKE :1", array($u));
                 
                 if (sizeof($chk)) {
