@@ -66,7 +66,7 @@
                 array_push($args, $this->arg('bl'));
             }
             
-            $visits = $this->db->pq("SELECT p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis, p.proposalcode || p.proposalnumber as prop, s.beamlinename as bl, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st, s.sessionid FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE s.startdate BETWEEN TO_DATE(:1,'dd-mm-yyyy') AND TO_DATE(:2,'dd-mm-yyyy') AND (s.beamlinename LIKE 'i02' OR s.beamlinename LIKE 'i03' OR s.beamlinename LIKE 'i04' OR s.beamlinename LIKE 'i04-1' OR s.beamlinename LIKE 'i24') $where ORDER BY s.startdate, s.beamlinename", $args);
+            $visits = $this->db->pq("SELECT s.beamlineoperator as lc, p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis, p.proposalcode || p.proposalnumber as prop, s.beamlinename as bl, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st, s.sessionid FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE s.startdate BETWEEN TO_DATE(:1,'dd-mm-yyyy') AND TO_DATE(:2,'dd-mm-yyyy') AND (s.beamlinename LIKE 'i02' OR s.beamlinename LIKE 'i03' OR s.beamlinename LIKE 'i04' OR s.beamlinename LIKE 'i04-1' OR s.beamlinename LIKE 'i24') $where ORDER BY s.startdate, s.beamlinename", $args);
             
             $vbd = array();
             foreach ($visits as $v) {
@@ -79,6 +79,7 @@
                 $k2 = date('H:i', $t);
                 $v['TIME'] = $k2;
                 
+                /*
                 $lc = $this->lc_lookup($v['SESSIONID']);
                 $v['LC'] = $lc ? ('(<abbr title="'.$lc->name.'">'.$lc->i.'</abbr>)</span>') : '';
                 $v['LCF'] = $lc ? $lc->name : '';
@@ -88,7 +89,7 @@
                 if ($v['TY'] == 'Short Visit') {
                     global $short_visit;
                     $k2 = $short_visit[$k2][0];
-                }
+                }*/
                 
                 if (!array_key_exists($k, $vbd)) $vbd[$k] = array();
                 if (!array_key_exists($k2, $vbd[$k])) $vbd[$k][$k2] = array();
@@ -155,7 +156,7 @@
                 array_push($args, $arg);
             }
             
-            $visits = $this->db->pq("SELECT p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis, p.proposalcode || p.proposalnumber as prop, s.beamlinename as bl, TO_CHAR(s.startdate, 'DD-MM-YYYY') as d, TO_CHAR(s.enddate, 'DD-MM-YYYY') as e, TO_CHAR(s.startdate, 'HH24:MI') as st, TO_CHAR(s.enddate, 'HH24:MI') as en, s.sessionid FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE (s.beamlinename LIKE 'i02' OR s.beamlinename LIKE 'i03' OR s.beamlinename LIKE 'i04' OR s.beamlinename LIKE 'i04-1' OR s.beamlinename LIKE 'i24') AND s.startdate > TO_DATE(:1,'YYYY') $where ORDER BY s.startdate, s.beamlinename", $args);
+            $visits = $this->db->pq("SELECT s.beamlineoperator as lc, p.proposalcode || p.proposalnumber || '-' || s.visit_number as vis, p.proposalcode || p.proposalnumber as prop, s.beamlinename as bl, TO_CHAR(s.startdate, 'DD-MM-YYYY') as d, TO_CHAR(s.enddate, 'DD-MM-YYYY') as e, TO_CHAR(s.startdate, 'HH24:MI') as st, TO_CHAR(s.enddate, 'HH24:MI') as en, s.sessionid FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE (s.beamlinename LIKE 'i02' OR s.beamlinename LIKE 'i03' OR s.beamlinename LIKE 'i04' OR s.beamlinename LIKE 'i04-1' OR s.beamlinename LIKE 'i24') AND s.startdate > TO_DATE(:1,'YYYY') $where ORDER BY s.startdate, s.beamlinename", $args);
             
             $user_tmp = $this->db->pq("SELECT u.name,u.fullname,s.sessionid FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN investigation@DICAT_RO i ON lower(i.visit_id) = p.proposalcode||p.proposalnumber||'-'||s.visit_number INNER JOIN investigationuser@DICAT_RO iu on i.id = iu.investigation_id INNER JOIN user_@DICAT_RO u on u.id = iu.user_id WHERE (s.beamlinename LIKE 'i02' OR s.beamlinename LIKE 'i03' OR s.beamlinename LIKE 'i04' OR s.beamlinename LIKE 'i04-1' OR s.beamlinename LIKE 'i24') AND s.startdate > TO_DATE(:1,'YYYY') AND iu.role='NORMAL_USER' $where", $args);
             
@@ -168,7 +169,7 @@
             
             $output = '';
             foreach ($visits as $v) {
-                $lc = $this->lc_lookup($v['SESSIONID']);
+                /*$lc = $this->lc_lookup($v['SESSIONID']);
                 $v['LC'] = $lc ? $lc->name : '';
                 $v['OC'] = $lc ? $lc->oc : '';
                 $v['TY'] = $lc ? $lc->type : '';
@@ -182,12 +183,12 @@
                     $v['EN'] = $v['E'] . ' ' . $v['EN'];
                 }
                 
-                if ($v['TY']) $v['TY'] = ' ['.$v['TY'].']';
+                if ($v['TY']) $v['TY'] = ' ['.$v['TY'].']';*/
                 
                 $st = strtotime($v['ST']);
                 $en = strtotime($v['EN']);
                 
-                $title = $v['VIS'].$v['TY'].($v['LC'] ? ' LC: '.$v['LC'] : '').($v['OC'] ? ' OC: '.$v['OC'] : '');
+                $title = $v['VIS'].($v['LC'] ? ' LC: '.$v['LC'] : '');
                 if (!in_array($arg, $bls)) $title = $v['BL'].': '.$title;
                 
                 $us = '';

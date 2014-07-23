@@ -33,7 +33,7 @@
 
         <p>Local Contact</p>
         <ul>
-            <li><?php echo $lc ?></li>
+            <li><?php echo $info['LC'] ?></li>
         </ul>
 
         <pagebreak />

@@ -227,6 +227,7 @@
                 $this->msg('No such visit', 'That visit doesnt seem to exist');
             } else $info = $info[0];
             
+            /*
             $lc = $this->lc_lookup($info['SID']);
             if ($lc) {
                 if ($lc->type == 'Short Visit') {
@@ -237,7 +238,7 @@
                     $info['EN'] = date('d-m-Y', $e).' '.$short_visit[date('H:i', $t)][1];
                     $info['LEN'] = (strtotime($info['EN']) - strtotime($info['ST'])) / 3600;
                 }
-            }
+            }*/
             
             
             # Visit breakdown

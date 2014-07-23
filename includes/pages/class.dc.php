@@ -74,6 +74,7 @@
                 
                 $info['LEN'] = intval($info['LEN']);
                 
+                /*
                 # Correct short visit times
                 $lc = $this->lc_lookup($info['SESSIONID']);
                 if ($lc) {
@@ -87,7 +88,8 @@
                         $info['EN'] = date('d-m-Y', $e).' '.$short_visit[date('H:i', $t)][1];
                         $info['LEN'] = (strtotime($info['EN']) - strtotime($info['ST'])) / 3600;
                     }
-                }
+                }*/
+                 
                 
                 $info['ACTIVE'] = time() >= strtotime($info['ST']) && time() <= strtotime($info['EN']);
                 

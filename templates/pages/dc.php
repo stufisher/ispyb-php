@@ -64,20 +64,6 @@
                             <?php if ($v['LC']): ?>
                               <span class="short"><?php echo $v['LC'] ?></span>
                             <?php endif;?>
-
-                            <?php if ($v['TY']): ?>
-                              <span class="type">[<?php echo $v['TY'] ?>]</span>
-                            <?php endif;?>
-
-                            <div class="details">
-                            <?php if ($v['LCF']): ?>
-                              LC: <?php echo $v['LCF'] ?>
-                            <?php endif;?>
-                            <?php if ($v['OCF']): ?>
-                              OC: <?php echo $v['OCF'] ?>
-                            <?php endif;?>
-                            </div>
-
                         </li>
                         <?php endforeach; ?>
                         </ul>

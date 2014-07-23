@@ -62,7 +62,7 @@
         function _visit_report() {
             if (!$this->has_arg('visit')) $this->error('No visit specified', 'You need to specify a visit to view this page');
             
-            $info = $this->db->pq("SELECT (s.enddate - s.startdate)*24 as len, s.sessionid as sid, s.beamlinename, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st, TO_CHAR(s.enddate, 'DD-MM-YYYY HH24:MI') as en, p.proposalcode||p.proposalnumber||'-'||s.visit_number as visit, p.proposalcode||p.proposalnumber as prop FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE p.proposalcode||p.proposalnumber||'-'||s.visit_number LIKE :1", array($this->arg('visit')));
+            $info = $this->db->pq("SELECT (s.enddate - s.startdate)*24 as len, s.sessionid as sid, s.beamlinename, s.beamlineoperator as lc, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st, TO_CHAR(s.enddate, 'DD-MM-YYYY HH24:MI') as en, p.proposalcode||p.proposalnumber||'-'||s.visit_number as visit, p.proposalcode||p.proposalnumber as prop FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE p.proposalcode||p.proposalnumber||'-'||s.visit_number LIKE :1", array($this->arg('visit')));
             
             if (!sizeof($info)) $this->error('No such visit', 'The specified visit doesnt exist');
             else $info = $info[0];
@@ -71,8 +71,8 @@
             
             $this->users = $this->db->pq("SELECT u.name,u.fullname FROM investigation@DICAT_RO i INNER JOIN investigationuser@DICAT_RO iu on i.id = iu.investigation_id INNER JOIN user_@DICAT_RO u on u.id = iu.user_id WHERE lower(i.visit_id)=:1 AND iu.role='NORMAL_USER'", array($info['VISIT']));
             
-            $lc = $this->lc_lookup($info['SID']);
-            $this->lc = $lc ? $lc->name : 'N/A';
+            #$lc = $this->lc_lookup($info['SID']);
+            #$this->lc = $lc ? $lc->name : 'N/A';
             
             $rows = $this->db->pq("SELECT dc.datacollectionid as id, dc.overlap,dc.imageprefix,dc.imagedirectory as dir,dc.datacollectionnumber,TO_CHAR(dc.starttime, 'DD/MM/YYYY HH24:MI:SS'), sa.name, p.name as protein, dc.numberofimages, dc.wavelength, dc.detectordistance, dc.exposuretime, dc.axisstart, dc.axisrange, dc.xbeam, dc.ybeam, dc.resolution, dc.comments FROM ispyb4a_db.datacollection dc LEFT OUTER JOIN ispyb4a_db.blsample sa ON dc.blsampleid = sa.blsampleid LEFT OUTER JOIN ispyb4a_db.crystal c ON sa.crystalid = c.crystalid LEFT OUTER JOIN ispyb4a_db.protein p ON c.proteinid = p.proteinid WHERE dc.sessionid=:1 ORDER BY dc.starttime", array($info['SID']));
             
