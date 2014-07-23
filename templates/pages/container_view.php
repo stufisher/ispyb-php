@@ -1,4 +1,4 @@
-    <h1>Container: <?php echo $cont['NAME'] ?></h1>
+    <h1>Container: <span class="title"><?php echo $cont['NAME'] ?></span></h1>
 
     <p class="help">This page shows the contents of the selected container. Samples can be added and edited by clicking the pencil icon, and removed by clicking the x</p>
 

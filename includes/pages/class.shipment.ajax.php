@@ -51,6 +51,7 @@
                               'update' => '_update_shipment',
                               'updated' => '_update_dewar',
                               'updates' => '_update_sample',
+                              'updatec' => '_update_container',
                               
                               'send' => '_send_shipment',
                               
@@ -486,6 +487,21 @@
                 $this->_output(1);
             }
             
+        }
+        
+        
+        # Update Container title
+        function _update_container() {
+            if (!$this->has_arg('cid')) $this->_error('No container specified');
+            if (!$this->has_arg('value')) $this->_error('No title specified');
+            if (!preg_match('/^[\w-]+$/m', $this->arg('value'))) $this->_error('No title specified');
+            
+            $chkc = $this->db->pq("SELECT c.containerid FROM ispyb4a_db.container c INNER JOIN ispyb4a_db.dewar d ON c.dewarid = d.dewarid INNER JOIN ispyb4a_db.shipping s ON s.shippingid = d.shippingid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE c.containerid=:1 AND p.proposalid=:2", array($this->arg('cid'), $this->proposalid));
+            
+            if (sizeof($chkc)) {
+                $this->db->pq("UPDATE ispyb4a_db.container SET code=:1 WHERE containerid=:2", array($this->arg('value'), $this->arg('cid')));
+                print $this->arg('value');
+            }
         }
         
     }

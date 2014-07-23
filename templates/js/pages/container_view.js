@@ -1,5 +1,21 @@
 $(function() {
   
+  $('.title').editable('/shipment/ajax/updatec/cid/'+cid, {
+                           width: '100px',
+                           height: '20px',
+                           type: 'text',
+                           submit: 'Ok',
+                           onsubmit: function(s,td) {
+                             $(this).validate({
+                               validClass: 'fvalid', errorClass: 'ferror',
+                               errorElement: 'span',
+                               rules: { value: { wwdash: true }}
+                             })
+                             return $(this).valid();
+                           },
+                           style: 'display: inline',
+                           }).addClass('editable');
+  
   function _map_callbacks() {
       _draw()
   
