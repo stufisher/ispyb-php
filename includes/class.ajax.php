@@ -2,9 +2,7 @@
     
     class AjaxBase extends Page {
         
-        function __construct($db, $args, $type) {
-            $this->ptype = $type;
-            
+        function __construct($db, $args) {
             $this->last_profile = microtime(True);
             $this->db = $db;
             $this->db->set_debug($this->debug);
@@ -20,11 +18,7 @@
             }
             
             $this->_parse_args($args);
-            #if (!$this->_auth()) return;
-            $this->ptype->set_args($this->args);
-            if (!$this->ptype->auth($this->require_staff)) return;
-            $this->staff = $this->ptype->is_staff();
-            $this->proposalid = $this->ptype->pid();
+            if (!$this->_auth()) return;
             
             session_write_close();
             

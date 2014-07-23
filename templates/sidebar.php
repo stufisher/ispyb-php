@@ -15,12 +15,7 @@
                 <span class="current"><?php echo $prop ? $prop : 'No Proposal' ?></span>
                 <?php if ($prop): ?>
                 <ul>
-
-                    <?php foreach($this->ptype->prop_menu as $m): ?>
-                        <li><a href="<?php echo $m[0] ?>"><?php echo $m[1] ?></a></li>
-                    <?php endforeach; ?>
-
-                    <!--<li><a href="/dc">View All Data</a></li>
+                    <li><a href="/dc">View All Data</a></li>
 
                     <li><a href="/proposal/visits">Visits</a></li>
 
@@ -38,16 +33,11 @@
 
                     <li><a href="/contact">Lab Contacts</a></li>
 
-                    <li><a href="/vstat/proposal">Statistics</a></li>-->
+                    <li><a href="/vstat/proposal">Statistics</a></li>
                 </ul>
                 <?php endif; ?>
             </li>
 
-            <?php foreach($this->ptype->ext_menu as $em): ?>
-                <li><a href="<?php echo $em[0] ?>"><?php echo $em[1] ?></a></li>
-            <?php endforeach; ?>
-
-            <!--
             <li><a href="/projects">Projects</a></li>
 
             <li><a href="/cell">Unit Cell Search</a>
@@ -56,7 +46,7 @@
                     <li><a href="/cell/batch">RSCB vs ISPyB</a></li>
                 </ul>
                 <?php endif; ?>
-            </li>-->
+            </li>
 
         </ul>
 

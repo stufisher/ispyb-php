@@ -49,15 +49,7 @@
 <div id="header" class="clearfix">
     <ul id="menu">
         <?php if ($this->staff): ?>
-
-        <?php foreach($this->ptype->ext_admin as $eam): ?>
-        <li><a href="<?php echo $eam[0] ?>"><i class="fa fa-<?php echo $eam[2] ?> fa-2x"></i> <span class="icon-label"><?php echo $eam[1] ?></span></a></li>
-        <?php endforeach; ?>
-
-        <!--
-        <li class="selected"><a href="/robot" title="Robot Stats"><i class="fa fa-android fa-2x"></i> <span class="icon-label">Robot Stats</span></a></li>-->
-
-
+        <li class="selected"><a href="/robot" title="Robot Stats"><i class="fa fa-android fa-2x"></i> <span class="icon-label">Robot Stats</span></a></li>
         <li><a href="/fault" title="Fault Report"><i class="fa fa-tasks fa-2x"></i> <span class="icon-label">Fault Report</span></a></li>
         <?php endif; ?>
         <li><a href="/logout" title="Logout"><i class="fa fa-sign-out fa-2x"></i> <span class="icon-label">Logout</span></a></li>

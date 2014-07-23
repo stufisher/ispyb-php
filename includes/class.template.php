@@ -49,12 +49,6 @@
         }
         
         
-        # Pass through prop type
-        public function set_type($ty) {
-            $this->ptype = $ty;
-        }
-        
-        
         # Get and set variables in the class, passes them through to the actual
         # template
         public function __get($name) {
