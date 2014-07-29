@@ -1,4 +1,8 @@
 
+    <div id="add_contact" title="Add Lab Contact">
+        <iframe name="images"></iframe>
+    </div>
+
     <div class="terms"></div>
 
     <h1>Add New Shipment</h1>
@@ -58,16 +62,16 @@
 
             <li>
                 <label>Outgoing Lab Contact
-                    <span class="small">Lab contact for outgoing transport | <a href="/contact">Add/Edit</a></span>
+                    <span class="small">Lab contact for outgoing transport | <a class="add_lc" href="/contact/add">Add</a></span>
                 </label>
-                <select name="lcout" required><?php echo $cards ?></select>
+                <select name="lcout" required></select>
             </li>
 
             <li>
                 <label>Return Lab Contact
-                    <span class="small">Lab contact for return transport | <a href="/contact">Add/Edit</a></span>
+                    <span class="small">Lab contact for return transport | <a class="add_lc" href="/contact/add">Add</a></span>
                 </label>
-                <select name="lcret" required><?php echo $cards ?></select>
+                <select name="lcret" required></select>
             </li>
 
             <li>

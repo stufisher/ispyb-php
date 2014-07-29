@@ -21,7 +21,41 @@ $(function() {
     }
   })
   
+
+  $('#add_contact').dialog({ width: 850, height: 700, autoOpen: false, buttons: { 'Close': function() { $(this).dialog('close'); _get_lab_contacts() } } });
   
+  // Hi-jack add lab contact link into iframe
+  $('a.add_lc').click(function() {
+    $('#add_contact iframe').attr('src', $(this).attr('href')+'/iframe/1')
+    $('#add_contact').dialog('open')
+    return false
+  })
+  
+  // Retrieve list of lab contacts
+  function _get_lab_contacts() {
+    $.ajax({
+      url: '/shipment/ajax/lc',
+      type: 'GET',
+      dataType: 'json',
+      timeout: 5000,
+      success: function(lcs){
+        var lastr = $('select[name=lcret]').val()
+        var lasto = $('select[name=lcout]').val()
+           
+        var lc = ''
+        $.each(lcs, function(id,n) {
+          lc += '<option value="'+id+'">'+n+'</option>'
+        })
+           
+        $('select[name=lcret]').html(lc).val(lastr)
+        $('select[name=lcout]').html(lc).val(lasto)
+      }       
+    })
+  }
+  _get_lab_contacts()
+  
+  
+  // Get shipping details for a lab contact
   function _get_lc(lid) {
     $.ajax({
       url: '/shipment/ajax/lcd/lcid/'+lid,

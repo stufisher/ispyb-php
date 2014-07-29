@@ -130,17 +130,7 @@
                 $this->msg('New Shipment Added', 'Your shipment was sucessfully added. Click <a href="/shipment/sid/'.$sid.'">here</a> to see to the shipment or <a href="/shipment/">here</a> to view the list of shipments');
                 
             } else {
-                $cards = $this->db->pq('SELECT l.cardname,l.labcontactid FROM ispyb4a_db.labcontact l INNER JOIN ispyb4a_db.proposal p ON p.proposalid = l.proposalid WHERE p.proposalcode || p.proposalnumber LIKE :1', array($this->arg('prop')));
-                
-                $lc = '';
-                
-                foreach ($cards as $c) {
-                    $lc .= '<option value="'.$c['LABCONTACTID'].'">'.$c['CARDNAME'].'</option>';
-                }
-                
-                
                 $this->template('Add Shipment', array('Add Shipment'), array(''));
-                $this->t->cards = $lc;
                 $this->t->render('shipment_add');
             }
         }
@@ -184,6 +174,7 @@
             }
             
             if ($this->has_arg('submit')) {
+                return;
                 if (!$this->has_arg('container')) $this->error('No container name specified');
                 
                 $samples = array();
@@ -225,6 +216,7 @@
                 $this->template('Add Container', array($dewar['SHIPMENT'], $dewar['DEWAR']), array('sid/'.$dewar['SHIPPINGID'], ''));
                 $this->t->sgs = $this->sg_opts();
                 $this->t->dewar = $dewar;
+                $this->t->js_var('did', $this->arg('did'));
                 
                 $this->t->render('container_add');
             }
