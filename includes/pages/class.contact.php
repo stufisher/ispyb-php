@@ -16,6 +16,7 @@
                               'billingreference' => '.*',
                               'transportvalue' => '\d+',
                               'customsvalue' => '\d+',
+                              'iframe' => '\d',
                               );
         var $dispatch = array('list' => '_dispatch',
                               'add' => '_add_contact',
@@ -97,7 +98,7 @@
                 $this->msg('New Home Lab Contact Added', 'Your lab contact was sucessfully added. Click <a href="/contact/cid/'.$this->db->id().'">here</a> to see to the contact details');
                 
             } else {
-                $this->template('Add Lab Contacts', array('Add Lab Contact'), array(''));
+                $this->template('Add Lab Contacts', array('Add Lab Contact'), array(''), !$this->has_arg('iframe'));
                 $this->t->render('contact_add');
             }
         }
