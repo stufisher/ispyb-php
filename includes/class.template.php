@@ -45,7 +45,7 @@
         
         # Enable top drop down menu bar
         public function side() {
-            $this->sb = true;
+            $this->sb = $this->hf ? true : false;
         }
         
         

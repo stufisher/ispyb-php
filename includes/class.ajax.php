@@ -2,6 +2,8 @@
     
     class AjaxBase extends Page {
         
+        var $session_close = True;
+        
         function __construct($db, $args) {
             $this->last_profile = microtime(True);
             $this->db = $db;
@@ -20,7 +22,7 @@
             $this->_parse_args($args);
             if (!$this->_auth()) return;
             
-            session_write_close();
+            if ($this->session_close) session_write_close();
             
             $fn = $this->dispatch[$page];
             $this->$fn();
