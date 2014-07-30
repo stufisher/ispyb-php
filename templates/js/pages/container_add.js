@@ -1,9 +1,11 @@
 $(function() {
   
+  $('.message.saved').hide()
+  
   $('.error').dialog({ autoOpen: false, buttons: { 'Close': function() { $(this).dialog('close') } } });
   $('.confirm').dialog({ autoOpen: false, modal: true })
   
-  $('select.protein').combobox({invalid: _add_protein, change: _validate_container, select: _validate_container})
+  $('select.protein, select.pprotein').combobox({invalid: _add_protein, change: function() { _validate_container(); _try_cache() }, select: function() { _validate_container(); _try_cache() } })
   
   $('input.sname,input.comment,input[name=container]').unbind("change keyup input").bind("change keyup input", function() {
     _validate_container()
@@ -40,11 +42,29 @@ $(function() {
     _validate_container()
   })
   
-  _get_proteins(function() { _validate_container })
+  _get_proteins(function() { _validate_container; _load_cache() })
 
   $('table.samples tr td button.insert').button({ icons: { primary: 'ui-icon-carat-1-s' }, text: false }).click(function(e) {
     e.preventDefault();
   })
+  
+  
+  // Samples array for plate mode
+  var samples = {}
+  
+  // Switch between container types
+  $('select[name=type]').change(function() {
+    // Pucks
+    if ($(this).val() == 0) {
+      $('.plate').hide()
+      $('.puck').show()
+                                
+    // Plates
+    } else {
+      $('.plate').show()
+      $('.puck').hide()
+    }
+  }).trigger('change')
   
   
   // Generate a confirmation dialog
@@ -102,9 +122,9 @@ $(function() {
             opts += '<option value="'+p['PROTEINID']+'">'+p['ACRONYM']+'</option>'
         })
         
-        $('select.protein').html(opts)
+        $('select.protein,select.pprotein').html(opts)
            
-        $('select.protein').each(function(i,e) {
+        $('select.protein,select.pprotein').each(function(i,e) {
             if (old[i] > -1) $(e).combobox('value', old[i])
         })
            
@@ -204,12 +224,166 @@ $(function() {
   }
   
   
+  
+  // Caching
+  var cache_thread = null
+  $('input.sname,input.comment,input[name=container],input.code,select.sg').bind("change keyup input", _try_cache)
+  
+  function _try_cache() {
+    clearTimeout(cache_thread)
+    cache_thread = setTimeout(function() { _cache_container() }, 5000)
+  }
+  
+  // cache container into session
+  function _cache_container() {
+    //setTimeout(function() { _cache_container() }, 1000*30)
+    var has_data = false
+  
+    $('select.protein').each(function(i,e) {
+      if ($(e).val() > -1) has_data = true
+    })
+
+    if (!has_data) return
+  
+  
+    if ($('select[name=type]').val() == 0) {
+      var fd = {
+        protein: $('select.protein').map(function() { return $(this).val() }).get(),
+        sname: $('input.sname').map(function() { return $(this).val() }).get(),
+        sg: $('select.sg').map(function() { return $(this).val() }).get(),
+        code: $('input.code').map(function() { return $(this).val() }).get(),
+        comment: $('input.comment').map(function() { return $(this).val() }).get(),
+      }
+    } else {
+      var fd = { samples: samples }
+    }
+  
+    var d = new Date()
+    var time = (d.getHours() < 10 ? ('0'+d.getHours()): d.getHours())+':'+(d.getMinutes() < 10 ? ('0'+d.getMinutes()): d.getMinutes())+' '+d.toDateString()
+  
+    fd.type = $('select[name=type]').val()
+    fd.title = $('input[name=container]').val()
+    fd.time = time
+  
+    $.ajax({
+      url: '/shipment/ajax/cache/name/container/',
+      type: 'POST',
+      data: { data: fd },
+      dataType: 'json',
+      timeout: 5000,
+      success: function(success){
+        // Last saved message
+        $('.messages .saved').html('Container contents last saved: '+time)
+        if (!$('.messages .saved').is(':visible')) $('.messages .saved').fadeIn()
+      }
+    })
+  }
+  
+  
+  
+  // Load cache from session
+  function _load_cache() {
+    $.ajax({
+      url: '/shipment/ajax/getcache/name/container',
+      type: 'GET',
+      dataType: 'json',
+      timeout: 5000,
+      success: function(data){
+        if (data && typeof(data) == 'object') {
+          if ('title' in data) $('input[name=container]').val(data.title)
+           
+          // pucks
+          if (data.type == 0) {
+            if ('protein' in data) $.each(data.protein, function(i,v) {
+              $('select.protein').eq(i).combobox('value', v == '' ? -1 : v)
+            })
+            if ('sname' in data) $.each(data.sname, function(i,v) {
+              $('input.sname').eq(i).val(v)
+            })
+            if ('sg' in data) $.each(data.sg, function(i,v) {
+              $('select.sg').eq(i).val(v)
+            })
+            if ('code' in data) $.each(data.code, function(i,v) {
+              $('input.code').eq(i).val(v)
+            })
+            if ('comment' in data) $.each(data.comment, function(i,v) {
+              $('input.comment').eq(i).val(v)
+            })
+           
+          // plates
+          } else {
+            samples = data.samples
+            _draw_plate()
+          }
+           
+          $('.messages .saved').html('Container contents last saved: '+data.time)
+          if (!$('.messages .saved').is(':visible')) $('.messages .saved').fadeIn()
+           
+          _validate_container()
+        }
+      }
+    })
+  
+  }
+  
+  
   $('#add_container').submit(function(e) {
     if (_validate_container(true)) {
-      $('input.sname').prop('disabled', false)
-      $('input.comment').prop('disabled', false)
-      $('input.code').prop('disabled', false)
-      return
+      $('body').animate({scrollTop: $('.content').offset().top}, 50)
+                             
+      // submit form via ajax
+      if ($('select[name=type]').val() == 0) {
+        var fd = {
+          p: $('select.protein').map(function(i,e) { return $(this).val() }).get(),
+          n: $('input.sname').map(function(i,e) { return $(this).val() }).get(),
+          sg: $('select.sg').map(function(i,e) { return $(this).val() }).get(),
+          b: $('input.code').map(function(i,e) { return $(this).val() }).get(),
+          c: $('input.comment').map(function(i,e) { return $(this).val() }).get(),
+        }
+      } else {
+        var fd = { p: [], n: [], sg: [], b: [], c: [], }
+                             
+        var max = 0;
+        $.each(samples, function(i,s) { if (i > max) max = i })
+                             
+        for (var i = 0; i < max; i++) {
+          if (i in samples) {
+            var s = samples[i]
+            fd.p.push(s.protein)
+            fd.n.push(s.sname)
+            fd.sg.push(s.sg)
+            fd.b.push('')
+            fd.c.push(s.comment)
+          } else {
+            fd.p.push(-1)
+            fd.n.push('')
+            fd.sg.push('')
+            fd.b.push('')
+            fd.c.push('')
+          }
+                             
+        }
+                
+      }
+            
+      fd.container = $('input[name=container]').val(),
+      fd.type = $('select[name=type]').val()
+                             
+      $.ajax({
+        url: '/shipment/ajax/addcontainer/did/'+did,
+        type: 'POST',
+        data: fd,
+        dataType: 'json',
+        timeout: 5000,
+        success: function(cid){
+          $('<p class="message notify">New container &quot;'+fd.container+'&quot; created. Click <a href="/shipment/cid/'+cid+'">here</a> to view it</div>').hide().appendTo('.messages').toggle('highlight')
+          $('button.clear_puck').trigger('click')
+          $('input[name=container]').val('')
+        },
+        error: function() {
+          $('<p class="message notify">Something went wrong registering your container, please try again</div>').hide().appendTo('.messages').toggle('highlight')
+        }
+      })
     }
                              
     e.preventDefault();
@@ -294,7 +468,11 @@ $(function() {
   
   
   
+  // Plate plotting
   
+  
+  
+  // Puck plotting
   var centres = [[150,100],
                  [101,136],
                  [120,193],
@@ -327,9 +505,6 @@ $(function() {
   puck.onload = function() {
     _draw()
   }
-  
-  
-  
   
   function _draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height)

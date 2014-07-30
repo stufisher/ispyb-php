@@ -17,13 +17,14 @@
                               'array' => '\d',
                               'term' => '\w+',
                               'exp' => '\d+',
+                              'container' => '([\w-])+',
                               
-                              'n' => '([\w-])+',
-                              'c' => '.*',
-                              'sg' => '\w+',
-                              'p' => '\d+',
+                              'name' => '([\w-])+',
+                              'comment' => '.*',
+                              'spacegroup' => '\w+',
+                              'protein' => '\d+',
                               'pos' => '\d+',
-                              'b' => '\w+',
+                              'barcode' => '\w+',
                               
                               'iDisplayStart' => '\d+',
                               'iDisplayLength' => '\d+',
@@ -46,6 +47,10 @@
                               'lc' => '_get_contacts',
                               'lcd' => '_get_lc_details',
                               
+                              'cache' => '_session_cache',
+                              'getcache' => '_get_session_cache',
+                              
+                              'addcontainer' => '_add_container',
                               'move' => '_move_container',
                               
                               'update' => '_update_shipment',
@@ -63,6 +68,9 @@
         #var $profile = True;
         //var $debug = True;
         #var $explain = True;
+        
+        // Keep session open so we can cache data
+        var $session_close = False;
         
         
         function _get_shipments() {
@@ -330,13 +338,13 @@
         function _update_sample() {
             if (!$this->has_arg('prop')) $this->_error('No proposal specified');
             if (!$this->has_arg('cid')) $this->_error('No container id specified');
-            if (!$this->has_arg('n')) $this->_error('No sample name specified');
-            if (!$this->has_arg('p')) $this->_error('No proteinid specified');
+            if (!$this->has_arg('name')) $this->_error('No sample name specified');
+            if (!$this->has_arg('protein')) $this->_error('No proteinid specified');
             if (!$this->has_arg('pos')) $this->_error('No sample position specified');
 
-            $c = $this->has_arg('c') ? $this->arg('c') : '';
-            $sg = $this->has_arg('sg') ? $this->arg('sg') : '';
-            $b = $this->has_arg('b') ? $this->arg('b') : '';
+            $c = $this->has_arg('comment') ? $this->arg('comment') : '';
+            $sg = $this->has_arg('spacegroup') ? $this->arg('spacegroup') : '';
+            $b = $this->has_arg('barcode') ? $this->arg('barcode') : '';
             
             # Update sample
             if ($this->has_arg('sid')) {
@@ -346,18 +354,18 @@
                 else $samp = $samp[0];
                 
 
-                $this->db->pq("UPDATE ispyb4a_db.blsample set name=:1,comments=:2,code=:3 WHERE blsampleid=:4", array($this->arg('n'),$c,$b,$this->arg('sid')));
+                $this->db->pq("UPDATE ispyb4a_db.blsample set name=:1,comments=:2,code=:3 WHERE blsampleid=:4", array($this->arg('name'),$c,$b,$this->arg('sid')));
                 
-                $this->db->pq("UPDATE ispyb4a_db.crystal set spacegroup=:1,proteinid=:2 WHERE crystalid=:3", array($sg, $this->arg('p'), $samp['CRYSTALID']));
+                $this->db->pq("UPDATE ispyb4a_db.crystal set spacegroup=:1,proteinid=:2 WHERE crystalid=:3", array($sg, $this->arg('protein'), $samp['CRYSTALID']));
                 
                 $this->_output(1);
                 
             # Add sample
             } else {
-                $this->db->pq("INSERT INTO ispyb4a_db.crystal (crystalid,proteinid,spacegroup) VALUES (s_crystal.nextval,:1,:2) RETURNING crystalid INTO :id", array($this->arg('p'), $sg));
+                $this->db->pq("INSERT INTO ispyb4a_db.crystal (crystalid,proteinid,spacegroup) VALUES (s_crystal.nextval,:1,:2) RETURNING crystalid INTO :id", array($this->arg('protein'), $sg));
                 $crysid = $this->db->id();
                              
-                $this->db->pq("INSERT INTO ispyb4a_db.blsample (blsampleid,crystalid,containerid,location,comments,name,code) VALUES (s_blsample.nextval,:1,:2,:3,:4,:5,:6)", array($crysid, $this->arg('cid'), $this->arg('pos'), $c, $this->arg('n'),$b));
+                $this->db->pq("INSERT INTO ispyb4a_db.blsample (blsampleid,crystalid,containerid,location,comments,name,code) VALUES (s_blsample.nextval,:1,:2,:3,:4,:5,:6)", array($crysid, $this->arg('cid'), $this->arg('pos'), $c, $this->arg('name'),$b));
                 
                 $this->_output(1);
             }
@@ -503,6 +511,68 @@
                 print $this->arg('value');
             }
         }
+        
+        
+        # Ajax container registration
+        function _add_container() {
+            if (!$this->has_arg('container')) $this->_error('No container name specified');
+            if (!$this->has_arg('did')) $this->_error('No dewar id specified');
+        
+            $samples = array();
+            if (array_key_exists('p', $_POST)) {
+                foreach ($_POST['p'] as $i => $s) {
+                    if ($s > -1) {
+                        $val = True;
+                        foreach (array('p' => '\d+', 'n' => '[\w-]+','c'=> '.*', 'sg' => '\w+', 'b' => '\w+') as $k => $m) {
+                            if ($_POST[$k][$i] && !preg_match('/^'.$m.'$/', $_POST[$k][$i])) $val = False;
+                        }
+                                         
+                        if ($val) array_push($samples, array('pos' => $i,'p' => $s, 'sg' => $_POST['sg'][$i], 'n' => $_POST['n'][$i], 'c' => $_POST['c'][$i], 'b' => $_POST['b'][$i]));
+                    }
+                }
+            }
+
+            $this->db->pq("INSERT INTO container (containerid,dewarid,code,bltimestamp,capacity) VALUES (s_container.nextval,:1,:2,CURRENT_TIMESTAMP,16) RETURNING containerid INTO :id", array($this->arg('did'), $this->arg('container')));
+                                 
+            $cid = $this->db->id();
+                             
+            foreach ($samples as $s) {
+                $this->db->pq("INSERT INTO crystal (crystalid,proteinid,spacegroup) VALUES (s_crystal.nextval,:1,:2) RETURNING crystalid INTO :id", array($s['p'], $s['sg']));
+                $crysid = $this->db->id();
+                             
+                $this->db->pq("INSERT INTO blsample (blsampleid,crystalid,containerid,location,comments,name,code) VALUES (s_blsample.nextval,:1,:2,:3,:4,:5,:6)", array($crysid, $cid, $s['pos']+1, $s['c'], $s['n'], $s['b']));
+            }
+            
+            unset($_SESSION['container']);
+            $this->_output($cid);
+        }
+        
+        
+        
+        # Cache form temporary data to session
+        function _session_cache() {
+            if (!$this->has_arg('name') || !array_key_exists('data', $_POST)) $this->_error('No key and data specified');
+            $caches = array('container', 'shipment');
+            if (!in_array($this->arg('name'), $caches)) $this->_error('No such cache');
+            
+            $_SESSION[$this->arg('name')] = $_POST['data'];
+            
+            $this->_output(1);
+        }
+        
+        
+        function _get_session_cache() {
+            if (!$this->has_arg('name')) $this->_error('No key specified');
+            
+            if (array_key_exists($this->arg('name'), $_SESSION)) {
+                if ($_SESSION[$this->arg('name')])
+                    $this->_output($_SESSION[$this->arg('name')]);
+            }
+            
+        }
+        
+        
+        
         
     }
 
