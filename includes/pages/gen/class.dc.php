@@ -82,7 +82,7 @@
             
             $this->t->dcid = $this->has_arg('id') ? $this->arg('id') : '';
             
-            $this->render('pow/dc_list');
+            $this->render('gen/dc_list');
         }
         
         
