@@ -2,13 +2,13 @@
 
     class Image extends Page {
         
-        var $arg_list = array('id' => '\d+', 'n' => '\d+', 'f' => '\d', 'bl' => '\w\d\d(-\d)?', 'w' => '\d+', 'fid' => '\d+', 'visit' => '\w+\d+-\d+');
+        var $arg_list = array('id' => '\d+', 'n' => '\d+', 'f' => '\d');
         var $dispatch = array('im' => '_image',
                               );
         var $def = 'im';
         
         
-        # Small em image viewer
+        # Snapshot viewer
         function _image() {
             if (!$this->has_arg('id')) return;
             
@@ -20,7 +20,7 @@
                 
                 $n = $this->has_arg('n') ? $this->arg('n')-1 : 0;
                 
-                if (!($n < sizeof($ims))) return
+                if (!($n < sizeof($ims))) return;
                 
                 if (file_exists($ims[$n])) {
                     $this->_browser_cache();
