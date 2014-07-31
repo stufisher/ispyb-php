@@ -146,16 +146,16 @@ $(function() {
                        $('<div class="data_collection" dcid="'+r['ID']+'" type="data">' +
                              '<h1>'+
                                 '<button class="atp" ty="dc" iid="'+r['ID']+'" name="'+r['RUNDIRECTORY']+'.mrc">Add to Project</button> <button class="flag '+f+'" title="Click to add this data collection to the list of favourite data collections">Favourite</button>  <a href="/dc/visit/'+prop+'-'+r['VN']+'/id/'+r['ID']+'" class="perm">Permalink</a> '+
-                                '<span class="date">'+vis_link+' '+r['ST']+'</span><span class="spacer"> - </span><span class="temp">'+r['MOVIEFILE']+'</span>'+
+                                '<span class="date">'+vis_link+' '+r['ST']+'</span><span class="spacer"> - </span><span class="temp">'+r['FILETEMPLATE']+'</span>'+
                                 
                              '</h1>'+
                              (state ?
-                             ('<div class="distl" title="Drift plot"></div>'+
-                             '<div class="snapshots" title="Powerspectra">'+
-                                '<a href="/image/fft/id/'+r['ID']+'/f/1" title="Powerspectrum 1"><img dsrc="" alt="Powerspectrum 1" /></a>'+
+                             ('<div class="distl"></div>'+
+                             '<div class="snapshots">'+
+                                '<a href="/image/id/'+r['ID']+'/f/1"><img dsrc="" alt="Image 1"/></a>'+
                              '</div>'+
-                             '<div class="diffraction" title="EM Micrograph">'+
-                                '<a href="/image/em/id/'+r['ID']+'/f/1" title="EM Micrograph"><img dsrc="" alt="EM Micrograph" />' +
+                             '<div class="diffraction">'+
+                                '<a href="/image/id/'+r['ID']+'/n/4/f/1"><img dsrc="" alt="Image 2" />' +
                              '</div>'+
                               
                              '<div class="links">'+
@@ -172,14 +172,12 @@ $(function() {
                                  '<li>Exposure: '+r['EXPOSURETIME']+'s</li>'+
                                  '<li>Transmission: '+r['TRANSMISSION']+'%</li>'+
                                  '<li>Beamsize: '+r['BSX']+'x'+r['BSY']+'&mu;m</li>'+
-                                 '<li>Type: '+(r['DCT'] ? r['DCT'] : '')+'</li>'+
                                  '<li class="comment" title="Click to edit the comment for this data collection">Comment: <span class="comment_edit">'+(r['COMMENTS']?r['COMMENTS']:'')+'</span></li>'+
                              '</ul>'+
                          
                              '<div class="holder">'+
                              (state ?
-                                '<h1 title="Download Data">Data Files</h1>'+
-                                 '<div class="autoproc"></div>' : '')+
+                                '<h1 title="Download Data">Data Files <span class="r"><i class="fa fa-download"></i> <a href="/dc/ajax/dl/id/'+r['ID']+'" title="Download files">Download</a></span></h1>': '')+
                              '</div>'+
                              '</div>').data('apr', r['AP']).data('nimg', r['NUMIMG']).hide().data('first', true).prependTo('.data_collections').slideDown(100)
                        
@@ -263,7 +261,7 @@ $(function() {
 
                if (img[3]) {
                  $('div[dcid='+id+']').attr('di',1)
-                 $('div[dcid='+id+'] .diffraction img').attr('data-src', '/image/n/3/id/'+id).addClass('lazy')
+                 $('div[dcid='+id+'] .diffraction img').attr('data-src', '/image/n/4/id/'+id).addClass('lazy')
                  $('div[dcid='+id+'] .diffraction').magnificPopup({ delegate: 'a', type: 'image'})
                }
                    
@@ -272,8 +270,8 @@ $(function() {
                  $('div[dcid='+id+'] .snapshots img').attr('data-src', '/image/id/'+id).addClass('lazy')
                  
                  var sns = ''
-                 for (var i = 0; i < 3; i++) {
-                   if (img[i]) sns += ('<a href="/image/fft/id/'+id+'/f/1/n/'+(i+1)+'"></a>')
+                 for (var i = 1; i < 3; i++) {
+                   if (img[i]) sns += ('<a href="/image/id/'+id+'/f/1/n/'+(i+1)+'"></a>')
                  }
                    
                  if ($('div[dcid='+id+'] .snapshots a').length == 1) $('div[dcid='+id+'] .snapshots').append(sns)
@@ -312,7 +310,7 @@ $(function() {
       var id = $(div).parent('div').attr('dcid')
   
       $.ajax({
-             url: '/dc/ajax/emp/id/' + id,
+             url: '/dc/ajax/dat/id/' + id,
              type: 'GET',
              dataType: 'json',
              timeout: 15000,
@@ -326,12 +324,14 @@ $(function() {
                         borderWidth: 0,
                     },
                     series: {
-                        lines: { show: true },
                         points: {
                             show: true,
                             radius: 1,
                         }
                     },
+                    yaxis: {
+                      //transform: function(v) { return v == 0 ? null : Math.log(v) }
+                    }
                  }
              
                if (distl[id]) {
@@ -340,36 +340,11 @@ $(function() {
                  distl[id].draw();
                } else distl[id] = $.plot($(div), data, options);
              
-               var refresh_imq = true
-               if (j[0].length > 0) {
-                   var nimg = $('.data_collection[dcid="'+id+'"]').data('nimg')
-                   if (nimg == $(j[0]).last()[0][0]) refresh_imq = false
-             
-                   var date = _date_to_unix($('.data_collection[dcid="'+id+'"]').find('span.date').html())
-                   if ((new Date() - date) > (900*1000)) refresh_imq = false
-               }
-             
-               if (refresh_imq) {
-                   setTimeout(function() {
-                       plot(div)
-                   }, 10000)
-               }
-             
                if (success) success()
              }
         })
   }
-  
-  
-  function _date_to_unix(strtime) {
-    var dt = strtime.trim().split(' ')
-    var dmy = dt[0].split('-')
-    var hms = dt[1].split(':')
-    var date = new Date(dmy[2], dmy[1]-1, dmy[0], hms[0], hms[1], hms[2], 0)
-    return date
-  }
-  
-  
+
   
   function map_callbacks() {
       update_aps()
@@ -444,8 +419,7 @@ $(function() {
       // Make comment editable
       $('.data_collection .comment_edit').each(function(i,e) {
         var id = $(this).parent().parent().parent('div').attr('dcid')
-        var t = $(this).parent().parent().parent('div').attr('type')
-        $(this).editable('/dc/ajax/comment/t/'+t+'/id/'+id, {
+        $(this).editable('/dc/ajax/comment/id/'+id, {
                                                 width: '65%',
                                                 height: '20px',
                                                 type: 'text',
