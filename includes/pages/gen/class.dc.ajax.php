@@ -7,6 +7,8 @@
         var $dispatch = array('dc' => '_data_collections',
                               'chi' => '_chk_image',
                               'dat' => '_plot',
+                              'dl' => '_download',
+                              'comment' => '_set_comment',
                               );
         
         var $def = 'dc';
@@ -46,7 +48,7 @@
             } else if ($this->has_arg('prop')) {
                 $info = $this->db->pq('SELECT proposalid FROM ispyb4a_db.proposal p WHERE p.proposalcode || p.proposalnumber LIKE :1', array($this->arg('prop')));
                 
-                $sess[$i] = 'ses.proposalid=:'.($i+1);
+                $sess[0] = 'ses.proposalid=:1';
                 array_push($args, $this->proposalid);
             }
             
@@ -71,7 +73,7 @@
             $q = "SELECT outer.*
              FROM (SELECT ROWNUM rn, inner.*
              FROM (
-             SELECT $extc ses.visit_number as vn, TO_CHAR(dc.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, dc.comments, dc.starttime as sta, dc.runstatus, dc.numberofimages as numimages, dc.resolution, dc.beamsizeatsamplex as bsx, dc.beamsizeatsampley as bsy, dc.imageprefix as imp, dc.datacollectionnumber as run, dc.filetemplate, dc.datacollectionid as id, dc.imagedirectory as dir, dc.exposuretime, dc.transmission, dc.wavelength
+             SELECT $extc ses.visit_number as vn, TO_CHAR(dc.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, dc.comments, dc.starttime as sta, dc.runstatus, dc.numberofimages as numimg, dc.resolution, dc.beamsizeatsamplex as bsx, dc.beamsizeatsampley as bsy, dc.imageprefix as imp, dc.datacollectionnumber as run, dc.filetemplate, dc.datacollectionid as id, dc.imagedirectory as dir, dc.exposuretime, dc.transmission, dc.wavelength
              FROM ispyb4a_db.datacollection dc
              INNER JOIN ispyb4a_db.blsession ses ON ses.sessionid = dc.sessionid
              $extj[0]
@@ -87,9 +89,6 @@
             
             $nf = array();
             foreach ($dcs as $i => &$dc) {
-                #$dc['SN'] = 0;
-                #$dc['DI'] = 0;
-                
                 $dc['DIR'] = preg_replace('/.*\/\d\d\d\d\/\w\w\d+-\d+\//', '', $dc['DIR']);
                 
                 $dc['BSX'] = round($dc['BSX']*1000);
@@ -132,7 +131,7 @@
                 return;
             }
             
-            $dct = $this->db->pq("SELECT dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4 FROM ispyb4a_db.datacollection dc  WHERE $where", $ids);
+            $dct = $this->db->pq("SELECT dc.datacollectionid as id, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4 FROM ispyb4a_db.datacollection dc  WHERE $where", $ids);
                 
             $this->profile('dc query');
                                    
@@ -162,42 +161,76 @@
                 return;
             }
             
-            $info = $this->db->pq('SELECT datacollectionnumber as scan, imageprefix, imagedirectory as dir FROM ispyb4a_db.datacollection WHERE datacollectionid=:1', array($this->arg('id')));
+            $info = $this->db->pq('SELECT ses.visit_number, dc.datacollectionnumber as scan, dc.imageprefix as imp, dc.imagedirectory as dir FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession ses ON dc.sessionid = ses.sessionid WHERE datacollectionid=:1', array($this->arg('id')));
             if (sizeof($info) == 0) {
                 $this->_error('No data for that collection id');
                 return;
             } else $info = $info[0];
             
-            $pth = $this->ads($dc['DIR']).$dc['IMAGEPREFIX'].'/'.$dc['DATACOLLECTIONNUMBER'].'.dat';
+            $info['VISIT'] = $this->arg('prop') .'-'.$info['VISIT_NUMBER'];
+            
+            $pth = str_replace($info['VISIT'], $info['VISIT'].'/.ispyb', $this->ads($info['DIR']).$info['IMP'].'/'.$info['SCAN'].'.dat');
             
             $data = array();
             if (file_exists($pth)) {
                 $dat = explode("\n",file_get_contents($pth));
 
-                foreach ($dat as $i => $d) {
+                foreach (array_slice($dat,5) as $i => $d) {
                     if ($d) {
-                        list($x, $y) = preg_split('/\s+/', trim($d));
-                        array_push($data, array(floatval($x), intval($y)));
+                        list($x, $y, $e) = preg_split('/\s+/', trim($d));
+                        array_push($data, array(floatval($x), floatval($y), floatval($e)));
                     }
                 }
             }
             
             $this->_output($data);
         }
+
         
+        # ------------------------------------------------------------------------
+        # Download Data
+        function _download() {
+            session_write_close();
+            if (!$this->has_arg('id')) {
+                $this->_error('No data collection id specified');
+                return;
+            }
+            
+            $info = $this->db->pq('SELECT ses.visit_number, dc.datacollectionnumber as scan, dc.imageprefix as imp, dc.imagedirectory as dir FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession ses ON dc.sessionid = ses.sessionid WHERE datacollectionid=:1', array($this->arg('id')));
+            if (sizeof($info) == 0) {
+                $this->_error('No data for that collection id');
+                return;
+            } else $info = $info[0];
+            
+            $info['VISIT'] = $this->arg('prop') .'-'.$info['VISIT_NUMBER'];
+            
+            $data = str_replace($info['VISIT'], $info['VISIT'].'/.ispyb', $this->ads($info['DIR']).$info['IMP'].'/download/download.zip');
+            
+            if (file_exists($data)) {
+                $this->_header($this->arg('id').'_download.zip');
+                readfile($data);
+            }
+        }
+        
+        # ------------------------------------------------------------------------
+        # Force browser to download file
+        function _header($f) {
+            header("Content-Type: application/octet-stream");
+            header("Content-Transfer-Encoding: Binary");
+            header("Content-disposition: attachment; filename=\"$f\"");
+        }
         
         # ------------------------------------------------------------------------
         # Update comment for a data collection
         function _set_comment() {
-            if (!$this->has_arg('t')) $this->_error('No data type specified');
             if (!$this->arg('id')) $this->_error('No data collection id specified');
             if (!$this->arg('value')) $this->_error('No comment specified');
             
-            $com = $this->db->pq('SELECT comments from ispyb4a_db.datacollection WHERE '.$t[1].'=:1', array($this->arg('id')));
+            $com = $this->db->pq('SELECT comments from ispyb4a_db.datacollection WHERE datacollectionid=:1', array($this->arg('id')));
             
             if (!sizeof($com)) $this->_error('No such data collection');
             
-            $this->db->pq("UPDATE ispyb4a_db.datacollection set comments=:1 where $t[1]=:2", array($this->arg('value'), $this->arg('id')));
+            $this->db->pq("UPDATE ispyb4a_db.datacollection set comments=:1 where datacollectionid=:2", array($this->arg('value'), $this->arg('id')));
             
             print $this->arg('value');
         }
