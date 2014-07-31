@@ -47,10 +47,8 @@
             } else if ($this->has_arg('prop')) {
                 $info = $this->db->pq('SELECT proposalid FROM ispyb4a_db.proposal p WHERE p.proposalcode || p.proposalnumber LIKE :1', array($this->arg('prop')));
                 
-                for ($i = 0; $i < 4; $i++) {
-                    $sess[$i] = 'ses.proposalid=:'.($i+1);
-                    array_push($args, $this->proposalid);
-                }
+                $sess[$i] = 'ses.proposalid=:'.($i+1);
+                array_push($args, $this->proposalid);
             }
             
             if (!sizeof($info)) $this->_error('The specified visit, sample, or project doesnt exist');
