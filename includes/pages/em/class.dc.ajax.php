@@ -224,15 +224,14 @@
         # ------------------------------------------------------------------------
         # Update comment for a data collection
         function _set_comment() {
-            if (!$this->has_arg('t')) $this->_error('No data type specified');
             if (!$this->arg('id')) $this->_error('No data collection id specified');
             if (!$this->arg('value')) $this->_error('No comment specified');
             
-            $com = $this->db->pq('SELECT comments from ispyb4a_db.emmovie WHERE '.$t[1].'=:1', array($this->arg('id')));
+            $com = $this->db->pq('SELECT comments from ispyb4a_db.emmovie WHERE emmovieid=:1', array($this->arg('id')));
             
             if (!sizeof($com)) $this->_error('No such data collection');
             
-            $this->db->pq("UPDATE ispyb4a_db.emmovie set comments=:1 where $t[1]=:2", array($this->arg('value'), $this->arg('id')));
+            $this->db->pq("UPDATE ispyb4a_db.emmovie set comments=:1 where emmovieid=:2", array($this->arg('value'), $this->arg('id')));
             
             print $this->arg('value');
         }
