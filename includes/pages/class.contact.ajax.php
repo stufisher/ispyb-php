@@ -84,9 +84,9 @@
             
             # Update labcontact
             $ctypes = array('cardname' => array('([\w\s])+', 'cardname'),
-                            'courier' => array('.*', 'defaultcourriercompany'),
-                            'courierac' => array('.*', 'courieraccount'),
-                            'billing' => array('.*', 'billingreference'),
+                            'courier' => array('([\w\s-])+', 'defaultcourriercompany'),
+                            'courierac' => array('([\w-])+', 'courieraccount'),
+                            'billing' => array('([\w\s-])+', 'billingreference'),
                             'transport' => array('\d+', 'dewaravgtransportvalue'),
                             'customs' => array('\d+', 'dewaravgcustomsvalue'),
                             );
@@ -100,8 +100,8 @@
             
             
             # Update person
-            $ptypes = array('familyname' => array('\w+', 'familyname'),
-                            'givenname' => array('.*', 'givenname'),
+            $ptypes = array('familyname' => array('([\w-])+', 'familyname'),
+                            'givenname' => array('([\w-])+', 'givenname'),
                             'phone' => array('.*', 'phonenumber'),
                             'email' => array('.*', 'emailaddress'),
                             );
@@ -115,8 +115,8 @@
             
             
             # Update laboratory
-            $ltypes = array('labname' => array('.*', 'name'),
-                            'address' => array('.*', 'address'),
+            $ltypes = array('labname' => array('([\w\s-])+', 'name'),
+                            'address' => array('([\w\s-\n])+', 'address'),
                             );
             if (array_key_exists($this->arg('ty'), $ltypes)) {
                 $t = $ltypes[$this->arg('ty')];
