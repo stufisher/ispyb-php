@@ -44,7 +44,7 @@
                 <label>Contact Email
                     <span class="small">The persons email address</span>
                 </label>
-                <input type="text" name="email" email />
+                <input type="email" name="email" />
             </li>
 
 
