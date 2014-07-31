@@ -199,13 +199,17 @@
                 $temp[$args[$i]] = $args[$i+1];
             }
             
+            require_once('HTMLPurifier/HTMLPurifier.auto.php');
+            $config = HTMLPurifier_Config::createDefault();
+            $purifier = new HTMLPurifier($config);
+            
             $this->arg_list['sass'] = '\d';
             
             $parsed = array();
             foreach ($this->arg_list as $k => $v) {
                 if (array_key_exists($k, $temp)) {
                     if (preg_match('/^'.$v.'$/m', $temp[$k])) {
-                        $parsed[$k] = $temp[$k];
+                        $parsed[$k] = $v == '.*' ? $purifier->purify($temp[$k]) : $temp[$k];
                     }
                 }
                 
@@ -218,7 +222,7 @@
                     if (array_key_exists($k, $pg)) {
                     
                         if (preg_match('/^'.$v.'$/m', $pg[$k])) {
-                            $parsed[$k] = $pg[$k];
+                            $parsed[$k] = $v == '.*' ? $purifier->purify($pg[$k]) : $pg[$k];
                         }
                     }
                 }
