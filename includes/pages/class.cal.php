@@ -2,7 +2,7 @@
     
     class Cal extends Page {
         
-        var $arg_list = array('mon' => '\w+', 'year' => '\d\d\d\d', 'bl' => '\w\d\d(-\d)?', 'h' => '.*');
+        var $arg_list = array('mon' => '\w+', 'year' => '\d\d\d\d', 'bl' => '\w\d\d(-\d)?', 'h' => '\w+');
         
         var $dispatch = array('cal' => '_calendar',
                               'proposal' => '_show_proposal',
