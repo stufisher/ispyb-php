@@ -11,7 +11,7 @@ class GEN extends ProposalType {
     var $default = 'proposal';
     
     // base directory for all files
-    var $dir = 'pow';
+    var $dir = 'gen';
     
     // table and column to add data collection count to visit page
     var $visit_table = 'datacollection';
