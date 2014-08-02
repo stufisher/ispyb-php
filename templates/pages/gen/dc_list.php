@@ -1,6 +1,12 @@
 
     <p class="help">This page shows all data collections for the selected visit. If the visit is ongoing the page will automatically update as new data is collected. Auto processing results will be displayed</p>
 
+    <?php if ($is_visit): ?>
+    <div class="ra">
+        <a href="/vstat/visit/<?php echo $vis ?>" title="Visit Statistics" class="vstat">Visit Stats</a>
+    </div>
+    <?php endif; ?>
+
 
     <?php if ($active): ?>
     <div class="log border">
@@ -31,6 +37,9 @@
         <div class="pages pp" title="Click to change pages"></div>
     </div>
 
+    <?php if ($dcid): ?>
+    <h1 class="message nou"><a href="/dc/visit/<?php echo $vis ?>">View All Data Collections</a></h1>
+    <?php endif; ?>
 
     <div class="data_collections"></div>
 

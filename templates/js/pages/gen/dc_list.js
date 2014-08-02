@@ -11,6 +11,7 @@ $(function() {
   // Hash of distl plots
   var distl = {}
   
+  $('a.vstat').button({ icons: { primary: 'ui-icon-image' }, text: true })
 
   $('input[name=search]').focus()
   
@@ -131,7 +132,11 @@ $(function() {
                   $(this).children('li').removeClass('selected').eq(page-1).addClass('selected')
                 })
              
-                if (search) $('.data_collection').remove()
+                if (search) {
+                    $('.data_collection').remove()
+                    for (id in distl) distl[id].destroy()
+                    distl = {}
+                }
              
                 $.each(json[1].reverse(), function(i,r) {
                     if ($.inArray(r['ID'], dcids) == -1) {
@@ -145,7 +150,7 @@ $(function() {
                        
                        $('<div class="data_collection" dcid="'+r['ID']+'" type="data">' +
                              '<h1>'+
-                                '<button class="atp" ty="dc" iid="'+r['ID']+'" name="'+r['RUNDIRECTORY']+'.mrc">Add to Project</button> <button class="flag '+f+'" title="Click to add this data collection to the list of favourite data collections">Favourite</button>  <a href="/dc/visit/'+prop+'-'+r['VN']+'/id/'+r['ID']+'" class="perm">Permalink</a> '+
+                                '<button class="flag '+f+'" title="Click to add this data collection to the list of favourite data collections">Favourite</button>  <a href="/dc/visit/'+prop+'-'+r['VN']+'/id/'+r['ID']+'" class="perm">Permalink</a> '+
                                 '<span class="date">'+vis_link+' '+r['ST']+'</span><span class="spacer"> - </span><span class="temp">'+r['FILETEMPLATE']+'</span>'+
                                 
                              '</h1>'+
@@ -161,7 +166,7 @@ $(function() {
                              '<div class="links">'+
                                '<a href="/dc/view/id/'+r['ID']+'"><i class="fa fa-picture-o fa-2x"></i> Images</a> '+
                                '<a class="sn" href="#snapshots"><i class="fa fa-camera fa-2x"></i> Snapshots</a> '+
-                               '<a class="dl" href="#distl"><i class="fa fa-bar-chart-o fa-2x"></i> DISTL</a> '+
+                               '<a class="dl" href="#distl"><i class="fa fa-bar-chart-o fa-2x"></i> Plot</a> '+
                              '</div>') : '<div class="r aborted">Data Collection Stopped</div>')+
                         
                          
@@ -305,7 +310,7 @@ $(function() {
 
     
   
-  // Plot image quality indicators
+  // Plot dat file
   function plot(div, success) {
       var id = $(div).parent('div').attr('dcid')
   
@@ -398,12 +403,11 @@ $(function() {
   
   
       // Make flagable data collections iconified
-      $('.data_collection .flag').button({ icons: { primary: 'ui-icon-star' }, text: false  }).click(function() {
+      $('.data_collection .flag').unbind('click').button({ icons: { primary: 'ui-icon-star' }, text: false  }).click(function() {
           var id = $(this).parent().parent('div').attr('dcid')
-          var t = $(this).parent().parent('div').attr('type')
           var i = $(this)
           $.ajax({
-                 url: '/dc/ajax/flag/t/'+t+'/id/' + id,
+                 url: '/dc/ajax/flag/id/' + id,
                  type: 'GET',
                  dataType: 'json',
                  timeout: 5000,
