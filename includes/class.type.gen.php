@@ -6,6 +6,7 @@ class GEN extends ProposalType {
     var $pages = array(
                    'image',
                    'dc',
+                   'vstat',
                    );
     
     var $default = 'proposal';
