@@ -9,6 +9,7 @@
                               'dat' => '_plot',
                               'dl' => '_download',
                               'comment' => '_set_comment',
+                              'flag' => '_flag',
                               );
         
         var $def = 'dc';
@@ -54,6 +55,59 @@
             
             if (!sizeof($info)) $this->_error('The specified visit, or proposal doesnt exist');
             
+            # Filter by time for visits
+            if (($this->has_arg('h') && ($this->has_arg('visit') || $this->has_arg('dmy')))) {
+                $where .= "AND dc.starttime > TO_DATE(:".(sizeof($args)+1).", 'HH24:MI:SS DDMMYYYY') AND dc.starttime < TO_DATE(:".(sizeof($args)+2).", 'HH24:MI:SS DDMMYYYY')";
+                
+                if ($this->has_arg('dmy')) {
+                    $my = $this->arg('dmy');
+                } else {
+                    $my = $info['DMY'];
+                    if ($this->arg('h') < $info['SH']) {
+                        $sd = mktime(0,0,0,substr($my,2,2), substr($my,0,2), substr($my,4,4))+(3600*24);
+                        $my = date('dmY', $sd);
+                    }
+                }
+                
+                
+                if ($this->has_arg('h')) {
+                    $st = $this->arg('h').':00:00 ';
+                    $en = $this->arg('h').':59:59 ';
+                } else {
+                    $st = '00:00:00';
+                    $en = '23:59:59 ';
+                }
+                
+                array_push($args, $st.$my);
+                array_push($args, $en.$my);
+            }
+            
+            
+            # If not staff check they have access to data collection
+            if (!$this->has_arg('visit') && !$this->staff) {
+                $where .= " AND u.name=:".(sizeof($args)+1);
+                
+                $extj[0] .= " INNER JOIN ispyb4a_db.proposal p ON p.proposalid = ses.proposalid INNER JOIN investigation@DICAT_RO i ON lower(i.visit_id) LIKE p.proposalcode||p.proposalnumber||'-'||ses.visit_number INNER JOIN investigationuser@DICAT_RO iu on i.id = iu.investigation_id INNER JOIN user_@DICAT_RO u on u.id = iu.user_id";
+                array_push($args, phpCAS::getUser());
+            }
+            
+            
+            # View a single data collection
+            if ($this->has_arg('id')) {
+                $st = sizeof($args)+1;
+                $where .= ' AND dc.datacollectionid=:'.$st;
+                array_push($args, $this->arg('id'));
+            }
+            
+            
+            # Search terms
+            if ($this->has_arg('s')) {
+                $st = sizeof($args) + 1;
+                $where .= " AND (lower(dc.filetemplate) LIKE lower('%'||:$st||'%') OR lower(dc.imagedirectory) LIKE lower('%'||:".($st+1)."||'%') OR lower(dc.comments) LIKE lower('%'||:".($st+2)."||'%'))";
+                for ($i = 0; $i < 3; $i++) array_push($args, $this->arg('s'));
+            }
+            
+            
             $tot = $this->db->pq("SELECT sum(tot) as t FROM (SELECT count(dc.datacollectionid) as tot FROM ispyb4a_db.datacollection dc
                 INNER JOIN ispyb4a_db.blsession ses ON ses.sessionid = dc.sessionid
                 $extj[0]
@@ -85,7 +139,6 @@
             WHERE outer.rn > :$st AND outer.rn <= :".($st+1);
             
             $dcs = $this->db->pq($q, $args);
-            $this->profile('main query');            
             
             $nf = array();
             foreach ($dcs as $i => &$dc) {
@@ -101,8 +154,7 @@
                 }
             
             }
-            
-            $this->profile('processing');
+
             $this->_output(array($pgs, $dcs));
 
         }
@@ -233,6 +285,28 @@
             $this->db->pq("UPDATE ispyb4a_db.datacollection set comments=:1 where datacollectionid=:2", array($this->arg('value'), $this->arg('id')));
             
             print $this->arg('value');
+        }
+        
+        
+        # ------------------------------------------------------------------------
+        # Flag a data collection
+        function _flag() {
+            if (!$this->arg('id')) $this->_error('No data collection id specified');
+            
+            $com = $this->db->pq('SELECT comments from ispyb4a_db.datacollection WHERE datacollectionid=:1', array($this->arg('id')));
+            
+            if (!sizeof($com)) $this->_error('No such data collection');
+            else $com = $com[0]['COMMENTS'];
+            
+            if (strpos($com, '_FLAG_') === false) {
+                $this->db->pq("UPDATE ispyb4a_db.datacollection set comments=comments||' _FLAG_' where datacollectionid=:1", array($this->arg('id')));
+                $this->_output(1);
+            } else {
+                $com = str_replace(' _FLAG_', '', $com);
+                $this->db->pq("UPDATE ispyb4a_db.datacollection set comments=:1 where datacollectionid=:2", array($com, $this->arg('id')));
+                
+                $this->_output(0);
+            }
         }
     }
 
