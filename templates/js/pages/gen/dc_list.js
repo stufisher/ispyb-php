@@ -11,7 +11,7 @@ $(function() {
   // Hash of distl plots
   var distl = {}
   
-  $('a.vstat').button({ icons: { primary: 'ui-icon-image' }, text: true })
+  $('#distl_full').dialog({ title: 'Plot', autoOpen: false, buttons: { 'Close': function() { $(this).dialog('close') } } });
 
   $('input[name=search]').focus()
   
@@ -340,10 +340,10 @@ $(function() {
                  }
              
                if (distl[id]) {
-                 distl[id].setData(data);
+                 distl[id].setData(j);
                  distl[id].setupGrid();
                  distl[id].draw();
-               } else distl[id] = $.plot($(div), data, options);
+               } else distl[id] = $.plot($(div), j, options);
              
                if (success) success()
              }
