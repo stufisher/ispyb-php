@@ -1,9 +1,13 @@
 
+    <div id="distl_full">
+        <div class="distl"></div>
+    </div>
+
     <p class="help">This page shows all data collections for the selected visit. If the visit is ongoing the page will automatically update as new data is collected. Auto processing results will be displayed</p>
 
     <?php if ($is_visit): ?>
     <div class="ra">
-        <a href="/vstat/visit/<?php echo $vis ?>" title="Visit Statistics" class="vstat">Visit Stats</a>
+        <a href="/vstat/visit/<?php echo $vis ?>" title="Visit Statistics" class="vstat button"><i class="fa fa-bar-chart-o"></i> Visit Stats</a>
     </div>
     <?php endif; ?>
 
