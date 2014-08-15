@@ -112,7 +112,13 @@
         # Render the page, takes the template file name, and optionally the name
         # of the javascript file to load
         public function render($template, $js=null) {
-            $this->_js($js ? $js : $template);
+            if ($this->oo) {
+                if (!$js) $js = $template;
+                
+                $this->js = array('/templates/js/mvc/vendor/require.js');
+                $this->header = "<script type=\"text/javascript\">\nrequire.config({\n  baseUrl: \"/templates/js/mvc\"\n});\n\nrequire([\"common\"], function (common) {\n  require([\"pages/$js\"]);\n});\n</script>\n" . $this->header;
+            
+            } else $this->_js($js ? $js : $template);
                        
             if (sizeof($this->js_vars) > 0) {
                 $this->header = "<script type=\"text/javascript\">\n".join("\n", $this->js_vars)."</script>\n" . $this->header;
