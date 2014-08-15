@@ -29,10 +29,10 @@
 
     <?php if ($is_visit): ?>
     <div class="ra">
-        <a href="/dc/summary/visit/<?php echo $vis ?>" title="Data Summary" class="summary">Summary</a>
-        <a href="/vstat/visit/<?php echo $vis ?>" title="Visit Statistics" class="vstat">Visit Stats</a>
+        <a href="/dc/summary/visit/<?php echo $vis ?>" title="Data Summary" class="summary button"><i class="fa fa-file-o"></i> <span>Summary</span></a>
+        <a href="/vstat/visit/<?php echo $vis ?>" title="Visit Statistics" class="vstat button"><i class="fa fa-bar-chart-o"></i> <span>Visit Stats</span></a>
         <?php if ($this->staff): ?>
-            <a href="/status/bl/<?php echo $bl ?>" title="Beamline Status" class="blstat">Beamline Status</a>
+            <a href="/status/bl/<?php echo $bl ?>" title="Beamline Status" class="blstat button"><i class="fa fa-check"></i> <span>Beamline Status</span></a>
         <?php endif; ?>
     </div>
     <?php endif; ?>
