@@ -581,19 +581,7 @@ $(function() {
              type: 'GET',
              dataType: 'json',
              timeout: 15000,
-             success: function(j){
-                var data = [{
-                            data: j[0],
-                            label: 'Spots',
-                         }, {
-                            data: j[1],
-                            label: 'Bragg',
-                         }, {
-                            data: j[2],
-                            label: 'Res',
-                            yaxis: 2
-                         }]
-             
+             success: function(data){
                  var options = {
                     xaxis: {
                         minTickSize: 1,
@@ -621,9 +609,9 @@ $(function() {
                } else distl[id] = $.plot($(div), data, options);
              
                var refresh_imq = true
-               if (j[0].length > 0) {
+               if (data[0]['data'].length > 0) {
                    var nimg = $('.data_collection[dcid="'+id+'"]').data('nimg')
-                   if (nimg == $(j[0]).last()[0][0]) refresh_imq = false
+                   if (nimg == $(data[0]['data']).last()[0][0]) refresh_imq = false
              
                    var date = _date_to_unix($('.data_collection[dcid="'+id+'"]').find('span.date').html())
                    if ((new Date() - date) > (900*1000)) refresh_imq = false

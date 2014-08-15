@@ -402,7 +402,10 @@
                     $nf = array(2 => array('EXPOSURETIME', 'WAVELENGTH', 'TRANSMISSION'));
                     
                 // Robot loads
-                } else if ($dc['TYPE'] == 'load') $nf = array();
+                } else if ($dc['TYPE'] == 'load') {
+                    if ($dc['IMP'] == 'ANNEAL' || $dc['IMP'] == 'WASH') $dc['TYPE'] = 'action';
+                    $nf = array();
+                }
                 
                 
                 $dc['AP'] = array(0,0,0,0,0,0,0,0);
@@ -1091,13 +1094,13 @@
             if (!$this->has_arg('id')) $this->_error('No data collection id specified');
             
             session_write_close();
-            $iqs = array(array(), array(), array());
+            $iqs = array(array('label' => 'Spots', 'data' => array()), array('label' => 'Bragg', 'data' => array()), array('label' => 'Res', 'data' => array(), 'yaxis' => 2));
             $imqs = $this->db->pq('SELECT im.imagenumber as nim, imq.method2res as res, imq.spottotal as s, imq.goodbraggcandidates as b FROM ispyb4a_db.image im INNER JOIN ispyb4a_db.imagequalityindicators imq ON imq.imageid = im.imageid AND im.datacollectionid=:1 ORDER BY imagenumber', array($this->arg('id')));
             
             foreach ($imqs as $imq) {
-                array_push($iqs[0], array(intval($imq['NIM']), intval($imq['S'])));
-                array_push($iqs[1], array(intval($imq['NIM']), intval($imq['B'])));
-                array_push($iqs[2], array(intval($imq['NIM']), floatval($imq['RES'])));
+                array_push($iqs[0]['data'], array(intval($imq['NIM']), intval($imq['S'])));
+                array_push($iqs[1]['data'], array(intval($imq['NIM']), intval($imq['B'])));
+                array_push($iqs[2]['data'], array(intval($imq['NIM']), floatval($imq['RES'])));
             }
 
             $this->_output($iqs);
