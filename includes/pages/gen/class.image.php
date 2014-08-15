@@ -25,7 +25,7 @@
                 if (file_exists($ims[$n])) {
                     $this->_browser_cache();
                     header('Content-Type:image/jpeg');
-                    readfile($this->has_arg('f') ? $ims[$n] : str_replace('.png', 't.png', $ims[$n]));
+                    readfile($this->has_arg('f') ? $ims[$n] : preg_replace('/.png$/', 't.png', $ims[$n]));
                     
                 } else {
                     header('Content-Type:image/png');
