@@ -140,7 +140,7 @@
             
             $dcs = $this->db->pq($q, $args);
             
-            $nf = array();
+            $nf = array(4 => array('WAVELENGTH', 'RESOLUTION'), 3 => array('RESOLUTION'));
             foreach ($dcs as $i => &$dc) {
                 $dc['DIR'] = preg_replace('/.*\/\d\d\d\d\/\w\w\d+-\d+\//', '', $dc['DIR']);
                 
@@ -235,7 +235,7 @@
                 }
             }
             
-            $this->_output($data);
+            $this->_output(array($data));
         }
 
         
