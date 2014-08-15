@@ -207,6 +207,7 @@
             }
             
             $this->arg_list['sass'] = '\d';
+            $this->arg_list['oo'] = '\d';
             
             $parsed = array();
             foreach ($this->arg_list as $k => $v) {
@@ -273,6 +274,7 @@
             if ($this->sidebar) $this->t->side();
             $this->t->prop = $this->has_arg('prop') ? $this->arg('prop') : '';
             $this->t->sass = $this->has_arg('sass');
+            $this->t->oo = $this->has_arg('oo');
             $this->t->staff = $this->staff;
         }
         
