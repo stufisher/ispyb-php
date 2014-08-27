@@ -468,7 +468,7 @@
                 $dc['DIR'] = $this->ads($dc['DIR']);
                 $dc['X'] = $images;
                 
-                $di = str_replace($dc['VIS'], $dc['VIS'].'/jpegs', $dc['DIR']).str_replace('.cbf', '.jpeg',preg_replace('/#+/', sprintf('%0'.substr_count($dc['FILETEMPLATE'], '#').'d', $dc['STARTIMAGENUMBER']),$dc['FILETEMPLATE']));
+                $di = str_replace($dc['VIS'], $dc['VIS'].'/jpegs', $dc['DIR']).str_replace(pathinfo($dc['FILETEMPLATE'], PATHINFO_EXTENSION), 'jpeg',preg_replace('/#+/', sprintf('%0'.substr_count($dc['FILETEMPLATE'], '#').'d', $dc['STARTIMAGENUMBER']),$dc['FILETEMPLATE']));
                 
                 $this->profile('diffraction image');
                 $die = 0;
@@ -558,11 +558,11 @@
                          array('edna/', 'summary.html', 'Selected spacegroup'),
                          );
             $aps2 = array(
-                         array('fast_dp/', 'fast_dp.log', 'dF/F'),
+                         array('fast_dp/', 'fast_dp.log', 'I/sigma'),
                          
-                         array('xia2/2da-run/', 'xia2.txt' , 'dF/F'),
-                         array('xia2/3da-run/', 'xia2.txt' , 'dF/F'),
-                         array('xia2/3daii-run/', 'xia2.txt' , 'dF/F'),
+                         array('xia2/2da-run/', 'xia2.txt' , 'I/sigma'),
+                         array('xia2/3da-run/', 'xia2.txt' , 'I/sigma'),
+                         array('xia2/3daii-run/', 'xia2.txt' , 'I/sigma'),
                          
                          array('fast_ep/', 'fast_ep.log', 'Best spacegroup'),
                          array('fast_dp/dimple/', 'refmac5_restr.log', 'Cruickshanks'),
@@ -1064,7 +1064,7 @@
                                 
                             }
                             
-                            array_unshift($stats[0], 'Parameter');
+                            if (sizeof($stats) > 0) array_unshift($stats[0], 'Parameter');
                             $dat['STATS'] = $stats;
                             $dat['PLOTS'] = $plts;
                             $dat['PKLIST'] = $pklist;
@@ -1072,7 +1072,7 @@
                             $blobs = glob($root .'/dimple/blob*v*.png');
                             $dat['BLOBS'] = sizeof($blobs)/3;
                             
-                            array_push($data, $dat);
+                            if (sizeof($stats)) array_push($data, $dat);
                         }
                     }
                     
