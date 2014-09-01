@@ -21,45 +21,61 @@ $(function() {
     url = window.location.pathname.replace(/\/t\/\w+/, '')+(t ? ('/t/'+t) : '')
     window.history.pushState({}, '', url)
                            
-    _get_logons()
+    _get_stats()
   })
   
-  function _get_logons() {
+  function _get_stats() {
     $('#logon').addClass('loading')
     $.ajax({
-        url: '/stats/ajax/logon'+(t ? ('/t/'+t) : ''),
+        url: '/stats/ajax/pl'+(t ? ('/t/'+t) : ''),
         type: 'GET',
         dataType: 'json',
         timeout: 15000,
         success: function(data){
             var ops = {
+                axisLabels: {
+                  show: true
+                },
                 series: {
-                    bars: {
-                        show: true,
-                        barWidth: .9,
-                        align: 'center'
-                    },
+                   bars: {
+                   barWidth: .09,
+                   align: 'center'
+                   },
                 },
                 grid: {
                     hoverable: true,
                     borderWidth: 0,
                 },
-                xaxis: {
-                    tickDecimals: 0,
+                tooltip: true,
+                tooltipOpts: {
+                  content: "%s: %y.2"
                 },
-                yaxis: {
-                    tickDecimals: 0,
-                }
+                xaxis: {
+                    ticks: data.ticks,
+                    rotateTicks: 45,
+                },
+                yaxes: [{ axisLabel: data.yaxis }, { position: 'right', transform: function (v) { return -v; } }],
+                xaxes: [{ axisLabel: data.xaxis }],
             }
            
-           if (t == 'wd') ops.xaxis.ticks = [[0,'Mon'], [1,'Tue'], [2,'Wed'], [3,'Thu'], [4,'Fri'], [5,'Sat'], [6,'Sun']]
+           $('.plot_title').html(data.title)
            
-           $.plot($('#logon'), data, ops)
+           pld = []
+           $.each(data.data, function(bl, d) {
+             $.each(d, function(i, data) {
+                var pl = {label: bl, data: data.data, yaxis: (i+1) }
+                if (i > 0) pl['lines'] = { show: true }
+                else pl[data.series] = { show: true }
+                pld.push(pl)
+             })
+           })
+           
+           $.plot($('#logon'), pld, ops)
            $('#logon').removeClass('loading')
         }
     })
   }
   
-  _get_logons()
+  _get_stats()
   
 })

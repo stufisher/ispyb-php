@@ -2,6 +2,8 @@
         <ul>
             <li><a href="/stats">Logon Stats</a></li>
             <li class="current">Online Stats</li>
+            <li><a href="/stats/bl">Beamline Stats</a></li>
+            <li><a href="/stats/pl">Pipeline Stats</a></li>
         </ul>
     </div>
 

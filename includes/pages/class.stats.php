@@ -6,8 +6,9 @@
                               );
         
         var $dispatch = array('online' => '_online',
-                              'samples' => '_sample_stats',
                               'logon' => '_logon_stats',
+                              'bl' => '_beamline',
+                              'pl' => '_pl_stats',
                               );
         var $def = 'logon';
         
@@ -23,6 +24,15 @@
             $this->t->render('stats_logon');
         }
         
+
+        # Beamline Stats
+        function _beamline() {
+            $this->template('Beamline Stats', array('Beamline Stats'), array('bl'));
+            
+            $this->t->js_var('t', $this->has_arg('t') ? $this->arg('t') : '');
+            $this->t->render('stats_bl');
+        }
+        
         # Whos online
         function _online() {
             $this->template('Whos Online', array('Online Users'), array('online'));
@@ -30,9 +40,12 @@
         }
         
         
-        # Sample Statistics
-        function _sample_stats() {
+        # Autoprocessing Statistics
+        function _pl_stats() {
+            $this->template('Pipeline Stats', array('Pipeline Stats'), array('ap'));
             
+            $this->t->js_var('t', $this->has_arg('t') ? $this->arg('t') : '');
+            $this->t->render('stats_pl');
         }
     }
 ?>
