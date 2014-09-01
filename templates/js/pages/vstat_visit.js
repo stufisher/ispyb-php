@@ -17,7 +17,7 @@ $(function() {
         if (v[2] <= x && v[0] >= x && v[1] == y) {
             len = (v[0]-v[2])/1000
             if (y == 2 || y == 4) e = visit_info[i]['status']
-            if (y == 3) ty = visit_info[i]['type']
+            ty = visit_info[i]['type']
   
             break
 
@@ -25,7 +25,7 @@ $(function() {
         
     }
   
-     return (y == 1 ? 'Data Collection': (y == 2 ? 'Robot Action' : (y == 3 ? (ty == 'mca' ? 'MCA Spectrum' : 'Edge Scan'): 'Issue'))) + ': ' + len + 's ' + e
+     return (y == 1 ? (ty == 'ai' ? 'Auto Indexing' : 'Data Collection') : (y == 2 ? 'Robot Action' : (y == 3 ? (ty == 'mca' ? 'MCA Spectrum' : 'Edge Scan'): 'Issue'))) + ': ' + len + 's ' + e
   }
   
   options = {
@@ -73,7 +73,7 @@ $(function() {
   });
   
   $('#avg_time').bind("plotclick", function (event, pos, item) {
-    console.log(item.series.id, item.series.type, item.datapoint[1])
+    if (!item) return
     if (item.datapoint[1] == 1 || item.datapoint[1] == 3) {
         window.location.href = '/dc/visit/'+visit+'/t/'+item.series.type+'/id/'+item.series.id
     }
@@ -91,20 +91,25 @@ $(function() {
   var dc_opts = {
      bars: {
         show: true,
+        align: 'center',
      },
      grid: {
         borderWidth: 0,
+        hoverable: true,
      },
      xaxis: {
-        ticks: dc_hist2[0],
         tickSize: 1,
         tickLength: 0,
      },
+     tooltip: true,
+     tooltipOpts: {
+       content: "%y"
+     },
   }
   
-  $.plot('#dc_hist', [dc_hist[1]], dc_opts)
+  $.plot('#dc_hist', [dch], dc_opts)
   
-  $.plot('#dc_hist2', [dc_hist2[1]], dc_opts)
+  $.plot('#dc_hist2', [slh], dc_opts)
   
   $.plot('#visit_pie', pie, {
          series: {
@@ -129,7 +134,7 @@ $(function() {
   
   
     function labelFormatter(label, series) {
-        return "<div style='font-size:8pt; text-align:center; padding:2px; color:white;'>" + label + "<br/>" + Math.round(series.percent) + "%</div>";
+        return "<div style='font-size:8pt; text-align:center; padding:2px; color:white;'>" + label + "<br/>" + Math.round(series.percent) + "%<br />(" + series.data[0][1].toFixed(1) + "hr)</div>";
     }
   
     var dt = $('.robot_actions.robot').dataTable({

@@ -93,7 +93,7 @@ $(function() {
               clickable: true
           },
           legend: {
-            noColumns: 6,
+            noColumns: 8,
             container: $('.legend'),
           }
       }
@@ -104,12 +104,18 @@ $(function() {
               }, { data: visit_data[1].slice(page*pp, page*pp+pp),
                label: 'Data Collection',
                color: 'green',
+              }, { data: visit_data[6].slice(page*pp, page*pp+pp),
+               label: 'Auto Indexing',
+               color: '#93db70',
               }, { data: visit_data[2].slice(page*pp, page*pp+pp),
                label: 'Edge Scans',
                color: 'orange'
               }, { data: visit_data[3].slice(page*pp, page*pp+pp),
                label: 'Robot Actions',
                color: 'blue'
+              }, { data: visit_data[7].slice(page*pp, page*pp+pp),
+               label: 'Faults',
+               color: 'grey'
               }, { data: visit_data[5].slice(page*pp, page*pp+pp),
                label: 'Thinking',
                color: 'purple',
@@ -122,5 +128,53 @@ $(function() {
   }
   
   plot()
+  
+  
+  var dc_opts = {
+     bars: {
+        show: true,
+        align: 'center',
+     },
+     grid: {
+        borderWidth: 0,
+        hoverable: true,
+     },
+     xaxis: {
+        tickSize: 1,
+        tickLength: 0,
+     },
+     tooltip: true,
+     tooltipOpts: {
+       content: "%y.2"
+     },
+  }
+  
+  $.plot('#dc_hist', [dch], dc_opts)
+  $.plot('#dc_hist2', [slh], dc_opts)
+  
+  $.plot('#visit_pie', pie, {
+         series: {
+            pie: {
+                show: true,
+                radius: 1,
+                label: {
+                    show: true,
+                    radius: 2/3,
+                    formatter: labelFormatter,
+                }
+            }
+         },
+         legend: {
+            show: false
+         },
+         grid: {
+            hoverable: true,
+         }     
+    });
+  
+  
+    function labelFormatter(label, series) {
+        return "<div style='font-size:8pt; text-align:center; padding:2px; color:white;'>" + label + "<br/>" + Math.round(series.percent) + "%</div>";
+    }
   
 });

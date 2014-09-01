@@ -148,6 +148,12 @@
 
             $edge = $this->db->pq("SELECT SUM(e.endtime-e.starttime)*24 as dctime, s.visit_number as visit FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) INNER JOIN ispyb4a_db.energyscan e ON (e.sessionid = s.sessionid) $where GROUP BY s.visit_number", $args);
             
+            $ai = $this->db->pq("SELECT SUM(ai) as aitime, visit FROM (
+                    SELECT (max(s.bltimestamp) - dc.endtime)*24 as ai, ses.visit_number as visit FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.screening s ON s.datacollectionid = dc.datacollectionid INNER JOIN ispyb4a_db.blsession ses ON ses.sessionid = dc.sessionid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = ses.proposalid $where GROUP BY dc.datacollectionid, ses.visit_number, dc.endtime
+                ) GROUP BY visit", $args);
+            
+            $fault = $this->db->pq("SELECT SUM((f.beamtimelost_endtime-f.beamtimelost_starttime)*24) as lost, s.visit_number as visit FROM ispyb4a_db.bf_fault f INNER JOIN ispyb4a_db.blsession s ON f.sessionid = s.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) $where GROUP BY s.visit_number", $args);
+            
             foreach ($robot as $r) {
                 foreach ($dc as &$d) {
                     if ($r['VISIT'] == $d['VISIT']) $d['R'] = $r['DCTIME'];
@@ -159,22 +165,34 @@
                     if ($e['VISIT'] == $d['VISIT']) $d['EDGE'] = $e['DCTIME'];
                 }
             }
+
+            foreach ($ai as $a) {
+                foreach ($dc as &$d) {
+                    if ($a['VISIT'] == $d['VISIT']) $d['AITIME'] = $a['AITIME'];
+                }
+            }
+
+            foreach ($fault as $f) {
+                foreach ($dc as &$d) {
+                    if ($f['VISIT'] == $d['VISIT']) $d['FAULT'] = $f['LOST'];
+                }
+            }
             
-            $plot = array(array(), array(), array(), array(), array(), array());
+            $plot = array(array(), array(), array(), array(), array(), array(), array(), array());
             $plot_ticks = array();
             $vids = array();
-            
-            $this->p($dc);
             
             $i = 0;
             foreach ($dc as &$d) {
                 if (!array_key_exists('R', $d)) $d['R'] = 0;
                 if (!array_key_exists('EDGE', $d)) $d['EDGE'] = 0;
+                if (!array_key_exists('AITIME', $d)) $d['AITIME'] = 0;
+                if (!array_key_exists('FAULT', $d)) $d['FAULT'] = 0;
                 
                 #if ($d['REM'] < 0) $d['REM'] = 0;
                 #if ($d['SUP'] < 0) $d['SUP'] = 0;
                 
-                $d['T'] = max($d['LEN'] - $d['SUP'] - $d['DCTIME'] - $d['R'] - $d['REM'] - $d['EDGE'],0);
+                $d['T'] = max($d['LEN'] - $d['SUP'] - $d['DCTIME'] - $d['R'] - $d['REM'] - $d['EDGE'] - $d['AITIME'] - $d['FAULT'],0);
                 
                 #if ($d['T'] < 0) $d['T'] = 0;
 
@@ -187,6 +205,8 @@
                 array_push($plot[3], array($i, $d['R']));
                 array_push($plot[4], array($i, $d['REM']));
                 array_push($plot[5], array($i, $d['T']));
+                array_push($plot[6], array($i, $d['AITIME']));
+                array_push($plot[7], array($i, $d['FAULT']));
                 
                 foreach (array('SUP', 'DCTIME', 'LEN', 'R', 'REM', 'T', 'EDGE') as $nf) $d[$nf] = number_format($d[$nf], 2);
                 
@@ -195,10 +215,63 @@
                 $i++;
             }
             
+            # Pie chart
+            $avgs = array();
+            foreach ($plot as $p) {
+                $arr = array_map(function($i) { return $i[1]; }, $p);
+                array_push($avgs, sizeof($arr) ? array_sum($arr) / count($arr) : 0);
+            }
+            
+            $pie = array();
+            array_push($pie, array('label'=>'Startup', 'color'=>'yellow', 'data'=>$avgs[0]));
+            array_push($pie, array('label'=>'Data Collection', 'color'=> 'green', 'data'=>$avgs[1]));
+            array_push($pie, array('label'=>'Auto Indexing', 'color'=> '#93db70', 'data'=>$avgs[6]));
+            array_push($pie, array('label'=>'Energy Scans', 'color'=> 'orange', 'data'=>$avgs[2]));
+            array_push($pie, array('label'=>'Robot Actions', 'color'=> 'blue', 'data'=>$avgs[3]));
+            array_push($pie, array('label'=>'Thinking', 'color'=> 'purple', 'data'=>$avgs[5]));
+            array_push($pie, array('label'=>'Remaining', 'color'=> 'red', 'data'=>$avgs[4]));
+            array_push($pie, array('label'=>'Faults', 'color'=> 'grey', 'data'=>$avgs[7]));
+            
+            
+            # Data Collections / Hour
+            $dch_tmp = $this->db->pq("SELECT AVG(datacollections) as dcs, TO_CHAR(dh, 'HH24') as hour FROM (
+                    SELECT count(dc.datacollectionid) as datacollections, TRUNC(dc.starttime, 'HH24') as dh
+                    FROM ispyb4a_db.datacollection dc
+                    INNER JOIN ispyb4a_db.blsession s ON s.sessionid = dc.sessionid
+                    INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid
+                    WHERE dc.axisrange > 0 AND dc.overlap = 0 AND p.proposalid=:1
+                    GROUP BY TRUNC(dc.starttime, 'HH24')
+                ) GROUP BY TO_CHAR(dh, 'HH24') ORDER BY hour
+            ", array($this->proposalid));
+            $dch = array();
+            foreach ($dch_tmp as $d) {
+                array_push($dch, array($d['HOUR'], $d['DCS']));
+            }
+            
+                                    
+            # Samples Loaded / Hour
+            $slh_tmp = $this->db->pq("SELECT AVG(samples) as SLH, TO_CHAR(dh, 'HH24') as hour FROM (
+                    SELECT count(r.robotactionid) as samples, TRUNC(r.starttimestamp, 'HH24') as dh
+                    FROM ispyb4a_db.robotaction r
+                    INNER JOIN ispyb4a_db.blsession s ON s.sessionid = r.blsessionid
+                    INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid
+                    WHERE r.actiontype='LOAD' AND p.proposalid=:1
+                    GROUP BY TRUNC(r.starttimestamp, 'HH24')
+                ) GROUP BY TO_CHAR(dh, 'HH24') ORDER BY hour
+            ", array($this->proposalid));
+            $slh = array();
+            foreach ($slh_tmp as $d) {
+                array_push($slh, array($d['HOUR'], $d['SLH']));
+            }
+            
 
             $this->template('Visit: ' . $this->arg('prop'), array('Proposal: '.$this->arg('prop')), array(''));
             $this->t->prop = $this->arg('prop');
             $this->t->data = $dc;
+            
+            $this->t->js_var('dch', $dch);
+            $this->t->js_var('slh', $slh);
+            $this->t->js_var('pie', $pie);
             
             $this->t->js_var('vids', $vids);
             $this->t->js_var('visit_ticks', $plot_ticks);
@@ -227,28 +300,20 @@
                 $this->msg('No such visit', 'That visit doesnt seem to exist');
             } else $info = $info[0];
             
-            /*
-            $lc = $this->lc_lookup($info['SID']);
-            if ($lc) {
-                if ($lc->type == 'Short Visit') {
-                    global $short_visit;
-                    $t = strtotime($info['ST']);
-                    $info['ST'] = date('d-m-Y', $t).' '.$short_visit[date('H:i', $t)][0];
-                    $e = strtotime($info['EN']);
-                    $info['EN'] = date('d-m-Y', $e).' '.$short_visit[date('H:i', $t)][1];
-                    $info['LEN'] = (strtotime($info['EN']) - strtotime($info['ST'])) / 3600;
-                }
-            }*/
-            
             
             # Visit breakdown
             $dc = $this->db->pq("SELECT dc.datacollectionid as id, TO_CHAR(dc.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(dc.endtime, 'DD-MM-YYYY HH24:MI:SS') as en, (dc.endtime - dc.starttime)*86400 as dctime, dc.runstatus FROM ispyb4a_db.datacollection dc WHERE dc.sessionid=:1 ORDER BY dc.endtime DESC", array($info['SID']));
             
-            $robot = $this->db->pq("SELECT r.status, r.actiontype, TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(r.endtimestamp, 'DD-MM-YYYY HH24:MI:SS') as en, (CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as dctime FROM ispyb4a_db.robotaction r WHERE r.blsessionid=:1 ORDER BY r.endtimestamp DESC", array($info['SID']));
+            $dcf = $this->db->pq("SELECT COUNT(dc.datacollectionid) as count FROM ispyb4a_db.datacollection dc WHERE dc.sessionid=:1 AND dc.overlap = 0 AND dc.axisrange > 0", array($info['SID']));
+            $dcs = $this->db->pq("SELECT COUNT(dc.datacollectionid) as count FROM ispyb4a_db.datacollection dc WHERE dc.sessionid=:1 AND dc.overlap != 0", array($info['SID']));
+            
+            $robot = $this->db->pq("SELECT r.status, r.actiontype, TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(r.endtimestamp, 'DD-MM-YYYY HH24:MI:SS') as en, (CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400 as dctime FROM ispyb4a_db.robotaction r WHERE r.blsessionid=:1 AND r.actiontype='LOAD' ORDER BY r.endtimestamp DESC", array($info['SID']));
 
             $edge = $this->db->pq("SELECT e.energyscanid as id, TO_CHAR(e.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(e.endtime, 'DD-MM-YYYY HH24:MI:SS') as en, (e.endtime - e.starttime)*86400 as dctime FROM ispyb4a_db.energyscan e WHERE e.sessionid=:1 ORDER BY e.endtime DESC", array($info['SID']));
 
             $fl = $this->db->pq("SELECT f.xfefluorescencespectrumid as id, TO_CHAR(f.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(f.endtime, 'DD-MM-YYYY HH24:MI:SS') as en, (f.endtime - f.starttime)*86400 as dctime FROM ispyb4a_db.xfefluorescencespectrum f WHERE f.sessionid=:1 ORDER BY f.endtime DESC", array($info['SID']));
+            
+            $ai = $this->db->pq("SELECT dc.datacollectionid as id, TO_CHAR(dc.endtime, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(max(s.bltimestamp), 'DD-MM-YYYY HH24:MI:SS') as en, (max(s.bltimestamp) - dc.endtime)*86400 as dctime FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.screening s ON s.datacollectionid = dc.datacollectionid WHERE dc.sessionid=:1 GROUP BY dc.datacollectionid, dc.endtime ORDER BY dc.endtime DESC", array($info['SID']));
             
             # Get Faults
             $faultl = $this->db->pq("SELECT f.faultid, bl.beamlinename as beamline, f.owner, s.name as system, c.name as component, sc.name as subcomponent, TO_CHAR(f.starttime, 'DD-MM-YYYY HH24:MI') as starttime, f.beamtimelost, round((f.beamtimelost_endtime-f.beamtimelost_starttime)*24,2) as lost, f.title, f.resolved, TO_CHAR(f.beamtimelost_starttime, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(f.beamtimelost_endtime, 'DD-MM-YYYY HH24:MI:SS') as en
@@ -258,7 +323,8 @@
                 INNER JOIN bf_system s ON c.systemid = s.systemid
                 WHERE f.sessionid = :1", array($info['SID']));
             
-            
+            $info['DC_FULL'] = sizeof($dcf) ? $dcf[0]['COUNT'] : 0;
+            $info['DC_SCREEN'] = sizeof($dcs) ? $dcs[0]['COUNT'] : 0;
             $info['DC_TOT'] = sizeof($dc);
             $info['DC_STOPPED'] = 0;
             $info['E_TOT'] = sizeof($edge);
@@ -304,6 +370,13 @@
                     
                 }
             }
+                                    
+            foreach ($ai as $d) {
+                if ($d['ST'] && $d['EN'])
+                    array_push($data, array('data' => array(
+                        array($this->jst($d['ST']), 1, $this->jst($d['ST'])),
+                        array($this->jst($d['EN']), 1, $this->jst($d['ST']))), 'color' => '#93db70', 'id' => intval($d['ID']), 'type' => 'ai'));
+            }
             
             // Beam status
             $bs = $this->_get_archive('SR-DI-DCCT-01:SIGNAL', strtotime($info['ST']), strtotime($info['EN']), 200);
@@ -335,65 +408,61 @@
                 
                 $lastv = $v;
             }
-            
-            # Data collection time histogramming
-            $bs = 20;
-            $bs2 = 50;
-            $bc = 10;
-            
-            $dchist = $this->db->pq("SELECT count(1) as c, bin FROM (SELECT width_bucket((dc.endtime - dc.starttime)*86400, 0, :1, :2) as bin FROM ispyb4a_db.datacollection dc WHERE dc.sessionid=:3) GROUP BY bin ORDER BY bin", array($bc*$bs, $bc, $info['SID']));
-            
-            $dch = array();
-            $max = 0;
-            foreach ($dchist as $d) {
-                if ($d['BIN'] > $max) $max = $d['BIN'];
-                $dch[$d['BIN']] = intval($d['C']);
-            }
-            
-            $dcht = array(array(), array());
-            for ($i = 0; $i < max($max,$bc); $i++) {
-                array_push($dcht[0], array($i, ($i*$bs)));
-                array_push($dcht[1], array($i, array_key_exists($i+1, $dch) ? $dch[$i+1] : 0));
-            }
-            
-            
-            
-            $dchist = $this->db->pq("SELECT count(1) as c, bin FROM (SELECT width_bucket(numberofimages, 0, :1, :2) as bin FROM ispyb4a_db.datacollection dc WHERE dc.sessionid=:3) GROUP BY bin ORDER BY bin", array($bc*$bs2, $bc, $info['SID']));
 
+            
+                                    
+            # Data Collections / Hour
+            $dch_tmp = $this->db->pq("SELECT SUM(datacollections) as dcs, TO_CHAR(dh, 'HH24') as hour FROM (
+                    SELECT count(dc.datacollectionid) as datacollections, TRUNC(dc.starttime, 'HH24') as dh
+                    FROM ispyb4a_db.datacollection dc
+                    WHERE dc.axisrange > 0 AND dc.overlap = 0 AND dc.sessionid=:1
+                    GROUP BY TRUNC(dc.starttime, 'HH24')
+                ) GROUP BY TO_CHAR(dh, 'HH24') ORDER BY hour
+            ", array($info['SID']));
             $dch = array();
-            $max = 0;
-            foreach ($dchist as $d) {
-                if ($d['BIN'] > $max) $max = $d['BIN'];
-                $dch[$d['BIN']] = intval($d['C']);
+            foreach ($dch_tmp as $d) {
+                array_push($dch, array($d['HOUR'], $d['DCS']));
             }
             
-            $dcht2 = array(array(), array());
-            for ($i = 0; $i < max($max,$bc); $i++) {
-                array_push($dcht2[0], array($i, ($i*$bs2)));
-                array_push($dcht2[1], array($i, array_key_exists($i+1, $dch) ? $dch[$i+1] : 0));
+                                    
+            # Samples Loaded / Hour
+            $slh_tmp = $this->db->pq("SELECT SUM(samples) as SLH, TO_CHAR(dh, 'HH24') as hour FROM (
+                    SELECT count(r.robotactionid) as samples, TRUNC(r.starttimestamp, 'HH24') as dh
+                    FROM ispyb4a_db.robotaction r
+                    WHERE r.actiontype='LOAD' AND r.blsessionid=:1
+                    GROUP BY TRUNC(r.starttimestamp, 'HH24')
+                ) GROUP BY TO_CHAR(dh, 'HH24') ORDER BY hour
+            ", array($info['SID']));
+            $slh = array();
+            foreach ($slh_tmp as $d) {
+                array_push($slh, array($d['HOUR'], $d['SLH']));
             }
-            
+                                    
             
             # Percentage breakdown of time used
             list($dc) = $this->db->pq("SELECT TO_CHAR(MAX(dc.endtime), 'DD-MM-YYYY HH24:MI') as last, TO_CHAR(MIN(dc.starttime), 'DD-MM-YYYY HH24:MI') as first, SUM(dc.endtime - dc.starttime)*24 as dctime, GREATEST((max(s.enddate)-max(dc.endtime))*24,0) as rem, GREATEST((min(dc.starttime)-min(s.startdate))*24,0) as sup  FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON dc.sessionid=s.sessionid WHERE dc.sessionid=:1 ORDER BY min(s.startdate)", array($info['SID']));
             
-            list($rb) = $this->db->pq("SELECT SUM(CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*24 as dctime FROM ispyb4a_db.robotaction r WHERE r.blsessionid=:1", array($info['SID']));
+            list($rb) = $this->db->pq("SELECT SUM(CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*24 as dctime FROM ispyb4a_db.robotaction r WHERE r.blsessionid=:1 AND r.actiontype='LOAD'", array($info['SID']));
             
             list($ed) = $this->db->pq("SELECT SUM(e.endtime-e.starttime)*24 as dctime FROM ispyb4a_db.energyscan e WHERE e.sessionid=:1", array($info['SID']));
             
             list($fa) = $this->db->pq("SELECT SUM(f.beamtimelost_endtime-f.beamtimelost_starttime)*24 as dctime FROM ispyb4a_db.bf_fault f WHERE f.sessionid=:1", array($info['SID']));
             
+            list($ai) = $this->db->pq("SELECT SUM(max(s.bltimestamp) - dc.endtime)*24 as dctime FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.screening s ON s.datacollectionid = dc.datacollectionid WHERE dc.sessionid=:1 GROUP BY dc.datacollectionid, dc.endtime ORDER BY dc.endtime DESC", array($info['SID']));
+                                    
             $dc['SUP'] = max(0,(strtotime($dc['FIRST']) - strtotime($info['ST'])) / 3600);
             $dc['REM'] = max(0,(strtotime($info['EN']) - strtotime($dc['LAST'])) / 3600);
                                     
             $rb = array_key_exists('DCTIME', $rb) ? $rb['DCTIME'] : 0;
             $ed = array_key_exists('DCTIME', $ed) ? $ed['DCTIME'] : 0;
             $fa = array_key_exists('DCTIME', $fa) ? $fa['DCTIME'] : 0;
-            $t = max($info['LEN'] - $dc['SUP'] - $dc['DCTIME'] - $dc['REM'] - $rb - $ed,0);
+            $ai = array_key_exists('DCTIME', $ai) ? $ai['DCTIME'] : 0;
+            $t = max($info['LEN'] - $dc['SUP'] - $dc['DCTIME'] - $dc['REM'] - $rb - $ed - $ai,0);
             
             $pie = array();
             array_push($pie, array('label'=>'Startup', 'color'=>'grey', 'data'=>$dc['SUP']));
             array_push($pie, array('label'=>'Data Collection', 'color'=> 'green', 'data'=>$dc['DCTIME']));
+            array_push($pie, array('label'=>'Auto Indexing', 'color'=> '#93db70', 'data'=>$ai));
             array_push($pie, array('label'=>'Energy Scans', 'color'=> 'orange', 'data'=>$ed));
             array_push($pie, array('label'=>'Robot Actions', 'color'=> 'blue', 'data'=>$rb));
             array_push($pie, array('label'=>'Thinking', 'color'=> 'purple', 'data'=>$t));
@@ -423,11 +492,8 @@
                 if (strpos($e->title, 'shift') !== False) array_push($ehcs, $e);
             }
                                     
-            //print_r($ehcs);
-                                          
-                                          
+
             $this->template('Visit: ' . $this->arg('visit'), array('Proposal: '.$info['PROP'], 'Visit: ' . $this->arg('visit')), array('prop/'.$info['PROP'], ''));
-            //$this->t->bag = $this->arg('bag');
             $this->t->visit = $this->arg('visit');
             $this->t->info = $info;
             $this->t->last = $dc['LAST'];
@@ -440,8 +506,10 @@
             $this->t->js_var('visit_info', $data);
             $this->t->js_var('start', $this->jst(strtotime($info['ST']) > strtotime($dc['FIRST']) ? $dc['FIRST'] : $info['ST']));
             $this->t->js_var('end', $this->jst(strtotime($info['EN']) < strtotime($dc['LAST']) ? $dc['LAST'] : $info['EN']));
-            $this->t->js_var('dc_hist', $dcht);
-            $this->t->js_var('dc_hist2', $dcht2);
+            
+            $this->t->js_var('dch', $dch);
+            $this->t->js_var('slh', $slh);
+                                    
             $this->t->js_var('pie', $pie);
             $this->t->js_var('visit', $this->arg('visit'));
             

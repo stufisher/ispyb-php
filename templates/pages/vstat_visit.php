@@ -24,11 +24,11 @@
 
                 <li>Last Data: <?php echo $last ?></li>
 
-                <li>Data Collections: <?php echo $info['DC_TOT'] ?></li>
+                <li>Data Collections: <?php echo $info['DC_TOT'] ?> (<span title="Full Data Collections"><?php echo $info['DC_FULL'] ?></span> / <span title="Screenings"><?php echo $info['DC_SCREEN'] ?></span>)</li>
                 <li>Collections Stopped: <?php echo $info['DC_STOPPED'] ?></li>
                 <li>Energy Scans: <?php echo $info['E_TOT'] ?></li>
                 <li>MCA Spectra: <?php echo $info['FL_TOT'] ?></li>
-                <li>Robot Actions: <?php echo $info['R_TOT'] ?></li>
+                <li>Samples Loaded: <?php echo $info['R_TOT'] ?></li>
             </ul>
         </div>
 
@@ -40,12 +40,12 @@
 
             <div class="plot_container right">
                 <div id="dc_hist"></div>
-                <p>Data Collection Times</p>
+                <p>Data Collections / Hour</p>
             </div>
 
             <div class="plot_container right">
                 <div id="dc_hist2"></div>
-                <p>Data Collection No. of Images</p>
+                <p>Samples Loaded / Hour</p>
             </div>
         </div>
 

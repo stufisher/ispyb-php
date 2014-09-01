@@ -35,6 +35,25 @@
             <div id="visit_breakdown"></div>
         </div>
 
+        <h1>Average For All Visits</h1>
+
+        <div class="plot_wrap clearfix">
+            <div class="plot_container left">
+                <div id="visit_pie"></div>
+                <p>Breakdown of Average Visit Time</p>
+            </div>
+
+            <div class="plot_container right">
+                <div id="dc_hist"></div>
+                <p>Average Data Collections / Hour</p>
+            </div>
+
+            <div class="plot_container right">
+                <div id="dc_hist2"></div>
+                <p>Average Samples Loaded / Hour</p>
+            </div>
+        </div>
+
         <!--
         <div class="table">
             <table class="robot_actions">
