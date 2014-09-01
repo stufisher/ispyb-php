@@ -38,7 +38,18 @@
 }
 
 #logon {
-    height: 250px;
+    height: 450px;
+    canvas {
+        transition: opacity .3s ease-in-out;
+    }
+    
+    &.loading {
+        background: url('/templates/images/loading.gif') center no-repeat;
+        
+        canvas {
+            opacity: 0.5;
+        }
+    }
 }
 
 #system_pie,
