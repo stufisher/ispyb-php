@@ -871,6 +871,135 @@ ol.rounded {
 }
 
 
+
+// Sample status
+.sample_status {
+    padding: 5px;
+    border-radius: 6px 0 0 6px;
+    background: #efefef;
+    border: 1px solid #e2e2e2;
+    position: fixed;
+    right: -216px;
+    top: 25%;
+    z-index: 100;
+    width: 230px;
+    display: none;
+    @include transition(right 0.5s ease-in-out 0.5s);
+    
+    &.in, &:hover {
+        right: 0;
+    }
+    
+    &.in {
+        .handle {
+            background: #bdbdbd;
+        }
+    }
+    
+    canvas {
+        cursor: pointer;
+    }
+    
+    .key_holder {
+        position: absolute;
+        padding: 0 5px 5px 5px;
+        
+        i {
+            padding-top: 5px;
+        }
+        
+        &:hover {
+            .key {
+                display: block
+            }
+        }
+        .key {
+            background: #cdcdcd;
+            border-radius: 6px;
+            display: none;
+            float: right;
+            padding: 5px;
+            
+            li:before {
+                content: "";
+                line-height: 1em;
+                width: .5em;
+                height: .5em;
+                float: left;
+                margin: .25em .25em 0;
+                border-radius: 50%;
+            }
+            
+            li:nth-child(1):before {
+                background-color: #ff6961;
+            }
+            
+            li:nth-child(2):before {
+                background-color: #fdfd96;
+            }
+            
+            li:nth-child(3):before {
+                background-color: #ffb347;
+            }
+            
+            li:nth-child(4):before {
+                background-color: #87ceeb;
+            }
+            
+            li:nth-child(5):before {
+                background-color: #77dd77;
+            }
+        }
+    }
+    
+    .handle {
+        cursor: pointer;
+        float: left;
+        width: 20px;
+        height: 250px;
+        background: #cdcdcd;
+        border-radius: 6px 0 0 6px;
+        
+        .text {
+            transform: translate(0, 230px) rotate(270deg);
+            white-space: nowrap;
+            display: block;
+            
+            .controls {
+                display: inline-block;
+                margin-left: 60px;
+                
+                a {
+                    text-decoration: none;
+                }
+            }
+        }
+        .clearf {
+            visibility: hidden;
+        }
+    }
+    
+    .form {
+        padding: 0 5px;
+        margin-left: 20px;
+        
+        li {
+            span.label {
+                width: 32%;
+            }
+            
+            span:not(.label) {
+                overflow-x: hidden;
+                white-space: nowrap;
+                width: 60%;
+                display: inline-block;
+                text-overflow: ellipsis;
+            }
+        }
+    }
+}
+
+
 /*
 .data_collection[type=data] {
     background-position: 50% 50%;

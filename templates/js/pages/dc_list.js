@@ -691,6 +691,7 @@ $(function() {
       update_aps()
       _show_images()
       _get_sample()
+      _draw_sample_status()
   
       $('.data_collection a.sn').unbind('click').click(function() {
         $(this).parent('div').siblings('.snapshots').children('a').eq(0).trigger('click')
@@ -1351,6 +1352,191 @@ $(function() {
   }
   
   
+  
+  // Minesweeper sample view
+  if (is_visit) {
+  var samples = null
+  var canvas = $('.sample_status canvas')[0]
+  var ctx = canvas.getContext('2d')
+  
+  canvas.width = $('.sample_status').width()-$('.sample_status .handle').width()
+  canvas.height = $('.sample_status').width()*1.5
+  $('.sample_status .handle').height($('.sample_status').height())
+  
+  $('.sample_status').show()
+  
+  var positions = (bl == 'i24' || bl == 'i04-1') ? 9 : 10
+  var sc = 16
+  var tpad = 30
+  var pad = 30
+  var rpad = 0 //pad - 25
+  var sw = (canvas.width - pad - rpad) / positions
+  var sh = (canvas.height-tpad-15) / (sc-1)
+  var last_sample = [-1,-1]
+  var current_sample = [-1,-1]
+  var selected_protein = null
+  
+  var numbers = new Image()
+  numbers.src = '/templates/images/numbers'+(positions == 9 ? '2' : '')+'.png'
+  numbers.onload = function() {
+    _draw_sample_status()
+  }
+  
+  $('.sample_status .handle').click(function() { $(this).parent().toggleClass('in') })
+  
+  $('.sample_status .clearf').click(function(e) {
+    e.preventDefault()
+    is_sample = false
+    is_visit = true
+    sid = null
+                                    
+    _do_filter()
+    $(this).css('visibility', 'hidden')
+  })
+  
+  function _do_filter() {
+    $('.data_collection').remove()
+    $('.log ul li').remove()
+    first = true
+    distl = {}
+    page = 1
+    clearTimeout(auto_load_thread)
+    load_datacollection()
+  }
+  
+  function _draw_sample_status() {
+    $.ajax({
+      url: '/sample/ajax/sstatus/visit/'+visit,
+      type: 'GET',
+      dataType: 'json',
+         
+      success: function(status){
+        samples = status
+        _do_draw_status()
+      }
+    })
+  }
+  
+  
+  function _do_draw_status() {
+        // Get protein acronyms
+        var proteins = []
+        $.each(samples, function(i,p) {
+          $.each(p, function(i,l) {
+            if (proteins.indexOf(l.PROTEINID) == -1) proteins.push(l.PROTEINID)
+          })
+        })
+           
+        var types = { R: '#ff6961', SC: '#fdfd96', AI: '#ffb347', DC: '#87ceeb', AP: '#77dd77',  }
+  
+        // Draw Grid
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(numbers, 0, 0, canvas.width, canvas.height)
+        /*for (var j = 0; j < sc; j++) {
+          ctx.fillStyle = '#000'
+          ctx.font = "11px Arial"
+          ctx.lineWidth = 1
+          ctx.fillText(j+1,10,sh*j+tpad+4);
+        }*/
+  
+        for (var i = 0; i < positions; i++) {
+          /*ctx.fillStyle = '#000'
+          ctx.textAlign = 'center';
+          ctx.font = "11px Arial"
+          ctx.lineWidth = 1
+          ctx.fillText(i+1,sw*i+pad,12);*/
+           
+          var p = null
+          if (i+1 in samples) p = samples[i+1]
+           
+          for (var j = 0; j < sc; j++) {
+            if (p && j+1 in p) {
+              var s = p[j+1]
+
+              var c = '#dfdfdf'
+              for (k in types) if (s[k] > 0) c = types[k]
+           
+              ctx.beginPath()
+              ctx.strokeStyle = '#000'
+              ctx.arc(i*sw+pad,j*sh+tpad,sh/2-1, 0, 2*Math.PI, false)
+              ctx.lineWidth = 1;
+              ctx.stroke()
+
+           
+              ctx.fillStyle = c
+              ctx.fill()
+           
+              var width = 126
+              var cent = 127
+              var col = (proteins.indexOf(s.PROTEINID)/proteins.length)*2*Math.PI
+              var cst = 'rgb('+ Math.floor(Math.sin(col)*width+cent) + ',' + Math.floor(Math.sin(col+2*Math.PI/3)*width+cent) + ',' + Math.floor(Math.sin(col+4*Math.PI/3)*width+cent)+ ')'
+           
+              ctx.beginPath()
+              ctx.strokeStyle = '#000'
+              ctx.arc(i*sw+pad,j*sh+tpad,sh/4, 0, 2*Math.PI, false)
+              ctx.stroke()
+              ctx.fillStyle = (i == current_sample[0] && j == current_sample[1]) ? '#bcbcbc' : (selected_protein == s.PROTEINID ? '#555' : '#fff')
+              ctx.fill()
+  
+  
+              ctx.beginPath()
+              ctx.arc(i*sw+pad,j*sh+tpad,sh/8, 0, 2*Math.PI, false)
+              ctx.fillStyle = cst
+              ctx.fill()
+            }
+
+          }
+        }
+
+  }
+  
+  function _show_sample() {
+    if (current_sample[0]+1 in samples) {
+      if (current_sample[1]+1 in samples[current_sample[0]+1]) {
+        var s = samples[current_sample[0]+1][current_sample[1]+1]
+        selected_protein = s.PROTEINID
+        $('.details .sname').html('<a href="/sample/sid/'+s.BLSAMPLEID+'">'+s.NAME+'</a>')
+        $('.details .pname').html('<a href="/sample/proteins/pid/'+s.PROTEINID+'">'+s.ACRONYM+'</a>')
+        $('.details .cname').html('<a href="/shipment/cid/'+s.CONTAINERID+'">'+s.CNAME+'</a>')
+        $('.details .loaded').html(s.R > 0 ? 'Yes': 'No')
+        $('.details .screened').html((s.SC > 0 ? 'Yes': 'No') + (s.AI > 0 ? ' (Auto-Indexed)' : ''))
+        $('.details .data').html((s.DC > 0 ? 'Yes': 'No') + (s.AP > 0 ? ' (Auto-Integrated)' : ''))
+        $('.details .data').html((s.DC > 0 ? 'Yes': 'No') + (s.AP > 0 ? ' (Auto-Integrated)' : ''))
+        _do_draw_status()
+      }
+    }
+  }
+  
+  $('.sample_status canvas').mousemove(function(e) {
+    var cur = _get_xy(e, this)
+
+    var x = Math.floor((cur[0] - pad + sw/2)/sw)
+    var y = Math.floor((cur[1] - tpad + sh/2)/sh)
+                    
+    if (x != last_sample[0] || y != last_sample[1]) {
+        console.log(x,y)
+        current_sample = [x,y]
+        last_sample = current_sample
+        _show_sample()
+    }
+  }).click(function(e) {
+    var s = samples[current_sample[0]+1][current_sample[1]+1]
+    $('.sample_status .clearf').css('visibility', 'visible')
+    is_visit = false
+    is_sample = true
+    sid = s.BLSAMPLEID
+    _do_filter()
+  })
+  
+  // Return x,y offset for event
+  function _get_xy(e, obj) {
+    if (e.offsetX == undefined) {
+      return [e.pageX-$(obj).offset().left, e.pageY-$(obj).offset().top]
+    } else {
+      return [e.offsetX, e.offsetY]
+    }
+  }
+  }
   
   // Guided Tour
   /*

@@ -18,6 +18,7 @@
                               'existing_pdb' => '\d+',
                               'pdb_code' => '\w\w\w\w',
                               'pdbid' => '\d+',
+                              'visit' => '\w+\d+-\d+',
                                );
         
         var $dispatch = array('samples' => '_samples',
@@ -27,6 +28,8 @@
                               'pdbs' => '_get_pdbs',
                               'addpdb' => '_add_pdb',
                               'rempdb' => '_remove_pdb',
+                              
+                              'sstatus' => '_sample_status',
                               );
         
         var $def = 'samples';
@@ -404,6 +407,50 @@
             
             $this->_output(1);
         }
+        
+        
+        # ------------------------------------------------------------------------
+        # Get Sample Statuses for Assigned Samples on visit
+        #  - Old minesweeper view
+        function _sample_status() {
+            if (!$this->has_arg('visit')) $this->_error('No visit specified');
+            
+            $info = $this->db->pq("SELECT s.beamlinename as bl
+                FROM ispyb4a_db.blsession s
+                INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid
+                WHERE p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1
+            ", array($this->arg('visit')));
+            
+            if (!sizeof($info)) $this->_error('No such visit');
+            else $info = $info[0];
+                                  
+            $samples = $this->db->pq("SELECT c.containerid, c.code as cname, c.samplechangerlocation as sclocation, s.location, s.name, s.blsampleid, pr.proteinid, pr.acronym, count(distinct dc.datacollectionid) as sc, count(distinct dc2.datacollectionid) as dc, count(distinct so.screeningid) as ai, count(distinct ap.autoprocintegrationid) as ap, count(distinct r.robotactionid) as r
+                FROM ispyb4a_db.blsample s
+                INNER JOIN ispyb4a_db.container c ON c.containerid = s.containerid
+                INNER JOIN ispyb4a_db.dewar d ON d.dewarid =  c.dewarid
+                INNER JOIN ispyb4a_db.crystal cr ON s.crystalid = cr.crystalid
+                INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid
+                LEFT OUTER JOIN ispyb4a_db.datacollection dc ON s.blsampleid = dc.blsampleid AND dc.overlap != 0
+                LEFT OUTER JOIN ispyb4a_db.screening sc ON dc.datacollectionid = sc.datacollectionid
+                LEFT OUTER JOIN ispyb4a_db.screeningoutput so ON sc.screeningid = so.screeningid
+                LEFT OUTER JOIN ispyb4a_db.datacollection dc2 ON s.blsampleid = dc2.blsampleid AND dc2.overlap = 0 AND dc2.axisrange > 0
+                LEFT OUTER JOIN ispyb4a_db.autoprocintegration ap ON ap.datacollectionid = dc2.datacollectionid
+                LEFT OUTER JOIN ispyb4a_db.robotaction r ON r.blsampleid = s.blsampleid AND r.actiontype = 'LOAD'
+                WHERE pr.proposalid LIKE :1 AND d.dewarstatus='processing' AND c.beamlinelocation LIKE :2 AND c.samplechangerlocation is NOT NULL
+                GROUP BY c.samplechangerlocation, s.name, s.blsampleid, pr.proteinid, pr.acronym, s.location, c.containerid, c.code
+                ORDER BY samplechangerlocation
+            ", array($this->proposalid, $info['BL']));
+               
+            $out = array();
+            foreach ($samples as $s) {
+                if (!array_key_exists($s['SCLOCATION'], $out)) $out[$s['SCLOCATION']] = array();
+                                     
+                $out[$s['SCLOCATION']][$s['LOCATION']] = $s;
+            }
+                                     
+            $this->_output($out);
+        }
+        
     }
 
 ?>

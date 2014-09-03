@@ -9,6 +9,48 @@
         <div class="distl"></div>
     </div>
 
+    <div class="sample_status">
+        <div class="key_holder">
+            <i class="fa fa-key"></i>
+
+            <div class="key">
+                <p>Inner ring: Protein by colour</p>
+                <p>Outer ring: Sample status</p>
+                <ul>
+                    <li>Loaded</li>
+                    <li>Screened</li>
+                    <li>Auto Indexed</li>
+                    <li>Data Collected</li>
+                    <li>Auto Integrated</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="handle">
+            <span class="text" title="Hide / Show Sample Changer Overview. Click to Dock">Sample Changer
+                <span class="controls">
+                    <a href="#" class="clearf"><i class="fa fa-filter"></i> Clear Filter</a>
+                </span>
+            </span>
+        </div>
+
+        <canvas></canvas>
+
+        <div class="details form">
+            <ul>
+                <li>
+                    <span class="label">Sample:</span>
+                    <span class="sname"></span>
+                </li>
+                <li><span class="label">Protein:</span> <span class="pname"></span></li>
+                <li><span class="label">Container:</span> <span class="cname"></span></li>
+                <li><span class="label">Loaded:</span> <span class="loaded"></span></li>
+                <li><span class="label">Screened:</span> <span class="screened"></span></li>
+                <li><span class="label">Data:</span> <span class="data"></span></li>
+            </ul>
+        </div>
+    </div>
+
     <p class="help">This page shows all data collections for the selected visit. If the visit is ongoing the page will automatically update as new data is collected. Auto processing results will be displayed</p>
 
     <?php if ($is_sample): ?>
