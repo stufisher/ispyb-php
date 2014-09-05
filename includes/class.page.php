@@ -88,14 +88,12 @@
             // Beamline Sample Registration
             } else if ($this->blsr() && !$u) {                
                 $auth = false;
-                $b = $this->ip2bl();
-                $t = strtoupper(date('d-m-Y 08:59'));
-                
-                # Make sure the visit is current (i.e. today)
+
                 if ($this->has_arg('visit')) {
-                    $rows = $this->db->pq("SELECT s.sessionid, s.beamlinename as bl, vr.run, vr.runid, TO_CHAR(s.startdate, 'YYYY') as yr FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1 AND s.startdate > TO_DATE(:2,'dd-mm-yyyy HH24:MI') AND s.enddate < TO_DATE(:3,'dd-mm-yyyy HH24:MI')+2 AND s.beamlinename LIKE :4", array($this->arg('visit'), $t, $t, $b));
+                    $blsr_visits = array();
+                    foreach ($this->blsr_visits() as $v) array_push($blsr_visits, $v['VIS']);
                     
-                    if (sizeof($rows)) $auth = true;
+                    if (in_array($this->arg('visit'), $blsr_visits)) $auth = True;
                     
                 } else {
                     $auth = true;
@@ -403,6 +401,22 @@
             if (array_key_exists($parts[2], $bls)) {
                 return $bls[$parts[2]];
             }
+        }
+        
+        
+        # Return visit list for blsr;
+        function blsr_visits() {
+            $b = $this->ip2bl();
+            
+            if (!$b) return array();
+            
+            $visits = $this->db->pq('SELECT p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis, TO_CHAR(s.startdate, \'DD-MM-YYYY HH24:MI\') as st, TO_CHAR(s.enddate, \'DD-MM-YYYY HH24:MI\') as en,s.beamlinename as bl FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE s.startdate > SYSDATE-1 AND s.enddate <= SYSDATE+2 AND s.beamlinename LIKE :1 ORDER BY s.startdate', array($b));
+                
+            if (!sizeof($visits)) {
+                $visits = $this->db->pq('SELECT * FROM (SELECT p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis, TO_CHAR(s.startdate, \'DD-MM-YYYY HH24:MI\') as st, TO_CHAR(s.enddate, \'DD-MM-YYYY HH24:MI\') as en,s.beamlinename as bl FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE p.proposalcode LIKE \'cm\' AND s.beamlinename LIKE :1 AND s.enddate <= SYSDATE ORDER BY s.startdate DESC) WHERE rownum < 2', array($b));
+            }
+            
+            return $visits;
         }
         
         # Beamline Sample Registration Machine
