@@ -1382,7 +1382,7 @@ $(function() {
     _draw_sample_status()
   }
   
-  $('.sample_status .handle').click(function() { $(this).parent().toggleClass('in') })
+  $('.sample_status .handle').click(function(e) { if ($(e.target).is('a')) return; $(this).parent().toggleClass('in') })
   
   $('.sample_status .clearf').click(function(e) {
     e.preventDefault()
@@ -1461,22 +1461,23 @@ $(function() {
               ctx.arc(i*sw+pad,j*sh+tpad,sh/2-1, 0, 2*Math.PI, false)
               ctx.lineWidth = 1;
               ctx.stroke()
-
-           
-              ctx.fillStyle = c
+              ctx.fillStyle = (selected_protein == -1 || selected_protein == s.PROTEINID) ? c : '#fff'
               ctx.fill()
            
               var width = 126
               var cent = 127
               var col = (proteins.indexOf(s.PROTEINID)/proteins.length)*2*Math.PI
               var cst = 'rgb('+ Math.floor(Math.sin(col)*width+cent) + ',' + Math.floor(Math.sin(col+2*Math.PI/3)*width+cent) + ',' + Math.floor(Math.sin(col+4*Math.PI/3)*width+cent)+ ')'
-           
+  
+              if (selected_protein == -1 || selected_protein == s.PROTEINID) {
               ctx.beginPath()
               ctx.strokeStyle = '#000'
               ctx.arc(i*sw+pad,j*sh+tpad,sh/4, 0, 2*Math.PI, false)
               ctx.stroke()
-              ctx.fillStyle = (i == current_sample[0] && j == current_sample[1]) ? '#bcbcbc' : (selected_protein == s.PROTEINID ? '#555' : '#fff')
+              //ctx.fillStyle = (i == current_sample[0] && j == current_sample[1]) ? '#bcbcbc' : (selected_protein == s.PROTEINID ? '#555' : '#fff')
+              ctx.fillStyle = (i == current_sample[0] && j == current_sample[1]) ? '#bcbcbc' : '#fff'
               ctx.fill()
+              }
   
   
               ctx.beginPath()
@@ -1502,9 +1503,15 @@ $(function() {
         $('.details .screened').html((s.SC > 0 ? 'Yes': 'No') + (s.AI > 0 ? ' (Auto-Indexed)' : ''))
         $('.details .data').html((s.DC > 0 ? 'Yes': 'No') + (s.AP > 0 ? ' (Auto-Integrated)' : ''))
         $('.details .data').html((s.DC > 0 ? 'Yes': 'No') + (s.AP > 0 ? ' (Auto-Integrated)' : ''))
-        _do_draw_status()
+      } else {
+        selected_protein = -1
       }
+  
+    } else {
+      selected_protein = -1
     }
+  
+    _do_draw_status()
   }
   
   $('.sample_status canvas').mousemove(function(e) {
