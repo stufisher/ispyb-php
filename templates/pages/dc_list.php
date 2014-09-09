@@ -83,6 +83,7 @@
         <ul>
             <li id="dc">Data Collections</li>
             <li id="fc">Full Data</li>
+            <li id="ap">Auto Integrated</li>
             <li id="sc">Screening</li>
             <li id="ed">Edge Scans</li>
             <li id="fl">MCA Spectra</li>
