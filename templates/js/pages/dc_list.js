@@ -691,7 +691,7 @@ $(function() {
       update_aps()
       _show_images()
       _get_sample()
-      _draw_sample_status()
+      if (is_visit) _draw_sample_status()
   
       $('.data_collection a.sn').unbind('click').click(function() {
         $(this).parent('div').siblings('.snapshots').children('a').eq(0).trigger('click')
