@@ -43,9 +43,7 @@
         transition: opacity .3s ease-in-out;
     }
     
-    &.loading {
-        background: url('/templates/images/loading.gif') center no-repeat;
-        
+    &.loading {   
         canvas {
             opacity: 0.5;
         }
