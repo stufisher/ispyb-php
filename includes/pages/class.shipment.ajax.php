@@ -75,10 +75,20 @@
         
         function _get_shipments() {
             if (!$this->has_arg('prop')) $this->_error('No proposal specified', 'Please select a proposal first');
+            $args = array($this->arg('prop'));
+            $where = '';
             
-            $rows = $this->db->pq("SELECT s.safetylevel, count(d.dewarid) as dcount,c.cardname as lcout, c2.cardname as lcret, s.shippingid, s.shippingname, s.shippingstatus,TO_CHAR(s.creationdate, 'DD-MM-YYYY') as created, s.isstorageshipping, s.shippingtype, s.comments FROM ispyb4a_db.proposal p INNER JOIN ispyb4a_db.shipping s ON p.proposalid = s.proposalid LEFT OUTER JOIN ispyb4a_db.labcontact c ON s.sendinglabcontactid = c.labcontactid LEFT OUTER JOIN ispyb4a_db.labcontact c2 ON s.returnlabcontactid = c2.labcontactid LEFT OUTER JOIN ispyb4a_db.dewar d ON d.shippingid = s.shippingid WHERE p.proposalcode || p.proposalnumber = :1 GROUP BY s.safetylevel, c.cardname, c2.cardname, s.shippingid, s.shippingname, s.shippingstatus,TO_CHAR(s.creationdate, 'DD-MM-YYYY'), s.isstorageshipping, s.shippingtype, s.comments", array($this->arg('prop')));
+            if ($this->has_arg('sid')) {
+                $where = 'AND s.shippingid=:2';
+                array_push($args, $this->arg('sid'));
+            }
             
-            $this->_output($rows);
+            $rows = $this->db->pq("SELECT s.deliveryagent_agentname, s.deliveryagent_agentcode, s.deliveryagent_shippingdate, s.deliveryagent_deliverydate, s.safetylevel, count(d.dewarid) as dcount,c.cardname as lcout, c2.cardname as lcret, s.shippingid, s.shippingname, s.shippingstatus,TO_CHAR(s.creationdate, 'DD-MM-YYYY') as created, s.isstorageshipping, s.shippingtype, s.comments FROM ispyb4a_db.proposal p INNER JOIN ispyb4a_db.shipping s ON p.proposalid = s.proposalid LEFT OUTER JOIN ispyb4a_db.labcontact c ON s.sendinglabcontactid = c.labcontactid LEFT OUTER JOIN ispyb4a_db.labcontact c2 ON s.returnlabcontactid = c2.labcontactid LEFT OUTER JOIN ispyb4a_db.dewar d ON d.shippingid = s.shippingid WHERE p.proposalcode || p.proposalnumber = :1 $where GROUP BY s.deliveryagent_agentname, s.deliveryagent_agentcode, s.deliveryagent_shippingdate, s.deliveryagent_deliverydate, s.safetylevel, c.cardname, c2.cardname, s.shippingid, s.shippingname, s.shippingstatus,TO_CHAR(s.creationdate, 'DD-MM-YYYY'), s.isstorageshipping, s.shippingtype, s.comments", $args);
+            
+            if ($this->has_arg('sid')) {
+                if (sizeof($rows)) $this->_output($rows[0]);
+                else $this->_output(array());
+            } else $this->_output($rows);
         }
         
         
@@ -431,6 +441,15 @@
             $args = array($this->proposalid);
             $where = 'sh.proposalid=:1';
             
+            if ($this->has_arg('did')) {
+                $where .= ' AND d.dewarid=:'.(sizeof($args)+1);
+                array_push($args, $this->arg('did'));
+            }
+            if ($this->has_arg('cid')) {
+                $where .= ' AND c.containerid=:'.(sizeof($args)+1);
+                array_push($args, $this->arg('cid'));
+            }
+            
             $sta = $this->has_arg('iDisplayStart') ? $this->arg('iDisplayStart') : 0;
             $len = $this->has_arg('iDisplayLength') ? $this->arg('iDisplayLength') : 20;
             
@@ -461,10 +480,10 @@
             }
             
             $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (
-                                  SELECT c.containerstatus, c.containerid, c.code as name, d.code as dewar, sh.shippingname as shipment, d.dewarid, sh.shippingid, count(s.blsampleid) as samples
+                                  SELECT c.capacity, c.containerstatus, c.containerid, c.code as name, d.code as dewar, sh.shippingname as shipment, d.dewarid, sh.shippingid, count(s.blsampleid) as samples
                                   FROM ispyb4a_db.container c INNER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid INNER JOIN ispyb4a_db.shipping sh ON sh.shippingid = d.shippingid LEFT OUTER JOIN ispyb4a_db.blsample s ON s.containerid = c.containerid
                                   WHERE $where
-                                  GROUP BY c.containerstatus, c.containerid, c.code, d.code, sh.shippingname, d.dewarid, sh.shippingid
+                                  GROUP BY c.capacity, c.containerstatus, c.containerid, c.code, d.code, sh.shippingname, d.dewarid, sh.shippingid
                                   ORDER BY $order
                                   ) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
             
@@ -473,9 +492,12 @@
                 array_push($data, array($r['NAME'], $r['DEWAR'], '<a href="/shipment/sid/'.$r['SHIPPINGID'].'">'.$r['SHIPMENT'].'</a>', $r['SAMPLES'], $r['CONTAINERSTATUS'], '<a class="view" title="View Conainer Details" href="/shipment/cid/'.$r['CONTAINERID'].'">View Container</a>'));
             }
             
-            $this->_output(array('iTotalRecords' => $tot,
+            if ($this->has_arg('cid')) {
+                if (sizeof($rows))$this->_output($rows[0]);
+                else $this->_error('No such container');
+            } else $this->_output(array('iTotalRecords' => $tot,
                                  'iTotalDisplayRecords' => $flt,
-                                 'aaData' => $data,
+                                 'aaData' => $this->has_arg('array') ? $rows :$data,
                                  ));   
         
         }

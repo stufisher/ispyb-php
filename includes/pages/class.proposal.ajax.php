@@ -76,7 +76,7 @@
             
             $this->_output(array('iTotalRecords' => $tot,
                                  'iTotalDisplayRecords' => $flt,
-                                 'aaData' => $data,
+                                 'aaData' => $this->has_arg('array') ? $rows : $data,
                            ));
         }
         
@@ -119,6 +119,11 @@
             $args = array($p);
             $where = 'WHERE s.proposalid = :1';
             
+            if ($this->has_arg('visit')) {
+                $where .= " AND p.proposalcode||p.proposalnumber||'-'||s.visit_number LIKE :".(sizeof($args)+1);
+                array_push($args, $this->arg('visit'));
+            }
+            
             $sta = $this->has_arg('iDisplayStart') ? $this->arg('iDisplayStart') : 0;
             $len = $this->has_arg('iDisplayLength') ? $this->arg('iDisplayLength') : 20;
             
@@ -142,7 +147,7 @@
                 if ($this->arg('iSortCol_0') < sizeof($cols)) $order = $cols[$this->arg('iSortCol_0')].' '.$dir;
             }
             
-            $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (SELECT TO_CHAR(s.startdate, 'HH24:MI DD-MM-YYYY') as st, TO_CHAR(s.enddate, 'HH24:MI DD-MM-YYYY') as en, s.sessionid, s.visit_number as vis, s.beamlinename as bl, s.beamlineoperator as lc, s.comments/*, count(dc.datacollectionid) as dcount*/ FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid /*LEFT OUTER JOIN ispyb4a_db.datacollection dc ON s.sessionid = dc.sessionid*/ $where /*GROUP BY TO_CHAR(s.startdate, 'HH24:MI DD-MM-YYYY'),TO_CHAR(s.enddate, 'HH24:MI DD-MM-YYYY'), s.sessionid, s.visit_number,s.beamlinename,s.beamlineoperator,s.comments,s.startdate*/ ORDER BY $order) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
+            $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (SELECT p.proposalcode||p.proposalnumber||'-'||s.visit_number as visit, TO_CHAR(s.startdate, 'HH24:MI DD-MM-YYYY') as st, TO_CHAR(s.enddate, 'HH24:MI DD-MM-YYYY') as en, s.sessionid, s.visit_number as vis, s.beamlinename as bl, s.beamlineoperator as lc, s.comments/*, count(dc.datacollectionid) as dcount*/ FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid /*LEFT OUTER JOIN ispyb4a_db.datacollection dc ON s.sessionid = dc.sessionid*/ $where /*GROUP BY TO_CHAR(s.startdate, 'HH24:MI DD-MM-YYYY'),TO_CHAR(s.enddate, 'HH24:MI DD-MM-YYYY'), s.sessionid, s.visit_number,s.beamlinename,s.beamlineoperator,s.comments,s.startdate*/ ORDER BY $order) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
             
             $ids = array();
             $wcs = array();
@@ -159,9 +164,11 @@
             }
             
             $data = array();
-            foreach ($rows as $r) {
+            foreach ($rows as &$r) {
                 $dc = array_key_exists($r['SESSIONID'], $dcs) ? $dcs[$r['SESSIONID']] : 0;
+                $r['COMMENT'] = $r['COMMENTS'];
                 $r['COMMENTS'] = '<span class="comment">'.$r['COMMENTS'].'</span>';
+                $r['DCCOUNT'] = $dc;
                 
                 /*
                 $lc = $this->lc_lookup($r['SESSIONID']);
@@ -182,9 +189,12 @@
                 #<a class="process" title="Reprocess Data Collections" href="/mc/visit/'.$this->arg('prop').'-'.$r['VIS'].'">Reprocess Data</a>
             }
             
-            $this->_output(array('iTotalRecords' => $tot,
+            if ($this->has_arg('visit')) {
+                if (sizeof($rows))$this->_output($rows[0]);
+                else $this->_error('No such visit');
+            } else $this->_output(array('iTotalRecords' => $tot,
                                  'iTotalDisplayRecords' => $tot,
-                                 'aaData' => $data,
+                                 'aaData' => $this->has_arg('array') ? $rows : $data,
                            ));
         }
         

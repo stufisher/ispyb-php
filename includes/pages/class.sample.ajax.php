@@ -11,6 +11,7 @@
                               'term' => '\w+',
                               'pid' => '\d+',
                               'sid' => '\d+',
+                              'cid' => '\d+',
                               'value' => '.*',
                               'ty' => '\w+',
                               'pjid' => '\d+',
@@ -19,6 +20,7 @@
                               'pdb_code' => '\w\w\w\w',
                               'pdbid' => '\d+',
                               'visit' => '\w+\d+-\d+',
+                              'array' => '\d',
                                );
         
         var $dispatch = array('samples' => '_samples',
@@ -75,10 +77,22 @@
                 array_push($args, $this->arg('pid'));
             }
             
+            # For a specific container
+            if ($this->has_arg('cid')) {
+                $where .= ' AND c.containerid=:'.(sizeof($args)+1);
+                array_push($args, $this->arg('cid'));
+            }
+            
+            # For a particular sample
+            if ($this->has_arg('sid')) {
+                $where .= ' AND b.blsampleid=:'.(sizeof($args)+1);
+                array_push($args, $this->arg('sid'));                
+            }
+            
             $sta = $this->has_arg('iDisplayStart') ? $this->arg('iDisplayStart') : 0;
             $len = $this->has_arg('iDisplayLength') ? $this->arg('iDisplayLength') : 20;
             
-            $tot = $this->db->pq("SELECT count(distinct b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = pr.proposalid $join WHERE $where", $args);
+            $tot = $this->db->pq("SELECT count(distinct b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = pr.proposalid INNER JOIN ispyb4a_db.container c ON c.containerid = b.containerid $join WHERE $where", $args);
             $tot = $tot[0]['TOT'];
             
             if ($this->has_arg('sSearch')) {
@@ -88,7 +102,7 @@
             }
             
             
-            $flt = $this->db->pq("SELECT count(distinct b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = pr.proposalid $join WHERE $where", $args);
+            $flt = $this->db->pq("SELECT count(distinct b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = pr.proposalid INNER JOIN ispyb4a_db.container c ON c.containerid = b.containerid $join WHERE $where", $args);
             $flt = $flt[0]['TOT'];
             
             $st = sizeof($args) + 1;
@@ -99,13 +113,13 @@
             
             
             if ($this->has_arg('iSortCol_0')) {
-                $cols = array('b.blsampleid', 'b.name', 'pr.acronym', 'cr.spacegroup', 'b.comments', 'shipment', 'dewar', 'container');
+                $cols = array('b.blsampleid', 'b.name', 'pr.acronym', 'cr.spacegroup', 'b.comments', 'shipment', 'dewar', 'container', 'TO_NUMBER(location)');
                 $dir = $this->has_arg('sSortDir_0') ? ($this->arg('sSortDir_0') == 'asc' ? 'ASC' : 'DESC') : 'ASC';
                 if ($this->arg('iSortCol_0') < sizeof($cols)) $order = $cols[$this->arg('iSortCol_0')].' '.$dir;
             }
             
             $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (
-                                  SELECT distinct b.blsampleid, pr.acronym, pr.proteinid, cr.spacegroup,b.comments,b.name,s.shippingname as shipment,s.shippingid,d.dewarid,d.code as dewar, c.code as container, c.containerid FROM ispyb4a_db.blsample b
+                                  SELECT distinct b.blsampleid, b.code, b.location, pr.acronym, pr.proteinid, cr.spacegroup,b.comments,b.name,s.shippingname as shipment,s.shippingid,d.dewarid,d.code as dewar, c.code as container, c.containerid FROM ispyb4a_db.blsample b
                                   INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid
                                   INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid
                                   INNER JOIN ispyb4a_db.container c ON b.containerid = c.containerid
@@ -135,18 +149,22 @@
                 }
             }
                 
-            foreach ($rows as $r) {
+            foreach ($rows as &$r) {
                 $snap = '';
                 if (array_key_exists($r['BLSAMPLEID'], $dcs)) $snap = '<image class="img" src="/image/id/'.$dcs[$r['BLSAMPLEID']]['DCID'].'" title="Crystal Snapshot 1" />';
                 
                 $dcount = array_key_exists($r['BLSAMPLEID'], $dcs) ? $dcs[$r['BLSAMPLEID']]['DCOUNT'] : 0;
+                $r['DCOUNT'] = $dcount;
                 
                 array_push($data, array($r['BLSAMPLEID'], $r['NAME'], '<a href="/sample/proteins/pid/'.$r['PROTEINID'].'">'.$r['ACRONYM'].'</a>', $r['SPACEGROUP'], $r['COMMENTS'], '<a href="/shipment/sid/'.$r['SHIPPINGID'].'">'.$r['SHIPMENT'].'</a>', $r['DEWAR'], '<a href="/shipment/cid/'.$r['CONTAINERID'].'">'.$r['CONTAINER'].'</a>', $snap, $dcount, '<a class="view" title="View Sample" href="/sample/sid/'.$r['BLSAMPLEID'].'">View Sample</a> <button class="atp" ty="sample" iid="'.$r['BLSAMPLEID'].'" name="'.$r['NAME'].'">Add to Project</button>'));
             }
             
-            $this->_output(array('iTotalRecords' => $tot,
+            if ($this->has_arg('sid')) {
+                if (sizeof($rows))$this->_output($rows[0]);
+                else $this->_error('No such sample');
+            } else $this->_output(array('iTotalRecords' => $tot,
                                  'iTotalDisplayRecords' => $flt,
-                                 'aaData' => $data,
+                                 'aaData' => $this->has_arg('array') ? $rows : $data,
                            ));   
         }
         
@@ -171,6 +189,11 @@
                     $where .= " AND u.name=:".(sizeof($args)+1);
                     array_push($args, phpCAS::getUser());
                 }
+            }
+            
+            if ($this->has_arg('pid')) {
+                $where .= ' AND pr.proteinid=:'.(sizeof($args)+1);
+                array_push($args, $this->arg('pid'));
             }
             
             $sta = $this->has_arg('iDisplayStart') ? $this->arg('iDisplayStart') : 0;
@@ -239,15 +262,20 @@
             }
             
             $data = array();
-            foreach ($rows as $r) {
+            foreach ($rows as &$r) {
                 $dcount = array_key_exists($r['PROTEINID'], $dcs) ? $dcs[$r['PROTEINID']] : 0;
+                $r['DCOUNT'] = $dcount;
                 $scount = array_key_exists($r['PROTEINID'], $scs) ? $scs[$r['PROTEINID']] : 0;
+                $r['SCOUNT'] = $scount;
                 array_push($data, array('<span class="id" value="'.$r['PROTEINID'].'"></span>'.$r['NAME'], $r['ACRONYM'], $r['MOLECULARMASS'], $r['SEQUENCE'] ? 'Yes' : 'No', $scount, $dcount, '<a class="view" title="View Protein Details" href="/sample/proteins/pid/'.$r['PROTEINID'].'">View Protein</a> <button class="atp" ty="protein" iid="'.$r['PROTEINID'].'" name="'.$r['NAME'].'">Add to Project</button>'));
             }
             
-            $this->_output(array('iTotalRecords' => $tot,
+            if ($this->has_arg('pid')) {
+                if (sizeof($rows))$this->_output($rows[0]);
+                else $this->_error('No such protein');
+            } else $this->_output(array('iTotalRecords' => $tot,
                                  'iTotalDisplayRecords' => $flt,
-                                 'aaData' => $data,
+                                 'aaData' => $this->has_arg('array') ? $rows : $data,
                            ));   
         }
 
