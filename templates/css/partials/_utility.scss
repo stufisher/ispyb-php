@@ -64,3 +64,68 @@
     }
     
 }
+
+
+
+.loading {
+    opacity: 0.4;
+    
+    &:after {
+        margin: auto;
+        top: 50%;
+        left: 50%;
+        position: absolute;
+        font-family: 'FontAwesome';
+        font-size: 60px;
+        content: '\f110';
+        opacity: 1;
+        
+        -webkit-animation:spin 2s linear infinite;
+        -moz-animation:spin 2s linear infinite;
+        animation:spin 2s linear infinite;
+    }
+
+}
+
+.loading-container {
+    min-height: 450px;
+    position: relative;
+}
+
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+
+.animated {
+    transition: transform 0.8s ease-in-out;
+    animation-duration: 0.8s;
+}
+
+
+.button {
+    display: inline-block;
+    border: 1px solid $sidebar-border;
+    padding: 3px 5px;
+    text-decoration: none;
+    border-radius: 3px;
+    @include background(linear-gradient(top, $content-page-background, $content-dark-background));
+    
+    &:hover {
+        @include background(linear-gradient(top, $content-dark-background, $content-page-background));
+    }
+    
+    span {
+        font-size: 11px;
+    }
+    
+    &.button-notext {
+        span {
+            display: none;
+        }
+    }
+    
+    &.button-highlight {
+        @include background(linear-gradient(top, $content-highlight, $content-page-background));
+    }
+}
