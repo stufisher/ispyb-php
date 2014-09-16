@@ -42,7 +42,9 @@
         # Error messages as json object, should probably return a different
         # http code as well
         function _error($msg) {
-            $this->_output($msg);
+            header('HTTP/1.1 400 Bad Request');
+            header('Content-type:application/json');
+            print json_encode($msg);
             exit();
         }
         
