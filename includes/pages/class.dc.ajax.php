@@ -525,7 +525,7 @@
             
             #$this->db->set_debug(True);
             #$this->db->set_stats(True);
-            $this->profile = True;
+            #$this->profile = True;
             
             if (!($this->has_arg('visit') || $this->has_arg('prop'))) $this->_error('No visit or proposal specified');
             
