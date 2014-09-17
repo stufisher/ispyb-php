@@ -19,13 +19,23 @@
                               'visits' => '_get_visits',
                               'set' => '_set_proposal',
                               'comment' => '_set_comment',
-
+                              'user' => '_get_user',
+                              'login' => '_login',
                               );
         
         var $def = 'proposals';
         #var $profile = True;
         //var $debug = True;
         #var $explain = True;
+        
+        
+        
+        function _get_user() {
+            $this->_output(phpCAS::getUser());
+        }
+        
+        function _login() {
+        }
         
         
         # ------------------------------------------------------------------------
