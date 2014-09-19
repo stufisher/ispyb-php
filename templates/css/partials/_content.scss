@@ -515,7 +515,8 @@ ol.rounded {
                 font-size: 12px;
             }
             
-            > div > table.atoms {
+            > div > table.atoms,
+            .ui-tabs-panel table.atoms {
                 width: 50%;
                 
                 @media (max-width: $breakpoint-vsmall) {
@@ -523,7 +524,8 @@ ol.rounded {
                 }
             }
             
-            > div > table.rstats {
+            > div > table.rstats,
+            .ui-tabs-panel table.rstats {
                 width: 68%;
                 margin-top: 5px;
                 
@@ -534,7 +536,8 @@ ol.rounded {
             
             
             > table,
-            > div > table {
+            > div > table,
+            .ui-tabs-panel table {
                 font-size: 10px;
                 width: 100%;
                 
