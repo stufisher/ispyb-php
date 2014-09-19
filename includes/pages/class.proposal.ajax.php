@@ -31,7 +31,7 @@
         
         
         function _get_user() {
-            $this->_output(phpCAS::getUser());
+            $this->_output(array('user' => phpCAS::getUser(), 'is_staff' => $this->staff));
         }
         
         function _login() {
