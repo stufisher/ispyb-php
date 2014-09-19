@@ -87,7 +87,7 @@
             
             if ($this->has_arg('sid')) {
                 if (sizeof($rows)) $this->_output($rows[0]);
-                else $this->_output(array());
+                else $this->_error('No such shipment');
             } else $this->_output($rows);
         }
         
@@ -112,11 +112,23 @@
         
         function _get_dewars() {
             if (!$this->has_arg('prop')) $this->_error('No proposal id specified');
-            if (!$this->has_arg('sid')) $this->_error('No shipment id specified');
+            if (!$this->has_arg('sid') && !$this->has_arg('did')) $this->_error('No shipment or dewar id specified');
             
-            $dewars = $this->db->pq("SELECT d.facilitycode, count(c.containerid) as ccount, (case when se.visit_number > 0 then (p.proposalcode||p.proposalnumber||'-'||se.visit_number) else '' end) as exp, d.code, d.barcode, d.storagelocation, d.dewarstatus, d.dewarid,  d.trackingnumbertosynchrotron, d.trackingnumberfromsynchrotron FROM ispyb4a_db.dewar d LEFT OUTER JOIN ispyb4a_db.container c ON c.dewarid = d.dewarid INNER JOIN ispyb4a_db.shipping s ON d.shippingid = s.shippingid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid LEFT OUTER JOIN ispyb4a_db.blsession se ON d.firstexperimentid = se.sessionid WHERE s.proposalid=:1 AND d.shippingid=:2 GROUP BY (case when se.visit_number > 0 then (p.proposalcode||p.proposalnumber||'-'||se.visit_number) else '' end), d.code, d.barcode, d.storagelocation, d.dewarstatus, d.dewarid,  d.trackingnumbertosynchrotron, d.trackingnumberfromsynchrotron, d.facilitycode", array($this->proposalid, $this->arg('sid')));
+            if ($this->has_arg('did')) {
+                $where = ' d.dewarid=:2';
+                $arg = $this->arg('did');
+            } else {
+                $where = ' d.shippingid=:2';
+                $arg = $this->arg('sid');
+            }
             
-            $this->_output($dewars);
+            
+            $dewars = $this->db->pq("SELECT d.firstexperimentid, s.shippingid, s.shippingname, d.facilitycode, count(c.containerid) as ccount, (case when se.visit_number > 0 then (p.proposalcode||p.proposalnumber||'-'||se.visit_number) else '' end) as exp, d.code, d.barcode, d.storagelocation, d.dewarstatus, d.dewarid,  d.trackingnumbertosynchrotron, d.trackingnumberfromsynchrotron FROM ispyb4a_db.dewar d LEFT OUTER JOIN ispyb4a_db.container c ON c.dewarid = d.dewarid INNER JOIN ispyb4a_db.shipping s ON d.shippingid = s.shippingid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid LEFT OUTER JOIN ispyb4a_db.blsession se ON d.firstexperimentid = se.sessionid WHERE s.proposalid=:1 AND $where GROUP BY (case when se.visit_number > 0 then (p.proposalcode||p.proposalnumber||'-'||se.visit_number) else '' end),s.shippingid, s.shippingname, d.code, d.barcode, d.storagelocation, d.dewarstatus, d.dewarid,  d.trackingnumbertosynchrotron, d.trackingnumberfromsynchrotron, d.facilitycode, d.firstexperimentid", array($this->proposalid, $arg));
+            
+            if ($this->has_arg('did')) {
+                if (sizeof($dewars)) $this->_output($dewars[0]);
+                else $this->_error('No such dewar');
+            } else $this->_output($dewars);
             
         }
         
@@ -554,7 +566,7 @@
                 }
             }
 
-            $this->db->pq("INSERT INTO container (containerid,dewarid,code,bltimestamp,capacity) VALUES (s_container.nextval,:1,:2,CURRENT_TIMESTAMP,16) RETURNING containerid INTO :id", array($this->arg('did'), $this->arg('container')));
+            $this->db->pq("INSERT INTO container (containerid,dewarid,code,bltimestamp,capacity,containertype) VALUES (s_container.nextval,:1,:2,CURRENT_TIMESTAMP,16,'Puck') RETURNING containerid INTO :id", array($this->arg('did'), $this->arg('container')));
                                  
             $cid = $this->db->id();
                              
