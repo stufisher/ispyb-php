@@ -4,7 +4,8 @@
         
         var $session_close = True;
         
-        function __construct($db, $args) {
+        function __construct($db, $args, $type) {
+            $this->ptype = $type;
             $this->last_profile = microtime(True);
             $this->db = $db;
             $this->db->set_debug($this->debug);
@@ -20,7 +21,11 @@
             }
             
             $this->_parse_args($args);
-            if (!$this->_auth()) return;
+            #if (!$this->_auth()) return;
+            $this->ptype->set_args($this->args);
+            if (!$this->ptype->auth($this->require_staff, $this)) return;
+            $this->staff = $this->ptype->is_staff();
+            $this->proposalid = $this->ptype->pid();
             
             if ($this->session_close) session_write_close();
             

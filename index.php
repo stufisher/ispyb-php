@@ -69,6 +69,12 @@
         phpCAS::logout();
     }
     
+    include_once('includes/class.type.php');
+    $type = new ProposalType($db, $parts);
+    $type->get_type();
+    
+    return;
+    
     # New pages need to be added to this array in order for them to be
     # parsed
     $pages = array(

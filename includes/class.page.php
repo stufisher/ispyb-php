@@ -23,11 +23,13 @@
         
         function _base() {
             $rc = new ReflectionClass(get_class($this));
-            return 'includes/pages/'.basename($rc->getFileName(), '.php');
+            #return 'includes/pages/'.basename($rc->getFileName(), '.php');
+            return dirname($rc->getFileName()).'/'.basename($rc->getFileName(), '.php');
         }
 
         
-        function __construct($db, $args) {
+        function __construct($db, $args, $type) {
+            $this->ptype = $type;
             global $sgs;
             $this->sgs = $sgs;
             
@@ -48,7 +50,7 @@
                         include_once('class.ajax.php');
                         include_once($aj);
                         
-                        $ajax = new Ajax($db, $args);
+                        $ajax = new Ajax($db, $args, $type);
                         return;
                     }
                     
@@ -60,7 +62,11 @@
             }
             
             $this->_parse_args($args);
-            if (!$this->_auth()) return;
+            #if (!$this->_auth()) return;
+            $this->ptype->set_args($this->args);
+            if (!$this->ptype->auth($this->require_staff, $this)) return;
+            $this->staff = $this->ptype->is_staff();
+            $this->proposalid = $this->ptype->pid();
             
             #session_write_close();
             
@@ -69,7 +75,7 @@
             $this->$fn();
         }
         
-        
+        /*
         # ------------------------------------------------------------------------
         # Check that users have access to the pages they are trying to access
         function _auth() {
@@ -183,7 +189,7 @@
             
             return $auth;
             
-        }
+        }*/
         
         
         # ------------------------------------------------------------------------
@@ -263,6 +269,7 @@
             }
             
             $this->t = new Template($title, $this->nav($p, $new), $hf);
+            $this->t->set_type($this->ptype);
             if ($this->sidebar) $this->t->side();
             $this->t->prop = $this->has_arg('prop') ? $this->arg('prop') : '';
             $this->t->sass = $this->has_arg('sass');
