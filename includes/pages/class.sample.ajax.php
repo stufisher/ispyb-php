@@ -89,10 +89,22 @@
                 array_push($args, $this->arg('sid'));                
             }
             
+            
+            # For a visit
+            if ($this->has_arg('visit')) {
+                $info = $this->db->pq("SELECT s.beamlinename as bl FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')));
+            
+                if (!sizeof($info)) $this->_error('No such visit');
+                else $info = $info[0];
+                                      
+                $where .= " AND d.dewarstatus='processing' AND c.beamlinelocation LIKE :".(sizeof($args)+1)." AND c.samplechangerlocation is NOT NULL";
+                array_push($args, $info['BL']);
+            }
+            
             $sta = $this->has_arg('iDisplayStart') ? $this->arg('iDisplayStart') : 0;
             $len = $this->has_arg('iDisplayLength') ? $this->arg('iDisplayLength') : 20;
             
-            $tot = $this->db->pq("SELECT count(distinct b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = pr.proposalid INNER JOIN ispyb4a_db.container c ON c.containerid = b.containerid $join WHERE $where", $args);
+            $tot = $this->db->pq("SELECT count(distinct b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = pr.proposalid INNER JOIN ispyb4a_db.container c ON c.containerid = b.containerid INNER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid $join WHERE $where", $args);
             $tot = $tot[0]['TOT'];
             
             if ($this->has_arg('sSearch')) {
@@ -102,7 +114,7 @@
             }
             
             
-            $flt = $this->db->pq("SELECT count(distinct b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = pr.proposalid INNER JOIN ispyb4a_db.container c ON c.containerid = b.containerid $join WHERE $where", $args);
+            $flt = $this->db->pq("SELECT count(distinct b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = pr.proposalid INNER JOIN ispyb4a_db.container c ON c.containerid = b.containerid INNER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid $join WHERE $where", $args);
             $flt = $flt[0]['TOT'];
             
             $st = sizeof($args) + 1;
@@ -119,7 +131,9 @@
             }
             
             $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (
-                                  SELECT distinct b.blsampleid, b.code, b.location, pr.acronym, pr.proteinid, cr.spacegroup,b.comments,b.name,s.shippingname as shipment,s.shippingid,d.dewarid,d.code as dewar, c.code as container, c.containerid FROM ispyb4a_db.blsample b
+                                  SELECT distinct b.blsampleid, b.code, b.location, pr.acronym, pr.proteinid, cr.spacegroup,b.comments,b.name,s.shippingname as shipment,s.shippingid,d.dewarid,d.code as dewar, c.code as container, c.containerid, c.samplechangerlocation as sclocation, count(distinct dc.datacollectionid) as sc, count(distinct dc2.datacollectionid) as dc, count(distinct so.screeningid) as ai, count(distinct ap.autoprocintegrationid) as ap, count(distinct r.robotactionid) as r
+                                  
+                                  FROM ispyb4a_db.blsample b
                                   INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid
                                   INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid
                                   INNER JOIN ispyb4a_db.container c ON b.containerid = c.containerid
@@ -127,7 +141,17 @@
                                   INNER JOIN ispyb4a_db.shipping s ON s.shippingid = d.shippingid
                                   INNER JOIN ispyb4a_db.proposal p ON p.proposalid = pr.proposalid
                                   $join
+                                  
+                                  LEFT OUTER JOIN ispyb4a_db.datacollection dc ON b.blsampleid = dc.blsampleid AND dc.overlap != 0
+                                  LEFT OUTER JOIN ispyb4a_db.screening sc ON dc.datacollectionid = sc.datacollectionid
+                                  LEFT OUTER JOIN ispyb4a_db.screeningoutput so ON sc.screeningid = so.screeningid
+                                  LEFT OUTER JOIN ispyb4a_db.datacollection dc2 ON b.blsampleid = dc2.blsampleid AND dc2.overlap = 0 AND dc2.axisrange > 0
+                                  LEFT OUTER JOIN ispyb4a_db.autoprocintegration ap ON ap.datacollectionid = dc2.datacollectionid
+                                  LEFT OUTER JOIN ispyb4a_db.robotaction r ON r.blsampleid = b.blsampleid AND r.actiontype = 'LOAD'
+                                  
                                   WHERE $where
+                                  
+                                  GROUP BY b.blsampleid, b.code, b.location, pr.acronym, pr.proteinid, cr.spacegroup,b.comments,b.name,s.shippingname,s.shippingid,d.dewarid,d.code, c.code, c.containerid, c.samplechangerlocation
                                   
                                   ORDER BY $order
                                   ) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
@@ -151,7 +175,10 @@
                 
             foreach ($rows as &$r) {
                 $snap = '';
-                if (array_key_exists($r['BLSAMPLEID'], $dcs)) $snap = '<image class="img" src="/image/id/'.$dcs[$r['BLSAMPLEID']]['DCID'].'" title="Crystal Snapshot 1" />';
+                if (array_key_exists($r['BLSAMPLEID'], $dcs)) {
+                    $snap = '<image class="img" src="/image/id/'.$dcs[$r['BLSAMPLEID']]['DCID'].'" title="Crystal Snapshot 1" />';
+                    $r['DCID'] = $dcs[$r['BLSAMPLEID']]['DCID'];
+                } else $r['DCID'] = 0;
                 
                 $dcount = array_key_exists($r['BLSAMPLEID'], $dcs) ? $dcs[$r['BLSAMPLEID']]['DCOUNT'] : 0;
                 $r['DCOUNT'] = $dcount;
