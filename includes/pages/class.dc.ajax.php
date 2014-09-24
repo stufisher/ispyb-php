@@ -321,14 +321,14 @@
             $q = "SELECT outer.*
              FROM (SELECT ROWNUM rn, inner.*
              FROM (
-             SELECT $extc smp.name as sample,smp.blsampleid, ses.visit_number as vn, dc.kappastart as kappa, dc.phistart as phi, dc.startimagenumber as si, dc.experimenttype as dct, dc.datacollectiongroupid as dcg, dc.runstatus, dc.beamsizeatsamplex as bsx, dc.beamsizeatsampley as bsy, dc.overlap, 1 as flux, 1 as scon, 'a' as spos, 'a' as san, 'data' as type, dc.imageprefix as imp, dc.datacollectionnumber as run, dc.filetemplate, dc.datacollectionid as id, dc.numberofimages as ni, dc.imagedirectory as dir, dc.resolution, dc.exposuretime, dc.axisstart, dc.numberofimages as numimg, TO_CHAR(dc.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, dc.transmission, dc.axisrange, dc.wavelength, dc.comments, 1 as epk, 1 as ein, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4, dc.starttime as sta FROM ispyb4a_db.datacollection dc
+             SELECT $extc smp.name as sample,smp.blsampleid, ses.visit_number as vn, dc.kappastart as kappa, dc.phistart as phi, dc.startimagenumber as si, dc.experimenttype as dct, dc.datacollectiongroupid as dcg, dc.runstatus, dc.beamsizeatsamplex as bsx, dc.beamsizeatsampley as bsy, dc.overlap, 1 as flux, 1 as scon, 'a' as spos, 'a' as san, 'data' as type, dc.imageprefix as imp, dc.datacollectionnumber as run, dc.filetemplate, dc.datacollectionid as id, dc.numberofimages as ni, dc.imagedirectory as dir, dc.resolution, dc.exposuretime, dc.axisstart, dc.numberofimages as numimg, TO_CHAR(dc.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, dc.transmission, dc.axisrange, dc.wavelength, dc.comments, 1 as epk, 1 as ein, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4, dc.starttime as sta, dc.detectordistance as det, dc.xbeam, dc.ybeam FROM ispyb4a_db.datacollection dc
              INNER JOIN ispyb4a_db.blsession ses ON ses.sessionid = dc.sessionid
              LEFT OUTER JOIN ispyb4a_db.blsample smp ON dc.blsampleid = smp.blsampleid
              $extj[0]
              WHERE $sess[0] $where
                    
              UNION
-             SELECT $extc smp.name as sample,smp.blsampleid, ses.visit_number as vn, 1,1,1,'A',1,'A',1,1,1, 1, 1 as scon, 'A' as spos, 'A' as sn, 'edge' as type, es.jpegchoochfilefullpath, 1, 'A', es.energyscanid, 1, es.element, es.peakfprime, es.exposuretime, es.peakfdoubleprime, 1, TO_CHAR(es.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, es.transmissionfactor, es.inflectionfprime, es.inflectionfdoubleprime, es.comments, es.peakenergy, es.inflectionenergy, 'A', 'A', 'A', 'A', es.starttime as sta FROM ispyb4a_db.energyscan es
+             SELECT $extc smp.name as sample,smp.blsampleid, ses.visit_number as vn, 1,1,1,'A',1,'A',1,1,1, 1, 1 as scon, 'A' as spos, 'A' as sn, 'edge' as type, es.jpegchoochfilefullpath, 1, 'A', es.energyscanid, 1, es.element, es.peakfprime, es.exposuretime, es.peakfdoubleprime, 1, TO_CHAR(es.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, es.transmissionfactor, es.inflectionfprime, es.inflectionfdoubleprime, es.comments, es.peakenergy, es.inflectionenergy, 'A', 'A', 'A', 'A', es.starttime as sta, 1, 1, 1 FROM ispyb4a_db.energyscan es
             INNER JOIN ispyb4a_db.blsession ses ON ses.sessionid = es.sessionid
             LEFT OUTER  JOIN ispyb4a_db.blsample_has_energyscan bes ON es.energyscanid = bes.energyscanid
             INNER JOIN ispyb4a_db.blsample smp ON bes.blsampleid = smp.blsampleid
@@ -336,14 +336,14 @@
             WHERE $sess[1] $where2
                    
             UNION
-            SELECT $extc smp.name as sample,smp.blsampleid, ses.visit_number as vn, 1,1,1,'A',1,'A',1,1,1, 1, 1, 'A', 'A', 'mca' as type, 'A', 1, 'A', xrf.xfefluorescencespectrumid, 1, xrf.filename, 1, xrf.exposuretime, 1, 1, TO_CHAR(xrf.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, xrf.beamtransmission, 1, xrf.energy, xrf.comments, 1, 1, 'A', 'A', 'A', 'A', xrf.starttime as sta FROM ispyb4a_db.xfefluorescencespectrum xrf
+            SELECT $extc smp.name as sample,smp.blsampleid, ses.visit_number as vn, 1,1,1,'A',1,'A',1,1,1, 1, 1, 'A', 'A', 'mca' as type, 'A', 1, 'A', xrf.xfefluorescencespectrumid, 1, xrf.filename, 1, xrf.exposuretime, 1, 1, TO_CHAR(xrf.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, xrf.beamtransmission, 1, xrf.energy, xrf.comments, 1, 1, 'A', 'A', 'A', 'A', xrf.starttime as sta, 1, 1, 1 FROM ispyb4a_db.xfefluorescencespectrum xrf
             INNER JOIN ispyb4a_db.blsession ses ON ses.sessionid = xrf.sessionid
             LEFT OUTER  JOIN ispyb4a_db.blsample smp ON xrf.blsampleid = smp.blsampleid     
             $extj[3]
             WHERE $sess[3] $where4
                    
             UNION
-            SELECT $extc smp.name as sample,smp.blsampleid, ses.visit_number as vn, 1,1,1,'A',1,'A',ROUND((CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400, 1),1,1, 1, 1, r.status, r.message, 'load' as type, r.actiontype, 1, 'A', r.robotactionid, 1,  r.samplebarcode, r.containerlocation, r.dewarlocation, 1, 1, TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, 1, 1, 1, 'A', 1, 1, 'A', 'A', 'A', 'A', r.starttimestamp as sta FROM ispyb4a_db.robotaction r
+            SELECT $extc smp.name as sample,smp.blsampleid, ses.visit_number as vn, 1,1,1,'A',1,'A',ROUND((CAST(r.endtimestamp AS DATE)-CAST(r.starttimestamp AS DATE))*86400, 1),1,1, 1, 1, r.status, r.message, 'load' as type, r.actiontype, 1, 'A', r.robotactionid, 1,  r.samplebarcode, r.containerlocation, r.dewarlocation, 1, 1, TO_CHAR(r.starttimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, 1, 1, 1, 'A', 1, 1, 'A', 'A', 'A', 'A', r.starttimestamp as sta, 1, 1, 1 FROM ispyb4a_db.robotaction r
             INNER JOIN ispyb4a_db.blsession ses ON ses.sessionid = r.blsessionid
             LEFT OUTER  JOIN ispyb4a_db.blsample smp ON r.blsampleid = smp.blsampleid
             $extj[2]
@@ -568,9 +568,9 @@
             $aps2 = array(
                          array('fast_dp/', 'fast_dp.log', 'I/sigma'),
                          
-                         array('xia2/2da-run/', 'xia2.txt' , 'I/sigma'),
-                         array('xia2/3da-run/', 'xia2.txt' , 'I/sigma'),
-                         array('xia2/3daii-run/', 'xia2.txt' , 'I/sigma'),
+                         array('xia2/2d-run/', 'xia2.txt' , 'I/sigma'),
+                         array('xia2/3d-run/', 'xia2.txt' , 'I/sigma'),
+                         array('xia2/3dii-run/', 'xia2.txt' , 'I/sigma'),
                          
                          array('fast_ep/', 'fast_ep.log', 'Best spacegroup'),
                          array('fast_dp/dimple/', 'refmac5_restr.log', 'Cruickshanks'),
