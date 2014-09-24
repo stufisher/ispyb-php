@@ -213,6 +213,7 @@ $(function() {
                         
                          
                              '<ul class="clearfix">'+
+                                 (r['BLSAMPLEID'] ? '<li><span class="sample"> <span class="wrap">Sample: <a href="/sample/sid/'+r['BLSAMPLEID']+'/visit/'+prop+'-'+r['VN']+'">'+r['SAMPLE']+'</a></span></span></li>' : '')+
                                  '<li>&Omega; Start: '+r['AXISSTART']+'&deg;</li>'+
                                  '<li>&Omega; Osc: '+r['AXISRANGE']+'&deg;</li>'+
                                  '<li>&Omega; Overlap: '+r['OVERLAP']+'&deg;</li>'+
@@ -256,6 +257,7 @@ $(function() {
                                  '</h1>'+
 
                              '<ul class="clearfix half">'+
+                                 (r['BLSAMPLEID'] ? '<li><span class="sample"> <span class="wrap">Sample: <a href="/sample/sid/'+r['BLSAMPLEID']+'/visit/'+prop+'-'+r['VN']+'">'+r['SAMPLE']+'</a></span></span></li>': '')+
                                  '<li>E(Peak): '+r['EPK']+'eV (' + (ev/r['EPK']).toFixed(4) + '&#197;)</li>'+
                                  '<li>f&rsquo;&rsquo;: '+r['AXISSTART']+' / f&rsquo;: '+r['RESOLUTION']+'e</li>'+
                                  '<li>E(Inf): '+r['EIN']+'eV (' + (ev/r['EIN']).toFixed(4) + '&#197;)</li>'+
@@ -290,6 +292,7 @@ $(function() {
                                  '</h1>'+
 
                              '<ul class="clearfix half">'+
+                                 (r['BLSAMPLEID'] ? '<li><span class="sample"> <span class="wrap">Sample: <a href="/sample/sid/'+r['BLSAMPLEID']+'/visit/'+prop+'-'+r['VN']+'">'+r['SAMPLE']+'</a></span></span></li>' : '')+
                                  '<li>Energy: '+r['WAVELENGTH']+'eV</li>'+
                                  '<li>Exposure: '+r['EXPOSURETIME']+'s</li>'+
                                  '<li>Transmission: '+r['TRANSMISSION']+'%</li>'+
@@ -315,6 +318,7 @@ $(function() {
                                '</div>'+
                                '<h1><span class="date">'+vis_link+' '+r['ST']+'</span><span class="spacer"> - </span><span class="temp">Sample '+r['IMP'].toLowerCase()+'</span></h1>'+
                                  '<ul class="clearfix">'+
+                                    (r['BLSAMPLEID'] ? '<li><span class="sample"> <span class="wrap">Sample: <a href="/sample/sid/'+r['BLSAMPLEID']+'/visit/'+prop+'-'+r['VN']+'">'+r['SAMPLE']+'</a></span></span></li>' :'')+
                                    '<li>Time: '+r['BSX']+'s</li>'+
                                  '</ul>'+
                              '</div>').hide().prependTo('.data_collections').slideDown(100)
@@ -325,7 +329,7 @@ $(function() {
                          // Robot loads
                          } else {
                            $('<div class="data_collection" dcid="'+r['ID']+'" type="robot">' +
-                             '<h1>'+r['ST']+' - Robot '+r['IMP'].toLowerCase()+'ing puck ' + r['EXPOSURETIME'] +' pin ' + r['RESOLUTION'] + ' (Barcode: '+r['DIR']+') Status: '+r['SPOS']+' - '+r['SAN']+' (Took '+r['BSX']+'s)</h1>' +
+                             '<h1>'+r['ST']+' - Robot '+r['IMP'].toLowerCase()+'ing puck ' + r['EXPOSURETIME'] +' pin ' + r['RESOLUTION'] + ' (Barcode: '+r['DIR']+') Status: '+r['SPOS']+' - '+r['SAN']+' (Took '+r['BSX']+'s) '+                                 (r['BLSAMPLEID'] ? '<span class="sample">Sample: <a href="/sample/sid/'+r['BLSAMPLEID']+'/visit/'+prop+'-'+r['VN']+'">'+r['SAMPLE']+'</a></span>' : '')+'</h1>' +
                              '</div>').data('apr', r['AP']).hide().prependTo('.data_collections').slideDown(100)
                        
                            if (!first) log_message('New sample loaded', '<a href="#'+r['ID'] +'">Puck: ' + r['EXPOSURETIME'] +' Pin: ' + r['RESOLUTION']+ ' Barcode: ' +r['DIR'] + '</a>')
@@ -648,49 +652,12 @@ $(function() {
     var date = new Date(dmy[2], dmy[1]-1, dmy[0], hms[0], hms[1], hms[2], 0)
     return date
   }
-  
-  
-  // Get samples for each data collection
-  function _get_sample() {
-    var ids = [], tys = []
-    $('.data_collection').each(function(i,dc) {
-      if (!$(dc).attr('sample')) {
-        ids.push($(dc).attr('dcid'))
-        tys.push($(dc).attr('type'))
-      }
-    })
-  
-    if (ids.length) {
-      $.ajax({
-        url: '/dc/ajax/sf' + (is_visit ? ('/visit/'+visit) : ''),
-        type: 'POST',
-        data: { ids: ids, tys: tys },
-        dataType: 'json',
-        timeout: 20000,
-        success: function(list) {
-          $.each(list, function(id,dc) {
-            var d = $('.data_collection[dcid='+id+'][type='+dc['TY']+']')
-            if (d.length) {
-              if (dc['SID'] && !$(d).find('.sample').length) {
-                if (dc['TY'] == 'robot') $('<span class="sample"> <span class="wrap">Sample: <a href="/sample/sid/'+dc['SID']+'">' + dc['SAN'] + ' (m' + dc['SCON'] + 'p' + dc['SPOS']+')</a></span></span>').appendTo($(d).children('h1'))
-                else $('<li class="sample"><span class="wrap">Sample: <a href="/sample/sid/'+dc['SID']+'/visit/'+prop+'">' + dc['SAN'] + ' (m' + dc['SCON'] + 'p' + dc['SPOS']+')</a></span></li>').prependTo($(d).children('ul'))
-              
-              }
-              $(d).attr('sample', true)
-            }
-          })
-             
-          list = null
-        }
-      })
-    }
-  }
+
   
   
   function map_callbacks() {
       update_aps()
       _show_images()
-      _get_sample()
       if (is_visit) _draw_sample_status()
   
       $('.data_collection a.sn').unbind('click').click(function() {
