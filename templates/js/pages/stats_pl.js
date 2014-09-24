@@ -30,7 +30,7 @@ $(function() {
         url: '/stats/ajax/pl'+(t ? ('/t/'+t) : ''),
         type: 'GET',
         dataType: 'json',
-        timeout: 15000,
+        timeout: 80000,
         success: function(data){
             var ops = {
                 axisLabels: {
