@@ -22,9 +22,10 @@
                               'iDisplayLength' => '\d+',
                               'iSortCol_0' => '\d+',
                               'sSortDir_0' => '\w+',
-                              'sSearch' => '\w+',
+                              'sSearch' => '[\w|\s]+',
                               'pp' => '\d+',
                               'page' => '\d+',
+                              'dist' => '\d+(.\d+)?',
                               );
         
         var $dispatch = array('cells' => '_cells',
@@ -154,7 +155,7 @@
                     $bls = array();
                     
                     foreach ($rows as $r) {
-                        $dcids[$r['ID']] = 1;
+                        $dcids[$r['ID']] = $r['ST'];
                         $bls[$r['BL']] = 1;
                         
                         if (str_replace('DIAMOND BEAMLINE ', '', $this->arg('bl')) ==  strtoupper($r['BL'])) $blmatch = true;
@@ -175,6 +176,7 @@
                     
                     $d['BLS'] = array_keys($bls);
                     $d['DCIDS'] = array_keys($dcids);
+                    $d['DCTIMES'] = $dcids;
                     $d['UMATCH'] = $umatch;
                     $d['UMATCHL'] = $umatchl;
                     $d['BLMATCH'] = $blmatch;
@@ -202,6 +204,9 @@
             $st = $this->has_arg('iDisplayStart') ? $this->arg('iDisplayStart') : 0;
             $len = $this->has_arg('iDisplayLength') ? $this->arg('iDisplayLength') : 10;
             
+            $ap = array();
+            $app = array('Auto Processed' => 0, 'Manual' => 0);
+            
             foreach (array('No Results', 'No Match', 'Mismatch', 'Matched') as $k) $stats[$k] = 0;
             
             if (file_exists('tables/pdbs.json')) {
@@ -216,6 +221,22 @@
                     if ($d->RESULTS > 0 && !$d->BLMATCH) $s = 'No Match';
                     if ($d->RESULTS > 0 && !$d->BLMATCH && $d->UMATCH) $s = 'Mismatch';
                     if ($d->BLMATCH) $s = 'Matched';
+
+                    
+                    list($y) = explode('-', $d->YEAR);
+                    if (!array_key_exists($y, $ap)) {
+                        $ap[$y] = array('Auto Processed' => 0, 'Manual' => 0);
+                    }
+                    
+                    if ($d->BLMATCH && $d->DIST < ($this->has_arg('dist') ? $this->arg('dist') : 0.2)) {
+                        $app['Auto Processed']++;
+                        $ap[$y]['Auto Processed']++;
+                    } else {
+                        $app['Manual']++;
+                        $ap[$y]['Manual']++;
+                    }
+                    
+                
                     
                     #if ($s == 'Matched') array_push($processed, $d->PDB);
                     if ($s != 'No Results') array_push($processed, $d->PDB);
@@ -268,6 +289,8 @@
             
             $this->_output(array('iTotalRecords' => $tot,
                                  'iTotalDisplayRecords' => sizeof($rows),
+                                 'apstats' => $ap,
+                                 'appie' => $app,
                                  'stats' => $stats,
                                  'perbl' => $perbl,
                                  'perbl_old' => $perbl_old,

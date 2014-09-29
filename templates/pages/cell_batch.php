@@ -36,6 +36,22 @@
     </div>
 
 
+    <h1>Auto Processing Stats</h1>
+    <p>Results prior to 2010-05 are excluded from the calculated statistics</p>
+    Distance Cutoff: <input name="dist" value="0.2" /> <button name="update">Update</button>
+
+    <div class="plot_wrap clearfix">
+        <div class="plot_container left">
+            <div id="aps"></div>
+            <p>Breakdown of PDB depositions</p>
+        </div>
+
+        <div class="plot_container right">
+            <div id="apstats"></div>
+            <p>Depositions per year</p>
+        </div>
+    </div>
+
     <h1 class="ph">Process</h1>
     <div class="pdbs data_collection">
         <select name="beamline">

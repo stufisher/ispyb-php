@@ -11,6 +11,9 @@ $(function() {
   var perbl_old = {}
   var blns = ['i02', 'i03', 'i04', 'i04-1', 'i24']
   
+  var appie = {}
+  var apstats = {}
+    
   $('h1.ph').click(function() {
     $('div.pdbs').slideToggle()
   })
@@ -19,6 +22,9 @@ $(function() {
                                           bProcessing: true,
                                           bServerSide: true,
                                           sAjaxSource: '/cell/ajax/analysed/',
+                                          fnServerParams: function ( aoData ) {
+                                            aoData.push( { name: 'dist', value: $('input[name=dist]').val() } )
+                                          },
                                           aaSorting: [[ 0, 'desc' ]],
                                           fnServerData: function (sSource, aoData, fnCallback, oSettings) {
                                             oSettings.jqXHR = $.ajax({
@@ -31,6 +37,8 @@ $(function() {
                                                         processed = json['processed'],
                                                         perbl = json['perbl'],
                                                         perbl_old = json['perbl_old'],
+                                                        appie = json.appie,
+                                                        apstats = json.apstats
                                                         _plots()
                                                         fnCallback(json)
                                                         $('a.ext').button({ icons: { primary: 'ui-icon-extlink' }, text: false })
@@ -39,6 +47,10 @@ $(function() {
                                             }
                                          })
   
+  $('button[name=update').click(function() {
+      dt.fnDraw()
+  })
+    
   function _get_ids(bl) {
     var query = '<orgPdbQuery>'+
         '<queryType>org.pdb.query.simple.XrayDiffrnSourceQuery</queryType>'+
@@ -162,10 +174,7 @@ $(function() {
   
   
   function _plots() {
-    var pie = []
-    for (t in stats) pie.push({label: t, data: stats[t]})
-  
-    $.plot('#visit_pie', pie, {
+    var ops = {
          series: {
             pie: {
                 show: true,
@@ -184,8 +193,17 @@ $(function() {
          grid: {
             hoverable: true,
          }
-    })
+    }
+      
+    var pie = []
+    for (t in stats) pie.push({label: t, data: stats[t]})
+    $.plot('#visit_pie', pie, ops)
+        
+    var pie2 = []
+    for (t in appie) pie2.push({label: t, data: appie[t]})
+    $.plot('#aps', pie2, ops)
   
+                    
     var pery = []
     var pery2 = []
     var yk = []
@@ -224,10 +242,29 @@ $(function() {
         },
     }
   
+    console.log(pery)
+                    
     $.plot('#pdbs', pery, ops)
     $.plot('#pdbs2', pery2, ops)
   
+      
+    var pery = [{label: 'AP', data: []}, {label: 'Manual', data: []}]
+    $.each(apstats, function(y,e) {
+        console.log(y,e)
+        pery[0].data.push([yk.indexOf(y), e['Auto Processed']])
+        pery[1].data.push([yk.indexOf(y), e['Manual']])
+    })
+      
+    ykt = []
+    $.each(yk, function(i,y) {
+        ykt.push([i.toString(),y])
+    })
+                    
+    console.log(ticks, ykt)
+    $.plot('#apstats', pery, $.extend(ops, { xaxis: { ticks: ykt } }))
+      
   }
+    
   
   function labelFormatter(label, series) {
     return "<div style='font-size:8pt; text-align:center; padding:2px; color:white;'>" + label + "<br/>" + series.percent.toFixed(1) + "%</div>";
