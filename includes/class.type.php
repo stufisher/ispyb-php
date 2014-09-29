@@ -112,6 +112,12 @@ class ProposalType {
             $tyc = new $type_class($this->db, $this->parts);
             $tyc->dispatch();
             
+            
+        // Generic Pages
+        } else if (in_array($this->parts[0], $this->generic_pages)) {
+            $this->dispatch();
+            
+            
         // Default to show proposals list
         } else {
             $class = 'includes/pages/class.proposal.php';
