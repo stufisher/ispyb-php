@@ -1039,9 +1039,31 @@ $(function() {
         success: function(json){
             var count = json[0]
             var rows = json[1]
+            var xo = json[2]
            
             var out = ''
            
+            if (xo.length) {
+                var xos = ''
+                $.each(xo, function(i, x) {
+                    xos += '<tr>' +
+                    '<td>'+x.COMMENTS+'</td>' +
+                    '<td>'+x.KAPPA+'</td>' +
+                    '<td>'+x.PHI+'</td>' +
+                    '</tr>'
+                })
+                
+                out += '<h1>XOalign</h1>'+
+                '<table class="xo reflow">'+
+                '<thead><tr>' +
+                '<th>Aligned Axes</th>' +
+                '<th>Kappa</th>' +
+                '<th>Phi</th>' +
+                '</tr></thead>' +
+                '<tbody>'+xos+'</table>'+
+                '</table>'
+            }
+            
             var dh = '<thead><tr>' +
                     '<th>Strategy</th>' +
                     '<th>Description</th>' +

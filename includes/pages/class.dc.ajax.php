@@ -768,43 +768,49 @@
                 return;
             }
             
-            $rows = $this->db->pq('SELECT dc.datacollectionid as dcid, s.comments, dc.transmission as dctrn, dc.wavelength as lam, dc.imagedirectory imd, dc.imageprefix as imp, dc.comments as dcc, dc.blsampleid as sid, sl.spacegroup as sg, sl.unitcell_a as a, sl.unitcell_b as b, sl.unitcell_c as c, sl.unitcell_alpha as al, sl.unitcell_beta as be, sl.unitcell_gamma as ga, s.shortcomments as com, sssw.axisstart as st, sssw.exposuretime as time, sssw.transmission as tran, sssw.oscillationrange as oscran, sssw.resolution as res, sssw.numberofimages as nimg FROM ispyb4a_db.screeningstrategy st INNER JOIN ispyb4a_db.screeningoutput so on st.screeningoutputid = so.screeningoutputid INNER JOIN ispyb4a_db.screening s on so.screeningid = s.screeningid INNER JOIN ispyb4a_db.screeningstrategywedge ssw ON ssw.screeningstrategyid = st.screeningstrategyid INNER JOIN ispyb4a_db.screeningstrategysubwedge sssw ON sssw.screeningstrategywedgeid = ssw.screeningstrategywedgeid INNER JOIN ispyb4a_db.screeningoutputlattice sl ON sl.screeningoutputid = st.screeningoutputid INNER JOIN ispyb4a_db.datacollection dc on s.datacollectionid = dc.datacollectionid WHERE s.datacollectionid = :1', array($this->arg('id')));
+            $rows = $this->db->pq('SELECT ssw.kappa, ssw.phi, dc.datacollectionid as dcid, s.comments, dc.transmission as dctrn, dc.wavelength as lam, dc.imagedirectory imd, dc.imageprefix as imp, dc.comments as dcc, dc.blsampleid as sid, sl.spacegroup as sg, sl.unitcell_a as a, sl.unitcell_b as b, sl.unitcell_c as c, sl.unitcell_alpha as al, sl.unitcell_beta as be, sl.unitcell_gamma as ga, s.shortcomments as com, sssw.axisstart as st, sssw.exposuretime as time, sssw.transmission as tran, sssw.oscillationrange as oscran, sssw.resolution as res, sssw.numberofimages as nimg FROM ispyb4a_db.screeningstrategy st INNER JOIN ispyb4a_db.screeningoutput so on st.screeningoutputid = so.screeningoutputid INNER JOIN ispyb4a_db.screening s on so.screeningid = s.screeningid INNER JOIN ispyb4a_db.screeningstrategywedge ssw ON ssw.screeningstrategyid = st.screeningstrategyid LEFT JOIN ispyb4a_db.screeningstrategysubwedge sssw ON sssw.screeningstrategywedgeid = ssw.screeningstrategywedgeid LEFT JOIN ispyb4a_db.screeningoutputlattice sl ON sl.screeningoutputid = st.screeningoutputid INNER JOIN ispyb4a_db.datacollection dc on s.datacollectionid = dc.datacollectionid WHERE s.datacollectionid = :1', array($this->arg('id')));
         
             $output = array('EDNA' => array('CELL' => array(), 'STRATS' => array()), 'Mosflm' => array('CELL' => array(), 'STRATS' => array()));
+            $xo = array();
             $nf = array('A', 'B', 'C', 'AL', 'BE', 'GA');
             foreach ($rows as &$r) {
-                $t = strpos($r['COM'], 'EDNA') === false ? 'Mosflm' : 'EDNA'; 
+                if (strpos($r['COM'], 'XOalign') !== false) {
+                    array_push($xo, $r);
+                } else {
                 
-                foreach ($r as $k => &$v) {
-                    if (in_array($k, $nf)) {
-                        $v = number_format(floatval($v), 2);
-                        $output[$t]['CELL'][$k] = $v;
-                        unset($r[$k]);
+                    $t = strpos($r['COM'], 'EDNA') === false ? 'Mosflm' : 'EDNA'; 
+                    
+                    foreach ($r as $k => &$v) {
+                        if (in_array($k, $nf)) {
+                            $v = number_format(floatval($v), 2);
+                            $output[$t]['CELL'][$k] = $v;
+                            unset($r[$k]);
+                        }
+                        
+                        if ($k == 'TRAN') $v = number_format($v, 1);
+                        if ($k == 'TIME') $v = number_format($v, 3);
+                        if ($k == 'OSCRAN') $v = number_format($v, 2);
+                        if ($k == 'RES') $v = number_format($v, 2);
                     }
                     
-                    if ($k == 'TRAN') $v = number_format($v, 1);
-                    if ($k == 'TIME') $v = number_format($v, 3);
-                    if ($k == 'OSCRAN') $v = number_format($v, 2);
-                    if ($k == 'RES') $v = number_format($v, 2);
+                    $output[$t]['CELL']['SG'] = $r['SG'];
+                    unset($r['SG']);
+                    
+                    $r['COM'] = str_replace('EDNA', '', $r['COM']);
+                    $r['COM'] = str_replace('Mosflm ', '', $r['COM']);
+                    
+                    $r['VPATH'] = join('/', array_slice(explode('/', $r['IMD']),0,6));
+                    list(,,$r['BL']) = explode('/', $r['IMD']);
+                    $r['DIST'] = $this->_r_to_dist($r['BL'], $r['LAM'], $r['RES']);
+                    $r['ATRAN'] = round($r['TRAN']/100.0*$r['DCTRN'],1);
+                    list($r['NTRAN'], $r['NEXP']) = $this->_norm_et($r['ATRAN'], $r['TIME']);
+                    $r['AP'] = $this->_get_ap($r['DCC']);
+                    
+                    array_push($output[$t]['STRATS'], $r);
                 }
-                
-                $output[$t]['CELL']['SG'] = $r['SG'];
-                unset($r['SG']);
-                
-                $r['COM'] = str_replace('EDNA', '', $r['COM']);
-                $r['COM'] = str_replace('Mosflm ', '', $r['COM']);
-                
-                $r['VPATH'] = join('/', array_slice(explode('/', $r['IMD']),0,6));
-                list(,,$r['BL']) = explode('/', $r['IMD']);
-                $r['DIST'] = $this->_r_to_dist($r['BL'], $r['LAM'], $r['RES']);
-                $r['ATRAN'] = round($r['TRAN']/100.0*$r['DCTRN'],1);
-                list($r['NTRAN'], $r['NEXP']) = $this->_norm_et($r['ATRAN'], $r['TIME']);
-                $r['AP'] = $this->_get_ap($r['DCC']);
-                
-                array_push($output[$t]['STRATS'], $r);
             }
                 
-            $this->_output(array(sizeof($rows), $output));
+            $this->_output(array(sizeof($rows), $output, $xo));
         }
         
         # ------------------------------------------------------------------------        
