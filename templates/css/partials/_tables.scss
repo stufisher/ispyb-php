@@ -435,5 +435,11 @@ html[xmlns] .dataTables_wrapper { display: block; }
             td:nth-of-type(12):before { content: "Completeness"; }
             td:nth-of-type(13):before { content: "View / Download"; }
         }
+        
+        &.xo {
+            td:nth-of-type(1):before { content: "Aligned Axes"; }
+            td:nth-of-type(2):before { content: "Kappa"; }
+            td:nth-of-type(3):before { content: "Phi"; }
+        }
     }
 }
