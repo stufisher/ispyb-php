@@ -174,7 +174,7 @@
 
             foreach ($fault as $f) {
                 foreach ($dc as &$d) {
-                    if ($f['VISIT'] == $d['VISIT']) $d['FAULT'] = $f['LOST'];
+                    if ($f['VISIT'] == $d['VISIT']) $d['FAULT'] = $f['LOST'] ? $f['LOST'] : 0;
                 }
             }
             
