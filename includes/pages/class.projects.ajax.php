@@ -4,6 +4,7 @@
         
         var $arg_list = array('pid' => '\d+',
                               'array' => '\d',
+                              'array1' => '\d',
                               'title' => '.*',
                               'acronym' => '([\w-])+',
                               'ty' => '\w+',
@@ -37,7 +38,7 @@
         # List of projects
         function _projects() {
             $args = array(phpCAS::getUser(), phpCAS::getUser());
-            $where = "WHERE p.owner LIKE :1 OR pu.username LIKE :2";
+            $where = "WHERE (p.owner LIKE :1 OR pu.username LIKE :2)";
             
             $sta = $this->has_arg('iDisplayStart') ? $this->arg('iDisplayStart') : 0;
             $len = $this->has_arg('iDisplayLength') ? $this->arg('iDisplayLength') : 20;
@@ -45,17 +46,31 @@
             $tot = $this->db->pq("SELECT count(distinct p.projectid) as tot FROM ispyb4a_db.project p LEFT OUTER JOIN ispyb4a_db.project_has_user pu ON pu.projectid = p.projectid $where", $args);
             $tot = $tot[0]['TOT'];
             
+            if ($this->has_arg('pid')) {
+                $where .= ' AND p.projectid=:'.(sizeof($args)+1);
+                array_push($args, $this->arg('pid'));
+            }
+            
             $st = sizeof($args) + 1;
             array_push($args, $sta);
             array_push($args, $sta+$len);
             
-            $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (SELECT p.title, p.projectid, p.acronym FROM ispyb4a_db.project p LEFT OUTER JOIN ispyb4a_db.project_has_user pu ON pu.projectid = p.projectid $where ORDER BY p.projectid) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
+            $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (SELECT p.title, p.projectid, p.acronym, p.owner FROM ispyb4a_db.project p LEFT OUTER JOIN ispyb4a_db.project_has_user pu ON pu.projectid = p.projectid $where ORDER BY p.projectid) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
+            
+            foreach ($rows as &$ro) {
+                $ro['OWNER_NAME'] = $this->_get_name($ro['OWNER']);
+                $ro['IS_OWNER'] = $ro['OWNER'] == phpCAS::getUser();
+            }
             
             if ($this->has_arg('array')) {
                 $data = array();
                 foreach ($rows as $r) $data[$r['PROJECTID']] = $r['TITLE'];
                 $this->_output($data);
             
+            } else if ($this->has_arg('pid')) {
+                if (sizeof($rows)) $this->_output($rows[0]);
+                else $this->_error('No such project');
+                
             } else {
                 $data = array();
                 foreach ($rows as $r) {
@@ -64,7 +79,7 @@
             
                 $this->_output(array('iTotalRecords' => $tot,
                                  'iTotalDisplayRecords' => $tot,
-                                 'aaData' => $data,
+                                 'aaData' => $this->has_arg('array1') ? $rows : $data,
                            ));
             }
         }
@@ -74,7 +89,7 @@
             if (!$this->has_arg('title')) $this->_error('No title specified');
             if (!$this->has_arg('acronym')) $this->_error('No acronym specified');
             
-            $this->db->pq("INSERT INTO ispyb4a_db.project (projectid,title,acronym,owner) VALUES (s_project.nextval, :1, :2, :3)", array($this->arg('title'), $this->arg('acronym'), phpCAS::getUser()));
+            $this->db->pq("INSERT INTO ispyb4a_db.project (projectid,title,acronym,owner) VALUES (s_project.nextval, :1, :2, :3) RETURNING projectid INTO :id", array($this->arg('title'), $this->arg('acronym'), phpCAS::getUser()));
             
             $this->_output($this->db->id());
         }
@@ -158,7 +173,7 @@
         function _project_users() {
             if (!$this->has_arg('pid')) $this->_error('No project id specified');
             
-            $pu = $this->db->pq("SELECT username,projecthasuserid as puid FROM ispyb4a_db.project_has_user WHERE projectid=:1", array($this->arg('pid')));
+            $pu = $this->db->pq("SELECT projectid,username,projecthasuserid as puid FROM ispyb4a_db.project_has_user WHERE projectid=:1", array($this->arg('pid')));
             
             foreach ($pu as &$p) {
                 $p['NAME'] = $this->_get_name($p['USERNAME']);
@@ -178,9 +193,9 @@
             if (!sizeof($proj)) $this->_error('No such project');
             $proj = $proj[0];
             
-            $this->db->pq("INSERT INTO ispyb4a_db.project_has_user (projecthasuserid, projectid, username) VALUES (s_project_has_user.nextval, :1, :2)", array($this->arg('pid'), $this->arg('user')));
+            $this->db->pq("INSERT INTO ispyb4a_db.project_has_user (projecthasuserid, projectid, username) VALUES (s_project_has_user.nextval, :1, :2) RETURNING projecthasuserid INTO :id", array($this->arg('pid'), $this->arg('user')));
             
-            $this->_output(1);
+            $this->_output($this->db->id());
         }
         
         
