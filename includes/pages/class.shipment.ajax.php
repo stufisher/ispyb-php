@@ -387,9 +387,9 @@
                 $this->db->pq("INSERT INTO ispyb4a_db.crystal (crystalid,proteinid,spacegroup) VALUES (s_crystal.nextval,:1,:2) RETURNING crystalid INTO :id", array($this->arg('protein'), $sg));
                 $crysid = $this->db->id();
                              
-                $this->db->pq("INSERT INTO ispyb4a_db.blsample (blsampleid,crystalid,containerid,location,comments,name,code) VALUES (s_blsample.nextval,:1,:2,:3,:4,:5,:6)", array($crysid, $this->arg('cid'), $this->arg('pos'), $c, $this->arg('name'),$b));
+                $this->db->pq("INSERT INTO ispyb4a_db.blsample (blsampleid,crystalid,containerid,location,comments,name,code) VALUES (s_blsample.nextval,:1,:2,:3,:4,:5,:6) RETURNING blsampleid INTO :id", array($crysid, $this->arg('cid'), $this->arg('pos'), $c, $this->arg('name'),$b));
                 
-                $this->_output(1);
+                $this->_output($this->db->id());
             }
             
         }
