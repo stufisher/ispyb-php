@@ -206,7 +206,14 @@
                 $dcount = array_key_exists($r['BLSAMPLEID'], $dcs) ? $dcs[$r['BLSAMPLEID']]['DCOUNT'] : 0;
                 $r['DCOUNT'] = $dcount;
                 
-                array_push($data, array($r['BLSAMPLEID'], $r['NAME'], '<a href="/sample/proteins/pid/'.$r['PROTEINID'].'">'.$r['ACRONYM'].'</a>', $r['SPACEGROUP'], $r['COMMENTS'], '<a href="/shipment/sid/'.$r['SHIPPINGID'].'">'.$r['SHIPMENT'].'</a>', $r['DEWAR'], '<a href="/shipment/cid/'.$r['CONTAINERID'].'">'.$r['CONTAINER'].'</a>', $snap, $dcount, '<a class="view" title="View Sample" href="/sample/sid/'.$r['BLSAMPLEID'].'">View Sample</a> <button class="atp" ty="sample" iid="'.$r['BLSAMPLEID'].'" name="'.$r['NAME'].'">Add to Project</button>'));
+                $st = '';
+                foreach (array('R', 'SC', 'AI', 'DC', 'AP') as $t) {
+                    if ($r[$t] > 0) $st = $t;
+                }
+                
+                if ($st) $st = '<ul class="status"><li class="'.$st.'"></li></ul>';
+                
+                array_push($data, array($r['BLSAMPLEID'], $r['NAME'], '<a href="/sample/proteins/pid/'.$r['PROTEINID'].'">'.$r['ACRONYM'].'</a>', $r['SPACEGROUP'], $r['COMMENTS'], '<a href="/shipment/sid/'.$r['SHIPPINGID'].'">'.$r['SHIPMENT'].'</a>', $r['DEWAR'], '<a href="/shipment/cid/'.$r['CONTAINERID'].'">'.$r['CONTAINER'].'</a>', $snap, $dcount, $st,'<a class="view" title="View Sample" href="/sample/sid/'.$r['BLSAMPLEID'].'">View Sample</a> <button class="atp" ty="sample" iid="'.$r['BLSAMPLEID'].'" name="'.$r['NAME'].'">Add to Project</button>'));
             }
             
             if ($this->has_arg('sid')) {

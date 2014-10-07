@@ -16,6 +16,7 @@
                         <th>Container</th>
                         <th>Snapshot</th>
                         <th>Data Collections</th>
+                        <th>Status</th>
                         <th>&nbsp;</th>
                     </tr>
                 </thead>
