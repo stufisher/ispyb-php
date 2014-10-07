@@ -14,6 +14,7 @@
                               'cid' => '\d+',
                               'value' => '.*',
                               'ty' => '\w+',
+                              't' => '\w+',
                               'pjid' => '\d+',
                               'imp' => '\d',
                               'existing_pdb' => '\d+',
@@ -48,6 +49,7 @@
             
             $args = array($this->proposalid);
             $where = 'pr.proposalid=:1';
+            $having = '';
             $join = '';
             
             # For a specific project
@@ -107,6 +109,8 @@
             $tot = $this->db->pq("SELECT count(distinct b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = pr.proposalid INNER JOIN ispyb4a_db.container c ON c.containerid = b.containerid INNER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid $join WHERE $where", $args);
             $tot = $tot[0]['TOT'];
             
+            
+            // Search
             if ($this->has_arg('sSearch')) {
                 $st = sizeof($args) + 1;
                 $where .= " AND (lower(b.name) LIKE lower('%'||:".$st."||'%') OR lower(pr.acronym) LIKE lower('%'||:".($st+1)."||'%') OR lower(b.comments) LIKE lower('%'||:".($st+2)."||'%'))";
@@ -114,7 +118,24 @@
             }
             
             
-            $flt = $this->db->pq("SELECT count(distinct b.blsampleid) as tot FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = pr.proposalid INNER JOIN ispyb4a_db.container c ON c.containerid = b.containerid INNER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid $join WHERE $where", $args);
+            // Filter by sample status
+            if ($this->has_arg('t')) {
+                //$this->db->set_debug(true);
+                $types = array('R' => 'count(distinct r.robotactionid)',
+                               'SC' => 'count(distinct dc.datacollectionid)',
+                               'AI' => 'count(distinct so.screeningid)',
+                               'DC' => 'count(distinct dc2.datacollectionid)',
+                               'AP' => 'count(distinct ap.autoprocintegrationid)');
+                if (array_key_exists($this->arg('t'), $types)) {
+                    $having .= " HAVING ".$types[$this->arg('t')]." > 0";
+                }
+            }
+            
+            
+            #SELECT count(distinct b.blsampleid) as tot 
+            $flt = $this->db->pq("SELECT count(blsampleid) as tot FROM (SELECT b.blsampleid, count(distinct dc.datacollectionid) as sc, count(distinct dc2.datacollectionid) as dc, count(distinct so.screeningid) as ai, count(distinct ap.autoprocintegrationid) as ap, count(distinct r.robotactionid) as r FROM ispyb4a_db.blsample b INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = pr.proposalid INNER JOIN ispyb4a_db.container c ON c.containerid = b.containerid INNER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid $join LEFT OUTER JOIN ispyb4a_db.datacollection dc ON b.blsampleid = dc.blsampleid AND dc.overlap != 0 LEFT OUTER JOIN ispyb4a_db.screening sc ON dc.datacollectionid = sc.datacollectionid LEFT OUTER JOIN ispyb4a_db.screeningoutput so ON sc.screeningid = so.screeningid LEFT OUTER JOIN ispyb4a_db.datacollection dc2 ON b.blsampleid = dc2.blsampleid AND dc2.overlap = 0 AND dc2.axisrange > 0 LEFT OUTER JOIN ispyb4a_db.autoprocintegration ap ON ap.datacollectionid = dc2.datacollectionid LEFT OUTER JOIN ispyb4a_db.robotaction r ON r.blsampleid = b.blsampleid AND r.actiontype = 'LOAD' WHERE $where GROUP BY b.blsampleid $having)", $args);
+            
+            #print_r(array(sizeof($flt), $flt));
             $flt = $flt[0]['TOT'];
             
             $st = sizeof($args) + 1;
@@ -152,6 +173,8 @@
                                   WHERE $where
                                   
                                   GROUP BY b.blsampleid, b.code, b.location, pr.acronym, pr.proteinid, cr.spacegroup,b.comments,b.name,s.shippingname,s.shippingid,d.dewarid,d.code, c.code, c.containerid, c.samplechangerlocation
+                                  
+                                  $having
                                   
                                   ORDER BY $order
                                   ) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
