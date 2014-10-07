@@ -168,7 +168,7 @@
 
             foreach ($ai as $a) {
                 foreach ($dc as &$d) {
-                    if ($a['VISIT'] == $d['VISIT']) $d['AITIME'] = $a['AITIME'];
+                    if ($a['VISIT'] == $d['VISIT']) $d['AITIME'] = $a['AITIME'] ? $a['AITIME'] : 0;
                 }
             }
 
