@@ -185,8 +185,8 @@
                 
                 if ($v['TY']) $v['TY'] = ' ['.$v['TY'].']';*/
                 
-                $st = strtotime($v['ST']);
-                $en = strtotime($v['EN']);
+                $st = strtotime($v['D'].' '.$v['ST']);
+                $en = strtotime($v['E'].' '.$v['EN']);
                 
                 $title = $v['VIS'].($v['LC'] ? ' LC: '.$v['LC'] : '');
                 if (!in_array($arg, $bls)) $title = $v['BL'].': '.$title;
