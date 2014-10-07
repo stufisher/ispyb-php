@@ -878,6 +878,54 @@ ol.rounded {
 }
 
 
+ul.status {
+    //text-align: left;
+    font-size: 10px;
+    white-space: nowrap;
+    
+    li {
+        padding: 2px 5px;
+        border-radius: 2px;
+        margin-bottom: 1px;
+        
+        &.R {
+            &:before {
+                content: 'Loaded by Robot'
+            }
+            background-color: #ff6961;
+        }
+        
+        &.SC {
+            &:before {
+                content: 'Screened'
+            }
+            background-color: #fdfd96;
+        }
+        
+        &.AI {
+            &:before {
+                content: 'Auto Indexed'
+            }
+            background-color: #ffb347;
+        }
+        
+        &.DC {
+            &:before {
+                content: 'Data Collected'
+            }
+            background-color: #87ceeb;
+        }
+        
+        &.AP {
+            &:before {
+                content: 'Auto Integrated'
+            }
+            
+            background-color: #77dd77;
+        }
+    }
+}
+
 
 // Sample status
 .sample_status {
