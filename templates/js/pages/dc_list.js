@@ -1352,7 +1352,7 @@ $(function() {
   canvas.height = $('.sample_status').width()*1.5
   $('.sample_status .handle').height($('.sample_status').height())
   
-  $('.sample_status').show()
+  if ($(window).width() > 600) $('.sample_status').show()
   
   var positions = (bl == 'i24' || bl == 'i04-1') ? 9 : 10
   var sc = 16
