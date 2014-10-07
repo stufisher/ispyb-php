@@ -1360,7 +1360,7 @@ $(function() {
   var pad = 30
   var rpad = 0 //pad - 25
   var sw = (canvas.width - pad - rpad) / positions
-  var sh = (canvas.height-tpad-15) / (sc-1)
+  var sah = (canvas.height-tpad-15) / (sc-1)
   var last_sample = [-1,-1]
   var current_sample = [-1,-1]
   var selected_protein = null
@@ -1447,7 +1447,7 @@ $(function() {
            
               ctx.beginPath()
               ctx.strokeStyle = '#000'
-              ctx.arc(i*sw+pad,j*sh+tpad,sh/2-1, 0, 2*Math.PI, false)
+              ctx.arc(i*sw+pad,j*sah+tpad,sah/2-1, 0, 2*Math.PI, false)
               ctx.lineWidth = 1;
               ctx.stroke()
               ctx.fillStyle = (selected_protein == -1 || selected_protein == s.PROTEINID) ? c : '#fff'
@@ -1461,7 +1461,7 @@ $(function() {
               if (selected_protein == -1 || selected_protein == s.PROTEINID) {
               ctx.beginPath()
               ctx.strokeStyle = '#000'
-              ctx.arc(i*sw+pad,j*sh+tpad,sh/4, 0, 2*Math.PI, false)
+              ctx.arc(i*sw+pad,j*sah+tpad,sah/4, 0, 2*Math.PI, false)
               ctx.stroke()
               //ctx.fillStyle = (i == current_sample[0] && j == current_sample[1]) ? '#bcbcbc' : (selected_protein == s.PROTEINID ? '#555' : '#fff')
               ctx.fillStyle = (i == current_sample[0] && j == current_sample[1]) ? '#bcbcbc' : '#fff'
@@ -1470,7 +1470,7 @@ $(function() {
   
   
               ctx.beginPath()
-              ctx.arc(i*sw+pad,j*sh+tpad,sh/8, 0, 2*Math.PI, false)
+              ctx.arc(i*sw+pad,j*sah+tpad,sah/8, 0, 2*Math.PI, false)
               ctx.fillStyle = cst
               ctx.fill()
             }
@@ -1507,7 +1507,7 @@ $(function() {
     var cur = _get_xy(e, this)
 
     var x = Math.floor((cur[0] - pad + sw/2)/sw)
-    var y = Math.floor((cur[1] - tpad + sh/2)/sh)
+    var y = Math.floor((cur[1] - tpad + sah/2)/sah)
                     
     if (x != last_sample[0] || y != last_sample[1]) {
         console.log(x,y)
