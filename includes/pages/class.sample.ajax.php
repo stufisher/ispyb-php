@@ -31,8 +31,6 @@
                               'pdbs' => '_get_pdbs',
                               'addpdb' => '_add_pdb',
                               'rempdb' => '_remove_pdb',
-                              
-                              'sstatus' => '_sample_status',
                               );
         
         var $def = 'samples';
