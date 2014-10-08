@@ -84,7 +84,8 @@
                     <th>Dewar</th>
                     <th>Container</th>
                     <th>Snapshot</th>
-                    <th>Data Collections</th>
+                    <th title="Total Screnings">SCs</th>
+                    <th title="Total Data Collections">DCs</th>
                     <th>Status</th>
                     <th>&nbsp;</th>
                 </tr>
