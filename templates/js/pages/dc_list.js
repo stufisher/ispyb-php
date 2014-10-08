@@ -1395,24 +1395,46 @@ $(function() {
   
   function _draw_sample_status() {
     $.ajax({
-      url: '/sample/ajax/sstatus/visit/'+visit,
+      url: '/sample/ajax/iDisplayLength/9999/array/1/visit/'+visit,
       type: 'GET',
       dataType: 'json',
          
       success: function(status){
-        samples = status
+        samples = {}
+        $.each(status.aaData, function(i,e) {
+            if (!(e.SCLOCATION in samples)) samples[e.SCLOCATION] = {}
+            samples[e.SCLOCATION][e.LOCATION] = e
+        })
+          
         _do_draw_status()
       }
     })
   }
   
+          
+  function _rainbow(val, width, cent) {
+    var col = val*2*Math.PI
+    if (width === undefined) width = 126
+    if (cent === undefined) cent = 127
+    return 'rgb('+ Math.floor(Math.sin(col)*width+cent) + ',' + Math.floor(Math.sin(col+2*Math.PI/3)*width+cent) + ',' + Math.floor(Math.sin(col+4*Math.PI/3)*width+cent)+ ')'
+  }
   
   function _do_draw_status() {
         // Get protein acronyms
         var proteins = []
+        var paramdist = [999,0]
         $.each(samples, function(i,p) {
           $.each(p, function(i,l) {
             if (proteins.indexOf(l.PROTEINID) == -1) proteins.push(l.PROTEINID)
+                
+            if ($('input[name=rank]:checked').length && selected_protein == l.PROTEINID) {
+              var param = $('select[name=param]').val()
+              var val = parseFloat(l[param])
+              if (val) {
+                if (val < paramdist[0]) paramdist[0] = val
+                if (val > paramdist[1]) paramdist[1] = val
+              }
+            }
           })
         })
            
@@ -1445,6 +1467,30 @@ $(function() {
               var c = '#dfdfdf'
               for (k in types) if (s[k] > 0) c = types[k]
            
+              if ($('input[name=rank]:checked').length && selected_protein == s.PROTEINID) {
+                var option = $('select[name=param] option:selected')
+                var param = $(option).val()
+                var val = (s[param]-paramdist[0])/(paramdist[1]-paramdist[0])
+          
+                if (option.data('min')) {
+                    if (paramdist[0] > option.data('min')) paramdist[0] = option.data('min')
+                }
+          
+                if (!option.data('inverted')) {
+                    val = 1 - val
+                }
+          
+                /*if (param.indexOf('COMPLETE') > -1) {
+                    val = 1 - val
+                    if (paramdist[0] > 0.95) paramdist[0] = 0.85
+                }*/
+                        
+                c = s[param] ? _rainbow(val/4) : (s[option.data('check')] > 0 ? 'yellow' : '#dfdfdf')
+                //c = !s[param] ? '#dfdfdf' : _rainbow(((s[param]-paramdist[0])/(paramdist[1]-paramdist[0]))/40)
+                //var num = ((s[param]-paramdist[0])/(paramdist[1]-paramdist[0]))*125+125
+                //c = !s[param] ? '#dfdfdf' : 'rgb(0,'+Math.floor(num)+',100)'
+              }
+                  
               ctx.beginPath()
               ctx.strokeStyle = '#000'
               ctx.arc(i*sw+pad,j*sah+tpad,sah/2-1, 0, 2*Math.PI, false)
@@ -1453,19 +1499,21 @@ $(function() {
               ctx.fillStyle = (selected_protein == -1 || selected_protein == s.PROTEINID) ? c : '#fff'
               ctx.fill()
            
-              var width = 126
-              var cent = 127
-              var col = (proteins.indexOf(s.PROTEINID)/proteins.length)*2*Math.PI
-              var cst = 'rgb('+ Math.floor(Math.sin(col)*width+cent) + ',' + Math.floor(Math.sin(col+2*Math.PI/3)*width+cent) + ',' + Math.floor(Math.sin(col+4*Math.PI/3)*width+cent)+ ')'
+              //var width = 126
+              //var cent = 127
+              //var col = (proteins.indexOf(s.PROTEINID)/proteins.length)*2*Math.PI
+              //var cst = 'rgb('+ Math.floor(Math.sin(col)*width+cent) + ',' + Math.floor(Math.sin(col+2*Math.PI/3)*width+cent) + ',' + Math.floor(Math.sin(col+4*Math.PI/3)*width+cent)+ ')'
   
+              var cst = _rainbow(proteins.indexOf(s.PROTEINID)/proteins.length)
+          
               if (selected_protein == -1 || selected_protein == s.PROTEINID) {
-              ctx.beginPath()
-              ctx.strokeStyle = '#000'
-              ctx.arc(i*sw+pad,j*sah+tpad,sah/4, 0, 2*Math.PI, false)
-              ctx.stroke()
-              //ctx.fillStyle = (i == current_sample[0] && j == current_sample[1]) ? '#bcbcbc' : (selected_protein == s.PROTEINID ? '#555' : '#fff')
-              ctx.fillStyle = (i == current_sample[0] && j == current_sample[1]) ? '#bcbcbc' : '#fff'
-              ctx.fill()
+                ctx.beginPath()
+                ctx.strokeStyle = '#000'
+                ctx.arc(i*sw+pad,j*sah+tpad,sah/4, 0, 2*Math.PI, false)
+                ctx.stroke()
+                //ctx.fillStyle = (i == current_sample[0] && j == current_sample[1]) ? '#bcbcbc' : (selected_protein == s.PROTEINID ? '#555' : '#fff')
+                ctx.fillStyle = (i == current_sample[0] && j == current_sample[1]) ? '#bcbcbc' : '#fff'
+                ctx.fill()
               }
   
   
@@ -1487,11 +1535,10 @@ $(function() {
         selected_protein = s.PROTEINID
         $('.details .sname').html('<a href="/sample/sid/'+s.BLSAMPLEID+'">'+s.NAME+'</a>')
         $('.details .pname').html('<a href="/sample/proteins/pid/'+s.PROTEINID+'">'+s.ACRONYM+'</a>')
-        $('.details .cname').html('<a href="/shipment/cid/'+s.CONTAINERID+'">'+s.CNAME+'</a>')
+        $('.details .cname').html('<a href="/shipment/cid/'+s.CONTAINERID+'">'+s.CONTAINER+'</a>')
         $('.details .loaded').html(s.R > 0 ? 'Yes': 'No')
-        $('.details .screened').html((s.SC > 0 ? 'Yes': 'No') + (s.AI > 0 ? ' (Auto-Indexed)' : ''))
-        $('.details .data').html((s.DC > 0 ? 'Yes': 'No') + (s.AP > 0 ? ' (Auto-Integrated)' : ''))
-        $('.details .data').html((s.DC > 0 ? 'Yes': 'No') + (s.AP > 0 ? ' (Auto-Integrated)' : ''))
+        $('.details .screened').html((s.SC > 0 ? 'Yes': 'No') + (s.AI > 0 ? ' (Indexed: ' + s.SCRESOLUTION + '&#8491;)' : ''))
+        $('.details .data').html((s.DC > 0 ? 'Yes': 'No') + (s.AP > 0 ? ' (Integrated: '+s.DCRESOLUTION +'&#8491;)' : ''))
       } else {
         selected_protein = -1
       }
@@ -1510,7 +1557,6 @@ $(function() {
     var y = Math.floor((cur[1] - tpad + sah/2)/sah)
                     
     if (x != last_sample[0] || y != last_sample[1]) {
-        console.log(x,y)
         current_sample = [x,y]
         last_sample = current_sample
         _show_sample()

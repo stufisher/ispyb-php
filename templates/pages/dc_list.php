@@ -36,6 +36,19 @@
 
         <canvas></canvas>
 
+        <div class="ranking">
+            <label>
+                <input type="checkbox" name="rank" />
+                Rank By
+            </label>:
+            <select name="param">
+                <option value="SCRESOLUTION" data-inverted="1" data-check="SC">AI Resolution</option>
+                <option value="SCCOMPLETENESS" data-check="SC" data-min="0.85">AI Completeness</option>
+                <option value="DCRESOLUTION" data-inverted="1" data-check="DC">AP Resolution</option>
+                <option value="DCCOMPLETENESS" data-check="DC" data-min="0.85">AP Completeness</option>
+            </select>
+        </div>
+
         <div class="details form">
             <ul>
                 <li>
@@ -43,7 +56,7 @@
                     <span class="sname"></span>
                 </li>
                 <li><span class="label">Protein:</span> <span class="pname"></span></li>
-                <li><span class="label">Container:</span> <span class="cname"></span></li>
+                <!--<li><span class="label">Container:</span> <span class="cname"></span></li>-->
                 <li><span class="label">Loaded:</span> <span class="loaded"></span></li>
                 <li><span class="label">Screened:</span> <span class="screened"></span></li>
                 <li><span class="label">Data:</span> <span class="data"></span></li>
