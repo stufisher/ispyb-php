@@ -146,13 +146,14 @@
             
             
             if ($this->has_arg('iSortCol_0')) {
-                $cols = array('b.blsampleid', 'b.name', 'pr.acronym', 'cr.spacegroup', 'b.comments', 'shipment', 'dewar', 'container', 'TO_NUMBER(location)');
+                $cols = array('b.blsampleid', 'b.name', 'pr.acronym', 'cr.spacegroup', 'b.comments', 'shipment', 'dewar', 'container', '', 'sc', 'scresolution', 'ap', 'dcresolution', 'TO_NUMBER(location)');
                 $dir = $this->has_arg('sSortDir_0') ? ($this->arg('sSortDir_0') == 'asc' ? 'ASC' : 'DESC') : 'ASC';
                 if ($this->arg('iSortCol_0') < sizeof($cols)) $order = $cols[$this->arg('iSortCol_0')].' '.$dir;
             }
             
             $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (
-                                  SELECT distinct b.blsampleid, b.code, b.location, pr.acronym, pr.proteinid, cr.spacegroup,b.comments,b.name,s.shippingname as shipment,s.shippingid,d.dewarid,d.code as dewar, c.code as container, c.containerid, c.samplechangerlocation as sclocation, count(distinct dc.datacollectionid) as sc, count(distinct dc2.datacollectionid) as dc, count(distinct so.screeningid) as ai, count(distinct ap.autoprocintegrationid) as ap, count(distinct r.robotactionid) as r
+                                  SELECT distinct b.blsampleid, b.code, b.location, pr.acronym, pr.proteinid, cr.spacegroup,b.comments,b.name,s.shippingname as shipment,s.shippingid,d.dewarid,d.code as dewar, c.code as container, c.containerid, c.samplechangerlocation as sclocation, count(distinct dc.datacollectionid) as sc, count(distinct dc2.datacollectionid) as dc, count(distinct so.screeningid) as ai, count(distinct ap.autoprocintegrationid) as ap, count(distinct r.robotactionid) as r, min(sssw.resolution) as scresolution, max(sssw.completeness) as sccompleteness, min(dc.datacollectionid) as scid, min(dc2.datacollectionid) as dcid, min(apss.resolutionlimithigh) as dcresolution, max(apss.completeness) as dccompleteness
+                                  
                                   
                                   FROM ispyb4a_db.blsample b
                                   INNER JOIN ispyb4a_db.crystal cr ON cr.crystalid = b.crystalid
@@ -166,8 +167,19 @@
                                   LEFT OUTER JOIN ispyb4a_db.datacollection dc ON b.blsampleid = dc.blsampleid AND dc.overlap != 0
                                   LEFT OUTER JOIN ispyb4a_db.screening sc ON dc.datacollectionid = sc.datacollectionid
                                   LEFT OUTER JOIN ispyb4a_db.screeningoutput so ON sc.screeningid = so.screeningid
+                                  
+                                  LEFT OUTER JOIN ispyb4a_db.screeningstrategy st ON st.screeningoutputid = so.screeningoutputid AND sc.shortcomments LIKE '%EDNA%'
+                                  LEFT OUTER JOIN ispyb4a_db.screeningstrategywedge ssw ON ssw.screeningstrategyid = st.screeningstrategyid
+                                  LEFT OUTER JOIN ispyb4a_db.screeningstrategysubwedge sssw ON sssw.screeningstrategywedgeid = ssw.screeningstrategywedgeid
+                                  
+                                  
                                   LEFT OUTER JOIN ispyb4a_db.datacollection dc2 ON b.blsampleid = dc2.blsampleid AND dc2.overlap = 0 AND dc2.axisrange > 0
                                   LEFT OUTER JOIN ispyb4a_db.autoprocintegration ap ON ap.datacollectionid = dc2.datacollectionid
+                                  
+                                  LEFT OUTER JOIN ispyb4a_db.autoprocscaling_has_int aph ON aph.autoprocintegrationid = ap.autoprocintegrationid
+                                  LEFT OUTER JOIN ispyb4a_db.autoprocscalingstatistics apss ON apss.autoprocscalingid = aph.autoprocscalingid
+                                  
+                                  
                                   LEFT OUTER JOIN ispyb4a_db.robotaction r ON r.blsampleid = b.blsampleid AND r.actiontype = 'LOAD'
                                   
                                   WHERE $where
@@ -180,32 +192,13 @@
                                   ) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
             
             $data = array();
-            
-            $ids = array();
-            $wcs = array();
-            foreach ($rows as $r) {
-                array_push($ids, $r['BLSAMPLEID']);
-                array_push($wcs, 'blsampleid=:'.sizeof($ids));
-            }
-            
-            $dcs = array();
-            if (sizeof($ids)) {
-                $dcst = $this->db->pq('SELECT blsampleid, count(datacollectionid) as dcount,max(datacollectionid) as dcid FROM datacollection WHERE '.implode(' OR ', $wcs).' GROUP BY blsampleid', $ids);
-                foreach ($dcst as $d) {
-                    $dcs[$d['BLSAMPLEID']] = $d;
-                }
-            }
-                
             foreach ($rows as &$r) {
                 $snap = '';
-                if (array_key_exists($r['BLSAMPLEID'], $dcs)) {
-                    $snap = '<image class="img" src="/image/id/'.$dcs[$r['BLSAMPLEID']]['DCID'].'" title="Crystal Snapshot 1" />';
-                    $r['DCID'] = $dcs[$r['BLSAMPLEID']]['DCID'];
-                } else $r['DCID'] = 0;
-                
-                $dcount = array_key_exists($r['BLSAMPLEID'], $dcs) ? $dcs[$r['BLSAMPLEID']]['DCOUNT'] : 0;
-                $r['DCOUNT'] = $dcount;
-                
+                if ($r['DCID'] || $r['SCID']) {
+                    $id = $r['DCID'] ? $r['DCID'] : $r['SCID'];
+                    $snap = '<a href="/dc/id/'.$id.'"><image class="img" src="/image/id/'.$id.'" title="Crystal Snapshot 1" /><image class="img" src="/image/n/2/id/'.$id.'" title="Crystal Snapshot 2" /></a>';
+                }
+
                 $st = '';
                 foreach (array('R', 'SC', 'AI', 'DC', 'AP') as $t) {
                     if ($r[$t] > 0) $st = $t;
@@ -213,7 +206,7 @@
                 
                 if ($st) $st = '<ul class="status"><li class="'.$st.'"></li></ul>';
                 
-                array_push($data, array($r['BLSAMPLEID'], $r['NAME'], '<a href="/sample/proteins/pid/'.$r['PROTEINID'].'">'.$r['ACRONYM'].'</a>', $r['SPACEGROUP'], $r['COMMENTS'], '<a href="/shipment/sid/'.$r['SHIPPINGID'].'">'.$r['SHIPMENT'].'</a>', $r['DEWAR'], '<a href="/shipment/cid/'.$r['CONTAINERID'].'">'.$r['CONTAINER'].'</a>', $snap, $dcount, $st,'<a class="view" title="View Sample" href="/sample/sid/'.$r['BLSAMPLEID'].'">View Sample</a> <button class="atp" ty="sample" iid="'.$r['BLSAMPLEID'].'" name="'.$r['NAME'].'">Add to Project</button>'));
+                array_push($data, array($r['BLSAMPLEID'], $r['NAME'], '<a href="/sample/proteins/pid/'.$r['PROTEINID'].'">'.$r['ACRONYM'].'</a>', $r['SPACEGROUP'], $r['COMMENTS'], '<a href="/shipment/sid/'.$r['SHIPPINGID'].'">'.$r['SHIPMENT'].'</a>', $r['DEWAR'], '<a href="/shipment/cid/'.$r['CONTAINERID'].'">'.$r['CONTAINER'].'</a>', $snap, $r['SC'], $r['SCRESOLUTION'], $r['DC'], $r['DCRESOLUTION'], $st,'<a class="view" title="View Sample" href="/sample/sid/'.$r['BLSAMPLEID'].'">View Sample</a> <button class="atp" ty="sample" iid="'.$r['BLSAMPLEID'].'" name="'.$r['NAME'].'">Add to Project</button>'));
             }
             
             if ($this->has_arg('sid')) {
@@ -493,48 +486,6 @@
             $this->_output(1);
         }
         
-        
-        # ------------------------------------------------------------------------
-        # Get Sample Statuses for Assigned Samples on visit
-        #  - Old minesweeper view
-        function _sample_status() {
-            if (!$this->has_arg('visit')) $this->_error('No visit specified');
-            
-            $info = $this->db->pq("SELECT s.beamlinename as bl
-                FROM ispyb4a_db.blsession s
-                INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid
-                WHERE p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1
-            ", array($this->arg('visit')));
-            
-            if (!sizeof($info)) $this->_error('No such visit');
-            else $info = $info[0];
-                                  
-            $samples = $this->db->pq("SELECT c.containerid, c.code as cname, c.samplechangerlocation as sclocation, s.location, s.name, s.blsampleid, pr.proteinid, pr.acronym, count(distinct dc.datacollectionid) as sc, count(distinct dc2.datacollectionid) as dc, count(distinct so.screeningid) as ai, count(distinct ap.autoprocintegrationid) as ap, count(distinct r.robotactionid) as r
-                FROM ispyb4a_db.blsample s
-                INNER JOIN ispyb4a_db.container c ON c.containerid = s.containerid
-                INNER JOIN ispyb4a_db.dewar d ON d.dewarid =  c.dewarid
-                INNER JOIN ispyb4a_db.crystal cr ON s.crystalid = cr.crystalid
-                INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = cr.proteinid
-                LEFT OUTER JOIN ispyb4a_db.datacollection dc ON s.blsampleid = dc.blsampleid AND dc.overlap != 0
-                LEFT OUTER JOIN ispyb4a_db.screening sc ON dc.datacollectionid = sc.datacollectionid
-                LEFT OUTER JOIN ispyb4a_db.screeningoutput so ON sc.screeningid = so.screeningid
-                LEFT OUTER JOIN ispyb4a_db.datacollection dc2 ON s.blsampleid = dc2.blsampleid AND dc2.overlap = 0 AND dc2.axisrange > 0
-                LEFT OUTER JOIN ispyb4a_db.autoprocintegration ap ON ap.datacollectionid = dc2.datacollectionid
-                LEFT OUTER JOIN ispyb4a_db.robotaction r ON r.blsampleid = s.blsampleid AND r.actiontype = 'LOAD'
-                WHERE pr.proposalid LIKE :1 AND d.dewarstatus='processing' AND c.beamlinelocation LIKE :2 AND c.samplechangerlocation is NOT NULL
-                GROUP BY c.samplechangerlocation, s.name, s.blsampleid, pr.proteinid, pr.acronym, s.location, c.containerid, c.code
-                ORDER BY samplechangerlocation
-            ", array($this->proposalid, $info['BL']));
-               
-            $out = array();
-            foreach ($samples as $s) {
-                if (!array_key_exists($s['SCLOCATION'], $out)) $out[$s['SCLOCATION']] = array();
-                                     
-                $out[$s['SCLOCATION']][$s['LOCATION']] = $s;
-            }
-                                     
-            $this->_output($out);
-        }
         
     }
 

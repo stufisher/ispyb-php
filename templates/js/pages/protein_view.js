@@ -23,8 +23,11 @@ $(function() {
   
   $(window).resize(function() { _resize() })
   
+  dt.fnSetColumnVis(0, false)
+  dt.fnSetColumnVis(2, false)
+    
   function _resize() {
-  $.each([0,3,4,5,6,7],function(i,n) {
+  $.each([0,3,4,5,6,7,9,11,14],function(i,n) {
          dt.fnSetColumnVis(n, !($(window).width() <= 600))
          })
   }

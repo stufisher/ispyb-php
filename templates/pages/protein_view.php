@@ -85,7 +85,9 @@
                     <th>Container</th>
                     <th>Snapshot</th>
                     <th title="Total Screnings">SCs</th>
+                    <th>Res</th>
                     <th title="Total Data Collections">DCs</th>
+                    <th>Res</th>
                     <th>Status</th>
                     <th>&nbsp;</th>
                 </tr>
