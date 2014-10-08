@@ -50,10 +50,10 @@
                 <span class="label">Snapshots</span>
                 <span class="snapshots sample">
                     <?php foreach ($sn as $i => $s): ?>
-                        <?php if ($i < 2): ?>
-                        <a href="/image/id/<?php echo $s ?>/f/1" rel="lightbox-sn" title="Crystal Snapshot <?php echo ($i+1) ?>"><img src="/image/id/<?php echo $s ?>" alt="Crystal Snapshot <?php echo ($i+1) ?>" /></a>
+                        <?php if ($i < 4): ?>
+                            <a href="/image/id/<?php echo $s[0] ?>/f/1/n/<?php echo $s[1] ?>" rel="lightbox-sn" title="Crystal Snapshot <?php echo ($i+1) ?>"><img src="/image/id/<?php echo $s[0] ?>/n/<?php echo $s[1] ?>" alt="Crystal Snapshot <?php echo ($i+1) ?>" /></a>
                         <?php else: ?>
-                        <a href="/image/id/<?php echo $s ?>/f/1" rel="lightbox-sn" title="Crystal Snapshot <?php echo ($i+1) ?>"></a>
+                            <a href="/image/id/<?php echo $s[0] ?>/f/1/n/<?php echo $s[1] ?>" rel="lightbox-sn" title="Crystal Snapshot <?php echo ($i+1) ?>"></a>
                         <?php endif; ?>
                     <?php endforeach; ?>
                     <?php if (!sizeof($sn)): ?>

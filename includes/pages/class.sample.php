@@ -54,11 +54,14 @@
             if (!sizeof($samp)) $this->error('No such sample', 'The specified sample id doesnt exist');
             else $samp = $samp[0];
             
-            $snapshots = $this->db->pq("SELECT datacollectionid as id,xtalsnapshotfullpath1 as sn FROM datacollection WHERE blsampleid=:1", array($this->arg('sid')));
+            $snapshots = $this->db->pq("SELECT datacollectionid as id, xtalsnapshotfullpath1 as sn, xtalsnapshotfullpath2 as sn2, xtalsnapshotfullpath3 as sn3, xtalsnapshotfullpath4 as sn4 FROM datacollection WHERE blsampleid=:1", array($this->arg('sid')));
             
             $sn = array();
             foreach ($snapshots as $s) {
-                if (file_exists($s['SN'])) array_push($sn, $s['ID']);
+                if (file_exists($s['SN'])) array_push($sn, array($s['ID'], 1));
+                if (file_exists($s['SN2'])) array_push($sn, array($s['ID'], 2));
+                if (file_exists($s['SN3'])) array_push($sn, array($s['ID'], 3));
+                if (file_exists($s['SN4'])) array_push($sn, array($s['ID'], 4));
             }
             
             
