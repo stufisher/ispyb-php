@@ -934,10 +934,10 @@ ul.status {
     background: #efefef;
     border: 1px solid #e2e2e2;
     position: fixed;
-    right: -216px;
+    right: -221px;
     top: 25%;
     z-index: 100;
-    width: 230px;
+    width: 235px;
     display: none;
     @include transition(right 0.5s ease-in-out 0.5s);
     
@@ -1034,7 +1034,7 @@ ul.status {
         }
     }
     
-    .form {
+    .form, .ranking {
         padding: 0 5px;
         margin-left: 20px;
         
@@ -1051,6 +1051,10 @@ ul.status {
                 text-overflow: ellipsis;
             }
         }
+    }
+    
+    @media (max-width: $breakpoint-vsmall) {
+        display: none;
     }
 }
 
@@ -1360,7 +1364,7 @@ table.samples .img {
 }
 
 span.snapshots.sample img {
-    width: 25%;
+    width: 15%;
 }
 
 .seq {
