@@ -12,6 +12,13 @@
                               'term' => '\w+',
                               'value' => '.*',
                               'visit' => '\w+\d+-\d+',
+                              'all' => '\d',
+                              'year' => '\d\d\d\d',
+                              'month' => '\d+',
+                              'bl' => '\w\d\d(-\d)?',
+                              'ty' => '\w+',
+                              'next' => '\d',
+                              'prev' => '\d',
                                );
         
         var $dispatch = array('proposals' => '_get_proposals',
@@ -50,6 +57,8 @@
             if (!$this->staff) {
                 $where = " INNER JOIN investigation@DICAT_RO i ON lower(i.visit_id) LIKE p.proposalcode || p.proposalnumber || '-' || s.visit_number INNER JOIN investigationuser@DICAT_RO iu on i.id = iu.investigation_id inner join user_@DICAT_RO u on u.id = iu.user_id ".$where." AND u.name=:".(sizeof($args)+1);
                 array_push($args, phpCAS::getUser());
+                
+                #$where .= " AND s.sessionid in ('".implode("','", $this->sessionids)."')";
             }
             
             $tot = $this->db->pq("SELECT count(distinct p.proposalid) as tot FROM ispyb4a_db.proposal p INNER JOIN ispyb4a_db.blsession s ON p.proposalid = s.proposalid $where");
@@ -119,15 +128,52 @@
         function _get_visits() {
             global $short_visit;
             
-            if (!$this->has_arg('prop')) $this->_error('No proposal specified');
+            if (!$this->staff && !$this->has_arg('prop')) $this->_error('No proposal specified');
             
             $props = $this->db->pq('SELECT proposalid as id FROM ispyb4a_db.proposal WHERE proposalcode || proposalnumber LIKE :1', array($this->arg('prop')));
             
             if (!sizeof($props)) $this->_error('No such proposal');
             else $p = $props[0]['ID'];
             
-            $args = array($p);
-            $where = 'WHERE s.proposalid = :1';
+            if ($this->has_arg('all') && $this->staff) {
+                $args = array();
+                $where = 'WHERE 1=1';
+            } else {
+                $args = array($p);
+                $where = 'WHERE s.proposalid = :1';
+            }
+            
+            if ($this->has_arg('year')) {
+                $where .= " AND TO_CHAR(s.startdate, 'YYYY') = :".(sizeof($args)+1);
+                array_push($args, $this->arg('year'));
+            }
+                
+            if ($this->has_arg('month')) {
+                $where .= " AND TO_CHAR(s.startdate, 'MM') = :".(sizeof($args)+1);
+                array_push($args, $this->arg('month'));
+            }
+            
+            if ($this->has_arg('prev')) {
+                $where .= " AND s.enddate < SYSDATE";
+            }
+
+            if ($this->has_arg('next')) {
+                $where .= " AND s.enddate > SYSDATE AND TO_CHAR(s.startdate,'YYYY') > 2009";
+                $this->args['sSortDir_0'] = 'asc';
+                $this->args['iSortCol_0'] = 0;
+            }
+            
+            if ($this->has_arg('bl')) {
+                $where .= " AND s.beamlinename = :".(sizeof($args)+1);
+                array_push($args, $this->arg('bl'));
+            }
+            
+            if ($this->has_arg('ty')) {
+                if ($this->arg('ty') == 'mx') {
+                    $where .= " AND s.beamlinename IN ('i02', 'i03', 'i04', 'i04-1', 'i24', 'i23', 'b21')";
+                }
+            }
+            
             
             if ($this->has_arg('visit')) {
                 $where .= " AND p.proposalcode||p.proposalnumber||'-'||s.visit_number LIKE :".(sizeof($args)+1);
@@ -157,7 +203,8 @@
                 if ($this->arg('iSortCol_0') < sizeof($cols)) $order = $cols[$this->arg('iSortCol_0')].' '.$dir;
             }
             
-            $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (SELECT p.proposalcode||p.proposalnumber||'-'||s.visit_number as visit, TO_CHAR(s.startdate, 'HH24:MI DD-MM-YYYY') as st, TO_CHAR(s.enddate, 'HH24:MI DD-MM-YYYY') as en, s.sessionid, s.visit_number as vis, s.beamlinename as bl, s.beamlineoperator as lc, s.comments/*, count(dc.datacollectionid) as dcount*/ FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid /*LEFT OUTER JOIN ispyb4a_db.datacollection dc ON s.sessionid = dc.sessionid*/ $where /*GROUP BY TO_CHAR(s.startdate, 'HH24:MI DD-MM-YYYY'),TO_CHAR(s.enddate, 'HH24:MI DD-MM-YYYY'), s.sessionid, s.visit_number,s.beamlinename,s.beamlineoperator,s.comments,s.startdate*/ ORDER BY $order) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
+            
+            $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (SELECT case when sysdate between s.startdate and s.enddate then 1 else 0 end as active, p.proposalcode||p.proposalnumber||'-'||s.visit_number as visit, TO_CHAR(s.startdate, 'HH24:MI DD-MM-YYYY') as st, TO_CHAR(s.enddate, 'HH24:MI DD-MM-YYYY') as en, TO_CHAR(s.startdate, 'YYYY-MM-DD\"T\"HH24:MI:SS') as stiso, TO_CHAR(s.enddate, 'YYYY-MM-DD\"T\"HH24:MI:SS') as eniso,  s.sessionid, s.visit_number as vis, s.beamlinename as bl, s.beamlineoperator as lc, s.comments/*, count(dc.datacollectionid) as dcount*/ FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid /*LEFT OUTER JOIN ispyb4a_db.datacollection dc ON s.sessionid = dc.sessionid*/ $where /*GROUP BY TO_CHAR(s.startdate, 'HH24:MI DD-MM-YYYY'),TO_CHAR(s.enddate, 'HH24:MI DD-MM-YYYY'), s.sessionid, s.visit_number,s.beamlinename,s.beamlineoperator,s.comments,s.startdate*/ ORDER BY $order) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
             
             $ids = array();
             $wcs = array();
