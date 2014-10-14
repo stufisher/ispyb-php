@@ -123,8 +123,12 @@
             $info = array();
             # Visits
             if ($this->has_arg('visit')) {
-                list($info,) = $this->db->pq("SELECT TO_CHAR(s.startdate, 'HH24') as sh, TO_CHAR(s.startdate, 'DDMMYYYY') as dmy, s.sessionid, s.beamlinename as bl, vr.run, vr.runid FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')));
+                $info = $this->db->pq("SELECT TO_CHAR(s.startdate, 'HH24') as sh, TO_CHAR(s.startdate, 'DDMMYYYY') as dmy, s.sessionid, s.beamlinename as bl FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')));
             
+                if (!sizeof($info)) {
+                    $this->_error('No such visit');
+                } else $info = $info[0];
+                
                 $sess = array('dc.sessionid=:1', 'es.sessionid=:2', 'r.blsessionid=:3', 'xrf.sessionid=:4');
                 for ($i = 0; $i < 4; $i++) array_push($args, $info['SESSIONID']);
                 
