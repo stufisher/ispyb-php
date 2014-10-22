@@ -419,6 +419,7 @@ $(function() {
            
             if (val) cb.combobox('value', val)
             else {
+              console.log('adding protein', cols[2])
               var safe = cols[2].replace(/\W/g, '')
               $.ajax({
                 url: '/shipment/ajax/addp/name/'+safe,
