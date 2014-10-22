@@ -658,7 +658,8 @@ $(function() {
   function map_callbacks() {
       update_aps()
       _show_images()
-      if (is_visit) _draw_sample_status()
+      // think this is too frequent...
+      //if (is_visit) _draw_sample_status()
   
       $('.data_collection a.sn').unbind('click').click(function() {
         $(this).parent('div').siblings('.snapshots').children('a').eq(0).trigger('click')
@@ -1365,6 +1366,8 @@ $(function() {
   var current_sample = [-1,-1]
   var selected_protein = null
   
+  var sc_refresh_thread = null
+      
   var numbers = new Image()
   numbers.src = '/templates/images/numbers'+(positions == 9 ? '2' : '')+'.png'
   numbers.onload = function() {
@@ -1409,6 +1412,9 @@ $(function() {
         _do_draw_status()
       }
     })
+          
+    clearTimeout(sc_refresh_thread)
+    sc_refresh_thread = setTimeout(_draw_sample_status, 30000)
   }
   
           
