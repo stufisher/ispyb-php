@@ -95,6 +95,14 @@
                     display: none;
                 }
                 
+                &.inactive td {
+                    background: $content-inactive !important;
+                }
+                
+                &.minor td {
+                    background: $content-minor !important;
+                }
+                
                 &.active td, &.active:nth-child(odd) td {
                     background: $content-active;
                     
@@ -157,7 +165,7 @@
         @extend table.hover-row;
     }
     
-    table.shipments, table.samples, table.dewars, table.visits,
+    table.samples, table.dewars, table.visits,
     table.systems,table.components {
         @extend table.no-wrap-last;
     }
