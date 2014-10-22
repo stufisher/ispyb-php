@@ -1070,6 +1070,10 @@ ul.status {
     }
 }*/
 
+.fixedwidth {
+    font-family: $fixed-font;
+}
+
 #distl_full .distl {
     height: 250px;
 }
@@ -1106,8 +1110,11 @@ h1.status {
 }
 
 div.status {
+    @include clearfix;
     display: none;
 }
+
+
 
 .oav,
 .webcam {
