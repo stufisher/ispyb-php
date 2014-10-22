@@ -17,6 +17,7 @@ class ProposalType {
     
     var $staff = False;
     var $visits = array();
+    var $sessionids = array();
     var $proposalid;
     
     var $default = '';

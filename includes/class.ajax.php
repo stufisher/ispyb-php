@@ -26,6 +26,7 @@
             if (!$this->ptype->auth($this->require_staff, $this)) return;
             $this->staff = $this->ptype->is_staff();
             $this->proposalid = $this->ptype->pid();
+            $this->sessionids = $this->ptype->sessionids;
             
             if ($this->session_close) session_write_close();
             

@@ -104,6 +104,14 @@ class MX extends ProposalType {
                     array_push($this->visits, strtolower($row['VIS']));
                 }
                 
+                /*$ids = $this->db->pq("SELECT s.sessionid FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE p.proposalcode || p.proposalnumber || '-' || s.visit_number in ('".implode("','", $this->visits)."')");
+                
+                $this->sessionids = array();
+                foreach ($ids as $id) {
+                    array_push($this->sessionids, $id['SESSIONID']);
+                }*/
+                #print_r($this->sessionids);
+                                     
                 if ($this->has_arg('id') || $this->has_arg('visit') || $this->has_arg('prop')) {
                     
                     // Check user is in this visit
