@@ -22,6 +22,10 @@
                               'pdbid' => '\d+',
                               'visit' => '\w+\d+-\d+',
                               'array' => '\d',
+                              'name' => '.*',
+                              'acronym' => '([\w-])+',
+                              'seq' => '\w+',
+                              'mass' => '\d+(.\d+)',
                                );
         
         var $dispatch = array('samples' => '_samples',
@@ -31,6 +35,7 @@
                               'pdbs' => '_get_pdbs',
                               'addpdb' => '_add_pdb',
                               'rempdb' => '_remove_pdb',
+                              'addp' => '_add_protein',
                               );
         
         var $def = 'samples';
@@ -413,7 +418,7 @@
                 array_push($args, $this->arg('pid'));
             }
 
-            $rows = $this->db->pq("SELECT distinct p.pdbid,p.name,p.code FROM ispyb4a_db.pdb p INNER JOIN ispyb4a_db.protein_has_pdb hp ON p.pdbid = hp.pdbid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = hp.proteinid WHERE $where ORDER BY p.pdbid DESC", $args);
+            $rows = $this->db->pq("SELECT distinct p.pdbid,pr.proteinid, p.name,p.code FROM ispyb4a_db.pdb p INNER JOIN ispyb4a_db.protein_has_pdb hp ON p.pdbid = hp.pdbid INNER JOIN ispyb4a_db.protein pr ON pr.proteinid = hp.proteinid WHERE $where ORDER BY p.pdbid DESC", $args);
             
             $this->_output($rows);
         }
@@ -483,6 +488,27 @@
             $this->_output(1);
         }
         
+        
+        
+        function _add_protein() {
+            if (!$this->has_arg('prop')) $this->_error('No proposal specified');
+            $pids = $this->db->pq("SELECT p.proposalid FROM blsession bl INNER JOIN proposal p ON bl.proposalid = p.proposalid WHERE p.proposalcode || p.proposalnumber LIKE :1", array($this->arg('prop')));
+            
+            if (!sizeof($pids) > 0) $this->_error('No such proposal');
+            else $pid = $pids[0]['PROPOSALID'];
+            
+            if (!$this->has_arg('acronym')) $this->_error('No protein acronym');
+            
+            $name = $this->has_arg('name') ? $this->arg('name') : '';
+            $seq = $this->has_arg('seq') ? $this->arg('seq') : '';
+            $mass = $this->has_arg('mass') ? $this->arg('mass') : '';
+            
+            $this->db->pq('INSERT INTO ispyb4a_db.protein (proteinid,proposalid,name,acronym,sequence,molecularmass,bltimestamp) VALUES (s_protein.nextval,:1,:2,:3,:4,:5,CURRENT_TIMESTAMP) RETURNING proteinid INTO :id',array($pid, $name, $this->arg('acronym'), $seq, $mass));
+            
+            $pid = $this->db->id();
+            
+            $this->_output($pid);
+        }
         
     }
 
