@@ -10,6 +10,7 @@
                               'be' => '\d+(.\d+)?',
                               'ga' => '\d+(.\d+)?',
                               'sg' => '\w+',
+                              'single' => '\d',
                               );
         var $dispatch = array('strat' => '_dc_strategies',
                               'ap' => '_dc_auto_processing',
@@ -428,7 +429,8 @@
             }
             
             $this->profile('processing');
-            $this->_output(array($pgs, $dcs));
+            if ($this->has_arg('single')) $this->_output($dcs[0]);
+            else $this->_output(array($pgs, $dcs));
         }
         
         # ------------------------------------------------------------------------
