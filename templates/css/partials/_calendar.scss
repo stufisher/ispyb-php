@@ -15,7 +15,8 @@
         @include cols(7,1%,0.2%);
         background: $content-cal-background;
         height: 100px;
-        overflow: auto;
+        //overflow: auto;
+        overflow: hidden;
         
         @media (max-width: $breakpoint-small) {
             @include cols(1,2%,0.5%);
@@ -64,7 +65,28 @@
             background: $content-cal-header-background;
         }
 
-        ul {
+        
+        @media (min-width: $breakpoint-small) {
+            &:hover {
+                position: relative;
+                overflow: visible;
+                
+                > ul {
+                    background: #dadada;
+                    border-radius: 3px;
+                    max-height: 500px;
+                }
+            }
+        }
+
+        
+        > ul {
+            @media (min-width: $breakpoint-small) {
+                overflow: hidden;
+                transition: max-height 0.5s ease-in-out;
+                max-height: 90px;
+            }
+            
             padding: 5px;
             
             @media (max-width: $breakpoint-small) {
