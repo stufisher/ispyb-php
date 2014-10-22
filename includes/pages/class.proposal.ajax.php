@@ -6,7 +6,7 @@
                               'iDisplayLength' => '\d+',
                               'iSortCol_0' => '\d+',
                               'sSortDir_0' => '\w+',
-                              'sSearch' => '[\w-]+',
+                              'sSearch' => '[\w\s-]+',
                               'prop' => '\w\w\d+',
                               'array' => '\d',
                               'term' => '\w+',
