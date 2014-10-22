@@ -31,6 +31,9 @@
                               'iSortCol_0' => '\d+',
                               'sSortDir_0' => '\w+',
                               'sSearch' => '\w+',
+                              
+                              'assigned' => '\d',
+                              'bl' => '\w\d\d(-\d)?',
                               );
         
         var $dispatch = array('shipments' => '_get_shipments',
@@ -463,6 +466,16 @@
                 array_push($args, $this->arg('cid'));
             }
             
+            if ($this->has_arg('assigned')) {
+                $where .= " AND d.dewarstatus LIKE 'processing'";
+            }
+                
+            if ($this->has_arg('bl')) {
+                $where .= " AND c.beamlinelocation LIKE :".(sizeof($args)+1);
+                array_push($args, $this->arg('bl'));
+            }
+                
+            
             $sta = $this->has_arg('iDisplayStart') ? $this->arg('iDisplayStart') : 0;
             $len = $this->has_arg('iDisplayLength') ? $this->arg('iDisplayLength') : 20;
             
@@ -483,7 +496,7 @@
             array_push($args, $sta);
             array_push($args, $sta+$len);
             
-            $order = 'c.code DESC';
+            $order = 'c.bltimestamp DESC';
             
             
             if ($this->has_arg('iSortCol_0')) {
@@ -493,10 +506,10 @@
             }
             
             $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (
-                                  SELECT c.containertype, c.capacity, c.containerstatus, c.containerid, c.code as name, d.code as dewar, sh.shippingname as shipment, d.dewarid, sh.shippingid, count(s.blsampleid) as samples
+                                  SELECT c.bltimestamp, c.samplechangerlocation, c.beamlinelocation, d.dewarstatus, c.containertype, c.capacity, c.containerstatus, c.containerid, c.code as name, d.code as dewar, sh.shippingname as shipment, d.dewarid, sh.shippingid, count(s.blsampleid) as samples
                                   FROM ispyb4a_db.container c INNER JOIN ispyb4a_db.dewar d ON d.dewarid = c.dewarid INNER JOIN ispyb4a_db.shipping sh ON sh.shippingid = d.shippingid LEFT OUTER JOIN ispyb4a_db.blsample s ON s.containerid = c.containerid
                                   WHERE $where
-                                  GROUP BY c.containertype, c.capacity, c.containerstatus, c.containerid, c.code, d.code, sh.shippingname, d.dewarid, sh.shippingid
+                                  GROUP BY c.bltimestamp, c.samplechangerlocation, c.beamlinelocation, d.dewarstatus, c.containertype, c.capacity, c.containerstatus, c.containerid, c.code, d.code, sh.shippingname, d.dewarid, sh.shippingid
                                   ORDER BY $order
                                   ) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
             
