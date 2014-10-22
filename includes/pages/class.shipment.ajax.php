@@ -51,6 +51,7 @@
                               'getcache' => '_get_session_cache',
                               
                               'addcontainer' => '_add_container',
+                              'addcontainerrest' => '_add_container_rest',
                               'move' => '_move_container',
                               
                               'update' => '_update_shipment',
@@ -581,6 +582,47 @@
             $this->_output($cid);
         }
         
+        
+        # Ajax container registration for rest api
+        function _add_container_rest() {
+            if (!$this->has_arg('container')) $this->_error('No container name specified');
+            if (!$this->has_arg('did')) $this->_error('No dewar id specified');
+        
+            $samples = array();
+            if (array_key_exists('samples', $_POST)) {
+                foreach($_POST['samples'] as $i => $s) {
+                    $valid = True;
+                    foreach (array('PROTEINID' => '\d+',
+                                   'NAME' => '[\w-]+',
+                                   'COMMENTS'=> '.*',
+                                   'SPACEGROUP' => '\w+',
+                                   'CODE' => '\w+',
+                                   'LOCATION' => '\d+') as $k => $m) {
+                        if (array_key_exists($k, $s)) {
+                            if ($s[$k] && !preg_match('/^'.$m.'$/', $s[$k])) $valid = False;
+                        } else $s[$k] = '';
+                    }
+                
+                    if ($valid) {
+                        array_push($samples, $s);
+                    }
+                }
+            }
+
+            $this->db->pq("INSERT INTO container (containerid,dewarid,code,bltimestamp,capacity,containertype) VALUES (s_container.nextval,:1,:2,CURRENT_TIMESTAMP,16,'Puck') RETURNING containerid INTO :id", array($this->arg('did'), $this->arg('container')));
+                                 
+            $cid = $this->db->id();
+                             
+            foreach ($samples as $s) {
+                $this->db->pq("INSERT INTO crystal (crystalid,proteinid,spacegroup) VALUES (s_crystal.nextval,:1,:2) RETURNING crystalid INTO :id", array($s['PROTEINID'], $s['SPACEGROUP']));
+                $crysid = $this->db->id();
+                             
+                $this->db->pq("INSERT INTO blsample (blsampleid,crystalid,containerid,location,comments,name,code) VALUES (s_blsample.nextval,:1,:2,:3,:4,:5,:6)", array($crysid, $cid, $s['LOCATION'], $s['COMMENTS'], $s['NAME'], $s['CODE']));
+            }
+            
+            unset($_SESSION['container']);
+            $this->_output($cid);
+        }
         
         
         # Cache form temporary data to session
