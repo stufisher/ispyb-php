@@ -1344,7 +1344,7 @@ $(function() {
   
   
   // Minesweeper sample view
-  if (is_visit) {
+  if (is_visit && active) {
   var samples = null
   var canvas = $('.sample_status canvas')[0]
   var ctx = canvas.getContext('2d')

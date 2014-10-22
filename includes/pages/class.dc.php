@@ -140,6 +140,7 @@
             }
                 
             $this->t->active = $active;
+            $this->t->js_var('active', $active);
             $this->t->is_visit = $is_visit;
             
             if ($is_visit) $this->t->js_var('sh', intval($info['SH']));
