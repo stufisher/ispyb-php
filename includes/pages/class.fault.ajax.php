@@ -5,7 +5,7 @@
     
     class Ajax extends AjaxBase {
         
-        var $arg_list = array('time' => '\d+', 'bl' => '\w\d\d(-\d)?', 'sid' => '\d+', 'cid' => '\d+', 'scid' => '\d+', 'pp' => '\d+', 'page' => '\d+', 'array' => '\d', 'ty' => '\w+', 'fid' => '\d+', 'name' => '[A-Za-z0-9_\- ]+', 'desc' => '[A-Za-z0-9_\- ]+', 's' => '\w+', 'id' => '\d+', 'term' => '\w+');
+        var $arg_list = array('time' => '\d+', 'bl' => '\w\d\d(-\d)?', 'sid' => '\d+', 'cid' => '\d+', 'scid' => '\d+', 'pp' => '\d+', 'page' => '\d+', 'array' => '\d', 'ty' => '\w+', 'fid' => '\d+', 'name' => '[A-Za-z0-9_\- ]+', 'desc' => '[A-Za-z0-9_\- ]+', 's' => '\w+', 'id' => '\d+', 'term' => '\w+', 'visit' => '\w+\d+-\d+');
         var $dispatch = array('list' => '_get_faults',
                               
                               'visits' => '_get_visits',
@@ -45,6 +45,19 @@
                 array_push($where, "(lower(f.title) LIKE lower('%'||:".$st."||'%') OR lower(f.description) LIKE lower('%'||:".($st+1)."||'%') OR lower(s.name) LIKE lower('%'||:".($st+2)."||'%') OR lower(c.name) LIKE lower('%'||:".($st+3)."||'%') OR lower(sc.name) LIKE lower('%'||:".($st+4)."||'%'))");
                 for ($i = 0; $i < 5; $i++) array_push($args, $this->arg('s'));
             }
+            
+            $ext_columns = '';
+            if ($this->has_arg('fid')) {
+                array_push($where, 'f.faultid=:'.(sizeof($args) +1));
+                array_push($args, $this->arg('fid'));
+                $ext_columns = 'f.description, f.resolution,';
+            }
+
+            if ($this->has_arg('visit')) {
+                array_push($where, "p.proposalcode||p.proposalnumber||'-'||bl.visit_number LIKE :".(sizeof($args)+1));
+                array_push($args, $this->arg('visit'));
+            }
+            
             
             if ($this->has_arg('sid')) {
                 array_push($where, 's.systemid=:'.(sizeof($args) + 1));
@@ -94,6 +107,7 @@
                 INNER JOIN bf_component c ON sc.componentid = c.componentid
                 INNER JOIN bf_system s ON c.systemid = s.systemid
                 INNER JOIN blsession bl ON f.sessionid = bl.sessionid
+                INNER JOIN proposal p on p.proposalid = bl.proposalid
                 '.$where, $args);
             $tot = $tot[0]['TOT'];
             
@@ -107,7 +121,7 @@
             $rows = $this->db->pq("SELECT outer.*
              FROM (SELECT ROWNUM rn, inner.*
                FROM (
-                SELECT f.faultid, f.sessionid, bl.visit_number as visit, p.proposalcode || p.proposalnumber as bag, bl.beamlinename as beamline, f.owner, s.systemid, s.name as system, c.componentid, c.name as component, f.subcomponentid, sc.name as subcomponent, TO_CHAR(f.starttime, 'DD-MM-YYYY HH24:MI') as starttime, f.endtime, f.beamtimelost, round((f.beamtimelost_endtime-f.beamtimelost_starttime)*24,2) as lost, f.title, f.resolved
+                SELECT $ext_columns f.faultid, f.sessionid, f.elogid, f.assignee, f.attachment, p.proposalcode || p.proposalnumber || '-' || bl.visit_number as visit, bl.beamlinename as beamline, f.owner, s.systemid, s.name as system, c.componentid, c.name as component, f.subcomponentid, sc.name as subcomponent, TO_CHAR(f.starttime, 'DD-MM-YYYY HH24:MI') as starttime, TO_CHAR(f.endtime, 'DD-MM-YYYY HH24:MI') as endtime, f.beamtimelost, round((f.beamtimelost_endtime-f.beamtimelost_starttime)*24,2) as lost, f.title, f.resolved, TO_CHAR(f.beamtimelost_endtime, 'DD-MM-YYYY HH24:MI') as beamtimelost_endtime, TO_CHAR(f.beamtimelost_starttime, 'DD-MM-YYYY HH24:MI') as beamtimelost_starttime
                 FROM ispyb4a_db.bf_fault f
                 INNER JOIN bf_subcomponent sc ON f.subcomponentid = sc.subcomponentid
                 INNER JOIN bf_component c ON sc.componentid = c.componentid
@@ -120,8 +134,23 @@
                ) inner) outer
              WHERE outer.rn > :".$st." AND outer.rn <= :".($st+1), $args);
                
-            foreach ($rows as &$r) $r['NAME'] = $this->_get_name($r['OWNER']);
-            $this->_output(array($pgs, $rows));
+            foreach ($rows as &$r) {
+                $r['NAME'] = $this->_get_name($r['OWNER']);
+                if ($r['ASSIGNEE']) $r['ASSIGNEENAME'] = $this->_get_name($r['ASSIGNEE']);
+                foreach (array('DESCRIPTION', 'RESOLUTION') as $k) {
+                    if (array_key_exists($k, $r)) {
+                        if ($r[$k]) {
+                            $r[$k] = $r[$k]->read($r[$k]->size());
+                        }
+                    }
+                }
+            }
+                                  
+            if ($this->has_arg('fid')) {
+                if (sizeof($rows)) $this->_output($rows[0]);
+                else $this->_error('No such fault');
+                                  
+            } else $this->_output(array($pgs, $rows));
         }
 
         # ------------------------------------------------------------------------
