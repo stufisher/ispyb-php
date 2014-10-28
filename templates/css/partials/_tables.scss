@@ -454,7 +454,7 @@ html[xmlns] .dataTables_wrapper { display: block; }
 
 div.table.bg table {
     
-    th:not(.renderable), td:not(.renderable) {
+    th:not(.renderable), tr:not(.empty) td:not(.renderable) {
         display: none;
     }
 }
