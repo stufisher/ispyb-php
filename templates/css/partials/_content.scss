@@ -267,7 +267,9 @@ div.log {
     margin-bottom: 5px;
     
     @media (max-width: $breakpoint-small) {
-        display: none;
+        &:not(.filter-nohide) {
+            display: none;
+        }
     }
 }
 
@@ -1412,6 +1414,7 @@ textarea[name=pasted] {
     border-radius: 5px;
     
     .button {
+        padding: 0 !important;
         width: 11%;
         background: #000000;
         border-radius: 2px;
