@@ -540,7 +540,7 @@
                                                         new xmlrpcval($e,'int'),
                                                         new xmlrpcval(0,'int'),
                                                         new xmlrpcval($n,'int'),
-                                                        new xmlrpcval(2,'int'),
+                                                        new xmlrpcval(0,'int'),
                                                         ));
             $c = new xmlrpc_client("/archive/cgi/ArchiveDataServer.cgi", "archiver.pri.diamond.ac.uk", 80);
             

@@ -379,8 +379,8 @@
             }
             
             // Beam status
-            $bs = $this->_get_archive('SR-DI-DCCT-01:SIGNAL', strtotime($info['ST']), strtotime($info['EN']), 200);
-            #$bs = $this->_get_archive('CS-CS-MSTAT-01:MODE', strtotime($info['ST'])+3600, strtotime($info['EN'])+3600, 200);
+            //$bs = $this->_get_archive('SR-DI-DCCT-01:SIGNAL', strtotime($info['ST']), strtotime($info['EN']), 200);
+            $bs = $this->_get_archive('CS-CS-MSTAT-01:MODE', strtotime($info['ST'])+3600, strtotime($info['EN'])+3600, 200);
                                     
             if (!sizeof($bs)) $bs = array();
             
@@ -390,6 +390,7 @@
             $total_no_beam = 0;
             foreach ($bs as $i => $b) {
                 $v = $b[1] < 5 ? 1 : 0;
+                $v = $b[1] != 4;
                 #$v = ($b[1] >= 4 && $b[1] < 7) ? 1 : 0;
                 $c = $b[0]*1000;
                 
