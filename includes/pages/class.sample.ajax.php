@@ -26,6 +26,8 @@
                               'acronym' => '([\w-])+',
                               'seq' => '\w+',
                               'mass' => '\d+(.\d+)',
+                              'sort_by' => '\w+',
+                              'order' => '\w+',
                                );
         
         var $dispatch = array('samples' => '_samples',
@@ -152,6 +154,10 @@
                 $cols = array('b.blsampleid', 'b.name', 'pr.acronym', 'cr.spacegroup', 'b.comments', 'shipment', 'dewar', 'container', 'b.blsampleid', 'sc', 'scresolution', 'ap', 'dcresolution', 'TO_NUMBER(location)');
                 $dir = $this->has_arg('sSortDir_0') ? ($this->arg('sSortDir_0') == 'asc' ? 'ASC' : 'DESC') : 'ASC';
                 if ($this->arg('iSortCol_0') < sizeof($cols)) $order = $cols[$this->arg('iSortCol_0')].' '.$dir;
+            }
+            
+            if ($this->has_arg('sort_by')) {
+                $order = $this->arg('sort_by') .' '.($this->has_arg('order') ? $this->arg('order') : 'asc');
             }
             
             $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (
