@@ -456,9 +456,10 @@
             }
             
             $dct = $this->db->pq("SELECT p.proposalcode||p.proposalnumber||'-'||s.visit_number as vis, dc.datacollectionid as id, dc.startimagenumber, dc.filetemplate, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4,dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, s.visit_number FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE $where", $ids);
-                
+            
+            $this->db->close();
             $this->profile('dc query');
-                                   
+            
             $dcs = array();
             foreach ($dct as $d) $dcs[$d['ID']] = $d;
             
@@ -586,16 +587,32 @@
             
             # DC Details
             $dct = $this->db->pq("SELECT dc.overlap, dc.blsampleid, dc.datacollectionid as id, dc.startimagenumber, dc.filetemplate, dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4,dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, s.visit_number FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid WHERE $where", $ids);
-                
+
+            $ids = array();
+            $wcs = array();
+            foreach ($dct as $d) {
+                array_push($ids, $d['ID']);
+                array_push($wcs, 'd.datacollectionid=:'.sizeof($ids));
+            }
+
+            $flxs = $this->db->pq("SELECT d.datacollectionid as id, i.measuredintensity as flux from ispyb4a_db.image i INNER JOIN ispyb4a_db.datacollection d ON d.datacollectionid = i.datacollectionid AND i.imagenumber = d.startimagenumber WHERE ".implode(' OR ', $wcs), $ids);
+            
+            $fluxes = array();
+            foreach ($flxs as $f) {
+                $fluxes[$f['ID']] = $f['FLUX'];
+            }
+
             $this->profile('dc query');
-                                   
+            $this->db->close();
+            
             $dcs = array();
             foreach ($dct as $d) $dcs[$d['ID']] = $d;
-                                   
+            
             foreach ($dcs as $dc) {
-                $flx = $this->db->pq("SELECT * FROM (SELECT measuredintensity as flux from ispyb4a_db.image WHERE datacollectionid=:1 ORDER BY imagenumber) WHERE rownum = 1", array($dc['ID']));
+                #$flx = $this->db->pq("SELECT * FROM (SELECT measuredintensity as flux from ispyb4a_db.image WHERE datacollectionid=:1 ORDER BY imagenumber) WHERE rownum = 1", array($dc['ID']));
                 
-                $dc['FLUX'] =  sizeof($flx) ? $flx[0]['FLUX'] : 'N/A';
+                #$dc['FLUX'] =  sizeof($flx) ? $flx[0]['FLUX'] : 'N/A';
+                $dc['FLUX'] = array_key_exists($dc['ID'], $fluxes) ? $fluxes[$dc['ID']] : 'N/A';
                 $this->profile('flux query');
 
                 $this->profile('qend');
@@ -665,6 +682,8 @@
                 return;
             }
             
+            $this->db->close();
+            
             $ch = str_replace('.png', '', $info[0]['PTH']);
             
             $data = array(array(), array(), array());
@@ -708,7 +727,7 @@
             }
             
             $info = $info[0];
-            
+            $this->db->close();
             
             $data = array(array(),array());
             if (file_exists($info['DAT'])) {
@@ -948,6 +967,7 @@
             
             list($info) = $this->db->pq('SELECT dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE dc.datacollectionid=:1', array($this->arg('id')));
             
+            $this->db->close();
             $info['DIR'] = $this->ads($info['DIR']);
             $data = array();
             
@@ -1189,7 +1209,8 @@
             
             if (!sizeof($info)) $this->_error('The specified auto processing doesnt exist');
             else $info = $info[0];
-                
+            $this->db->close();
+            
             $file = $info['FILEPATH'].'/'.str_replace('fast_dp.log', 'xdsstat.log', $info['FILENAME']);
             
             $rows = array();

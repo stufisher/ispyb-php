@@ -135,6 +135,10 @@
             if ($this->conn) oci_close($this->conn);
         }
         
+        function close() {
+            $this->__destruct();
+        }
+        
         
         # Convert oracle date to unix timestamp
         function ut($date) {

@@ -33,6 +33,8 @@
             
             $rows = $this->db->pq('SELECT appa.filename,appa.filepath,appa.filetype FROM ispyb4a_db.autoprocintegration api INNER JOIN ispyb4a_db.autoprocscaling_has_int aph ON api.autoprocintegrationid = aph.autoprocintegrationid INNER JOIN ispyb4a_db.autoprocscaling aps ON aph.autoprocscalingid = aps.autoprocscalingid INNER JOIN ispyb4a_db.autoproc ap ON aps.autoprocid = ap.autoprocid INNER JOIN ispyb4a_db.autoprocprogram app ON api.autoprocprogramid = app.autoprocprogramid INNER JOIN ispyb4a_db.autoprocprogramattachment appa ON appa.autoprocprogramid = app.autoprocprogramid WHERE api.datacollectionid = :1 AND api.autoprocprogramid=:2', array($this->arg('id'), $this->arg('aid')));
             
+            $this->db->close();
+            
             foreach ($rows as $r) {
                 if ($this->has_arg('log')) {
                     if ($r['FILETYPE'] == 'Log') {
@@ -83,6 +85,7 @@
 
             if (!sizeof($visit)) $this->error('No such visit', 'The specified visit does not exist');
             else $visit = $visit[0];
+            $this->db->close();
             
             $u = $this->has_arg('u') ? $this->arg('u') : phpCAS::getUser();
             
@@ -106,6 +109,7 @@
             
             if (!sizeof($info)) $this->error('No such data collection', 'The specified data collection does not exist');
             else $info = $info[0];
+            $this->db->close();
             
             $info['DIR'] = $this->ads($info['DIR']);
 
@@ -143,6 +147,7 @@
             
             if (!sizeof($info)) $this->error('No such data collection', 'The specified data collection does not exist');
             else $info = $info[0];
+            $this->db->close();
             
             $info['DIR'] = $this->ads($info['DIR']);
 
@@ -185,6 +190,7 @@
             
             if (!sizeof($info)) $this->error('No such data collection', 'The specified data collection does not exist');
             else $info = $info[0];
+            $this->db->close();
             
             $info['DIR'] = $this->ads($info['DIR']);
 

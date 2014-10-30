@@ -26,6 +26,7 @@
         # Return beam / ring status pvs for a beamline
         function _get_pvs() {
             session_write_close();
+            $this->db->close();
             
             if (!$this->has_arg('bl')) $this->_error('No beamline specified');
             

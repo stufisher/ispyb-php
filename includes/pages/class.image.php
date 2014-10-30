@@ -21,6 +21,8 @@
             
             $attachments = $this->db->pq("SELECT TO_CHAR(starttime,'yyyy') as year,attachment from ispyb4a_db.bf_fault WHERE faultid = :1", array($this->arg('fid')));
             
+            $this->db->close();
+            
             if (sizeof($attachments)) {
                 $attachment = $attachments[0]['ATTACHMENT'];
                 $year = $attachments[0]['YEAR'];
@@ -50,6 +52,8 @@
             if (!sizeof($image)) return;
             else $image = $image[0];
             
+            $this->db->close();
+            
             $images = array();
             foreach (array('XTALSNAPSHOTBEFORE', 'XTALSNAPSHOTAFTER') as $i) {
                 if (file_exists($image[$i])) array_push($images, $image[$i]);
@@ -70,6 +74,8 @@
             if (!$this->has_arg('id')) return;
             
             list($row) = $this->db->pq('SELECT dc.xtalsnapshotfullpath1 as x1, dc.xtalsnapshotfullpath2 as x2, dc.xtalsnapshotfullpath3 as x3, dc.xtalsnapshotfullpath4 as x4 FROM ispyb4a_db.datacollection dc WHERE dc.datacollectionid=:1', array($this->arg('id')));
+            
+            $this->db->close();
             
             $images = array();
             foreach (array_reverse(array('X1', 'X2', 'X3', 'X4')) as $i) {
@@ -98,6 +104,8 @@
             $n = $this->has_arg('n') ? $this->arg('n') : 1;
             
             list($info) = $this->db->pq('SELECT imagedirectory as loc, filetemplate as ft, numberofimages as num FROM ispyb4a_db.datacollection WHERE datacollectionid=:1', array($this->arg('id')));
+            
+            $this->db->close();
             
             if ($n > $info['NUM']) return;
             
@@ -137,6 +145,8 @@
             
             $rows = $this->db->pq('SELECT jpegfilefullpath as im FROM ispyb4a_db.image WHERE datacollectionid=:1 AND imagenumber=:2', array($this->arg('id'), $n));
             
+            $this->db->close();
+            
             if (sizeof($rows) > 0) {
                 $im = $rows[0]['IM'];
                 if (file_exists($im)) {
@@ -164,6 +174,9 @@
             if ($this->has_arg('n')) $n = $this->arg('n');
             
             list($info) = $this->db->pq('SELECT dc.imageprefix as imp, dc.datacollectionnumber as run, dc.imagedirectory as dir, p.proposalcode || p.proposalnumber || \'-\' || s.visit_number as vis FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.blsession s ON s.sessionid=dc.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE dc.datacollectionid=:1', array($this->arg('id')));
+            
+            $this->db->close();
+            
             $this->ads($info['DIR']);
             
             $root = str_replace($info['VIS'], $info['VIS'] . '/processed', $info['DIR']).$info['IMP'].'_'.$info['RUN'].'_/fast_dp/dimple';
@@ -201,6 +214,7 @@
             header('content-type: multipart/x-mixed-replace; boundary=--BOUNDARY');
         
             session_write_close();
+            $this->db->close();
         
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $bls[$this->arg('bl')]);
@@ -238,6 +252,7 @@
             
             # Close session for this page as to not block the rest of the php process
             session_write_close();
+            $this->db->close();
             
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, 'http://'.$img.'/axis-cgi/mjpg/video.cgi?fps=15&resolution=CIF');

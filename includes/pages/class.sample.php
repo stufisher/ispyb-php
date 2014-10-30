@@ -56,6 +56,8 @@
             
             $snapshots = $this->db->pq("SELECT datacollectionid as id, xtalsnapshotfullpath1 as sn, xtalsnapshotfullpath2 as sn2, xtalsnapshotfullpath3 as sn3, xtalsnapshotfullpath4 as sn4 FROM datacollection WHERE blsampleid=:1", array($this->arg('sid')));
             
+            $this->db->close();
+            
             $sn = array();
             foreach ($snapshots as $s) {
                 if (file_exists($s['SN'])) array_push($sn, array($s['ID'], 1));
