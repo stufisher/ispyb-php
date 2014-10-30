@@ -15,3 +15,26 @@ a.icon:hover {
     cursor: pointer;
     color: $header-hover-color;
 }
+
+
+.fa.icon {
+    font-size: 18px;
+    color: transparent;
+    text-shadow: 0px 2px 3px rgba(150,150,150,0.5);
+    -webkit-background-clip: text;
+    -moz-background-clip: text;
+    background-clip: text;
+    
+    &.green {
+        background-color: green;
+    }
+    &.blue {
+        background-color: blue;
+    }
+    &.red {
+        background-color: red;
+    }
+    &.grey {
+        background-color: grey;
+    }
+}
