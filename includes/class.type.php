@@ -103,14 +103,15 @@ class ProposalType {
                 }
             }
         }
-
-
+        
+        $this->ty = $ty;
         
         // Load specific proposal type
         if ($ty && file_exists('includes/class.type.'.$ty.'.php')) {
             include_once('includes/class.type.'.$ty.'.php');
             $type_class = strtoupper($ty);
             $tyc = new $type_class($this->db, $this->parts);
+            $tyc->ty = $ty;
             $tyc->dispatch();
             
             
