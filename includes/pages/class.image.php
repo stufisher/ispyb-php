@@ -19,7 +19,7 @@
         function _fault_attachment() {
             if (!$this->has_arg('fid')) return;
             
-            $attachments = $this->db->pq("SELECT TO_CHAR(starttime,'yyyy') as year,attachment from ispyb4a_db.bf_fault WHERE faultid = :1", array($this->arg('fid')));
+            $attachments = $this->db->pq("SELECT TO_CHAR(starttime,'YYYY') as year,attachment from ispyb4a_db.bf_fault WHERE faultid = :1", array($this->arg('fid')));
             
             $this->db->close();
             
