@@ -139,6 +139,11 @@
             $this->__destruct();
         }
         
+        # Read clob
+        function read($field) {
+            return $field ? $field->read($field->size()) : '';
+        }
+        
         
         # Convert oracle date to unix timestamp
         function ut($date) {

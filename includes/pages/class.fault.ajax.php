@@ -139,9 +139,9 @@
                 if ($r['ASSIGNEE']) $r['ASSIGNEENAME'] = $this->_get_name($r['ASSIGNEE']);
                 foreach (array('DESCRIPTION', 'RESOLUTION') as $k) {
                     if (array_key_exists($k, $r)) {
-                        if ($r[$k]) {
-                            $r[$k] = $r[$k]->read($r[$k]->size());
-                        }
+                        #if ($r[$k]) {
+                        $r[$k] = $this->db->read($r[$k]);
+                        #}
                     }
                 }
             }
@@ -180,7 +180,7 @@
                                   
                 $fld = $rows[0][strtoupper($f)];
                     
-                print $fld ? $fld->read($fld->size()) : '';
+                print $this->db->read($fld);
                                   
             } else $this->_error('No such field type');
         }

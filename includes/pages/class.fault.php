@@ -84,9 +84,10 @@
             }
                                   
             foreach (array('DESCRIPTION', 'RESOLUTION') as $k) {
-                if ($info[$k]) {
-                    $info[$k] = Markdown::defaultTransform($info[$k]->read($info[$k]->size()));
-                }
+                #if ($info[$k]) {
+                    #$info[$k] = Markdown::defaultTransform($info[$k]->read($info[$k]->size()));
+                $info[$k] = Markdown::defaultTransform($this->db->read($info[$k]));
+                #}
             }
                 
             $info['ATTACH_IMAGE'] = false;
@@ -157,9 +158,10 @@
                 $info = $info[0];
                                     
                 foreach (array('DESCRIPTION', 'RESOLUTION') as $k) {
-                    if ($info[$k]) {
-                        $info[$k] = Markdown::defaultTransform($info[$k]->read($info[$k]->size()));
-                    }
+                    #if ($info[$k]) {
+                        #$info[$k] = Markdown::defaultTransform($info[$k]->read($info[$k]->size()));
+                    $info[$k] = $this->db->read($info[$k]);
+                    #}
                 }
                                       
                 $report = '<b>'.$info['TITLE'].'</b><br/><br/>Reported By: '.$this->_get_name($info['OWNER']).'<br/><br/>System: '.$info['SYSTEM'].'<br/>Component: '.$info['COMPONENT'].' &raquo; '.$info['SUBCOMPONENT'].'<br/><br/>Start: '.$info['STARTTIME'].' End: '.($info['RESOLVED'] == 1 ? $info['ENDTIME'] : 'N/A') .'<br/>Resolved: '.($info['RESOLVED']  == 2 ? 'Partial' : ($info['RESOLVED'] ? 'Yes' : 'No')).'<br/>Beamtime Lost: '.($info['BEAMTIMELOST'] ? ('Yes ('.$info['LOST'].'h between '.$info['BEAMTIMELOST_STARTTIME'].' and '.$info['BEAMTIMELOST_ENDTIME'].')') : 'No').'<br/><br/><b>Description</b><br/>'.$info['DESCRIPTION'].'<br/><br/>'.($info['RESOLVED'] ? ('<b>Resolution</b><br/>'.$info['RESOLUTION']):'').'<br/><br/><a href="http://ispyb.diamond.ac.uk/fault/fid/'.$this->db->id().'">Fault Report Link</a>';

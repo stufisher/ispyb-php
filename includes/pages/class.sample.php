@@ -113,9 +113,10 @@
             if (!sizeof($prot)) $this->error('No such protein', 'The specified protein id doesnt exist');
             else $prot = $prot[0];
             
-            if ($prot['SEQUENCE']) {
-                $prot['SEQUENCE'] = $prot['SEQUENCE']->read($prot['SEQUENCE']->size());
-            }
+            #if ($prot['SEQUENCE']) {
+                #$prot['SEQUENCE'] = $prot['SEQUENCE']->read($prot['SEQUENCE']->size());
+            $prot['SEQUENCE'] = $this->db->read($prot['SEQUENCE']);
+            #}
             
             $p = array('Proteins', $prot['NAME'] ? $prot['NAME'] : $prot['ACRONYM']);
             $l = array('proteins', '');
