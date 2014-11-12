@@ -258,6 +258,7 @@ $(function() {
 
                              '<ul class="clearfix half">'+
                                  (r['BLSAMPLEID'] ? '<li><span class="sample"> <span class="wrap">Sample: <a href="/sample/sid/'+r['BLSAMPLEID']+'/visit/'+prop+'-'+r['VN']+'">'+r['SAMPLE']+'</a></span></span></li>': '')+
+                                 '<li>Scan File: '+r['FILETEMPLATE']+'</li>'+
                                  '<li>E(Peak): '+r['EPK']+'eV (' + (ev/r['EPK']).toFixed(4) + '&#197;)</li>'+
                                  '<li>f&rsquo;&rsquo;: '+r['AXISSTART']+' / f&rsquo;: '+r['RESOLUTION']+'e</li>'+
                                  '<li>E(Inf): '+r['EIN']+'eV (' + (ev/r['EIN']).toFixed(4) + '&#197;)</li>'+

@@ -296,7 +296,7 @@
                 
                 UNION SELECT count(es.energyscanid) as tot FROM ispyb4a_db.energyscan es
                 INNER JOIN ispyb4a_db.blsession ses ON ses.sessionid = es.sessionid
-                INNER JOIN ispyb4a_db.blsample_has_energyscan bes ON es.energyscanid = bes.energyscanid
+                LEFT OUTER JOIN ispyb4a_db.blsample_has_energyscan bes ON es.energyscanid = bes.energyscanid
                 LEFT OUTER  JOIN ispyb4a_db.blsample smp ON bes.blsampleid = smp.blsampleid
                 $extj[1]
                 WHERE $sess[1] $where2
@@ -333,10 +333,10 @@
              WHERE $sess[0] $where
                    
              UNION
-             SELECT $extc smp.name as sample,smp.blsampleid, ses.visit_number as vn, 1,1,1,'A',1,'A',1,1,1, 1, 1 as scon, 'A' as spos, 'A' as sn, 'edge' as type, es.jpegchoochfilefullpath, 1, 'A', es.energyscanid, 1, es.element, es.peakfprime, es.exposuretime, es.peakfdoubleprime, 1, TO_CHAR(es.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, es.transmissionfactor, es.inflectionfprime, es.inflectionfdoubleprime, es.comments, es.peakenergy, es.inflectionenergy, 'A', 'A', 'A', 'A', es.starttime as sta, 1, 1, 1 FROM ispyb4a_db.energyscan es
+             SELECT $extc smp.name as sample,smp.blsampleid, ses.visit_number as vn, 1,1,1,'A',1,'A',1,1,1, 1, 1 as scon, 'A' as spos, 'A' as sn, 'edge' as type, es.jpegchoochfilefullpath, 1, es.scanfilefullpath, es.energyscanid, 1, es.element, es.peakfprime, es.exposuretime, es.peakfdoubleprime, 1, TO_CHAR(es.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, es.transmissionfactor, es.inflectionfprime, es.inflectionfdoubleprime, es.comments, es.peakenergy, es.inflectionenergy, 'A', 'A', 'A', 'A', es.starttime as sta, 1, 1, 1 FROM ispyb4a_db.energyscan es
             INNER JOIN ispyb4a_db.blsession ses ON ses.sessionid = es.sessionid
             LEFT OUTER  JOIN ispyb4a_db.blsample_has_energyscan bes ON es.energyscanid = bes.energyscanid
-            INNER JOIN ispyb4a_db.blsample smp ON bes.blsampleid = smp.blsampleid
+            LEFT OUTER JOIN ispyb4a_db.blsample smp ON bes.blsampleid = smp.blsampleid
             $extj[1]
             WHERE $sess[1] $where2
                    
@@ -394,6 +394,8 @@
                     
                     # Transmission factor rather than transmission :(
                     $dc['TRANSMISSION'] *= 100;
+                    
+                    $dc['FILETEMPLATE'] = preg_replace('/.*\/\d\d\d\d\/\w\w\d+-\d+\//', '', $dc['FILETEMPLATE']);
                     
                     $nf = array(2 => array('EXPOSURETIME'), 2 => array('AXISSTART', 'RESOLUTION', 'TRANSMISSION'));
                     $this->profile('edge');  
