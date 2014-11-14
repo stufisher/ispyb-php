@@ -389,7 +389,11 @@ $(function() {
 
   
   function _show_images() {
-    $('.lazy').not('.enabled').unveil(0,function() { $(this).load(function() {$(this).addClass('show')}) }).addClass('enabled')
+      $('.lazy').not('.enabled').each(function(i,img) {
+          $(img).attr('src', $(img).attr('data-src')).addClass('enabled show')
+      })
+      
+      //$('.lazy').not('.enabled').unveil(0,function() { $(this).load(function() {$(this).addClass('show')}) }).addClass('enabled')
   }
   
   
