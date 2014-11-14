@@ -31,6 +31,13 @@
             
             $ai = $this->db->pq("SELECT dc.datacollectionid as id, TO_CHAR(dc.endtime, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(max(s.bltimestamp), 'DD-MM-YYYY HH24:MI:SS') as en, (max(s.bltimestamp) - dc.endtime)*86400 as dctime FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.screening s ON s.datacollectionid = dc.datacollectionid WHERE dc.sessionid=:1 GROUP BY dc.datacollectionid, dc.endtime ORDER BY dc.endtime DESC", array($info['SID']));
             
+            $cent = $this->db->pq("SELECT * FROM (SELECT TO_CHAR(r.endtimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(min(dc.starttime), 'DD-MM-YYYY HH24:MI:SS') as en, (min(dc.starttime) - CAST(r.endtimestamp AS DATE))*86400 as dctime FROM ispyb4a_db.robotaction r INNER JOIN ispyb4a_db.datacollection dc ON r.blsampleid = dc.blsampleid AND r.endtimestamp < dc.starttime WHERE dc.sessionid=:1 GROUP BY r.endtimestamp ORDER BY r.endtimestamp) WHERE dctime < 1000", array($info['SID']));
+            
+            #$cent = $this->db->pq("SELECT distinct en,st,dctime FROM (SELECT TO_CHAR(r.endtimestamp, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(min(dc.starttime), 'DD-MM-YYYY HH24:MI:SS') as en, (min(dc.starttime) - CAST(r.endtimestamp AS DATE))*86400 as dctime FROM ispyb4a_db.robotaction r INNER JOIN ispyb4a_db.datacollection dc ON r.endtimestamp < dc.starttime WHERE dc.sessionid=:1 GROUP BY r.endtimestamp ORDER BY r.endtimestamp) WHERE dctime < 1000", array($info['SID']));
+            
+            #print_r($cent);
+            
+
             # Get Faults
             $faultl = $this->db->pq("SELECT f.faultid, bl.beamlinename as beamline, f.owner, s.name as system, c.name as component, sc.name as subcomponent, TO_CHAR(f.starttime, 'DD-MM-YYYY HH24:MI') as starttime, f.beamtimelost, round((f.beamtimelost_endtime-f.beamtimelost_starttime)*24,2) as lost, f.title, f.resolved, TO_CHAR(f.beamtimelost_starttime, 'DD-MM-YYYY HH24:MI:SS') as st, TO_CHAR(f.beamtimelost_endtime, 'DD-MM-YYYY HH24:MI:SS') as en
                 FROM ispyb4a_db.bf_fault f INNER JOIN blsession bl ON f.sessionid = bl.sessionid
@@ -94,7 +101,14 @@
                         array($this->jst($d['ST']), 1, $this->jst($d['ST'])),
                         array($this->jst($d['EN']), 1, $this->jst($d['ST']))), 'color' => '#93db70', 'id' => intval($d['ID']), 'type' => 'ai'));
             }
-            
+
+            foreach ($cent as $c) {
+                if ($c['ST'] && $c['EN'])
+                    array_push($data, array('data' => array(
+                        array($this->jst($c['ST']), 1.5, $this->jst($c['ST'])),
+                        array($this->jst($c['EN']), 1.5, $this->jst($c['ST']))), 'color' => 'cyan', 'type' => 'cent'));
+            }
+                                    
             // Beam status 
             //$bs = $this->_get_archive('SR-DI-DCCT-01:SIGNAL', strtotime($info['ST']), strtotime($info['EN']), 200);
             $bs = $this->_get_archive('CS-CS-MSTAT-01:MODE', strtotime($info['ST']), strtotime($info['EN']), 2000);
@@ -162,6 +176,8 @@
                     SELECT (max(sc.bltimestamp) - dc.endtime)*24 as ai, s.visit_number as visit FROM ispyb4a_db.datacollection dc INNER JOIN ispyb4a_db.screening sc ON sc.datacollectionid = dc.datacollectionid INNER JOIN ispyb4a_db.blsession s ON s.sessionid = dc.sessionid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid $where GROUP BY dc.datacollectionid, s.visit_number, dc.endtime
                 ) GROUP BY visit", $args);
             
+            $cent = $this->db->pq("SELECT SUM(cent) as centtime, visit FROM (SELECT (min(dc.starttime) - CAST(r.endtimestamp AS DATE))*24 as cent, s.visit_number as visit FROM ispyb4a_db.robotaction r INNER JOIN ispyb4a_db.datacollection dc ON (r.blsampleid = dc.blsampleid AND r.endtimestamp < dc.starttime) INNER JOIN ispyb4a_db.blsession s ON s.sessionid = dc.sessionid INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid $where GROUP BY r.endtimestamp, s.visit_number) WHERE cent < 0.25 GROUP BY visit", $args);
+                                    
             $fault = $this->db->pq("SELECT SUM((f.beamtimelost_endtime-f.beamtimelost_starttime)*24) as lost, s.visit_number as visit FROM ispyb4a_db.bf_fault f INNER JOIN ispyb4a_db.blsession s ON f.sessionid = s.sessionid INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) $where GROUP BY s.visit_number", $args);
             
             foreach ($robot as $r) {
@@ -182,6 +198,12 @@
                 }
             }
 
+            foreach ($cent as $a) {
+                foreach ($dc as &$d) {
+                    if ($a['VISIT'] == $d['VISIT']) $d['CENTTIME'] = $a['CENTTIME'] ? $a['CENTTIME'] : 0;
+                }
+            }
+                                    
             foreach ($fault as $f) {
                 foreach ($dc as &$d) {
                     if ($f['VISIT'] == $d['VISIT']) $d['FAULT'] = $f['LOST'] ? $f['LOST'] : 0;
@@ -193,6 +215,7 @@
                 if (!array_key_exists('R', $d)) $d['R'] = 0;
                 if (!array_key_exists('EDGE', $d)) $d['EDGE'] = 0;
                 if (!array_key_exists('AITIME', $d)) $d['AITIME'] = 0;
+                if (!array_key_exists('CENTTIME', $d)) $d['CENTTIME'] = 0;
                 if (!array_key_exists('FAULT', $d)) $d['FAULT'] = 0;
                                     
                 // Beam status
@@ -223,7 +246,7 @@
                                     
                 $d['NOBEAM'] = $total_no_beam/3600;
                                     
-                $d['T'] = max($d['LEN'] - $d['SUP'] - $d['DCTIME'] - $d['R'] - $d['REM'] - $d['EDGE'] - $d['AITIME'] - $d['FAULT'] - $d['NOBEAM'],0);
+                $d['T'] = max($d['LEN'] - $d['SUP'] - $d['DCTIME'] - $d['R'] - $d['REM'] - $d['EDGE'] - $d['AITIME'] - $d['CENTTIME'] - $d['FAULT'] - $d['NOBEAM'],0);
                 
                 foreach (array('SUP', 'DCTIME', 'LEN', 'R', 'REM', 'T', 'EDGE') as $nf) $d[$nf] = number_format($d[$nf], 2);
                 
