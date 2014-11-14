@@ -28,6 +28,7 @@
                               'comment' => '_set_comment',
                               'user' => '_get_user',
                               'login' => '_login',
+                              'users' => '_get_users',
                               );
         
         var $def = 'proposals';
@@ -280,6 +281,17 @@
             $this->db->pq("UPDATE ispyb4a_db.blsession set comments=:1 where sessionid=:2", array($this->arg('value'), $com['SESSIONID']));
             
             print $this->arg('value');
+        }
+        
+        
+        # ------------------------------------------------------------------------
+        # Get users for a visit
+        function _get_users() {
+            if (!$this->has_arg('visit')) $this->_error('No visit specified');
+            
+            $rows = $this->db->pq("SELECT iu.role, u.name, u.fullname, count(it.id) as visits, TO_CHAR(max(it.startdate), 'DD-MM-YYYY HH24:MI') as last FROM investigation@DICAT_RO i INNER JOIN investigationuser@DICAT_RO iu ON i.id = iu.investigation_id INNER JOIN user_@DICAT_RO u ON u.id = iu.user_id LEFT OUTER JOIN investigationuser@DICAT_RO iut ON u.id = iut.user_id LEFT OUTER JOIN investigation@DICAT_RO it ON it.id = iut.investigation_id AND it.startdate < i.startdate WHERE lower(i.visit_id) LIKE :1 GROUP BY iu.role,u.name, u.fullname ORDER BY u.fullname", array($this->arg('visit')));
+            
+            $this->_output($rows);
         }
         
     }
