@@ -1,5 +1,7 @@
     <h1>Send Feedback</h1>
 
+    <p class="help">This page is for sending feedback about the ISPyB web interface to the developers, not for your beamtime! Please use UAS to report feedback for your visits</p>
+
     <form method="post" id="send_feedback">
 
     <div class="form">
