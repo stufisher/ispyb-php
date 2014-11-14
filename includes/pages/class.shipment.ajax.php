@@ -79,6 +79,8 @@
                               
                               'terms' => '_get_terms',
                               'termsaccept' => '_accept_terms',
+                              
+                              'default' => '_get_default_dewar',
                               );
         
         var $def = 'containers';
@@ -728,6 +730,49 @@
             $this->_output($sid);
         }
         
+        
+        
+        function _get_default_dewar() {
+            if (!$this->has_arg('visit')) $this->_error('No visit specified');
+            
+            $sids = $this->db->pq("SELECT s.sessionid FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON p.proposalid = s.proposalid WHERE p.proposalcode||p.proposalnumber||'-'||s.visit_number LIKE :1 AND p.proposalid=:2", array($this->arg('visit'), $this->proposalid));
+            
+            if (!sizeof($sids)) $this->_error('No such visit');
+            else $sid = $sids[0]['SESSIONID'];
+            
+            
+            $shids = $this->db->pq("SELECT shippingid FROM shipping WHERE proposalid LIKE :1 AND shippingname LIKE :2", array($this->proposalid, $this->arg('visit').'_Shipment1'));
+            
+            if (sizeof($shids) > 0) {
+                $shid = $shids[0]['SHIPPINGID'];
+            } else {
+                $this->db->pq("INSERT INTO shipping (shippingid,proposalid,shippingname,bltimestamp,creationdate,shippingstatus) VALUES (s_shipping.nextval,:1,:2,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,'processing') RETURNING shippingid INTO :id", array($this->proposalid, $this->arg('visit').'_Shipment1'));
+                
+                $shid = $this->db->id();
+                
+                $vals = $this->db->pq("INSERT INTO shippinghassession (shippingid,sessionid) VALUES (:1,:2)", array($shid, $sid));
+                
+            }
+            
+            $did = -1;
+            if ($sid) {
+                $dids = $this->db->pq("SELECT dewarid from dewar WHERE shippingid LIKE :1 AND code LIKE :2", array($shid, $this->arg('visit').'_Dewar1'));
+                
+                if (sizeof($dids) > 0) {
+                    $did = $dids[0]['DEWARID'];
+                    
+                } else {
+                    $this->db->pq("INSERT INTO dewar (dewarid,code,shippingid,bltimestamp,dewarstatus) VALUES (s_dewar.nextval,:1,:2,CURRENT_TIMESTAMP,'processing') RETURNING dewarid INTO :id", array($this->arg('visit').'_Dewar1', $shid));
+                    
+                    $did = $this->db->id();
+                }
+            }
+            
+            if ($did == -1) $this->_error('Couldnt create default dewar');
+            $this->_output($did);
+        }
+        
+
         
     }
 
