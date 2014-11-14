@@ -929,6 +929,20 @@ ul.status {
 }
 
 
+.visit_users {
+    position: absolute;
+    background: #efefef;
+    z-index: 100;
+    padding: 5px;
+    width: 350px;
+    border-radius: 5px;
+    
+    .new {
+        background-color: red;
+    }
+}
+
+
 // Sample status
 .sample_status {
     padding: 5px;
