@@ -75,7 +75,7 @@ $(function() {
     $('.image_container .image').height($(window).height()*0.65)
   
     $('#img')[0].width = $('.image_container .image').width()
-    $('#img')[0].height = $('.image_container .image').height()
+    $('#img')[0].height = $('.image_container .image').height()-3
   
     var left = $('#img').offset().left + ($('#img').width()/2) - 125
     var top = $('#img').offset().top + ($('#img').height()/2) - 10
@@ -586,9 +586,12 @@ $(function() {
   $('#img').bind('touchend', function(e) { lastv = 0 })
   
   // Bind mousewheel to zoom in / out
-  $('#img').bind('mousewheel', function(e) {
+  $('#img').bind('mousewheel DOMMouseScroll', function(e) {
     e.preventDefault()
-    zoom(_get_xy(e, '#img'), e.originalEvent.wheelDelta)
+    var o = e.originalEvent
+    var delta = o.wheelDelta ? o.wheelDelta : -o.detail
+    zoom(_get_xy(o, '#img'), delta)
+    //zoom(_get_xy(e, '#img'), e.originalEvent.wheelDelta)
   })
                  
   function zoom(xy, delta) {
