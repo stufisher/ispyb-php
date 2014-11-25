@@ -69,12 +69,14 @@
             
             $this->info = $info;
             
-            $this->users = $this->db->pq("SELECT u.name,u.fullname FROM investigation@DICAT_RO i INNER JOIN investigationuser@DICAT_RO iu on i.id = iu.investigation_id INNER JOIN user_@DICAT_RO u on u.id = iu.user_id WHERE lower(i.visit_id)=:1 AND iu.role='NORMAL_USER'", array($info['VISIT']));
+            $this->users = $this->db->pq("SELECT u.name,u.fullname FROM investigation@DICAT_RO i INNER JOIN investigationuser@DICAT_RO iu on i.id = iu.investigation_id INNER JOIN user_@DICAT_RO u on u.id = iu.user_id WHERE lower(i.visit_id)=:1", array($info['VISIT']));
             
             #$lc = $this->lc_lookup($info['SID']);
             #$this->lc = $lc ? $lc->name : 'N/A';
             
             $rows = $this->db->pq("SELECT dc.datacollectionid as id, dc.overlap,dc.imageprefix,dc.imagedirectory as dir,dc.datacollectionnumber,TO_CHAR(dc.starttime, 'DD/MM/YYYY HH24:MI:SS'), sa.name, p.name as protein, dc.numberofimages, dc.wavelength, dc.detectordistance, dc.exposuretime, dc.axisstart, dc.axisrange, dc.xbeam, dc.ybeam, dc.resolution, dc.comments FROM ispyb4a_db.datacollection dc LEFT OUTER JOIN ispyb4a_db.blsample sa ON dc.blsampleid = sa.blsampleid LEFT OUTER JOIN ispyb4a_db.crystal c ON sa.crystalid = c.crystalid LEFT OUTER JOIN ispyb4a_db.protein p ON c.proteinid = p.proteinid WHERE dc.sessionid=:1 ORDER BY dc.starttime", array($info['SID']));
+            
+            if (!sizeof($rows)) $this->error('No data', 'No data collections for this visit yet');
             
             $screen = array();
             $dcs = array();
