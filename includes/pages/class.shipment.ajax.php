@@ -46,6 +46,9 @@
                               'assigned' => '\d',
                               'bl' => '\w\d\d(-\d)?',
                               'unassigned' => '\w\d\d(-\d)?',
+                              
+                              'capacity' => '\d+',
+                              'containertype' => '\w+',
                               );
         
         var $dispatch = array('add' => '_add_shipment',
@@ -620,6 +623,7 @@
         # Ajax container registration for rest api
         function _add_container_rest() {
             if (!$this->has_arg('container')) $this->_error('No container name specified');
+            if (!$this->has_arg('containertype')) $this->_error('No container type specified');
             if (!$this->has_arg('did')) $this->_error('No dewar id specified');
         
             $samples = array();
@@ -642,8 +646,10 @@
                     }
                 }
             }
+            
+            $cap = $this->has_arg('capacity') ? $this->arg('capacity') : 16;
 
-            $this->db->pq("INSERT INTO container (containerid,dewarid,code,bltimestamp,capacity,containertype) VALUES (s_container.nextval,:1,:2,CURRENT_TIMESTAMP,16,'Puck') RETURNING containerid INTO :id", array($this->arg('did'), $this->arg('container')));
+            $this->db->pq("INSERT INTO container (containerid,dewarid,code,bltimestamp,capacity,containertype) VALUES (s_container.nextval,:1,:2,CURRENT_TIMESTAMP,:3,:4) RETURNING containerid INTO :id", array($this->arg('did'), $this->arg('container'), $cap, $this->arg('containertype')));
                                  
             $cid = $this->db->id();
                              
