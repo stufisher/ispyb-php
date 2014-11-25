@@ -30,13 +30,13 @@
                     if (sizeof($visit) > 0) {
                         $v = $visit[0];
                         
-                        array_push($visit_listl, '<li'.($v['ACTIVE'] ? ' class="active"' : '').'><h1>'.$b.($v['LC'] ? (' - LC: '.$v['LC']) : '').'</h1><h2><a href="/dc/visit/'.$v['VIS'].'">'.$v['VIS'].'</a></h2><ul><li>Start: '.$v['ST'].'</li><li>End: '.$v['EN'].'</li><li><a href="/vstat/visit/'.$v['VIS'].'">Visit Statistics</a></li></ul></li>');
+                        array_push($visit_listl, '<li'.($v['ACTIVE'] ? ' class="active"' : '').'><h1>'.$b.($v['LC'] ? (' - LC: '.$v['LC']) : '').'</h1><h3><a href="/dc/visit/'.$v['VIS'].'">'.$v['VIS'].'</a></h3><ul><li>Start: '.$v['ST'].'</li><li>End: '.$v['EN'].'</li><li><a href="/vstat/visit/'.$v['VIS'].'">Visit Statistics</a></li></ul></li>');
                     }
                     
                     if (sizeof($visitn) > 0) {
                         $v = $visitn[0];
                         
-                        array_push($visit_listn, '<li'.($v['ACTIVE'] ? ' class="active"' : '').'><h1>'.$b.($v['LC'] ? (' - LC: '.$v['LC']) : '').'</h1><h2><a href="/dc/visit/'.$v['VIS'].'">'.$v['VIS'].'</a></h2><ul><li>Start: '.$v['ST'].'</li><li>End: '.$v['EN'].'</li><li><a href="/vstat/visit/'.$v['VIS'].'">Visit Statistics</a></li></ul></li>');
+                        array_push($visit_listn, '<li'.($v['ACTIVE'] ? ' class="active"' : '').'><h1>'.$b.($v['LC'] ? (' - LC: '.$v['LC']) : '').'</h1><h3><a href="/dc/visit/'.$v['VIS'].'">'.$v['VIS'].'</a></h3><ul><li>Start: '.$v['ST'].'</li><li>End: '.$v['EN'].'</li><li><a href="/vstat/visit/'.$v['VIS'].'">Visit Statistics</a></li></ul></li>');
                     }
                 }
                 
@@ -60,13 +60,13 @@
                 
                 if (sizeof($visit) > 0) {
                     foreach ($visit as $v) {
-                        array_push($visit_listl, '<li'.($v['ACTIVE'] ? ' class="active"' : '').'><h1>'.$v['BL'].($v['LC'] ? (' - LC: '.$v['LC']) : '').'</h1><h2><a href="/dc/visit/'.$v['VIS'].'">'.$v['VIS'].'</a></h2><ul><li>Start: '.$v['ST'].'</li><li>End: '.$v['EN'].'</li><li><a href="/vstat/visit/'.$v['VIS'].'">Visit Statistics</a></li></ul></li>');
+                        array_push($visit_listl, '<li'.($v['ACTIVE'] ? ' class="active"' : '').'><h1>'.$v['BL'].($v['LC'] ? (' - LC: '.$v['LC']) : '').'</h1><h3><a href="/dc/visit/'.$v['VIS'].'">'.$v['VIS'].'</a></h3><ul><li>Start: '.$v['ST'].'</li><li>End: '.$v['EN'].'</li><li><a href="/vstat/visit/'.$v['VIS'].'">Visit Statistics</a></li></ul></li>');
                     }
                 }
                 
                 if (sizeof($visitn) > 0) {
                     foreach ($visitn as $v) {
-                        array_push($visit_listn, '<li'.($v['ACTIVE'] ? ' class="active"' : '').'><h1>'.$v['BL'].($v['LC'] ? (' - LC: '.$v['LC']) : '').'</h1><h2><a href="/dc/visit/'.$v['VIS'].'">'.$v['VIS'].'</a></h2><ul><li>Start: '.$v['ST'].'</li><li>End: '.$v['EN'].'</li><li><a href="/vstat/visit/'.$v['VIS'].'">Visit Statistics</a></li></ul></li>');
+                        array_push($visit_listn, '<li'.($v['ACTIVE'] ? ' class="active"' : '').'><h1>'.$v['BL'].($v['LC'] ? (' - LC: '.$v['LC']) : '').'</h1><h3><a href="/dc/visit/'.$v['VIS'].'">'.$v['VIS'].'</a></h3><ul><li>Start: '.$v['ST'].'</li><li>End: '.$v['EN'].'</li><li><a href="/vstat/visit/'.$v['VIS'].'">Visit Statistics</a></li></ul></li>');
                     }
                 }                
                 
