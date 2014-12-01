@@ -7,7 +7,7 @@
                               'iSortCol_0' => '\d+',
                               'sSortDir_0' => '\w+',
                               'sSearch' => '[\w\s-]+',
-                              'prop' => '\w\w\d+',
+                              'prop' => '\w+\d+',
                               'array' => '\d',
                               'term' => '\w+',
                               'value' => '.*',
@@ -19,6 +19,7 @@
                               'ty' => '\w+',
                               'next' => '\d',
                               'prev' => '\d',
+                              'proposal' => '\w+\d+',
                                );
         
         var $dispatch = array('proposals' => '_get_proposals',
@@ -39,7 +40,7 @@
         
         
         function _get_user() {
-            $this->_output(array('user' => phpCAS::getUser(), 'is_staff' => $this->staff, 'type' => $this->ptype->ty));
+            $this->_output(array('user' => phpCAS::getUser(), 'is_staff' => $this->staff, 'visits' => $this->visits));
         }
         
         function _login() {
@@ -49,11 +50,18 @@
         # ------------------------------------------------------------------------
         # List proposals for current user
         function _get_proposals() {
+            global $prop_types, $bl_types;
+            
             $args = array();
-            $where = "WHERE (p.proposalcode LIKE 'mx' OR p.proposalcode LIKE 'nt' OR p.proposalcode LIKE 'nr' OR p.proposalcode LIKE 'cm' OR p.proposalcode LIKE 'sw' OR p.proposalcode LIKE 'in')";
+            $where = "WHERE p.proposalcode in ('cm', 'mx', 'nt', 'nr', 'sw', 'in', 'mt', 'ee')";
             
             $sta = $this->has_arg('iDisplayStart') ? $this->arg('iDisplayStart') : 0;
             $len = $this->has_arg('iDisplayLength') ? $this->arg('iDisplayLength') : 20;
+            
+            if ($this->has_arg('proposal')) {
+                $where .= " AND p.proposalcode||p.proposalnumber LIKE :".(sizeof($args)+1);
+                array_push($args, $this->arg('proposal'));
+            }
             
             if (!$this->staff) {
                 $where = " INNER JOIN investigation@DICAT_RO i ON lower(i.visit_id) LIKE p.proposalcode || p.proposalnumber || '-' || s.visit_number INNER JOIN investigationuser@DICAT_RO iu on i.id = iu.investigation_id inner join user_@DICAT_RO u on u.id = iu.user_id ".$where." AND u.name=:".(sizeof($args)+1);
@@ -87,14 +95,47 @@
                 if ($this->arg('iSortCol_0') < sizeof($cols)) $order = $cols[$this->arg('iSortCol_0')].' '.$dir;
             }
             
-            $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (SELECT p.title, TO_CHAR(p.bltimestamp, 'DD-MM-YYYY') as st, p.proposalcode, p.proposalnumber, count(s.sessionid) as vcount FROM ispyb4a_db.proposal p INNER JOIN ispyb4a_db.blsession s ON p.proposalid = s.proposalid $where GROUP BY TO_CHAR(p.bltimestamp, 'DD-MM-YYYY'), p.bltimestamp, p.proposalcode, p.proposalnumber, p.title ORDER BY $order) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
+            $rows = $this->db->pq("SELECT outer.* FROM (SELECT ROWNUM rn, inner.* FROM (SELECT p.title, TO_CHAR(p.bltimestamp, 'DD-MM-YYYY') as st, p.proposalcode, p.proposalnumber, count(s.sessionid) as vcount, p.proposalid FROM ispyb4a_db.proposal p INNER JOIN ispyb4a_db.blsession s ON p.proposalid = s.proposalid $where GROUP BY TO_CHAR(p.bltimestamp, 'DD-MM-YYYY'), p.bltimestamp, p.proposalcode, p.proposalnumber, p.title, p.proposalid ORDER BY $order) inner) outer WHERE outer.rn > :$st AND outer.rn <= :".($st+1), $args);
             
             $data = array();
-            foreach ($rows as $r) {
+            foreach ($rows as &$r) {
                 array_push($data, array($r['ST'], $r['PROPOSALCODE'], $r['PROPOSALNUMBER'], $r['VCOUNT'], $r['TITLE']));
+                
+                // See if proposal code matches list in config
+                $found = False;
+                foreach ($prop_types as $pty) {
+                    if ($r['PROPOSALCODE'] == $pty) {
+                        $ty = $pty;
+                        $found = True;
+                    }
+                }
+                
+                // Proposal code didnt match, work out what beamline the visits are on
+                if (!$found) {
+                    $bls = $this->db->pq("SELECT s.beamlinename FROM blsession s WHERE s.proposalid=:1", array($r['PROPOSALID']));
+                    
+                    if (sizeof($bls)) {
+                        foreach ($bls as $bl) {
+                            $b = $bl['BEAMLINENAME'];
+                            foreach ($bl_types as $tty => $bls) {
+                                if (in_array($b, $bls)) {
+                                    $ty = $tty;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                if (!$ty) $ty = 'gen';
+                $r['TYPE'] = $ty;
+                
             }
             
-            $this->_output(array('iTotalRecords' => $tot,
+            if ($this->has_arg('proposal')) {
+                if (sizeof($rows)) $this->_output($rows[0]);
+                else $this->_error('No such proposal');
+            } else $this->_output(array('iTotalRecords' => $tot,
                                  'iTotalDisplayRecords' => $flt,
                                  'aaData' => $this->has_arg('array') ? $rows : $data,
                            ));
@@ -127,6 +168,7 @@
         # ------------------------------------------------------------------------
         # Get visits for a proposal
         function _get_visits() {
+            global $bl_types;
             global $short_visit;
             
             if (!$this->staff && !$this->has_arg('prop')) $this->_error('No proposal specified');
@@ -227,6 +269,15 @@
                 $r['COMMENT'] = $r['COMMENTS'];
                 $r['COMMENTS'] = '<span class="comment">'.$r['COMMENTS'].'</span>';
                 $r['DCCOUNT'] = $dc;
+                
+                $r['TYPE'] = null;
+                foreach ($bl_types as $tty => $bls) {
+                    if (in_array($r['BL'], $bls)) {
+                        $r['TYPE'] = $tty;
+                        break;
+                    }
+                }
+                if (!$r['TYPE']) $r['TYPE'] = 'gen';
                 
                 /*
                 $lc = $this->lc_lookup($r['SESSIONID']);
