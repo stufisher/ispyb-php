@@ -46,13 +46,17 @@ div.form {
     }
     
     input, textarea, select {
-        padding: 0.1%;
+        &:not(.ui-combobox-input) {
+            padding: 0.1%;
+        }
         margin: 0 0 20px 5px;
         
         @media (max-width: $breakpoint-small) {
             margin: 0 0 20px 0;
         }
     }
+    
+    
     
     textarea {
         height: 200px;
