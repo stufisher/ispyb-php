@@ -5,7 +5,7 @@ class ProposalType {
     var $table;
     var $col;
     
-    var $generic_pages = array('proposal', 'fault', 'cal', 'feedback');
+    var $generic_pages = array('proposal', 'fault', 'cal', 'feedback', 'vstat');
     
     var $visit_table;
     var $session_column;
@@ -105,6 +105,7 @@ class ProposalType {
         }
         
         $this->ty = $ty;
+        
         
         // Load specific proposal type
         if ($ty && file_exists('includes/class.type.'.$ty.'.php')) {
