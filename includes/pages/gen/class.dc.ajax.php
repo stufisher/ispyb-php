@@ -127,7 +127,7 @@
             $q = "SELECT outer.*
              FROM (SELECT ROWNUM rn, inner.*
              FROM (
-             SELECT $extc ses.visit_number as vn, TO_CHAR(dc.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, dc.comments, dc.starttime as sta, dc.runstatus, dc.numberofimages as numimg, dc.resolution, dc.beamsizeatsamplex as bsx, dc.beamsizeatsampley as bsy, dc.imageprefix as imp, dc.datacollectionnumber as run, dc.filetemplate, dc.datacollectionid as id, dc.imagedirectory as dir, dc.exposuretime, dc.transmission, dc.wavelength
+             SELECT $extc ses.visit_number as vn, TO_CHAR(dc.starttime, 'DD-MM-YYYY HH24:MI:SS') as st, dc.comments, dc.starttime as sta, dc.runstatus, dc.numberofimages as numimg, dc.resolution, dc.beamsizeatsamplex as bsx, dc.beamsizeatsampley as bsy, dc.imageprefix as imp, dc.datacollectionnumber as run, dc.filetemplate, dc.datacollectionid as id, dc.imagedirectory as dir, dc.exposuretime, dc.transmission, dc.wavelength, dc.datacollectiongroupid as dcg, dc.detectordistance as det
              FROM ispyb4a_db.datacollection dc
              INNER JOIN ispyb4a_db.blsession ses ON ses.sessionid = dc.sessionid
              $extj[0]
@@ -140,7 +140,7 @@
             
             $dcs = $this->db->pq($q, $args);
             
-            $nf = array(4 => array('WAVELENGTH', 'RESOLUTION'), 3 => array('RESOLUTION'));
+            $nf = array(5 => array('WAVELENGTH'), 4 => array('RESOLUTION'), 3 => array('RESOLUTION'));
             foreach ($dcs as $i => &$dc) {
                 $dc['DIR'] = preg_replace('/.*\/\d\d\d\d\/\w\w\d+-\d+\//', '', $dc['DIR']);
                 
@@ -149,7 +149,7 @@
                 
                 foreach ($nf as $nff => $cols) {
                     foreach ($cols as $c) {
-                        $dc[$c] = number_format($dc[$c], $nff);
+                        $dc[$c] = number_format(str_replace(',', '', $dc[$c]), $nff);
                     }
                 }
             
