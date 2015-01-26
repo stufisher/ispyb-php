@@ -17,7 +17,7 @@ $(function() {
       drop: _container_drop
     }
   
-    var pucks = (bl == 'i04-1' || bl == 'i24') ? 9 : 10
+    var pucks = (bl == 'i04-1' || bl == 'i24') ? 9 : (bl == 'i03' ? 23 : 10)
     for (var i = 1; i <= pucks; i++) {
       $('<div id="blp'+i+'" class="bl_puck">'+i+'<div class="ac"></div></div>').droppable(drop).appendTo('#assigned').data('blcid', i)
     }
