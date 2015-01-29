@@ -22,7 +22,7 @@
             $is_sample = False;
             
             if ($this->has_arg('visit')) {
-                $info = $this->db->pq("SELECT (s.enddate - s.startdate)*24 as len, TO_CHAR(s.startdate, 'HH24') as sh, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st, TO_CHAR(s.enddate, 'DD-MM-YYYY HH24:MI') as en, case when sysdate between s.startdate and s.enddate then 1 else 0 end as active, s.sessionid, s.beamlinename as bl, vr.run, vr.runid, TO_CHAR(s.startdate, 'YYYY') as yr, p.proposalcode||p.proposalnumber as prop FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')));
+                $info = $this->db->pq("SELECT (s.enddate - s.startdate)*24 as len, TO_CHAR(s.startdate, 'HH24') as sh, TO_CHAR(s.startdate, 'DD-MM-YYYY HH24:MI') as st, TO_CHAR(s.enddate, 'DD-MM-YYYY HH24:MI') as en, case when sysdate between s.startdate and s.enddate then 1 else 0 end as active, s.sessionid, s.beamlinename as bl, TO_CHAR(s.startdate, 'YYYY') as yr, p.proposalcode||p.proposalnumber as prop FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')));
                 
                 if (!sizeof($info)) {
                     $this->msg('No such visit', 'That visit doesnt appear to exist');

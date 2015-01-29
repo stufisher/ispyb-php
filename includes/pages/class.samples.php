@@ -36,7 +36,7 @@
                 $this->error('No Visit Specified', 'You must specify a visit number to view this page');
             }
             
-            $info = $this->db->pq("SELECT s.sessionid, s.beamlinename as bl, vr.run, vr.runid, TO_CHAR(s.startdate, 'YYYY') as yr FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')));
+            $info = $this->db->pq("SELECT s.sessionid, s.beamlinename as bl, TO_CHAR(s.startdate, 'YYYY') as yr FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1", array($this->arg('visit')));
             
             if (sizeof($info) == 0) {
                 $this->error('Visit doesnt exist', 'The selected visit doesnt exist');
@@ -77,7 +77,7 @@
                 $this->render('samp_bl_visit');
             } else {
             
-                $info = $this->db->pq("SELECT s.sessionid, s.beamlinename as bl, vr.run, vr.runid, TO_CHAR(s.startdate, 'YYYY') as yr FROM ispyb4a_db.v_run vr INNER JOIN ispyb4a_db.blsession s ON (s.startdate BETWEEN vr.startdate AND vr.enddate) INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1 AND s.beamlinename LIKE :2", array($this->arg('visit'), $b));
+                $info = $this->db->pq("SELECT s.sessionid, s.beamlinename as bl, TO_CHAR(s.startdate, 'YYYY') as yr FROM ispyb4a_db.blsession s INNER JOIN ispyb4a_db.proposal p ON (p.proposalid = s.proposalid) WHERE  p.proposalcode || p.proposalnumber || '-' || s.visit_number LIKE :1 AND s.beamlinename LIKE :2", array($this->arg('visit'), $b));
                 
                 if (sizeof($info) == 0) {
                     $this->error('Visit doesnt exist', 'The selected visit doesnt exist');
