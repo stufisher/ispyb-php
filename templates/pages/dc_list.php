@@ -71,7 +71,7 @@
     <?php endif; ?>
 
 
-    <?php if ($active): ?>
+    <?php if ($cams): ?>
     <h1 class="status"><?php echo $bl ?> Webcams &amp; Beamline Status</h1>
     <div class="status">
         <div class="pvs"></div>
@@ -107,7 +107,7 @@
     </div>
 
 
-    <?php if ($active): ?>
+    <?php if ($cams): ?>
     <div class="log border">
         <h1>Log</h1>
         <ul></ul>
