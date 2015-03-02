@@ -622,8 +622,9 @@
                 $dc['VIS'] = $this->arg('prop').'-'.$dc['VISIT_NUMBER'];
                 
                 $dc['DIR'] = $this->ads($dc['DIR']);
-                $root = str_replace($dc['VIS'], $dc['VIS'].'/processed', $dc['DIR']).$dc['IMP'].'_'.$dc['RUN'].'_'.'/';
-            
+                #$root = str_replace($dc['VIS'], $dc['VIS'].'/processed', $dc['DIR']).$dc['IMP'].'_'.$dc['RUN'].'_'.'/';
+                $root = preg_replace('/'.$dc['VIS'].'/', $dc['VIS'].'/processed', $dc['DIR'], 1).$dc['IMP'].'_'.$dc['RUN'].'_'.'/';
+                
                 $this->profile('filestart');
                 if ($dc['OVERLAP'] == 0) {
                     $aps = $aps2;
