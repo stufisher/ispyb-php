@@ -644,7 +644,7 @@
                         if (sizeof($logs)) $log = $logs[0];
                         else $log = '';
                         
-                        if (is_readable($log)) {
+                        if (is_readable($log) && filesize($log) > 0) {
                             //$file = file_get_contents($log);
                             $val = 3;
                             //if (strpos($file, $ap[2]) !== False) $val = 2;
