@@ -62,6 +62,7 @@
             }*/
             
             $active = False;
+            $cams = False;
             $is_visit = False;
             $is_sample = False;
             
@@ -96,6 +97,7 @@
                 $this->cookie($info['PROP']);
                 $this->args['prop'] = $info['PROP'];
                 $active = $info['ACTIVE'];
+                $cams = $info['CAMS'];
                 $is_visit = True;
                 
                 $p = array($info['BL'], $this->arg('visit'));
@@ -140,6 +142,7 @@
             }
                 
             $this->t->active = $active;
+            $this->t->cams = $cams;
             $this->t->js_var('active', $active);
             $this->t->is_visit = $is_visit;
             
