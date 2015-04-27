@@ -149,7 +149,7 @@ $(function() {
     var pro = function() {
         console.log('loaded', ci)
         setTimeout(function() {
-          if (ci < ni) precache(++ci)
+          //if (ci < ni) precache(++ci)
         }, 500)
         $('.precache').html('Precached '+ci+' of '+ni)
     }
